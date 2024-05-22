@@ -65,7 +65,7 @@ public static class DrawManager
 
 					if (!hasDrawScript)
 					{
-						//SpriteManager.DrawSelf(gm);
+						SpriteManager.DrawSelf(gm);
 						continue;
 					}
 				}
