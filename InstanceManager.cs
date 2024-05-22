@@ -128,4 +128,16 @@ public static class InstanceManager
 
 		return false;
 	}
+
+	public static void instance_destroy(GamemakerObject obj)
+	{
+		if (obj != null)
+		{
+			//obj.visible = false;
+			DrawManager.Unregister(obj);
+			//Destroy(obj.gameObject);
+		}
+
+		instances.Remove(obj);
+	}
 }
