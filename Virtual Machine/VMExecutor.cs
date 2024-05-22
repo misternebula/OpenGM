@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DELTARUNITYStandalone;
 
+/// <summary>
+/// contains data about each script execution and also environment
+/// </summary>
 public class VMScriptExecutionContext
 {
 	public GamemakerObject Self;
