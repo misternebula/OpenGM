@@ -8,6 +8,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 using Vector2 = OpenTK.Mathematics.Vector2;
+using System.Drawing;
+using System;
 
 namespace DELTARUNITYStandalone;
 public class CustomWindow : GameWindow
@@ -104,7 +106,7 @@ public class CustomWindow : GameWindow
 			}
 			else if (item is GMTextJob textJob)
 			{
-				//RenderText(textJob);
+				RenderText(textJob);
 			}
 			else if (item is GMSpriteJob spriteJob)
 			{
@@ -176,6 +178,27 @@ public class CustomWindow : GameWindow
 			var stringTop = -textJob.screenPos.Y - yOffset;
 			var stringBottom = -textJob.screenPos.Y - yOffset - TextManager.StringHeight(line);
 
+			float map(float s, float a1, float a2, float b1, float b2)
+			{
+				return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
+			}
+
+			Color4 LerpBetweenColors(Color4 leftColor, Color4 rightColor, float left, float right, float value)
+			{
+				var distance = map(value, left, right, 0, 1);
+				return Lerp(leftColor, rightColor, distance);
+			}
+
+			Color4 Lerp(Color4 a, Color4 b, float t)
+			{
+				t = Math.Clamp(t, 0, 1);
+				return new Color4(
+					a.R + (b.R - a.R) * t,
+					a.G + (b.G - a.G) * t,
+					a.B + (b.B - a.B) * t,
+					a.A + (b.A - a.A) * t);
+			}
+
 			for (var j = 0; j < line.Length; j++)
 			{
 				var character = line[j];
@@ -183,6 +206,8 @@ public class CustomWindow : GameWindow
 				if (textJob.asset.texture == null && textJob.asset.spriteIndex != -1)
 				{
 					// sprite font
+
+					// TODO: Implement
 				}
 				else
 				{
@@ -193,9 +218,62 @@ public class CustomWindow : GameWindow
 						continue;
 					}
 
-					var texture = PageManager.TexturePages[textJob.asset.texture.Page];
+					var (texturePage, pageId) = PageManager.TexturePages[textJob.asset.texture.Page];
 
-					DebugLog.Log($"Rendering text with page {textJob.asset.texture.Page}");
+					var pageItem = textJob.asset.texture;
+					var pageX = pageItem.SourcePosX;
+					var pageY = pageItem.SourcePosY;
+
+					var topLeftX = textJob.screenPos.X + xOffset + glyph.offset;
+					var topLeftY = textJob.screenPos.Y + yOffset;
+
+					var leftX = (pageX + glyph.x) / (float)texturePage.Width;
+					var rightX = (pageX + glyph.x + glyph.w) / (float)texturePage.Width;
+					var topY = (pageY + glyph.y) / (float)texturePage.Height;
+					var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
+
+					var c1 = textJob.c1;
+					var c2 = textJob.c2;
+					var c3 = textJob.c3;
+					var c4 = textJob.c4;
+					if (!textJob.isColor)
+					{
+						c1 = c2 = c3 = c4 = new Color4(textJob.blend.R, textJob.blend.G, textJob.blend.B, (float)textJob.alpha);
+					}
+
+
+					GL.Enable(EnableCap.Texture2D);
+					GL.BindTexture(TextureTarget.Texture2D, pageId);
+
+					GL.Begin(BeginMode.Quads);
+
+					// TODO : this will make the different lines of a string have the gradient applied seperately.
+
+					// top left of letter
+					GL.TexCoord2(leftX, topY);
+					GL.Color4(LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX));
+					GL.Vertex2(topLeftX, topLeftY);
+
+					// top right of letter
+					GL.TexCoord2(rightX, topY);
+					GL.Color4(LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w));
+					GL.Vertex2(topLeftX + glyph.w, topLeftY);
+
+					// bottom right of letter
+					GL.TexCoord2(rightX, bottomY);
+					GL.Color4(LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w));
+					GL.Vertex2(topLeftX + glyph.w, topLeftY + glyph.h);
+
+					// bottom left of letter
+					GL.TexCoord2(leftX, bottomY);
+					GL.Color4(LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX));
+					GL.Vertex2(topLeftX, topLeftY + glyph.h);
+
+					GL.End();
+
+					xOffset += glyph.shift;
+
+					GL.Disable(EnableCap.Texture2D);
 				}
 			}
 		}
@@ -203,6 +281,8 @@ public class CustomWindow : GameWindow
 
 	private static void RenderSprite(GMSpriteJob spriteJob)
 	{
+		// TODO : implement GMSpritePartJob
+
 		var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
 
 		GL.Enable(EnableCap.Texture2D);
