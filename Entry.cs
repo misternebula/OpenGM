@@ -2,7 +2,6 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using UndertaleModLib;
-using UndertaleModLib.Decompiler;
 
 namespace DELTARUNITYStandalone;
 

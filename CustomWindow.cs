@@ -1,15 +1,9 @@
-﻿using System.Diagnostics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System.Numerics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using UndertaleModLib.Decompiler;
-using UndertaleModLib.Models;
 using Vector2 = OpenTK.Mathematics.Vector2;
-using System.Drawing;
-using System;
 
 namespace DELTARUNITYStandalone;
 public class CustomWindow : GameWindow

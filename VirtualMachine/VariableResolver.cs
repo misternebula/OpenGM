@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-
-namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone;
 public static class VariableResolver
 {
 	public static object ArrayGet(int index,

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone;
 public static class CustomMath
 {
 	public const double Rad2Deg = 57.2957795131;

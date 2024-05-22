@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using UndertaleModLib.Decompiler;
-using static System.Net.Mime.MediaTypeNames;
-using static UndertaleModLib.Models.UndertaleFont;
-using static UndertaleModLib.Models.UndertaleRoom;
 
 namespace DELTARUNITYStandalone;
 public static class ScriptResolver

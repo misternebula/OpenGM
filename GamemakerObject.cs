@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Printing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone;

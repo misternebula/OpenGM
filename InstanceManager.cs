@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone;
 public static class InstanceManager
 {
 	public static List<GamemakerObject> instances = new List<GamemakerObject>();
