@@ -255,7 +255,7 @@ public class GamemakerObject : DrawWithDepth
 		this.y = y;
 		this.depth = depth;
 		this.instanceId = instanceId;
-		// sprite index
+		this.sprite_index = spriteIndex;
 		this.visible = visible;
 		this.persistent = persistent;
 		// mask id
