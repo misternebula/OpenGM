@@ -1,5 +1,6 @@
 ﻿namespace DELTARUNITYStandalone.SerializedFiles;
 
+[Serializable]
 public class GameObject
 {
 	public float X;
