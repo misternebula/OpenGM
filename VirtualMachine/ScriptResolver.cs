@@ -1265,12 +1265,13 @@ public static class ScriptResolver
 	{
 		var key = Conv<int>(args.Args[0]);
 
+		// from disassembly
 		switch (key)
 		{
 			case 0:
 			{
 				var result = true;
-				for (var i = 0; i < 255; ++i)
+				for (var i = 0; i <= 255; ++i)
 				{
 					result = KeyboardHandler.KeyDown[i] != true && result;
 				}
@@ -1279,7 +1280,7 @@ public static class ScriptResolver
 			case 1:
 			{
 				var result = false;
-				for (var i = 0; i < 255; ++i)
+				for (var i = 0; i <= 255; ++i)
 				{
 					result = KeyboardHandler.KeyDown[i] || result;
 				}
@@ -1296,12 +1297,13 @@ public static class ScriptResolver
 	{
 		var key = Conv<int>(args.Args[0]);
 
+		// from disassembly
 		switch (key)
 		{
 			case 0:
 			{
 				var result = true;
-				for (var i = 0; i < 255; ++i)
+				for (var i = 0; i <= 255; ++i)
 				{
 					result = KeyboardHandler.KeyPressed[i] != true && result;
 				}
@@ -1310,7 +1312,7 @@ public static class ScriptResolver
 			case 1:
 			{
 				var result = false;
-				for (var i = 0; i < 255; ++i)
+				for (var i = 0; i <= 255; ++i)
 				{
 					result = KeyboardHandler.KeyPressed[i] || result;
 				}
