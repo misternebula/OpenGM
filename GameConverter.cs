@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using DELTARUNITYStandalone.SerializedFiles;
+using DELTARUNITYStandalone.VirtualMachine;
+using Newtonsoft.Json;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
+using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
 
 namespace DELTARUNITYStandalone;
 

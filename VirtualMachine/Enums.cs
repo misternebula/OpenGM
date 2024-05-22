@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone.VirtualMachine;
 
 /// <summary>
 /// result of the execution of an instruction

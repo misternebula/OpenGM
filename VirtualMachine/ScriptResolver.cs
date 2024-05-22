@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using DELTARUNITYStandalone.SerializedFiles;
 using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
+using System.Text;
 using UndertaleModLib.Decompiler;
 
-namespace DELTARUNITYStandalone;
+namespace DELTARUNITYStandalone.VirtualMachine;
 public static class ScriptResolver
 {
 	public static Dictionary<string, VMScript> Scripts = new();

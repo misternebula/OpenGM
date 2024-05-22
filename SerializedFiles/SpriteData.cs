@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
-namespace DELTARUNITYStandalone;
+namespace DELTARUNITYStandalone.SerializedFiles;
 
 [Serializable]
 public class SpriteData

@@ -1,4 +1,6 @@
-﻿namespace DELTARUNITYStandalone;
+﻿using DELTARUNITYStandalone.SerializedFiles;
+
+namespace DELTARUNITYStandalone.VirtualMachine;
 
 /// <summary>
 /// contains data about each script execution and also environment

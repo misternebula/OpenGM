@@ -1,4 +1,7 @@
-﻿namespace DELTARUNITYStandalone;
+﻿using DELTARUNITYStandalone.SerializedFiles;
+using DELTARUNITYStandalone.VirtualMachine;
+
+namespace DELTARUNITYStandalone;
 public static class InstanceManager
 {
 	public static List<GamemakerObject> instances = new List<GamemakerObject>();

@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class VMExecutor
 {

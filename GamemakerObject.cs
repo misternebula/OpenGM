@@ -1,5 +1,8 @@
-﻿using OpenTK.Mathematics;
+﻿using DELTARUNITYStandalone.SerializedFiles;
+using DELTARUNITYStandalone.VirtualMachine;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
+using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
 
 namespace DELTARUNITYStandalone;
 

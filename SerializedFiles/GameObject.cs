@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone.SerializedFiles;
 
 public class GameObject
 {

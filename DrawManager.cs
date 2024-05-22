@@ -1,4 +1,5 @@
 ﻿using UndertaleModLib.Models;
+using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
 
 namespace DELTARUNITYStandalone;
 public static class DrawManager

@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone.VirtualMachine;
 public static class VariableResolver
 {
 	public static object ArrayGet(int index,

@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone.VirtualMachine;
 
 [Serializable]
 public class VMScript

@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace DELTARUNITYStandalone.SerializedFiles;
 
 [Serializable]
 public class FontAsset

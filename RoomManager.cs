@@ -1,4 +1,7 @@
-﻿using UndertaleModLib.Models;
+﻿using DELTARUNITYStandalone.SerializedFiles;
+using DELTARUNITYStandalone.VirtualMachine;
+using UndertaleModLib.Models;
+using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
 
 namespace DELTARUNITYStandalone;
 
