@@ -100,7 +100,7 @@ public static class ScriptResolver
 		{ "instance_exists", instance_exists },
 		{ "instance_create_depth", instance_create_depth },
 		{ "instance_number", instance_number },
-		//{ "instance_destroy", instance_destroy },
+		{ "instance_destroy", instance_destroy },
 		#endregion
 
 		#region Math
@@ -1538,6 +1538,59 @@ public static class ScriptResolver
 	public static object audio_set_master_gain(Arguments args)
 	{
 		// TODO : implement
+		return null;
+	}
+
+	public static object instance_destroy(Arguments args)
+	{
+		if (args.Args.Length == 0)
+		{
+			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Destroy);
+			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.CleanUp);
+			InstanceManager.instance_destroy(args.Ctx.Self);
+			return null;
+		}
+
+		var id = Conv<int>(args.Args[0]);
+		var execute_event_flag = true;
+
+		if (args.Args.Length == 2)
+		{
+			execute_event_flag = Conv<bool>(args.Args[1]);
+		}
+
+		if (id < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// asset index
+			var instances = InstanceManager.FindByAssetId(id);
+
+			foreach (var instance in instances)
+			{
+				if (execute_event_flag)
+				{
+					GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
+				}
+
+				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
+
+				InstanceManager.instance_destroy(instance);
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(id);
+
+			if (execute_event_flag)
+			{
+				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
+			}
+
+			GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
+
+			InstanceManager.instance_destroy(instance);
+		}
+
 		return null;
 	}
 }
