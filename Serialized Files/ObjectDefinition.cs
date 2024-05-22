@@ -8,6 +8,9 @@ using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone;
 
+/// <summary>
+/// "template" for an object. analagous to a class
+/// </summary>
 [Serializable]
 public class ObjectDefinition
 {

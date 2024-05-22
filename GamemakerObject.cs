@@ -9,6 +9,10 @@ using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone;
+
+/// <summary>
+/// instance of an ObjectDefinition
+/// </summary>
 public class GamemakerObject : DrawWithDepth
 {
 	public Dictionary<string, object> SelfVariables = new();
