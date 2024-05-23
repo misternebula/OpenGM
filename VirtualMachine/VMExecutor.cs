@@ -50,6 +50,11 @@ public static partial class VMExecutor
 
 	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null)
 	{
+		if (script.Instructions.Count == 0)
+		{
+			return null;
+		}
+
 		var newCtx = new VMScriptExecutionContext
 		{
 			Self = obj,
