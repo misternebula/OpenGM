@@ -29,6 +29,10 @@ public static class GameConverter
 		ExportRooms(data);
 
 		ExportFonts(data);
+
+		ExportAudio(data);
+
+		ExportSounds(data);
 	}
 
 	public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
@@ -708,6 +712,49 @@ public static class GameConverter
 
 			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts", $"{fontAsset.name}.json");
 			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(fontAsset, Formatting.Indented));
+		}
+		Console.WriteLine(" Done!");
+	}
+
+	public static void ExportAudio(UndertaleData data)
+	{
+		Console.Write($"Exporting audio...");
+		var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Audio");
+		Directory.CreateDirectory(outputPath);
+
+		foreach (var item in data.EmbeddedAudio)
+		{
+			var asset = new EmbeddedAudio();
+			asset.AssetId = data.EmbeddedAudio.IndexOf(item);
+			asset.Name = item.Name.Content;
+			asset.Data = item.Data;
+
+			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Audio", $"{item.Name.Content}.json");
+			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+		}
+
+		Console.WriteLine(" Done!");
+	}
+
+	public static void ExportSounds(UndertaleData data)
+	{
+		Console.Write($"Exporting sounds...");
+		var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
+		Directory.CreateDirectory(outputPath);
+
+		foreach (var item in data.Sounds)
+		{
+			var asset = new SoundAsset();
+			asset.AssetID = data.Sounds.IndexOf(item);
+			asset.Name = item.Name.Content;
+			asset.File = item.File.Content;
+			asset.Effects = item.Effects;
+			asset.Volume = item.Volume;
+			asset.Pitch = item.Pitch;
+			// audio group
+
+			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.json");
+			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
 		}
 		Console.WriteLine(" Done!");
 	}
