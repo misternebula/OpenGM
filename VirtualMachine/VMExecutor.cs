@@ -34,7 +34,7 @@ public class VMScriptExecutionContext
 
 public class Arguments
 {
-	public VMScriptExecutionContext Ctx;
+	public VMScriptExecutionContext Ctx; // TODO: can we just use VMExecutor.Ctx instead? they should always be the same
 	public object[] Args;
 }
 
