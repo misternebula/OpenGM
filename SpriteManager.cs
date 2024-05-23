@@ -121,4 +121,9 @@ public static class SpriteManager
 			origin = Vector2.Zero
 		});
 	}
+
+	public static int GetNumberOfFrames(int name)
+	{
+		return _spriteDict[name].Textures.Count;
+	}
 }

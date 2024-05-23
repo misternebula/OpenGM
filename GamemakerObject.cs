@@ -268,9 +268,78 @@ public class GamemakerObject : DrawWithDepth
 		}
 	}
 
+	private int _updateCounter;
+
 	public sealed override void Draw()
 	{
+		if (!_createRan || !RoomManager.RoomLoaded)
+		{
+			return;
+		}
 
+		if (friction != 0)
+		{
+			if (speed > 0)
+			{
+				if (speed - friction < 0)
+				{
+					speed = 0;
+				}
+				else
+				{
+					speed -= friction;
+				}
+			}
+			else if (speed < 0)
+			{
+				if (speed + friction > 0)
+				{
+					speed = 0;
+				}
+				else
+				{
+					speed += friction;
+				}
+			}
+		}
+
+		if (gravity != 0)
+		{
+			//vspeed += gravity;
+			vspeed += -Math.Sin(CustomMath.Deg2Rad * gravity_direction) * gravity;
+			hspeed += Math.Cos(CustomMath.Deg2Rad * gravity_direction) * gravity;
+		}
+
+		x += hspeed;
+		y += vspeed;
+
+		var asset = SpriteManager.GetSpriteAsset(sprite_index);
+		if (asset != null)
+		{
+			var playbackType = asset.PlaybackSpeedType;
+			var playbackSpeed = asset.PlaybackSpeed * image_speed;
+
+			_updateCounter++;
+
+			var deltaTime = 1 / 30f;
+			var shouldIncrement = playbackType == AnimSpeedType.FramesPerSecond
+				? _updateCounter >= 1f / (deltaTime / (1f / playbackSpeed))
+				: _updateCounter >= 1f / playbackSpeed;
+
+			if (shouldIncrement)
+			{
+				_updateCounter = 0;
+				if (image_index + 1 == SpriteManager.GetNumberOfFrames(sprite_index))
+				{
+					ExecuteScript(this, Definition, EventType.Other, (uint)EventSubtypeOther.AnimationEnd);
+					image_index = 0;
+				}
+				else
+				{
+					image_index++;
+				}
+			}
+		}
 	}
 
 	public static bool ExecuteScript(GamemakerObject obj, ObjectDefinition definition, EventType type, uint otherData = 0)

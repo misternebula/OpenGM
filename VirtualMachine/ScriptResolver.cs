@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using UndertaleModLib.Decompiler;
+using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static class ScriptResolver
@@ -39,6 +40,9 @@ public static class ScriptResolver
 		{ "window_set_caption", window_set_caption },
 		{ "window_get_caption", window_get_caption },
 		{ "view_get_camera", view_get_camera },
+		{ "event_user", event_user },
+		{ "place_meeting", place_meeting },
+		{ "collision_rectangle", collision_rectangle },
 
 		#region file_
 		{ "file_text_open_read", file_text_open_read },
@@ -79,7 +83,7 @@ public static class ScriptResolver
 		{ "string", _string },
 		{ "string_length", string_length },
 		{ "string_char_at", string_char_at },
-		//{ "string_width", string_width },
+		{ "string_width", string_width },
 		{ "string_copy", string_copy },
 		{ "string_insert", string_insert },
 		{ "string_delete", string_delete },
@@ -1812,6 +1816,54 @@ public static class ScriptResolver
 	{
 		var num = Conv<double>(args.Args[0]);
 		return CustomMath.RoundToInt((float)num);
+	}
+
+	public static object string_width(Arguments args)
+	{
+		var str = Conv<string>(args.Args[0]);
+
+		return TextManager.StringWidth(str);
+	}
+
+	public static object event_user(Arguments args)
+	{
+		var numb = Conv<int>(args.Args[0]);
+		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Other, (uint)(EventSubtypeOther.User0 + (uint)numb));
+		return null;
+	}
+
+	public static object place_meeting(Arguments args)
+	{
+		var x = Conv<double>(args.Args[0]);
+		var y = Conv<double>(args.Args[1]);
+		var obj = Conv<int>(args.Args[2]); // TODO : this can be an array, or "all" or "other", or tile map stuff
+
+		if (obj < 0)
+		{
+			throw new NotImplementedException($"{obj} given to place_meeting");
+		}
+
+		//todo : implement
+		return false;
+	}
+
+	public static object collision_rectangle(Arguments args)
+	{
+		var x1 = Conv<double>(args.Args[0]);
+		var y1 = Conv<double>(args.Args[1]);
+		var x2 = Conv<double>(args.Args[2]);
+		var y2 = Conv<double>(args.Args[3]);
+		var obj = Conv<int>(args.Args[4]); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var prec = Conv<bool>(args.Args[5]);
+		var notme = Conv<bool>(args.Args[6]);
+
+		if (obj < 0)
+		{
+			throw new NotImplementedException($"{obj} given to collision_rectangle!");
+		}
+
+		//todo : implement
+		return false;
 	}
 }
 
