@@ -14,8 +14,8 @@ public class CustomWindow : GameWindow
 	public uint Width;
 	public uint Height;
 
-	private float _x;
-	public float X
+	private double _x;
+	public double X
 	{
 		get => _x;
 		set
@@ -25,8 +25,8 @@ public class CustomWindow : GameWindow
 		}
 	}
 
-	private float _y;
-	public float Y
+	private double _y;
+	public double Y
 	{
 		get => _y;
 		set
@@ -50,6 +50,13 @@ public class CustomWindow : GameWindow
 		UpdatePositionResolution();
 	}
 
+	public void SetPosition(double x, double y)
+	{
+		_x = x;
+		_y = y;
+		UpdatePositionResolution();
+	}
+
 	public void SetResolution(uint width, uint height)
 	{
 		Width = width;
@@ -59,7 +66,7 @@ public class CustomWindow : GameWindow
 
 	private void UpdatePositionResolution()
 	{
-		var matrix = Matrix4.CreateOrthographicOffCenter(X, Width + X, Height + Y, Y, 0, 1);
+		var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
 		GL.MatrixMode(MatrixMode.Projection);
 		GL.LoadMatrix(ref matrix);
 	}
