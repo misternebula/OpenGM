@@ -34,6 +34,7 @@ public static partial class VMExecutor
 				{
 					Self = instance,
 					ObjectDefinition = instance.Definition,
+					// TODO: why copy? is with statement a separate block?
 					Stack = new(currentContext.Stack),
 					Locals = new(currentContext.Locals),
 					ReturnValue = currentContext.ReturnValue,
@@ -63,6 +64,7 @@ public static partial class VMExecutor
 			{
 				Self = instance,
 				ObjectDefinition = instance.Definition,
+				// TODO: why copy? is with statement a separate block?
 				Stack = new(currentContext.Stack),
 				Locals = new(currentContext.Locals),
 				ReturnValue = currentContext.ReturnValue,

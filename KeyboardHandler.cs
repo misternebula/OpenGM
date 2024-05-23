@@ -10,7 +10,7 @@ public class KeyboardHandler
 
 	public static void UpdateKeyboardState(KeyboardState state)
 	{
-		for (var i = 0; i < 256; i++)
+		for (var i = 0; i <= 255; i++)
 		{
 			var isDown = IsKeyDown(i);
 			var wasDown = KeyDown[i];
