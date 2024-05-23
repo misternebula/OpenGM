@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
+using System;
 using System.Diagnostics;
 using System.Text;
 using UndertaleModLib.Decompiler;
@@ -100,11 +101,11 @@ public static class ScriptResolver
 		{ "abs", abs },
 		{ "sin", sin },
 		{ "cos", cos },
-		//{ "random", random },
-		//{ "random_range", random_range },
-		//{ "irandom", irandom },
-		//{ "irandom_range", irandom_range },
-		//{ "round", round },
+		{ "random", random },
+		{ "random_range", random_range },
+		{ "irandom", irandom },
+		{ "irandom_range", irandom_range },
+		{ "round", round },
 		{ "min", min },
 		{ "max", max },
 		#endregion
@@ -1194,46 +1195,10 @@ public static class ScriptResolver
 		return Math.Cos(val);
 	}
 
-	/*public static object random(Arguments args)
-	{
-		var upper = Conv<double>(args.Args[0]);
-
-		return UnityEngine.Random.Range(0f, (float)upper);
-	}
-
-	public static object random_range(Arguments args)
-	{
-		var n1 = Conv<double>(args.Args[0]);
-		var n2 = Conv<double>(args.Args[1]);
-
-		return UnityEngine.Random.Range((float)n1, (float)n2);
-	}*/
-
 	private static int realToInt(double value)
 	{
 		return value < 0 ? CustomMath.CeilToInt((float)value) : CustomMath.FloorToInt((float)value);
 	}
-
-	/*public static object irandom(Arguments args)
-	{
-		var n = realToInt(Conv<double>(args.Args[0]));
-
-		return UnityEngine.Random.Range(0, n + 1);
-	}*/
-
-	/*public static object irandom_range(Arguments args)
-	{
-		var n1 = realToInt(Conv<double>(args.Args[0]));
-		var n2 = realToInt(Conv<double>(args.Args[1]));
-
-		return UnityEngine.Random.Range(n1, n2 + 1);
-	}
-
-	public static object round(Arguments args)
-	{
-		var num = Conv<double>(args.Args[0]);
-		return CustomMath.RoundToInt((float)num);
-	}*/
 
 	public static object min(Arguments args)
 	{
@@ -1812,6 +1777,41 @@ public static class ScriptResolver
 		var index = Conv<int>(args.Args[0]);
 		// todo: implement
 		return false;
+	}
+
+	static Random rnd = new Random();
+
+	public static object random(Arguments args)
+	{
+		var upper = Conv<double>(args.Args[0]);
+		return rnd.NextDouble() * upper;
+	}
+
+	public static object random_range(Arguments args)
+	{
+		var n1 = Conv<double>(args.Args[0]);
+		var n2 = Conv<double>(args.Args[1]);
+		return rnd.NextDouble() * (n2 - n1) + n1;
+	}
+
+	public static object irandom(Arguments args)
+	{
+		var n = realToInt(Conv<double>(args.Args[0]));
+		return rnd.Next(0, n + 1);
+	}
+
+	public static object irandom_range(Arguments args)
+	{
+		var n1 = realToInt(Conv<double>(args.Args[0]));
+		var n2 = realToInt(Conv<double>(args.Args[1]));
+
+		return rnd.Next(n1, n2 + 1);
+	}
+
+	public static object round(Arguments args)
+	{
+		var num = Conv<double>(args.Args[0]);
+		return CustomMath.RoundToInt((float)num);
 	}
 }
 
