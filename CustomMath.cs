@@ -23,4 +23,9 @@ public static class CustomMath
 	{
 		return (int)Math.Ceiling(value);
 	}
+
+	public static int RoundToInt(double value)
+	{
+		return (int)Math.Round(value);
+	}
 }
