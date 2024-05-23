@@ -19,7 +19,9 @@ public class ObjectDefinition
 	public bool persistent;
 	public int textureMaskId = -1;
 
-	// Stores index data that is used to populate the rest of this class
+	/// <summary>
+	/// Stores index data that is used to populate the rest of this class
+	/// </summary>
 	public ObjectDefinitionStorage FileStorage;
 
 	/// <summary>
