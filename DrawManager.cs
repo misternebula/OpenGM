@@ -26,22 +26,30 @@ public static class DrawManager
 		_drawObjects.Remove(obj);
 	}
 
-	private static void RunStepScript(IOrderedEnumerable<DrawWithDepth> items, EventSubtypeStep stepType)
+	private static bool RunStepScript(IOrderedEnumerable<DrawWithDepth> items, EventSubtypeStep stepType)
 	{
 		foreach (var item in items)
 		{
-			if (item is GamemakerObject gm && gm._createRan/* && Room.RoomLoaded*/)
+			if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded)
 			{
 				GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Step, (uint)stepType);
 			}
 		}
+
+		if (RoomManager.ChangeRoomAfterEventExecution)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return true;
+		}
+
+		return false;
 	}
 
-	private static void RunDrawScript(IOrderedEnumerable<DrawWithDepth> items, EventSubtypeDraw drawType)
+	private static bool RunDrawScript(IOrderedEnumerable<DrawWithDepth> items, EventSubtypeDraw drawType)
 	{
 		foreach (var item in items)
 		{
-			if (item is GamemakerObject gm && gm._createRan/* && Room.RoomLoaded*/)
+			if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded)
 			{
 				if (drawType == EventSubtypeDraw.Draw)
 				{
@@ -73,13 +81,24 @@ public static class DrawManager
 				item.Draw();
 			}
 		}
+
+		if (RoomManager.ChangeRoomAfterEventExecution)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return true;
+		}
+
+		return false;
 	}
 
 	public static void FixedUpdate()
 	{
 		var stepList = _drawObjects.OrderByDescending(x => x.instanceId);
 
-		RunStepScript(stepList, EventSubtypeStep.BeginStep);
+		if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
+		{
+			return;
+		}
 
 		foreach (var item in stepList)
 		{
@@ -87,6 +106,12 @@ public static class DrawManager
 			{
 				gm.UpdateAlarms();
 			}
+		}
+
+		if (RoomManager.ChangeRoomAfterEventExecution)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
 		}
 
 		foreach (var item in stepList)
@@ -106,19 +131,57 @@ public static class DrawManager
 			}
 		}
 
-		RunStepScript(stepList, EventSubtypeStep.Step);
-		RunStepScript(stepList, EventSubtypeStep.EndStep);
+		if (RunStepScript(stepList, EventSubtypeStep.Step))
+		{
+			return;
+		}
+
+		if (RunStepScript(stepList, EventSubtypeStep.EndStep))
+		{
+			return;
+		}
 
 		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId);
 
-		RunDrawScript(drawList, EventSubtypeDraw.PreDraw);
-		RunDrawScript(drawList, EventSubtypeDraw.DrawBegin);
-		RunDrawScript(drawList, EventSubtypeDraw.Draw);
-		RunDrawScript(drawList, EventSubtypeDraw.DrawEnd);
-		RunDrawScript(drawList, EventSubtypeDraw.PostDraw);
-		RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin);
-		RunDrawScript(drawList, EventSubtypeDraw.DrawGUI);
-		RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd);
+		if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUI))
+		{
+			return;
+		}
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd))
+		{
+			return;
+		}
 
 		foreach (var item in drawList)
 		{

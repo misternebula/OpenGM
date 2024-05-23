@@ -50,6 +50,11 @@ public static partial class VMExecutor
 
 	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null)
 	{
+		if (script.Instructions.Count == 0)
+		{
+			return null;
+		}
+
 		var newCtx = new VMScriptExecutionContext
 		{
 			Self = obj,
@@ -138,14 +143,6 @@ public static partial class VMExecutor
 		EnvironmentStack.Pop();
 
 		currentExecutingScript.Pop();
-
-		if (RoomManager.ChangeRoomAfterEventExecution)
-		{
-			if (RoomManager.ScriptName == null || RoomManager.ScriptName == script.Name)
-			{
-				RoomManager.ChangeToWaitingRoom();
-			}
-		}
 
 		return returnValue;
 	}
@@ -457,7 +454,7 @@ public static partial class VMExecutor
 					return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 				}
 			}
-			else if (obj is int or long)
+			else if (obj is int or long or uint)
 			{
 				var i = System.Convert.ToInt64(obj);
 
