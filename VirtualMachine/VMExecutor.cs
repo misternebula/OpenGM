@@ -457,7 +457,7 @@ public static partial class VMExecutor
 					return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 				}
 			}
-			else if (obj is int or long)
+			else if (obj is int or long or uint)
 			{
 				var i = System.Convert.ToInt64(obj);
 
