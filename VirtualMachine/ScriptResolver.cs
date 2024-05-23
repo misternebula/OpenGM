@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
+using System.Diagnostics;
 using System.Text;
 using UndertaleModLib.Decompiler;
 
@@ -28,7 +29,6 @@ public static class ScriptResolver
 		{ "ini_close", ini_close },
 		#endregion
 
-		{ "audio_group_is_loaded", audio_group_is_loaded },
 		{ "variable_global_exists", variable_global_exists },
 		{ "show_debug_message", show_debug_message },
 		{ "json_decode", json_decode },
@@ -37,8 +37,7 @@ public static class ScriptResolver
 		{ "merge_color", merge_colour },
 		{ "window_set_caption", window_set_caption },
 		{ "window_get_caption", window_get_caption },
-		{ "audio_group_set_gain", audio_group_set_gain },
-		{ "audio_play_sound", audio_play_sound },
+		{ "view_get_camera", view_get_camera },
 
 		#region file_
 		{ "file_text_open_read", file_text_open_read },
@@ -110,7 +109,6 @@ public static class ScriptResolver
 		{ "max", max },
 		#endregion
 
-		{ "audio_group_load", audio_group_load },
 		{ "keyboard_check", keyboard_check },
 		{ "keyboard_check_pressed", keyboard_check_pressed },
 		{ "display_get_height", display_get_height },
@@ -119,7 +117,7 @@ public static class ScriptResolver
 		{ "window_center", window_center },
 		{ "gamepad_button_check", gamepad_button_check },
 		{ "gamepad_axis_value", gamepad_axis_value },
-		{ "gamepad_is_connected", gamepad_is_connected },{ "audio_set_master_gain", audio_set_master_gain },
+		{ "gamepad_is_connected", gamepad_is_connected },
 
 		#region draw_
 		{ "draw_set_colour", draw_set_colour },
@@ -142,6 +140,34 @@ public static class ScriptResolver
 		{ "draw_text_color", draw_text_colour },
 		{ "draw_text_colour", draw_text_colour },
 		{ "draw_sprite_tiled_ext", draw_sprite_tiled_ext },
+		#endregion
+
+		#region camera_
+		{ "camera_get_view_x", camera_get_view_x },
+		{ "camera_get_view_y", camera_get_view_y },
+		{ "camera_get_view_width", camera_get_view_width },
+		{ "camera_get_view_height", camera_get_view_height },
+		{ "camera_set_view_target", camera_set_view_target },
+		//{ "camera_get_view_target", camera_get_view_target },
+		{ "camera_set_view_pos", camera_set_view_pos },
+		#endregion
+
+		#region audio_
+		{ "audio_create_stream", audio_create_stream },
+		{ "audio_destroy_stream", audio_destroy_stream },
+		{ "audio_play_sound", audio_play_sound },
+		{ "audio_sound_gain", audio_sound_gain },
+		{ "audio_sound_pitch", audio_sound_pitch},
+		{ "audio_stop_all", audio_stop_all },
+		{ "audio_stop_sound", audio_stop_sound },
+		{ "audio_group_load", audio_group_load },
+		{ "audio_is_playing", audio_is_playing },
+		{ "audio_group_set_gain", audio_group_set_gain },
+		{ "audio_set_master_gain", audio_set_master_gain },
+		{ "audio_pause_sound", audio_pause_sound },
+		{ "audio_resume_sound", audio_resume_sound },
+		{ "audio_sound_set_track_position", audio_sound_set_track_position },
+		{ "audio_group_is_loaded", audio_group_is_loaded },
 		#endregion
 	};
 
@@ -1584,6 +1610,206 @@ public static class ScriptResolver
 		}
 
 		return null;
+	}
+
+	public static object view_get_camera(Arguments args)
+	{
+		// TODO : ughhh implement multiple cameras
+		return 0;
+	}
+
+	public static object camera_get_view_x(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		return CustomWindow.Instance.X;
+	}
+
+	public static object camera_get_view_y(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		return CustomWindow.Instance.Y;
+	}
+
+	public static object camera_get_view_width(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		return RoomManager.CurrentRoom.CameraWidth;
+	}
+
+	public static object camera_get_view_height(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		return RoomManager.CurrentRoom.CameraHeight;
+	}
+
+	public static object camera_set_view_target(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		var id = Conv<int>(args.Args[1]);
+
+		GamemakerObject instance = null;
+
+		if (id < GMConstants.FIRST_INSTANCE_ID)
+		{
+			instance = InstanceManager.FindByAssetId(id).FirstOrDefault();
+		}
+		else
+		{
+			instance = InstanceManager.FindByInstanceId(id);
+		}
+
+		DebugLog.Log($"camera_set_view_target {instance}");
+
+		//GamemakerCamera.Instance.ObjectToFollow = instance;
+
+		return null;
+	}
+
+	/*public static object camera_get_view_target(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		// TODO : this can apparently return either an instance id or object index????
+		return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
+	}*/
+
+	public static object camera_set_view_pos(Arguments args)
+	{
+		var camera_id = Conv<int>(args.Args[0]);
+
+		if (camera_id > 0)
+		{
+			// TODO : ughhh implement multiple cameras
+			throw new NotImplementedException();
+		}
+
+		var x = Conv<double>(args.Args[1]);
+		var y = Conv<double>(args.Args[2]);
+
+		CustomWindow.Instance.SetPosition(x, y);
+
+		return null;
+	}
+
+	public static object audio_create_stream(Arguments args)
+	{
+		var filename = Conv<string>(args.Args[0]);
+
+		// TODO: implement
+
+		return -1;
+	}
+
+	// docs say this is passed the file path, but in DR its passed the asset index of the stream... no idea
+	public static object audio_destroy_stream(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		//TODO : implement
+		return null;
+	}
+
+	public static object audio_sound_gain(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		var volume = Conv<double>(args.Args[1]);
+		var time = Conv<double>(args.Args[2]);
+
+		// todo : implement
+
+		return null;
+	}
+
+	public static object audio_sound_pitch(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		var pitch = Conv<double>(args.Args[1]);
+
+		// todo : implement
+
+		return null;
+	}
+
+	public static object audio_stop_all(Arguments args)
+	{
+		// todo : implement
+		return null;
+	}
+
+	public static object audio_stop_sound(Arguments args)
+	{
+		var id = Conv<int>(args.Args[0]);
+		// todo : implement
+		return null;
+	}
+
+	public static object audio_pause_sound(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		// todo : implement
+		return null;
+	}
+
+	public static object audio_resume_sound(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		// todo : implement
+		return null;
+	}
+
+	public static object audio_sound_set_track_position(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		var time = Conv<double>(args.Args[1]);
+		// todo : implement
+		return null;
+	}
+
+	public static object audio_is_playing(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		// todo: implement
+		return false;
 	}
 }
 
