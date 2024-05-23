@@ -10,11 +10,6 @@ public static class RoomManager
 	public static bool ChangeRoomAfterEventExecution = false;
 
 	/// <summary>
-	/// What script called the function to change rooms.
-	/// </summary>
-	public static string ScriptName = null;
-
-	/// <summary>
 	/// The room to change to.
 	/// </summary>
 	public static Room RoomToChangeTo = null;
@@ -23,9 +18,12 @@ public static class RoomManager
 
 	public static Dictionary<int, Room> RoomList = new();
 
+	public static bool RoomLoaded = false;
+
 	public static void ChangeToWaitingRoom()
 	{
-		DebugLog.Log($"Changing room to {RoomToChangeTo.Name}...");
+		ChangeRoomAfterEventExecution = false;
+
 		// events could destroy other objects, cant modify during iteration
 		var instanceList = new List<GamemakerObject>(InstanceManager.instances);
 
@@ -50,8 +48,7 @@ public static class RoomManager
 
 		InstanceManager.instances = InstanceManager.instances.Where(x => x != null && x.persistent).ToList();
 
-		ChangeRoomAfterEventExecution = false;
-		ScriptName = null;
+		RoomLoaded = false;
 		CurrentRoom = RoomToChangeTo;
 		RoomToChangeTo = null;
 
@@ -72,6 +69,8 @@ public static class RoomManager
 				}
 			}
 		}
+
+		RoomLoaded = true;
 	}
 
 	public static void ChangeRoomAfterEvent(int index)
@@ -81,11 +80,6 @@ public static class RoomManager
 
 	public static void ChangeRoomAfterEvent(Room roomName)
 	{
-		if (VMExecutor.currentExecutingScript.Count > 0)
-		{
-			ScriptName = VMExecutor.currentExecutingScript.Peek().Name;
-		}
-
 		ChangeRoomAfterEventExecution = true;
 		RoomToChangeTo = roomName;
 		

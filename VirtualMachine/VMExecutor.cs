@@ -144,14 +144,6 @@ public static partial class VMExecutor
 
 		currentExecutingScript.Pop();
 
-		if (RoomManager.ChangeRoomAfterEventExecution)
-		{
-			if (RoomManager.ScriptName == null || RoomManager.ScriptName == script.Name)
-			{
-				RoomManager.ChangeToWaitingRoom();
-			}
-		}
-
 		return returnValue;
 	}
 
