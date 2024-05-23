@@ -3,9 +3,8 @@ using OpenTK.Audio.OpenAL;
 namespace DELTARUNITYStandalone;
 
 // TODO: copy from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs
-
 /*
- * you need openal installed on your computer
+ * you need to install openal from https://github.com/kcat/openal-soft following the README
  * 
  * resources i used:
  * https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/
@@ -23,8 +22,18 @@ public static class AudioManager
 	public static void Init()
 	{
 		_device = ALC.OpenDevice(null);
+		CheckALCError();
 		_context = ALC.CreateContext(_device, new ALContextAttributes());
+		CheckALCError();
 		ALC.MakeContextCurrent(_context);
+		CheckALCError();
+
+		Console.WriteLine(AL.Get(ALGetString.Version));
+		CheckALError();
+		Console.WriteLine(AL.Get(ALGetString.Vendor));
+		CheckALError();
+		Console.WriteLine(AL.Get(ALGetString.Extensions));
+		CheckALError();
 
 		// test
 		/*
@@ -33,19 +42,29 @@ public static class AudioManager
 		 * otherwise just alloc and dealloc as needed
 		 */
 		AL.GenBuffer(out var buffer);
-		var bufferData = new byte[44100 * 2];
-		Random.Shared.NextBytes(bufferData);
-		AL.BufferData(buffer, ALFormat.Stereo8, bufferData, 44100);
+		CheckALError();
+		var bufferData = new double[44100 * 2];
+		for (var i = 0; i < bufferData.Length; i += 2)
+		{
+			bufferData[i] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
+			bufferData[i + 1] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
+		}
+		AL.BufferData(buffer, ALFormat.StereoDoubleExt, bufferData, 44100);
+		CheckALError();
 
 		/*
 		 * these are audio sources
 		 * pretty self explanatory
 		 */
 		AL.GenSource(out var source);
+		CheckALError();
 		AL.Source(source, ALSourcei.Buffer, buffer);
+		CheckALError();
 		AL.Source(source, ALSourcef.Gain, .1f);
+		CheckALError();
 		// AL.Source(source, ALSourceb.Looping, true);
 		AL.SourcePlay(source);
+		CheckALError();
 	}
 
 	public static void Dispose()
@@ -54,10 +73,13 @@ public static class AudioManager
 		 * deallocate all the buffers
 		 * and currently playing sources here
 		 */
-		
+
 		ALC.MakeContextCurrent(ALContext.Null);
+		CheckALCError();
 		ALC.DestroyContext(_context);
+		CheckALCError();
 		ALC.CloseDevice(_device);
+		CheckALCError();
 	}
 
 	public static void Update()
@@ -69,5 +91,23 @@ public static class AudioManager
 		 * i guess its not a pool at that point. more of an "active sources" thing.
 		 * could do the same for buffers if theyre not all made on init
 		 */
+	}
+
+	private static void CheckALCError()
+	{
+		var e = ALC.GetError(_device);
+		if (e != AlcError.NoError)
+		{
+			DebugLog.LogError($"ALC error: {e}");
+		}
+	}
+
+	private static void CheckALError()
+	{
+		var e = AL.GetError();
+		if (e != ALError.NoError)
+		{
+			DebugLog.LogError($"AL error: {e}");
+		}
 	}
 }
