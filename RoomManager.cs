@@ -68,6 +68,30 @@ public static class RoomManager
 					InstanceManager.instance_create_depth(item.X, item.Y, layer.LayerDepth, item.DefinitionID);
 				}
 			}
+
+			if (layer.Assets_LegacyTiles != null && layer.Assets_LegacyTiles.Count != 0)
+			{
+				foreach (var tile in layer.Assets_LegacyTiles)
+				{
+					var newTile = new GMTile
+					{
+						X = tile.X,
+						Y = tile.Y,
+						Definition = tile.Definition,
+						left = tile.SourceLeft,
+						top = tile.SourceTop,
+						width = tile.SourceWidth,
+						height = tile.SourceHeight,
+						depth = tile.Depth,
+						instanceId = tile.InstanceID,
+						XScale = tile.ScaleX,
+						YScale = tile.ScaleY,
+						Color = tile.Color
+					};
+
+					TileManager.Tiles.Add(newTile);
+				}
+			}
 		}
 
 		RoomLoaded = true;
