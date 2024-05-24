@@ -3,6 +3,7 @@ using NAudio.Wave;
 using Newtonsoft.Json;
 using NVorbis;
 using OpenTK.Audio.OpenAL;
+using System.Runtime.CompilerServices;
 
 namespace DELTARUNITYStandalone;
 
@@ -92,6 +93,23 @@ public static class AudioManager
 		}
 
 		LoadSounds();
+
+		// test 2
+		if (true)
+		{
+			var clip = _audioClips.Last().Value;
+
+			AL.GenSource(out var source);
+			CheckALError();
+			AL.Source(source, ALSourcei.Buffer, clip.Buffer);
+			CheckALError();
+			AL.Source(source, ALSourcef.Gain, (float)clip.Gain);
+			CheckALError();
+			AL.Source(source, ALSourcef.Pitch, (float)clip.Pitch);
+			CheckALError();
+			AL.SourcePlay(source);
+			CheckALError();
+		}
 	}
 
 	/// <summary>
@@ -189,21 +207,29 @@ public static class AudioManager
 		foreach (var source in _audioSources) { }
 	}
 
-	private static void CheckALCError()
+	private static void CheckALCError(
+		[CallerMemberName] string memberName = "",
+		[CallerFilePath] string sourceFilePath = "",
+		[CallerLineNumber] int sourceLineNumber = 0
+	)
 	{
 		var e = ALC.GetError(_device);
 		if (e != AlcError.NoError)
 		{
-			DebugLog.LogError($"ALC error: {e}");
+			DebugLog.LogError($"[{memberName} at {sourceFilePath}:{sourceLineNumber}] ALC error: {e}");
 		}
 	}
 
-	private static void CheckALError()
+	private static void CheckALError(
+		[CallerMemberName] string memberName = "",
+		[CallerFilePath] string sourceFilePath = "",
+		[CallerLineNumber] int sourceLineNumber = 0
+	)
 	{
 		var e = AL.GetError();
 		if (e != ALError.NoError)
 		{
-			DebugLog.LogError($"AL error: {e}");
+			DebugLog.LogError($"[{memberName} at {sourceFilePath}:{sourceLineNumber}] AL error: {e}");
 		}
 	}
 }
