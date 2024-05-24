@@ -9,7 +9,10 @@ namespace DELTARUNITYStandalone;
 
 // TODO: copy from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs
 /*
- * you need to install openal from https://github.com/kcat/openal-soft following the README
+ * installation:
+ * download release from https://github.com/kcat/openal-soft
+ * rename bin/Win64/guy to OpenAL32.dll
+ * copy into build folder
  * 
  * resources i used:
  * https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/
@@ -183,7 +186,7 @@ public static class AudioManager
 		}
 		foreach (var buffer in _audioClips.Values)
 		{
-			AL.DeleteSource(buffer.Buffer);
+			AL.DeleteBuffer(buffer.Buffer);
 			CheckALError();
 		}
 
