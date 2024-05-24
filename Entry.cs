@@ -8,16 +8,15 @@ namespace DELTARUNITYStandalone;
 
 internal class Entry
 {
-	public static UndertaleData Data;
-
 	static void Main(string[] args)
 	{
 		if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Output")))
 		{
 			Console.WriteLine($"Extracting game assets...");
-			var dataPath = @"F:\SURVEY_PROGRAM\data.win";
-			Data = UndertaleIO.Read(new FileStream(dataPath, FileMode.Open, FileAccess.Read));
-			GameConverter.ConvertGame(Data);
+			var dataPath = @"data.win";
+			var stream = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
+			var data = UndertaleIO.Read(stream);
+			GameConverter.ConvertGame(data);
 		}
 
 		GameLoader.LoadGame();
@@ -35,6 +34,7 @@ internal class Entry
 		window.CenterWindow();
 
 		PageManager.BindTextures();
+		AudioManager.Init();
 
 		Console.WriteLine($"Executing global scripts...");
 
@@ -47,5 +47,7 @@ internal class Entry
 		RoomManager.ChangeToWaitingRoom();
 
 		window.Run();
+
+		AudioManager.Dispose();
 	}
 }

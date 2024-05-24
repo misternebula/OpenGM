@@ -8,9 +8,11 @@ using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
 
 namespace DELTARUNITYStandalone;
 
+/// <summary>
+/// Converts the UTMT data into our custom formats, which are saved into files
+/// </summary>
 public static class GameConverter
 {
-	// Converts the UTMT data into our custom formats
 	public static void ConvertGame(UndertaleData data)
 	{
 		Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
@@ -29,8 +31,6 @@ public static class GameConverter
 		ExportRooms(data);
 
 		ExportFonts(data);
-
-		ExportAudio(data);
 
 		ExportSounds(data);
 	}
@@ -716,26 +716,6 @@ public static class GameConverter
 		Console.WriteLine(" Done!");
 	}
 
-	public static void ExportAudio(UndertaleData data)
-	{
-		Console.Write($"Exporting audio...");
-		var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Audio");
-		Directory.CreateDirectory(outputPath);
-
-		foreach (var item in data.EmbeddedAudio)
-		{
-			var asset = new EmbeddedAudio();
-			asset.AssetId = data.EmbeddedAudio.IndexOf(item);
-			asset.Name = item.Name.Content;
-			asset.Data = item.Data;
-
-			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Audio", $"{item.Name.Content}.json");
-			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
-		}
-
-		Console.WriteLine(" Done!");
-	}
-
 	public static void ExportSounds(UndertaleData data)
 	{
 		Console.Write($"Exporting sounds...");
@@ -747,11 +727,43 @@ public static class GameConverter
 			var asset = new SoundAsset();
 			asset.AssetID = data.Sounds.IndexOf(item);
 			asset.Name = item.Name.Content;
-			asset.File = item.File.Content;
-			asset.Effects = item.Effects;
 			asset.Volume = item.Volume;
 			asset.Pitch = item.Pitch;
-			// audio group
+
+			// https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
+			// ignore compressed for now
+			{
+				Dictionary<int, IList<UndertaleEmbeddedAudio>> loadedAudioGroups = new();
+
+				if (item.AudioID == -1)
+				{
+					// external .ogg
+					asset.File = Path.Combine(outputPath, asset.Name + ".ogg");
+					File.Copy(asset.Name + ".ogg", asset.File);
+				}
+				else if (item.GroupID == data.GetBuiltinSoundGroupID())
+				{
+					// embedded .wav
+					asset.File = Path.Combine(outputPath, asset.Name + ".wav");
+					var embeddedAudio = data.EmbeddedAudio;
+					File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
+				}
+				else
+				{
+					// .wav in some audio group file
+					asset.File = Path.Combine(outputPath, asset.Name + ".wav");
+					if (!loadedAudioGroups.TryGetValue(item.GroupID, out var embeddedAudio))
+					{
+						var audioGroupPath = $"audiogroup{item.GroupID}.dat";
+						using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
+						var audioGroupData = UndertaleIO.Read(stream);
+
+						embeddedAudio = audioGroupData.EmbeddedAudio;
+						loadedAudioGroups.Add(item.GroupID, embeddedAudio);
+					}
+					File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
+				}
+			}
 
 			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.json");
 			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));

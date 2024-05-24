@@ -87,6 +87,7 @@ public class CustomWindow : GameWindow
 		//RenderJobs.Add(new GMRectangleJob() { alpha = 0.5, blend = new Color4(0, 255, 0, 0), height = 100, width = 200, screenPos = new Vector2(10, 10)});
 
 		DrawManager.FixedUpdate();
+		AudioManager.Update();
 	}
 
 	protected override void OnRenderFrame(FrameEventArgs e)

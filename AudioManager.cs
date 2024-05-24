@@ -1,3 +1,6 @@
+using DELTARUNITYStandalone.SerializedFiles;
+using DELTARUNITYStandalone.VirtualMachine;
+using Newtonsoft.Json;
 using OpenTK.Audio.OpenAL;
 
 namespace DELTARUNITYStandalone;
@@ -10,14 +13,29 @@ namespace DELTARUNITYStandalone;
  * https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/
  * https://gist.github.com/kamiyaowl/32fb397e0141c65792e1
  * https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf
- *
- * we should maybe error check at least for oom. but eh, kinda funny if we dont
  */
+
+public class AudioInstance
+{
+	public AudioAsset Asset;
+	public int SoundInstanceId;
+	public int Source;
+}
+
+public class AudioAsset
+{
+	public int AssetIndex;
+	public int Buffer;
+	public double Gain;
+	public double Pitch;
+}
 
 public static class AudioManager
 {
 	private static ALDevice _device;
 	private static ALContext _context;
+
+	private static List<int> _activeSources = new();
 
 	public static void Init()
 	{
@@ -36,35 +54,60 @@ public static class AudioManager
 		CheckALError();
 
 		// test
-		/*
-		 * these are like clips
-		 * we can probably alloc one for each sound on init
-		 * otherwise just alloc and dealloc as needed
-		 */
-		AL.GenBuffer(out var buffer);
-		CheckALError();
-		var bufferData = new double[44100 * 2];
-		for (var i = 0; i < bufferData.Length; i += 2)
 		{
-			bufferData[i] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
-			bufferData[i + 1] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
-		}
-		AL.BufferData(buffer, ALFormat.StereoDoubleExt, bufferData, 44100);
-		CheckALError();
+			/*
+			* these are like clips
+			* we can probably alloc one for each sound on init
+			* otherwise just alloc and dealloc as needed
+			*/
+			AL.GenBuffer(out var buffer);
+			CheckALError();
+			var bufferData = new double[44100 * 2];
+			for (var i = 0; i < bufferData.Length; i += 2)
+			{
+				bufferData[i] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
+				bufferData[i + 1] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
+			}
+			AL.BufferData(buffer, ALFormat.StereoDoubleExt, bufferData, 44100);
+			CheckALError();
 
-		/*
-		 * these are audio sources
-		 * pretty self explanatory
-		 */
-		AL.GenSource(out var source);
-		CheckALError();
-		AL.Source(source, ALSourcei.Buffer, buffer);
-		CheckALError();
-		AL.Source(source, ALSourcef.Gain, .1f);
-		CheckALError();
-		// AL.Source(source, ALSourceb.Looping, true);
-		AL.SourcePlay(source);
-		CheckALError();
+			/*
+			* these are audio sources
+			* pretty self explanatory
+			*/
+			AL.GenSource(out var source);
+			CheckALError();
+			AL.Source(source, ALSourcei.Buffer, buffer);
+			CheckALError();
+			AL.Source(source, ALSourcef.Gain, .1f);
+			CheckALError();
+			// AL.Source(source, ALSourceb.Looping, true);
+			AL.SourcePlay(source);
+			CheckALError();
+		}
+
+		LoadSounds();
+	}
+
+	/// <summary>
+	/// load all the audio data into buffers
+	/// has to happen after init since context is set up there
+	/// </summary>
+	private static void LoadSounds()
+	{
+		// TODO: see https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
+		Console.Write($"Loading asset order...");
+
+		var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
+		var files = Directory.GetFiles(soundsFolder);
+		foreach (var file in files)
+		{
+			var text = File.ReadAllText(file);
+			var asset = JsonConvert.DeserializeObject<SoundAsset>(text);
+		}
+
+
+		Console.WriteLine($" Done!");
 	}
 
 	public static void Dispose()
@@ -91,6 +134,7 @@ public static class AudioManager
 		 * i guess its not a pool at that point. more of an "active sources" thing.
 		 * could do the same for buffers if theyre not all made on init
 		 */
+		foreach (var activeSource in _activeSources) { }
 	}
 
 	private static void CheckALCError()
