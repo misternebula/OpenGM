@@ -7,7 +7,7 @@ public static class InstanceManager
 	public static List<GamemakerObject> instances = new List<GamemakerObject>();
 	public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
-	public static int _highestInstanceId = 103506 + 1; // TODO : this changes per game - get from data.win
+	public static uint _highestInstanceId = 103506 + 1; // TODO : this changes per game - get from data.win
 
 	public static void RegisterInstance(GamemakerObject obj)
 	{
@@ -32,7 +32,7 @@ public static class InstanceManager
 		instances.Add(obj);
 	}
 
-	public static int instance_create_depth(double x, double y, int depth, int obj)
+	public static uint instance_create_depth(double x, double y, int depth, int obj)
 	{
 		var definition = ObjectDefinitions[obj];
 

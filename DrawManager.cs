@@ -1,4 +1,5 @@
-﻿using UndertaleModLib.Models;
+﻿using DELTARUNITYStandalone.VirtualMachine;
+using UndertaleModLib.Models;
 using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
 
 namespace DELTARUNITYStandalone;
@@ -120,13 +121,13 @@ public static class DrawManager
 			{
 				foreach (var id in gmo.Definition.CollisionScript.Keys)
 				{
-					/*var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
+					var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, (int)id, gmo);
 					if (collide != null)
 					{
 						VMExecutor.EnvironmentStack.Push(new VMScriptExecutionContext() { Self = collide, ObjectDefinition = collide.Definition, Stack = new() });
 						GamemakerObject.ExecuteScript(gmo, gmo.Definition, EventType.Collision, id);
 						VMExecutor.EnvironmentStack.Pop();
-					}*/
+					}
 				}
 			}
 		}

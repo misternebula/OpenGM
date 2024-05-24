@@ -1843,8 +1843,14 @@ public static class ScriptResolver
 			throw new NotImplementedException($"{obj} given to place_meeting");
 		}
 
-		//todo : implement
-		return false;
+		if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			return CollisionManager.place_meeting_assetid(x, y, obj, args.Ctx.Self);
+		}
+		else
+		{
+			return CollisionManager.place_meeting_instanceid(x, y, obj, args.Ctx.Self);
+		}
 	}
 
 	public static object collision_rectangle(Arguments args)
@@ -1862,8 +1868,14 @@ public static class ScriptResolver
 			throw new NotImplementedException($"{obj} given to collision_rectangle!");
 		}
 
-		//todo : implement
-		return false;
+		if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			return CollisionManager.collision_rectangle_assetid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
+		}
+		else
+		{
+			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
+		}
 	}
 }
 

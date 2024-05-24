@@ -34,7 +34,7 @@ public class GamemakerObject : DrawWithDepth
 		set
 		{
 			_image_xscale = value;
-			//CollisionManager.UpdateRotationMask(this);
+			CollisionManager.UpdateRotationMask(this);
 		}
 	}
 
@@ -45,7 +45,7 @@ public class GamemakerObject : DrawWithDepth
 		set
 		{
 			_image_yscale = value;
-			//CollisionManager.UpdateRotationMask(this);
+			CollisionManager.UpdateRotationMask(this);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class GamemakerObject : DrawWithDepth
 		set
 		{
 			_image_angle = value;
-			//CollisionManager.UpdateRotationMask(this);
+			CollisionManager.UpdateRotationMask(this);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class GamemakerObject : DrawWithDepth
 
 			if (margins != Vector4.Zero)
 			{
-				//CollisionManager.RegisterCollider(this, margins);
+				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
 	}
@@ -145,7 +145,7 @@ public class GamemakerObject : DrawWithDepth
 
 			if (margins != Vector4.Zero)
 			{
-				//CollisionManager.RegisterCollider(this, margins);
+				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
 	}
@@ -177,7 +177,7 @@ public class GamemakerObject : DrawWithDepth
 
 			if (margins != Vector4.Zero)
 			{
-				//CollisionManager.RegisterCollider(this, margins);
+				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
 	}
@@ -244,7 +244,7 @@ public class GamemakerObject : DrawWithDepth
 
 	public bool _createRan;
 
-	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
+	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, uint instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
 	{
 		Definition = obj;
 		this.x = x;
@@ -264,7 +264,7 @@ public class GamemakerObject : DrawWithDepth
 
 		if (margins != Vector4.Zero)
 		{
-			//CollisionManager.RegisterCollider(this, margins);
+			CollisionManager.RegisterCollider(this, margins);
 		}
 	}
 

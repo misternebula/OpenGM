@@ -20,7 +20,7 @@ public class SpriteData
 	public int OriginX;
 	public int OriginY;
 	public List<SpritePageItem> Textures;
-	// collision masks
+	public List<byte[]> CollisionMasks = new();
 	public float PlaybackSpeed;
 	public AnimSpeedType PlaybackSpeedType;
 

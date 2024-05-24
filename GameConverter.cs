@@ -348,6 +348,11 @@ public static class GameConverter
 				asset.Textures.Add(pageItem);
 			}
 
+			foreach (var item in sprite.CollisionMasks)
+			{
+				asset.CollisionMasks.Add(item.Data);
+			}
+
 			var saveDirectory = Path.Combine(outputPath, $"{sprite.Name.Content}.json");
 			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
 		}

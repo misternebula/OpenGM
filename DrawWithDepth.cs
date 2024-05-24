@@ -3,7 +3,7 @@
 [Serializable]
 public abstract class DrawWithDepth
 {
-	public int instanceId;
+	public uint instanceId;
 	public double depth;
 
 	public abstract void Draw();
