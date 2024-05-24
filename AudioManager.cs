@@ -121,7 +121,7 @@ public static class AudioManager
 	/// </summary>
 	private static void LoadSounds()
 	{
-		Console.Write($"Loading asset order...");
+		Console.Write($"Loading sounds...");
 
 		var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
 		var files = Directory.GetFiles(soundsFolder, "*.json");
