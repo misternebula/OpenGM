@@ -1,6 +1,7 @@
 using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+using NAudio.Wave;
 using Newtonsoft.Json;
+using NVorbis;
 using OpenTK.Audio.OpenAL;
 
 namespace DELTARUNITYStandalone;
@@ -13,6 +14,8 @@ namespace DELTARUNITYStandalone;
  * https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/
  * https://gist.github.com/kamiyaowl/32fb397e0141c65792e1
  * https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf
+ *
+ * if openal sucks too much, could try using naudio
  */
 
 public class AudioInstance
@@ -35,7 +38,8 @@ public static class AudioManager
 	private static ALDevice _device;
 	private static ALContext _context;
 
-	private static List<int> _activeSources = new();
+	private static List<AudioInstance> _audioSources = new();
+	private static Dictionary<int, AudioAsset> _audioClips = new();
 
 	public static void Init()
 	{
@@ -54,6 +58,7 @@ public static class AudioManager
 		CheckALError();
 
 		// test
+		if (false)
 		{
 			/*
 			* these are like clips
@@ -98,14 +103,51 @@ public static class AudioManager
 		// TODO: see https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
 		Console.Write($"Loading asset order...");
 
-		var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
-		var files = Directory.GetFiles(soundsFolder);
+		var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
+		var files = Directory.GetFiles(soundsFolder, "*.json");
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
 			var asset = JsonConvert.DeserializeObject<SoundAsset>(text);
-		}
 
+			float[] data;
+			bool stereo;
+			int freq;
+			if (Path.GetExtension(asset.File) == ".wav")
+			{
+				var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
+				data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
+				reader.Read(data, 0, data.Length);
+				stereo = reader.WaveFormat.Channels == 2;
+				freq = reader.WaveFormat.SampleRate;
+			}
+			else if (Path.GetExtension(asset.File) == ".ogg")
+			{
+				var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
+				data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
+				reader.ReadSamples(data, 0, data.Length);
+				stereo = reader.Channels == 2;
+				freq = reader.SampleRate;
+			}
+			else
+			{
+				DebugLog.LogError($"unknown audio file format {asset.File}");
+				return;
+			}
+
+			var buffer = AL.GenBuffer();
+			CheckALError();
+			AL.BufferData(buffer, stereo ? ALFormat.StereoFloat32Ext : ALFormat.MonoFloat32Ext, data, freq);
+			CheckALError();
+
+			_audioClips[asset.AssetID] = new()
+			{
+				AssetIndex = asset.AssetID,
+				Buffer = buffer,
+				Gain = asset.Volume,
+				Pitch = asset.Pitch,
+			};
+		}
 
 		Console.WriteLine($" Done!");
 	}
@@ -116,6 +158,16 @@ public static class AudioManager
 		 * deallocate all the buffers
 		 * and currently playing sources here
 		 */
+		foreach (var source in _audioSources)
+		{
+			AL.DeleteSource(source.Source);
+			CheckALError();
+		}
+		foreach (var buffer in _audioClips.Values)
+		{
+			AL.DeleteSource(buffer.Buffer);
+			CheckALError();
+		}
 
 		ALC.MakeContextCurrent(ALContext.Null);
 		CheckALCError();
@@ -134,7 +186,7 @@ public static class AudioManager
 		 * i guess its not a pool at that point. more of an "active sources" thing.
 		 * could do the same for buffers if theyre not all made on init
 		 */
-		foreach (var activeSource in _activeSources) { }
+		foreach (var source in _audioSources) { }
 	}
 
 	private static void CheckALCError()

@@ -728,7 +728,8 @@ public static class GameConverter
 			asset.AssetID = data.Sounds.IndexOf(item);
 			asset.Name = item.Name.Content;
 			asset.Volume = item.Volume;
-			asset.Pitch = item.Pitch;
+			// asset.Pitch = item.Pitch;
+			asset.Pitch = 1; // BUG: in UTMT pitch is always 0???
 
 			// https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
 			// ignore compressed for now
