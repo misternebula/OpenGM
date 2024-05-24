@@ -171,7 +171,13 @@ public static class CollisionManager
 
 	public static void UpdateRotationMask(GamemakerObject obj)
 	{
-		var collider = colliders.Single(x => x.GMObject == obj);
+		var collider = colliders.SingleOrDefault(x => x.GMObject == obj);
+
+		if (collider == null)
+		{
+			DebugLog.LogWarning($"No collider found for {obj.instanceId} ({obj.object_index})");
+			return;
+		}
 
 		if (collider.SepMasks != UndertaleSprite.SepMaskType.Precise)
 		{
@@ -288,11 +294,6 @@ public static class CollisionManager
 
 	public static int collision_rectangle_assetid(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, int assetId, bool precise, bool notme, GamemakerObject current)
 	{
-		if (assetId == 81)
-		{
-			DebugLog.Log($"collision_rectangle_assetid topleftX:{topLeftX} topleftY:{topLeftY} bottomRightX:{bottomRightX} bottomRightY:{bottomRightY} assetId:{assetId} precise:{precise}");
-		}
-		
 		if (bottomRightX < topLeftX)
 		{
 			(bottomRightX, topLeftX) = (topLeftX, bottomRightX);
@@ -565,8 +566,6 @@ public static class CollisionManager
 					continue;
 				}
 
-				DebugLog.Log($"Checking precise collision between {movedBox.GMObject.object_index} and {checkBox.GMObject.object_index}");
-
 				if (movedBox.CachedRotatedMask == null)
 				{
 					(movedBox.CachedRotatedMask, movedBox.CachedRotatedMaskOffset) = RotateMask(movedBox.CollisionMask, movedBox.GMObject.image_angle, movedBox.Origin.X, movedBox.Origin.Y, movedBox.Scale.X, movedBox.Scale.Y);
@@ -600,15 +599,6 @@ public static class CollisionManager
 
 						// Get the world space position of the center of this pixel
 						var currentPixelPos = new Vector2((int)movedBox.Position.X + currentOffset.X + col + 0.5f, (int)movedBox.Position.Y + currentOffset.Y + row + 0.5f);
-
-						CustomWindow.RenderJobs.Add(new GMRectangleJob()
-						{
-							alpha = SpriteManager.DrawAlpha,
-							blend = Color4.White,
-							screenPos = currentPixelPos,
-							height = 1,
-							width = 1
-						});
 
 						// Get the world space position of the top-left of the other rotated mask
 						var checkMaskTopLeft = new Vector2i((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
@@ -647,6 +637,7 @@ public static class CollisionManager
 				}
 			}
 		}
+
 		current.x = savedX;
 		current.y = savedY;
 		return null;

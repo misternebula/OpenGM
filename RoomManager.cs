@@ -22,6 +22,7 @@ public static class RoomManager
 
 	public static void ChangeToWaitingRoom()
 	{
+		DebugLog.LogInfo($"Changing to {RoomToChangeTo.Name}");
 		ChangeRoomAfterEventExecution = false;
 
 		// events could destroy other objects, cant modify during iteration
@@ -59,13 +60,26 @@ public static class RoomManager
 	{
 		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
 
+		var createdObjects = new List<GamemakerObject>();
+
 		foreach (var layer in CurrentRoom.Layers)
 		{
 			if (layer.Instances_Objects != null)
 			{
 				foreach (var item in layer.Instances_Objects)
 				{
-					InstanceManager.instance_create_depth(item.X, item.Y, layer.LayerDepth, item.DefinitionID);
+					//var id = InstanceManager.instance_create_depth(item.X, item.Y, layer.LayerDepth, item.DefinitionID);
+
+					var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
+					var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, InstanceManager._highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+					
+					newGM._createRan = true;
+					newGM.image_xscale = item.ScaleX;
+					newGM.image_yscale = item.ScaleY;
+					newGM.image_blend = (int)item.Color;
+					newGM.image_angle = item.Rotation;
+					
+					createdObjects.Add(newGM);
 				}
 			}
 
@@ -93,6 +107,14 @@ public static class RoomManager
 				}
 			}
 		}
+
+		foreach (var obj in createdObjects)
+		{
+			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.PreCreate);
+			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Create);
+		}
+
+		DebugLog.LogInfo($"- Finished room change.");
 
 		RoomLoaded = true;
 	}

@@ -27,7 +27,7 @@ public class GamemakerObject : DrawWithDepth
 	public Vector4i margins = Vector4i.Zero;
 	public double image_speed = 1;
 
-	private double _image_xscale;
+	private double _image_xscale = 1;
 	public double image_xscale
 	{
 		get => _image_xscale;
@@ -38,7 +38,7 @@ public class GamemakerObject : DrawWithDepth
 		}
 	}
 
-	private double _image_yscale;
+	private double _image_yscale = 1;
 	public double image_yscale
 	{
 		get => _image_yscale;
@@ -254,7 +254,7 @@ public class GamemakerObject : DrawWithDepth
 		this.sprite_index = spriteIndex;
 		this.visible = visible;
 		this.persistent = persistent;
-		// mask id
+		this.mask_id = maskId;
 
 		xstart = x;
 		ystart = y;
