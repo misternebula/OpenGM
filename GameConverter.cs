@@ -733,35 +733,30 @@ public static class GameConverter
 			// https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
 			// ignore compressed for now
 			{
-				Dictionary<int, IList<UndertaleEmbeddedAudio>> loadedAudioGroups = new();
-
 				if (item.AudioID == -1)
 				{
 					// external .ogg
-					asset.File = Path.Combine(outputPath, asset.Name + ".ogg");
-					File.Copy(asset.Name + ".ogg", asset.File);
+					asset.File = $"{asset.Name}.ogg";
+					File.Copy(asset.File, Path.Combine(outputPath, asset.File));
 				}
 				else if (item.GroupID == data.GetBuiltinSoundGroupID())
 				{
 					// embedded .wav
-					asset.File = Path.Combine(outputPath, asset.Name + ".wav");
+					asset.File = $"{asset.Name}.wav";
 					var embeddedAudio = data.EmbeddedAudio;
-					File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
+					File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
 				}
 				else
 				{
 					// .wav in some audio group file
-					asset.File = Path.Combine(outputPath, asset.Name + ".wav");
-					if (!loadedAudioGroups.TryGetValue(item.GroupID, out var embeddedAudio))
-					{
-						var audioGroupPath = $"audiogroup{item.GroupID}.dat";
-						using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
-						var audioGroupData = UndertaleIO.Read(stream);
+					asset.File = $"{asset.Name}.wav";
 
-						embeddedAudio = audioGroupData.EmbeddedAudio;
-						loadedAudioGroups.Add(item.GroupID, embeddedAudio);
-					}
-					File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
+					var audioGroupPath = $"audiogroup{item.GroupID}.dat";
+					using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
+					var audioGroupData = UndertaleIO.Read(stream);
+
+					var embeddedAudio = audioGroupData.EmbeddedAudio;
+					File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
 				}
 			}
 
