@@ -121,7 +121,6 @@ public static class AudioManager
 	/// </summary>
 	private static void LoadSounds()
 	{
-		// TODO: see https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
 		Console.Write($"Loading asset order...");
 
 		var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
