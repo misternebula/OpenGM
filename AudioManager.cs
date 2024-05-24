@@ -1,4 +1,5 @@
 using DELTARUNITYStandalone.SerializedFiles;
+using DELTARUNITYStandalone.VirtualMachine;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using NVorbis;
@@ -7,8 +8,9 @@ using System.Runtime.CompilerServices;
 
 namespace DELTARUNITYStandalone;
 
-// TODO: copy from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs
 /*
+ * copied from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs
+ * 
  * installation:
  * download release from https://github.com/kcat/openal-soft
  * rename bin/Win64/guy to OpenAL32.dll
@@ -27,12 +29,15 @@ public class AudioInstance
 	public AudioAsset Asset;
 	public int SoundInstanceId;
 	public int Source;
+	public double Priority;
+	public float Timer;
 }
 
 public class AudioAsset
 {
 	public int AssetIndex;
-	public int Buffer;
+	public string Name;
+	public int Clip;
 	public double Gain;
 	public double Pitch;
 }
@@ -41,6 +46,8 @@ public static class AudioManager
 {
 	private static ALDevice _device;
 	private static ALContext _context;
+
+	public const int AudioChannelNum = 128;
 
 	private static List<AudioInstance> _audioSources = new();
 	private static Dictionary<int, AudioAsset> _audioClips = new();
@@ -69,7 +76,7 @@ public static class AudioManager
 			* we can probably alloc one for each sound on init
 			* otherwise just alloc and dealloc as needed
 			*/
-			AL.GenBuffer(out var buffer);
+			var buffer = AL.GenBuffer();
 			CheckALError();
 			var bufferData = new double[44100 * 2];
 			for (var i = 0; i < bufferData.Length; i += 2)
@@ -84,7 +91,7 @@ public static class AudioManager
 			* these are audio sources
 			* pretty self explanatory
 			*/
-			AL.GenSource(out var source);
+			var source = AL.GenSource();
 			CheckALError();
 			AL.Source(source, ALSourcei.Buffer, buffer);
 			CheckALError();
@@ -98,13 +105,13 @@ public static class AudioManager
 		LoadSounds();
 
 		// test 2
-		if (true)
+		if (false)
 		{
 			var clip = _audioClips.Last().Value;
 
 			AL.GenSource(out var source);
 			CheckALError();
-			AL.Source(source, ALSourcei.Buffer, clip.Buffer);
+			AL.Source(source, ALSourcei.Buffer, clip.Clip);
 			CheckALError();
 			AL.Source(source, ALSourcef.Gain, (float)clip.Gain);
 			CheckALError();
@@ -112,6 +119,12 @@ public static class AudioManager
 			CheckALError();
 			AL.SourcePlay(source);
 			CheckALError();
+
+			_audioSources.Add(new()
+			{
+				Asset = clip,
+				Source = source,
+			});
 		}
 	}
 
@@ -163,7 +176,8 @@ public static class AudioManager
 			_audioClips[asset.AssetID] = new()
 			{
 				AssetIndex = asset.AssetID,
-				Buffer = buffer,
+				Name = asset.Name,
+				Clip = buffer,
 				Gain = asset.Volume,
 				Pitch = asset.Pitch,
 			};
@@ -183,9 +197,9 @@ public static class AudioManager
 			AL.DeleteSource(source.Source);
 			CheckALError();
 		}
-		foreach (var buffer in _audioClips.Values)
+		foreach (var clip in _audioClips.Values)
 		{
-			AL.DeleteBuffer(buffer.Buffer);
+			AL.DeleteBuffer(clip.Clip);
 			CheckALError();
 		}
 
@@ -206,10 +220,22 @@ public static class AudioManager
 		 * i guess its not a pool at that point. more of an "active sources" thing.
 		 * could do the same for buffers if theyre not all made on init
 		 */
-		foreach (var source in _audioSources) { }
+		for (var i = _audioSources.Count - 1; i >= 0; i--)
+		{
+			var source = _audioSources[i];
+			var state = (ALSourceState)AL.GetSource(source.Source, ALGetSourcei.SourceState);
+			CheckALError();
+			if (state == ALSourceState.Stopped)
+			{
+				DebugLog.LogWarning($"source {source.Source} done");
+				AL.DeleteSource(source.Source);
+				CheckALError();
+				_audioSources.RemoveAt(i);
+			}
+		}
 	}
 
-	private static void CheckALCError(
+	public static void CheckALCError(
 		[CallerMemberName] string memberName = "",
 		[CallerFilePath] string sourceFilePath = "",
 		[CallerLineNumber] int sourceLineNumber = 0
@@ -222,7 +248,7 @@ public static class AudioManager
 		}
 	}
 
-	private static void CheckALError(
+	public static void CheckALError(
 		[CallerMemberName] string memberName = "",
 		[CallerFilePath] string sourceFilePath = "",
 		[CallerLineNumber] int sourceLineNumber = 0
@@ -233,5 +259,109 @@ public static class AudioManager
 		{
 			DebugLog.LogError($"[{memberName} at {sourceFilePath}:{sourceLineNumber}] AL error: {e}");
 		}
+	}
+
+
+	public static AudioInstance GetAudioInstance(int instanceId)
+	{
+		return _audioSources.FirstOrDefault(x => x.SoundInstanceId == instanceId);
+	}
+
+	public static AudioInstance[] GetAudioInstances(int assetIndex)
+	{
+		return _audioSources.Where(x => x.Asset.AssetIndex == assetIndex).ToArray();
+	}
+
+	public static void SetAssetGain(int assetIndex, double gain)
+	{
+		_audioClips[assetIndex].Gain = gain;
+	}
+
+	public static void SetAssetPitch(int assetIndex, double pitch)
+	{
+		_audioClips[assetIndex].Pitch = pitch;
+	}
+
+	public static AudioAsset GetAudioAsset(int assetIndex)
+	{
+		return _audioClips[assetIndex];
+	}
+
+	public static void StopAllAudio()
+	{
+		foreach (var item in _audioSources)
+		{
+			AL.SourceStop(item.Source);
+			CheckALError();
+		}
+		// itll get cleaned up by Update
+	}
+
+	private static int _highestSoundInstanceId = GMConstants.FIRST_INSTANCE_ID;
+
+	public static int audio_play_sound(int index, int priority, bool loop, double gain, double offset, double pitch)
+	{
+		//var name = AssetIndexManager.Instance.GetName(AssetType.sounds, index);
+
+		if (_audioSources.Count == AudioChannelNum)
+		{
+			var oldSourceInstance = _audioSources.OrderBy(x => x.Priority).First();
+			var oldSource = oldSourceInstance.Source;
+
+			DebugLog.Log($"Went over audio source limit - re-using source playing {oldSourceInstance.Asset.Name}");
+
+			AL.SourceStop(oldSource);
+			CheckALError();
+			AL.Source(oldSource, ALSourcei.Buffer, _audioClips[index].Clip);
+			CheckALError();
+			AL.Source(oldSource, ALSourceb.Looping, loop);
+			CheckALError();
+			AL.Source(oldSource, ALSourcef.Gain, (float)gain);
+			CheckALError();
+			AL.Source(oldSource, ALSourcef.SecOffset, (float)pitch);
+			CheckALError();
+			AL.Source(oldSource, ALSourcef.Pitch, (float)pitch);
+			CheckALError();
+			AL.SourcePlay(oldSource);
+			CheckALError();
+
+			oldSourceInstance.SoundInstanceId = ++_highestSoundInstanceId;
+			oldSourceInstance.Priority = priority;
+
+			return oldSourceInstance.SoundInstanceId;
+		}
+
+		if (index == -1 || !_audioClips.ContainsKey(index))
+		{
+			DebugLog.LogError($"AudioDatabase doesn't contain {index}!");
+			// Debug.Break();
+		}
+
+		var source = AL.GenSource();
+		CheckALError();
+		AL.Source(source, ALSourcei.Buffer, _audioClips[index].Clip);
+		CheckALError();
+		AL.Source(source, ALSourceb.Looping, loop);
+		CheckALError();
+		AL.Source(source, ALSourcef.Gain, (float)gain);
+		CheckALError();
+		AL.Source(source, ALSourcef.SecOffset, (float)pitch);
+		CheckALError();
+		AL.Source(source, ALSourcef.Pitch, (float)pitch);
+		CheckALError();
+		AL.SourcePlay(source);
+		CheckALError();
+
+		var instance = new AudioInstance
+		{
+			Asset = _audioClips[index],
+			SoundInstanceId = ++_highestSoundInstanceId,
+			Source = source,
+			Priority = priority,
+		};
+
+		_audioSources.Add(instance);
+
+		return instance.SoundInstanceId;
 	}
 }
