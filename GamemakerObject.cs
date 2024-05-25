@@ -27,25 +27,25 @@ public class GamemakerObject : DrawWithDepth
 	public Vector4i margins = Vector4i.Zero;
 	public double image_speed = 1;
 
-	private double _image_xscale;
+	private double _image_xscale = 1;
 	public double image_xscale
 	{
 		get => _image_xscale;
 		set
 		{
 			_image_xscale = value;
-			//CollisionManager.UpdateRotationMask(this);
+			CollisionManager.UpdateRotationMask(this);
 		}
 	}
 
-	private double _image_yscale;
+	private double _image_yscale = 1;
 	public double image_yscale
 	{
 		get => _image_yscale;
 		set
 		{
 			_image_yscale = value;
-			//CollisionManager.UpdateRotationMask(this);
+			CollisionManager.UpdateRotationMask(this);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class GamemakerObject : DrawWithDepth
 		set
 		{
 			_image_angle = value;
-			//CollisionManager.UpdateRotationMask(this);
+			CollisionManager.UpdateRotationMask(this);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class GamemakerObject : DrawWithDepth
 
 			if (margins != Vector4.Zero)
 			{
-				//CollisionManager.RegisterCollider(this, margins);
+				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
 	}
@@ -145,7 +145,7 @@ public class GamemakerObject : DrawWithDepth
 
 			if (margins != Vector4.Zero)
 			{
-				//CollisionManager.RegisterCollider(this, margins);
+				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
 	}
@@ -177,7 +177,7 @@ public class GamemakerObject : DrawWithDepth
 
 			if (margins != Vector4.Zero)
 			{
-				//CollisionManager.RegisterCollider(this, margins);
+				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
 	}
@@ -244,7 +244,7 @@ public class GamemakerObject : DrawWithDepth
 
 	public bool _createRan;
 
-	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
+	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, uint instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
 	{
 		Definition = obj;
 		this.x = x;
@@ -254,7 +254,7 @@ public class GamemakerObject : DrawWithDepth
 		this.sprite_index = spriteIndex;
 		this.visible = visible;
 		this.persistent = persistent;
-		// mask id
+		this.mask_id = maskId;
 
 		xstart = x;
 		ystart = y;
@@ -264,7 +264,7 @@ public class GamemakerObject : DrawWithDepth
 
 		if (margins != Vector4.Zero)
 		{
-			//CollisionManager.RegisterCollider(this, margins);
+			CollisionManager.RegisterCollider(this, margins);
 		}
 	}
 

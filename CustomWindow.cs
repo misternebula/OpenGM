@@ -295,16 +295,29 @@ public class CustomWindow : GameWindow
 
 		GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
 
+		var spriteWidth = (float)spriteJob.texture.TargetSizeX;
+		var spriteHeight = (float)spriteJob.texture.TargetSizeY;
+		var left = 0d;
+		var top = 0d;
+
+		if (spriteJob is GMSpritePartJob partJob)
+		{
+			spriteWidth = partJob.width;
+			spriteHeight = partJob.height;
+			left = partJob.left;
+			top = partJob.top;
+		}
+
 		var topLeft = new Vector2(spriteJob.screenPos.X + (spriteJob.origin.X * spriteJob.scale.X), spriteJob.screenPos.Y + (spriteJob.origin.Y * spriteJob.scale.Y));
-		var topRight = new Vector2(topLeft.X + (spriteJob.texture.TargetSizeX * spriteJob.scale.X), topLeft.Y);
-		var bottomRight = new Vector2(topRight.X, topRight.Y + (spriteJob.texture.TargetSizeY * spriteJob.scale.Y));
+		var topRight = new Vector2(topLeft.X + (spriteWidth * spriteJob.scale.X), topLeft.Y);
+		var bottomRight = new Vector2(topRight.X, topRight.Y + (spriteHeight * spriteJob.scale.Y));
 		var bottomLeft = new Vector2(topLeft.X, bottomRight.Y);
 
-		var uvTopLeftX = (double)spriteJob.texture.SourcePosX / pageTexture.Width;
-		var uvTopLeftY = (double)spriteJob.texture.SourcePosY / pageTexture.Height;
+		var uvTopLeftX = (spriteJob.texture.SourcePosX + left) / pageTexture.Width;
+		var uvTopLeftY = (spriteJob.texture.SourcePosY + top) / pageTexture.Height;
 
-		var uvWidth = (double)spriteJob.texture.SourceSizeX / pageTexture.Width;
-		var uvHeight = (double)spriteJob.texture.SourceSizeY / pageTexture.Height;
+		var uvWidth = (double)spriteWidth / pageTexture.Width;
+		var uvHeight = (double)spriteHeight / pageTexture.Height;
 
 		// Top left
 		GL.TexCoord2(uvTopLeftX, uvTopLeftY);

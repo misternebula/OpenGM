@@ -1,4 +1,6 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using System.Collections;
+using System.Text;
+using DELTARUNITYStandalone.SerializedFiles;
 using DELTARUNITYStandalone.VirtualMachine;
 using Newtonsoft.Json;
 using StbImageSharp;
@@ -106,6 +108,15 @@ public static class GameLoader
 
 			InstanceManager.ObjectDefinitions.Add(asset.AssetId, asset);
 		}
+
+		foreach (var item in InstanceManager.ObjectDefinitions.Values)
+		{
+			if (item.FileStorage.ParentID != -1)
+			{
+				item.parent = InstanceManager.ObjectDefinitions[item.FileStorage.ParentID];
+			}
+		}
+
 		Console.WriteLine($" Done!");
 	}
 

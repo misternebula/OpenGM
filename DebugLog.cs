@@ -19,6 +19,13 @@ public static class DebugLog
 		Console.ResetColor();
 	}
 
+	public static void LogInfo(string message)
+	{
+		Console.ForegroundColor = ConsoleColor.Cyan;
+		Console.WriteLine(message);
+		Console.ResetColor();
+	}
+
 	public static void LogError(string message)
 	{
 		Console.ForegroundColor = ConsoleColor.Red;
