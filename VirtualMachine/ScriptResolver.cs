@@ -1342,13 +1342,16 @@ public static class ScriptResolver
 	{
 		var w = Conv<int>(args.Args[0]);
 		var h = Conv<int>(args.Args[1]);
-		// TODO : implement
+
+		CustomWindow.Instance.ClientSize = new Vector2i(w, h);
+
 		return null;
 	}
 
 	public static object window_center(Arguments args)
 	{
-		// TODO : implement
+		CustomWindow.Instance.CenterWindow();
+
 		return null;
 	}
 
