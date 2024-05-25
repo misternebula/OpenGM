@@ -289,8 +289,6 @@ public class CustomWindow : GameWindow
 
 	private static void RenderSprite(GMSpriteJob spriteJob)
 	{
-		// TODO : implement GMSpritePartJob
-
 		var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
 
 		GL.Enable(EnableCap.Texture2D);
