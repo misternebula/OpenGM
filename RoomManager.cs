@@ -1,4 +1,5 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using System.Diagnostics;
+using DELTARUNITYStandalone.SerializedFiles;
 using DELTARUNITYStandalone.VirtualMachine;
 using UndertaleModLib.Models;
 using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
@@ -61,6 +62,15 @@ public static class RoomManager
 		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
 
 		var createdObjects = new List<GamemakerObject>();
+
+		foreach (var item in TileManager.Tiles)
+		{
+			item.Destroy();
+		}
+		TileManager.Tiles.Clear();
+
+		InstanceManager.RoomChange();
+		CollisionManager.RoomChange();
 
 		foreach (var layer in CurrentRoom.Layers)
 		{
@@ -151,12 +161,12 @@ public static class RoomManager
 
 	public static void room_goto_next()
 	{
-		ChangeRoomAfterEvent(RoomList[RoomList.Values.ToList().IndexOf(CurrentRoom) + 1]);
+		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId + 1]);
 	}
 
 	public static void room_goto_previous()
 	{
-		ChangeRoomAfterEvent(RoomList[RoomList.Values.ToList().IndexOf(CurrentRoom) - 1]);
+		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId -1]);
 	}
 
 	public static int room_next(int numb)

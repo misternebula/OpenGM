@@ -268,6 +268,12 @@ public class GamemakerObject : DrawWithDepth
 		}
 	}
 
+	public override void Destroy()
+	{
+		DrawManager.Unregister(this);
+		CollisionManager.UnregisterCollider(this);
+	}
+
 	private int _updateCounter;
 
 	public sealed override void Draw()

@@ -91,6 +91,11 @@ public static class CollisionManager
 {
 	private static List<ColliderClass> colliders = new();
 
+	public static void RoomChange()
+	{
+		colliders = colliders.Where(x => x.GMObject != null && x.GMObject.persistent).ToList();
+	}
+
 	public static void RegisterCollider(GamemakerObject sprite, Vector4 margins)
 	{
 		var spriteAsset = sprite.mask_id == -1
@@ -167,6 +172,11 @@ public static class CollisionManager
 			Origin = spriteAsset.Origin
 		});
 		UpdateRotationMask(sprite);
+	}
+
+	public static void UnregisterCollider(GamemakerObject sprite)
+	{
+		colliders.RemoveAll(x => x.GMObject == sprite);
 	}
 
 	public static void UpdateRotationMask(GamemakerObject obj)
