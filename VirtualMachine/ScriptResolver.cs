@@ -1529,11 +1529,11 @@ public static class ScriptResolver
 	public static object audio_play_sound(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
-		var priority = Conv<int>(args.Args[1]); // can this be a double?
+		var priority = Conv<double>(args.Args[1]);
 		var loop = Conv<bool>(args.Args[2]);
 		var asset = AudioManager.GetAudioAsset(index);
 		var gain = asset.Gain;
-		var offset = 0.0; // TODO
+		var offset = asset.Offset;
 		var pitch = asset.Pitch;
 		var listener_mask = 0; // TODO : work out what the hell this is for
 		if (args.Args.Length > 3)
@@ -1762,10 +1762,10 @@ public static class ScriptResolver
 			Clip = buffer,
 			Gain = 1,
 			Pitch = 1,
+			Offset = 0,
 		});
 	}
 
-	// docs say this is passed the file path, but in DR its passed the asset index of the stream... no idea
 	public static object audio_destroy_stream(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
@@ -1795,7 +1795,6 @@ public static class ScriptResolver
 			// sound asset index
 			AudioManager.SetAssetGain(index, volume);
 
-			// TODO : lerp on all existing instances
 			foreach (var item in AudioManager.GetAudioInstances(index))
 			{
 				AudioManager.ChangeGain(item.Source, volume, time);
@@ -1917,7 +1916,9 @@ public static class ScriptResolver
 
 		if (index < GMConstants.FIRST_INSTANCE_ID)
 		{
-			// TODO : All further instances of this sound need to start at the given time
+			AudioManager.SetAssetOffset(index, time);
+			
+			// unlike gain and pitch, this doesnt change currently playing instances
 		}
 		else
 		{
