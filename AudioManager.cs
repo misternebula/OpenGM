@@ -227,7 +227,7 @@ public static class AudioManager
 			CheckALError();
 			if (state == ALSourceState.Stopped)
 			{
-				DebugLog.LogWarning($"source {source.Source} done");
+				DebugLog.LogWarning($"source {source.Source} {source.Asset.Name} stopped = done playing");
 				AL.DeleteSource(source.Source);
 				CheckALError();
 				_audioSources.RemoveAt(i);
@@ -261,6 +261,27 @@ public static class AudioManager
 		}
 	}
 
+
+	public static int RegisterAudioClip(AudioAsset asset)
+	{
+		var index = AssetIndexManager.Register(AssetType.sounds, asset.Name);
+
+		_audioClips.Add(index, asset);
+		return index;
+	}
+
+	public static void UnregisterAudio(int index)
+	{
+		if (!_audioClips.ContainsKey(index))
+		{
+			DebugLog.Log($"- couldnt find audio asset {index}");
+			return;
+		}
+
+		var asset = _audioClips[index];
+		_audioClips.Remove(index);
+		AssetIndexManager.Unregister(AssetType.sounds, asset.Name);
+	}
 
 	public static AudioInstance GetAudioInstance(int instanceId)
 	{
