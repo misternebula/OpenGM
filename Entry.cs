@@ -28,10 +28,9 @@ internal class Entry
 		var nativeSettings = NativeWindowSettings.Default;
 		nativeSettings.WindowBorder = WindowBorder.Fixed;
 		nativeSettings.ClientSize = new Vector2i((int)firstRoom.SizeX, (int)firstRoom.SizeY);
-		nativeSettings.Profile = ContextProfile.Compatability;
+		nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
 
 		var window = new CustomWindow(gameSettings, nativeSettings, firstRoom.SizeX, firstRoom.SizeY);
-		window.CenterWindow();
 
 		PageManager.BindTextures();
 		AudioManager.Init();

@@ -50,6 +50,13 @@ public class CustomWindow : GameWindow
 		base.OnLoad();
 		UpdatePositionResolution();
 	}
+	
+	protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
+	{
+		base.OnFramebufferResize(e);
+		GL.Viewport(0, 0, e.Width, e.Height);
+		// "Resolution" below isnt really resolution, but just number of pixels you can see
+	}
 
 	public void SetPosition(double x, double y)
 	{
