@@ -7,4 +7,6 @@ public abstract class DrawWithDepth
 	public double depth;
 
 	public abstract void Draw();
+
+	public abstract void Destroy();
 }

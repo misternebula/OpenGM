@@ -28,7 +28,6 @@ public static class InstanceManager
 			return;
 		}
 
-		DebugLog.Log($"Registering {obj.Definition.Name} instanceid:{obj.instanceId}");
 		instances.Add(obj);
 	}
 
@@ -129,11 +128,22 @@ public static class InstanceManager
 	{
 		if (obj != null)
 		{
-			//obj.visible = false;
-			DrawManager.Unregister(obj);
-			//Destroy(obj.gameObject);
+			obj.Destroy();
 		}
 
 		instances.Remove(obj);
+	}
+
+	public static void RoomChange()
+	{
+		foreach (var instance in instances)
+		{
+			if (!instance.persistent)
+			{
+				instance.Destroy();
+			}
+		}
+
+		instances = instances.Where(x => x != null && x.persistent).ToList();
 	}
 }
