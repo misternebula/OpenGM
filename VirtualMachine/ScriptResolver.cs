@@ -45,6 +45,9 @@ public static class ScriptResolver
 		{ "event_user", event_user },
 		{ "place_meeting", place_meeting },
 		{ "collision_rectangle", collision_rectangle },
+		{ "script_execute", script_execute },
+		{ "point_distance", point_distance },
+		{ "point_direction", point_direction },
 
 		#region file_
 		{ "file_text_open_read", file_text_open_read },
@@ -2036,6 +2039,78 @@ public static class ScriptResolver
 		{
 			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
 		}
+	}
+
+	public static object script_execute(Arguments args)
+	{
+		var scriptAssetId = Conv<int>(args.Args[0]);
+		var scriptArgs = args.Args[1..];
+
+		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
+		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments() { Args = scriptArgs, Ctx = args.Ctx });
+	}
+
+	public static object point_distance(Arguments args)
+	{
+		var x1 = Conv<double>(args.Args[0]);
+		var y1 = Conv<double>(args.Args[1]);
+		var x2 = Conv<double>(args.Args[2]);
+		var y2 = Conv<double>(args.Args[3]);
+
+		var horizDistance = Math.Abs(x2 - x1);
+		var vertDistance = Math.Abs(y2 - y1);
+
+		return Math.Sqrt((horizDistance * horizDistance) + (vertDistance * vertDistance));
+	}
+
+	public static object point_direction(Arguments args)
+	{
+		var x1 = Conv<double>(args.Args[0]);
+		var y1 = Conv<double>(args.Args[1]);
+		var x2 = Conv<double>(args.Args[2]);
+		var y2 = Conv<double>(args.Args[3]);
+
+		// TODO : simplify this mess lol
+
+		var gmHoriz = x2 - x1;
+		var gmVert = y2 - y1;
+
+		if (gmHoriz >= 0 && gmVert == 0)
+		{
+			return 0;
+		}
+
+		if (gmHoriz > 0 && gmVert == 0)
+		{
+			return 0;
+		}
+
+		if (gmHoriz == 0 && gmVert < 0)
+		{
+			return 90;
+		}
+
+		// +gmVert means down, -gmVert means up
+		gmVert = -gmVert;
+
+		var angle = Math.Atan(gmVert / gmHoriz) * CustomMath.Rad2Deg;
+
+		if (gmVert > 0)
+		{
+			if (gmHoriz > 0)
+			{
+				return angle;
+			}
+
+			return angle + 180;
+		}
+
+		if (gmHoriz > 0)
+		{
+			return 360 + angle;
+		}
+
+		return 180 + angle;
 	}
 }
 
