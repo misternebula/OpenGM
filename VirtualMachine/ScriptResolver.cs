@@ -1526,11 +1526,11 @@ public static class ScriptResolver
 	public static object audio_play_sound(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
-		var priority = Conv<int>(args.Args[1]); // can this be a double?
+		var priority = Conv<double>(args.Args[1]);
 		var loop = Conv<bool>(args.Args[2]);
 		var asset = AudioManager.GetAudioAsset(index);
 		var gain = asset.Gain;
-		var offset = 0.0; // TODO
+		var offset = 0.0;
 		var pitch = asset.Pitch;
 		var listener_mask = 0; // TODO : work out what the hell this is for
 		if (args.Args.Length > 3)

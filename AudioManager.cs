@@ -339,7 +339,7 @@ public static class AudioManager
 
 	private static int _highestSoundInstanceId = GMConstants.FIRST_INSTANCE_ID;
 
-	public static int audio_play_sound(int index, int priority, bool loop, double gain, double offset, double pitch)
+	public static int audio_play_sound(int index, double priority, bool loop, double gain, double offset, double pitch)
 	{
 		//var name = AssetIndexManager.Instance.GetName(AssetType.sounds, index);
 
