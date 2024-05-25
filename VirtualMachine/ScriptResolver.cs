@@ -50,6 +50,9 @@ public static class ScriptResolver
 		{ "point_direction", point_direction },
 		{ "distance_to_point", distance_to_point },
 		{ "gpu_set_fog", gpu_set_fog },
+		{ "choose", choose },
+		{ "move_towards_point", move_towards_point },
+		{ "sprite_get_number", sprite_get_number },
 
 		#region file_
 		{ "file_text_open_read", file_text_open_read },
@@ -2185,6 +2188,29 @@ public static class ScriptResolver
 		SpriteManager.FogColor = colour;
 
 		return null;
+	}
+
+	public static object choose(Arguments args)
+	{
+		return args.Args[rnd.Next(0, args.Args.Length)];
+	}
+
+	public static object move_towards_point(Arguments args)
+	{
+		var targetx = Conv<double>(args.Args[0]);
+		var targety = Conv<double>(args.Args[1]);
+		var sp = Conv<double>(args.Args[2]);
+
+		args.Ctx.Self.direction = (double)point_direction(new Arguments() { Args = new object[] { args.Ctx.Self.x, args.Ctx.Self.y, targetx, targety } });
+		args.Ctx.Self.speed = sp;
+
+		return null;
+	}
+
+	public static object sprite_get_number(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+		return SpriteManager.GetNumberOfFrames(index);
 	}
 }
 
