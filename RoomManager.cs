@@ -84,6 +84,7 @@ public static class RoomManager
 					var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, InstanceManager._highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 					
 					newGM._createRan = true;
+					newGM.depth = layer.LayerDepth;
 					newGM.image_xscale = item.ScaleX;
 					newGM.image_yscale = item.ScaleY;
 					newGM.image_blend = (int)item.Color;
