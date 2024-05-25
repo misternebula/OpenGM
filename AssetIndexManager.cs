@@ -38,14 +38,13 @@ public static class AssetIndexManager
 				continue;
 			}
 
-			NameToIndex.Add(line, i - headerLineNumber - 1);
-
 			if (!AssetList.ContainsKey(currentAssetType))
 			{
 				AssetList.Add(currentAssetType, new Dictionary<string, int>());
 			}
 
 			AssetList[currentAssetType].Add(line, i - headerLineNumber - 1);
+			NameToIndex.Add(line, i - headerLineNumber - 1);
 		}
 		Console.WriteLine($" Done!");
 	}
@@ -64,6 +63,7 @@ public static class AssetIndexManager
 
 		var highestIndex = AssetList[type].Values.Max();
 		AssetList[type].Add(name, highestIndex + 1);
+		NameToIndex.Add(name, highestIndex + 1);
 		return highestIndex + 1;
 	}
 
@@ -80,5 +80,6 @@ public static class AssetIndexManager
 		}
 
 		AssetList[type].Remove(name);
+		NameToIndex.Remove(name);
 	}
 }
