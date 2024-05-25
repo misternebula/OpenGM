@@ -48,6 +48,8 @@ public static class ScriptResolver
 		{ "script_execute", script_execute },
 		{ "point_distance", point_distance },
 		{ "point_direction", point_direction },
+		{ "distance_to_point", distance_to_point },
+		{ "gpu_set_fog", gpu_set_fog },
 
 		#region file_
 		{ "file_text_open_read", file_text_open_read },
@@ -150,6 +152,7 @@ public static class ScriptResolver
 		{ "draw_text_color", draw_text_colour },
 		{ "draw_text_colour", draw_text_colour },
 		{ "draw_sprite_tiled_ext", draw_sprite_tiled_ext },
+		{ "draw_line_width", draw_line_width },
 		#endregion
 
 		#region camera_
@@ -2112,6 +2115,72 @@ public static class ScriptResolver
 		}
 
 		return 180 + angle;
+	}
+
+	public static object distance_to_point(Arguments args)
+	{
+		var x = Conv<double>(args.Args[0]);
+		var y = Conv<double>(args.Args[1]);
+
+		var self = args.Ctx.Self;
+
+		if (args.Ctx.Self.mask_id == -1 && args.Ctx.Self.sprite_index == -1)
+		{
+			// TODO : Docs just say this means the result will be "incorrect". Wtf does that mean???
+			// just assuming it does point_distance
+
+			var horizDistance = Math.Abs(self.x - x);
+			var vertDistance = Math.Abs(self.y - y);
+
+			return Math.Sqrt((horizDistance * horizDistance) + (vertDistance * vertDistance));
+		}
+
+		var centerX = (self.bbox_left + self.bbox_right) / 2.0;
+		var centerY = (self.bbox_top + self.bbox_bottom) / 2.0;
+		var width = self.bbox_right - self.bbox_left;
+		var height = self.bbox_bottom - self.bbox_top;
+
+		var dx = Math.Max(Math.Abs(x - centerX) - (width / 2.0), 0);
+		var dy = Math.Max(Math.Abs(y - centerY) - (height / 2.0), 0);
+		return Math.Sqrt((dx * dx) + (dy * dy));
+	}
+
+	public static object draw_line_width(Arguments args)
+	{
+		var x1 = Conv<double>(args.Args[0]);
+		var y1 = Conv<double>(args.Args[1]);
+		var x2 = Conv<double>(args.Args[2]);
+		var y2 = Conv<double>(args.Args[3]);
+		var w = Conv<int>(args.Args[4]);
+			
+		CustomWindow.RenderJobs.Add(new GMLineJob()
+		{
+			blend = SpriteManager.DrawColor.BGRToColor(),
+			alpha = SpriteManager.DrawAlpha,
+			start = new Vector2((float)x1, (float)y1),
+			end = new Vector2((float)x2, (float)y2),
+			width = w
+		});
+
+		return null;
+	}
+
+	public static object gpu_set_fog(Arguments args)
+	{
+		var enable = Conv<bool>(args.Args[0]);
+		var colour = Conv<int>(args.Args[1]);
+		var start = Conv<double>(args.Args[2]);
+		var end = Conv<double>(args.Args[3]);
+
+		if ((start != 0 && start != 1) || (end != 0 && end != 1))
+		{
+			throw new NotImplementedException("actual fog");
+		}
+
+		SpriteManager.FogEnabled = enable;
+		SpriteManager.FogColor = colour;
+
+		return null;
 	}
 }
 

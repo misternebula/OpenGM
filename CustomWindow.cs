@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System.Drawing;
 using UndertaleModLib.Decompiler;
 using Vector2 = OpenTK.Mathematics.Vector2;
 
@@ -114,6 +115,10 @@ public class CustomWindow : GameWindow
 			else if (item is GMSpriteJob spriteJob)
 			{
 				RenderSprite(spriteJob);
+			}
+			else if (item is GMLineJob lineJob)
+			{
+				RenderLine(lineJob);
 			}
 		}
 
@@ -338,6 +343,302 @@ public class CustomWindow : GameWindow
 		GL.End();
 
 		GL.Disable(EnableCap.Texture2D);
+	}
+
+	private static void RenderLine(GMLineJob lineJob)
+	{
+		var plotCoords = GetLinePoints(lineJob.start, lineJob.end, lineJob.width);
+
+		GL.Begin(BeginMode.Quads);
+		GL.Color4(new Color4(lineJob.blend.R, lineJob.blend.G, lineJob.blend.B, (float)lineJob.alpha));
+		for (var i = 0; i < plotCoords.Count; i++)
+		{
+			var start = plotCoords[i];
+			GL.Vertex2(start.X, start.Y);
+			GL.Vertex2(start.X + 1, start.Y);
+			GL.Vertex2(start.X + 1, start.Y + 1);
+			GL.Vertex2(start.X, start.Y + 1);
+		}
+
+		GL.End();
+	}
+
+	private const int LINE_OVERLAP_NONE = 0;
+	private const int LINE_OVERLAP_MAJOR = 0x01;
+	private const int LINE_OVERLAP_MINOR = 0x02;
+
+	/*
+	 * Line drawing algorithms from :
+	 * https://github.com/ArminJo/Arduino-BlueDisplay/blob/master/src/LocalGUI/ThickLine.hpp
+	 *
+	 * Copyright (C) 2013-2022  Armin Joachimsmeyer
+	 *  armin.joachimsmeyer@gmail.com
+	 */
+
+	private static List<Vector2i> drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, int aOverlap)
+	{
+		var pixels = new List<Vector2i>();
+
+		int tDeltaX, tDeltaY, tDeltaXTimes2, tDeltaYTimes2, tError, tStepX, tStepY;
+
+		// calculate direction
+		tDeltaX = aXEnd - aXStart;
+		tDeltaY = aYEnd - aYStart;
+
+		if (tDeltaX < 0)
+		{
+			tDeltaX = -tDeltaX;
+			tStepX = -1;
+		}
+		else
+		{
+			tStepX = +1;
+		}
+
+		if (tDeltaY < 0)
+		{
+			tDeltaY = -tDeltaY;
+			tStepY = -1;
+		}
+		else
+		{
+			tStepY = +1;
+		}
+		tDeltaXTimes2 = tDeltaX << 1;
+		tDeltaYTimes2 = tDeltaY << 1;
+		// draw start pixel
+		pixels.Add(new Vector2i(aXStart, aYStart));
+		if (tDeltaX > tDeltaY)
+		{
+			// start value represents a half step in Y direction
+			tError = tDeltaYTimes2 - tDeltaX;
+			while (aXStart != aXEnd)
+			{
+				// step in main direction
+				aXStart += tStepX;
+				if (tError >= 0)
+				{
+					if (aOverlap == LINE_OVERLAP_MAJOR)
+					{
+						// draw pixel in main direction before changing
+						pixels.Add(new Vector2i(aXStart, aYStart));
+					}
+					// change Y
+					aYStart += tStepY;
+					if (aOverlap == LINE_OVERLAP_MINOR)
+					{
+						// draw pixel in minor direction before changing
+						pixels.Add(new Vector2i(aXStart - tStepX, aYStart));
+					}
+					tError -= tDeltaXTimes2;
+				}
+				tError += tDeltaYTimes2;
+				pixels.Add(new Vector2i(aXStart, aYStart));
+			}
+		}
+		else
+		{
+			tError = tDeltaXTimes2 - tDeltaY;
+			while (aYStart != aYEnd)
+			{
+				aYStart += tStepY;
+				if (tError >= 0)
+				{
+					if (aOverlap == LINE_OVERLAP_MAJOR)
+					{
+						// draw pixel in main direction before changing
+						pixels.Add(new Vector2i(aXStart, aYStart));
+					}
+					aXStart += tStepX;
+					if (aOverlap == LINE_OVERLAP_MINOR)
+					{
+						// draw pixel in minor direction before changing
+						pixels.Add(new Vector2i(aXStart, aYStart - tStepY));
+					}
+					tError -= tDeltaYTimes2;
+				}
+				tError += tDeltaXTimes2;
+				pixels.Add(new Vector2i(aXStart, aYStart));
+			}
+		}
+
+		return pixels;
+	}
+
+	private static List<Vector2i> GetLinePoints(Vector2 start, Vector2 end, int aThickness)
+	{
+		var pixels = new List<Vector2i>();
+
+		int i, tDeltaX, tDeltaY, tDeltaXTimes2, tDeltaYTimes2, tError, tStepX, tStepY;
+
+		var aXStart = (int)start.X;
+		var aYStart = (int)start.Y;
+		var aXEnd = (int)end.X;
+		var aYEnd = (int)end.Y;
+
+		/*
+		 * For coordinate system with 0.0 top left
+		 * Swap X and Y delta and calculate clockwise (new delta X inverted)
+		 * or counterclockwise (new delta Y inverted) rectangular direction.
+		 * The right rectangular direction for LINE_OVERLAP_MAJOR toggles with each octant
+		 */
+		tDeltaY = aXEnd - aXStart;
+		tDeltaX = aYEnd - aYStart;
+		// mirror 4 quadrants to one and adjust deltas and stepping direction
+		bool tSwap = true; // count effective mirroring
+		if (tDeltaX < 0)
+		{
+			tDeltaX = -tDeltaX;
+			tStepX = -1;
+			tSwap = !tSwap;
+		}
+		else
+		{
+			tStepX = +1;
+		}
+		if (tDeltaY < 0)
+		{
+			tDeltaY = -tDeltaY;
+			tStepY = -1;
+			tSwap = !tSwap;
+		}
+		else
+		{
+			tStepY = +1;
+		}
+
+		tDeltaXTimes2 = tDeltaX << 1;
+		tDeltaYTimes2 = tDeltaY << 1;
+
+		int tOverlap;
+		// adjust for right direction of thickness from line origin
+		int tDrawStartAdjustCount = aThickness / 2;
+
+		/*
+		 * Now tDelta* are positive and tStep* define the direction
+		 * tSwap is false if we mirrored only once
+		 */
+		// which octant are we now
+		if (tDeltaX >= tDeltaY)
+		{
+			// Octant 1, 3, 5, 7 (between 0 and 45, 90 and 135, ... degree)
+			if (tSwap)
+			{
+				tDrawStartAdjustCount = (aThickness - 1) - tDrawStartAdjustCount;
+				tStepY = -tStepY;
+			}
+			else
+			{
+				tStepX = -tStepX;
+			}
+			/*
+			 * Vector for draw direction of the starting points of lines is rectangular and counterclockwise to main line direction
+			 * Therefore no pixel will be missed if LINE_OVERLAP_MAJOR is used on change in minor rectangular direction
+			 */
+			// adjust draw start point
+			tError = tDeltaYTimes2 - tDeltaX;
+			for (i = tDrawStartAdjustCount; i > 0; i--)
+			{
+				// change X (main direction here)
+				aXStart -= tStepX;
+				aXEnd -= tStepX;
+				if (tError >= 0)
+				{
+					// change Y
+					aYStart -= tStepY;
+					aYEnd -= tStepY;
+					tError -= tDeltaXTimes2;
+				}
+				tError += tDeltaYTimes2;
+			}
+			// draw start line.
+			pixels.AddRange(drawLineOverlap(aXStart, aYStart, aXEnd, aYEnd, LINE_OVERLAP_NONE));
+			// draw aThickness number of lines
+			tError = tDeltaYTimes2 - tDeltaX;
+			for (i = aThickness; i > 1; i--)
+			{
+				// change X (main direction here)
+				aXStart += tStepX;
+				aXEnd += tStepX;
+				tOverlap = LINE_OVERLAP_NONE;
+				if (tError >= 0)
+				{
+					// change Y
+					aYStart += tStepY;
+					aYEnd += tStepY;
+					tError -= tDeltaXTimes2;
+					/*
+					 * Change minor direction reverse to line (main) direction
+					 * because of choosing the right (counter)clockwise draw vector
+					 * Use LINE_OVERLAP_MAJOR to fill all pixel
+					 *
+					 * EXAMPLE:
+					 * 1,2 = Pixel of first 2 lines
+					 * 3 = Pixel of third line in normal line mode
+					 * - = Pixel which will additionally be drawn in LINE_OVERLAP_MAJOR mode
+					 *           33
+					 *       3333-22
+					 *   3333-222211
+					 * 33-22221111
+					 *  221111                     /\
+					 *  11                          Main direction of start of lines draw vector
+					 *  -> Line main direction
+					 *  <- Minor direction of counterclockwise of start of lines draw vector
+					 */
+					tOverlap = LINE_OVERLAP_MAJOR;
+				}
+				tError += tDeltaYTimes2;
+				pixels.AddRange(drawLineOverlap(aXStart, aYStart, aXEnd, aYEnd, tOverlap));
+			}
+		}
+		else
+		{
+			// the other octant 2, 4, 6, 8 (between 45 and 90, 135 and 180, ... degree)
+			if (tSwap)
+			{
+				tStepX = -tStepX;
+			}
+			else
+			{
+				tDrawStartAdjustCount = (aThickness - 1) - tDrawStartAdjustCount;
+				tStepY = -tStepY;
+			}
+			// adjust draw start point
+			tError = tDeltaXTimes2 - tDeltaY;
+			for (i = tDrawStartAdjustCount; i > 0; i--)
+			{
+				aYStart -= tStepY;
+				aYEnd -= tStepY;
+				if (tError >= 0)
+				{
+					aXStart -= tStepX;
+					aXEnd -= tStepX;
+					tError -= tDeltaYTimes2;
+				}
+				tError += tDeltaXTimes2;
+			}
+			//draw start line
+			pixels.AddRange(drawLineOverlap(aXStart, aYStart, aXEnd, aYEnd, LINE_OVERLAP_NONE));
+			// draw aThickness number of lines
+			tError = tDeltaXTimes2 - tDeltaY;
+			for (i = aThickness; i > 1; i--)
+			{
+				aYStart += tStepY;
+				aYEnd += tStepY;
+				tOverlap = LINE_OVERLAP_NONE;
+				if (tError >= 0)
+				{
+					aXStart += tStepX;
+					aXEnd += tStepX;
+					tError -= tDeltaYTimes2;
+					tOverlap = LINE_OVERLAP_MAJOR;
+				}
+				tError += tDeltaXTimes2;
+				pixels.AddRange(drawLineOverlap(aXStart, aYStart, aXEnd, aYEnd, tOverlap));
+			}
+		}
+
+		return pixels;
 	}
 }
 
