@@ -290,11 +290,11 @@ public static class CollisionManager
 
 				try
 				{
-					returnBuffer[row, col] = mask[-snappedToGridY, snappedToGridX];
+					returnBuffer[row, col] = mask[snappedToGridY, snappedToGridX];
 				}
 				catch (IndexOutOfRangeException e)
 				{
-					DebugLog.LogError($"Mask size : ({mask.GetLength(0)}, {mask.GetLength(1)}) -snappedToGrid.y:{-snappedToGridY} snappedToGrid.x:{snappedToGridX}");
+					DebugLog.LogError($"Mask size : ({mask.GetLength(0)}, {mask.GetLength(1)}) snappedToGrid.y:{snappedToGridY} snappedToGrid.x:{snappedToGridX}");
 				}
 			}
 		}
