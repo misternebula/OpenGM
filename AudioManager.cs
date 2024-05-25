@@ -41,6 +41,7 @@ public class AudioAsset
 	public int Clip;
 	public double Gain;
 	public double Pitch;
+	public double Offset;
 }
 
 public static class AudioManager
@@ -180,6 +181,7 @@ public static class AudioManager
 				Clip = buffer,
 				Gain = asset.Volume,
 				Pitch = asset.Pitch,
+				Offset = 0,
 			};
 		}
 
@@ -321,6 +323,12 @@ public static class AudioManager
 	{
 		_audioClips[assetIndex].Pitch = pitch;
 	}
+	
+	public static void SetAssetOffset(int assetIndex, double time)
+	{
+		_audioClips[assetIndex].Offset = time;
+	}
+	
 
 	public static AudioAsset GetAudioAsset(int assetIndex)
 	{
