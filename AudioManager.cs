@@ -165,8 +165,7 @@ public static class AudioManager
 			}
 			else
 			{
-				DebugLog.LogError($"unknown audio file format {asset.File}");
-				return;
+				throw new NotImplementedException($"unknown audio file format {asset.File}");
 			}
 
 			var buffer = AL.GenBuffer();
@@ -229,7 +228,7 @@ public static class AudioManager
 			// you cant re-play an existing instance, so stopped audio is used as a sign to clean up
 			if (state == ALSourceState.Stopped)
 			{
-				DebugLog.LogWarning($"source {source.Source} {source.Asset.Name} stopped manually or done playing");
+				DebugLog.Log($"source {source.Source} {source.Asset.Name} stopped manually or done playing");
 				AL.DeleteSource(source.Source);
 				CheckALError();
 				_audioSources.RemoveAt(i);
@@ -246,7 +245,7 @@ public static class AudioManager
 		var e = ALC.GetError(_device);
 		if (e != AlcError.NoError)
 		{
-			DebugLog.LogError($"[{memberName} at {sourceFilePath}:{sourceLineNumber}] ALC error: {e}");
+			throw new Exception($"ALC error: {e}");
 		}
 	}
 
@@ -259,7 +258,7 @@ public static class AudioManager
 		var e = AL.GetError();
 		if (e != ALError.NoError)
 		{
-			DebugLog.LogError($"[{memberName} at {sourceFilePath}:{sourceLineNumber}] AL error: {e}");
+			throw new Exception($"AL error: {e}");
 		}
 	}
 
@@ -277,13 +276,25 @@ public static class AudioManager
 	{
 		if (!_audioClips.ContainsKey(index))
 		{
-			DebugLog.Log($"- couldnt find audio asset {index}");
+			DebugLog.LogWarning($"UnregisterAudio - couldnt find audio asset {index}");
 			return;
 		}
 
 		var asset = _audioClips[index];
 
-		// no clue what happens if a source is using this buffer
+		// gotta remove sources playing this before we can delete it
+		foreach (var source in _audioSources)
+		{
+			var buffer = AL.GetSource(source.Source, ALGetSourcei.Buffer);
+			CheckALError();
+			if (asset.Clip == buffer)
+			{
+				AL.SourceStop(source.Source);
+				CheckALError();
+			}
+		}
+		Update(); // hack: deletes the sources. maybe make official stop and delete function
+
 		AL.DeleteBuffer(asset.Clip);
 		CheckALError();
 
@@ -323,7 +334,7 @@ public static class AudioManager
 			AL.SourceStop(item.Source);
 			CheckALError();
 		}
-		// itll get cleaned up by Update
+		Update(); // hack: deletes the sources. maybe make official stop and delete function
 	}
 
 	private static int _highestSoundInstanceId = GMConstants.FIRST_INSTANCE_ID;
@@ -334,10 +345,10 @@ public static class AudioManager
 
 		if (_audioSources.Count == AudioChannelNum)
 		{
-			var oldSourceInstance = _audioSources.OrderBy(x => x.Priority).First();
+			var oldSourceInstance = _audioSources.MinBy(x => x.Priority);
 			var oldSource = oldSourceInstance.Source;
 
-			DebugLog.Log($"Went over audio source limit - re-using source playing {oldSourceInstance.Asset.Name}");
+			DebugLog.LogWarning($"Went over audio source limit - re-using source playing {oldSourceInstance.Asset.Name}");
 
 			AL.SourceStop(oldSource);
 			CheckALError();

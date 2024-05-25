@@ -1852,6 +1852,7 @@ public static class ScriptResolver
 			AL.SourceStop(soundAsset.Source);
 			AudioManager.CheckALError();
 		}
+		AudioManager.Update(); // hack: deletes the sources. maybe make official stop and delete function
 		
 		return null;
 	}
