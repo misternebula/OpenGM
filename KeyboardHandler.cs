@@ -12,7 +12,7 @@ public class KeyboardHandler
 	{
 		for (var i = 0; i <= 255; i++)
 		{
-			var isDown = IsKeyDown(i);
+			var isDown = CustomWindow.Instance.IsFocused && IsKeyDown(i);
 			var wasDown = KeyDown[i];
 
 			KeyPressed[i] = isDown && !wasDown;
