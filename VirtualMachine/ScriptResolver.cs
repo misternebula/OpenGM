@@ -1,5 +1,7 @@
 ﻿using DELTARUNITYStandalone.SerializedFiles;
 using Newtonsoft.Json.Linq;
+using NVorbis;
+using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using System;
@@ -1520,8 +1522,36 @@ public static class ScriptResolver
 
 	public static object audio_play_sound(Arguments args)
 	{
-		// TODO : implement
-		return -1;
+		var index = Conv<int>(args.Args[0]);
+		var priority = Conv<int>(args.Args[1]); // can this be a double?
+		var loop = Conv<bool>(args.Args[2]);
+		var asset = AudioManager.GetAudioAsset(index);
+		var gain = asset.Gain;
+		var offset = 0.0; // TODO
+		var pitch = asset.Pitch;
+		var listener_mask = 0; // TODO : work out what the hell this is for
+		if (args.Args.Length > 3)
+		{
+			gain = Conv<double>(args.Args[3]);
+		}
+
+		if (args.Args.Length > 4)
+		{
+			offset = Conv<double>(args.Args[4]);
+		}
+
+		if (args.Args.Length > 5)
+		{
+			pitch = Conv<double>(args.Args[5]);
+		}
+
+		if (args.Args.Length > 6)
+		{
+			listener_mask = Conv<int>(args.Args[6]);
+		}
+
+		var ret = AudioManager.audio_play_sound(index, priority, loop, gain, offset, pitch);
+		return ret;
 	}
 
 	public static object audio_set_master_gain(Arguments args)
@@ -1707,16 +1737,33 @@ public static class ScriptResolver
 	{
 		var filename = Conv<string>(args.Args[0]);
 
-		// TODO: implement
+		// maybe this should be moved to RegisterAudioClip
+		using var reader = new VorbisReader(filename);
+		var data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
+		reader.ReadSamples(data, 0, data.Length);
+		var stereo = reader.Channels == 2;
+		var freq = reader.SampleRate;
 
-		return -1;
+		var buffer = AL.GenBuffer();
+		AudioManager.CheckALError();
+		AL.BufferData(buffer, stereo ? ALFormat.StereoFloat32Ext : ALFormat.MonoFloat32Ext, data, freq);
+		AudioManager.CheckALError();
+
+		return AudioManager.RegisterAudioClip(new()
+		{
+			// RegisterAudioClip sets AssetIndex
+			Name = Path.GetFileNameWithoutExtension(filename),
+			Clip = buffer,
+			Gain = 1,
+			Pitch = 1,
+		});
 	}
 
 	// docs say this is passed the file path, but in DR its passed the asset index of the stream... no idea
 	public static object audio_destroy_stream(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
-		//TODO : implement
+		AudioManager.UnregisterAudio(index);
 		return null;
 	}
 
@@ -1726,7 +1773,28 @@ public static class ScriptResolver
 		var volume = Conv<double>(args.Args[1]);
 		var time = Conv<double>(args.Args[2]);
 
-		// todo : implement
+		if (index >= GMConstants.FIRST_INSTANCE_ID)
+		{
+			// instance id
+			var soundAsset = AudioManager.GetAudioInstance(index);
+			if (soundAsset == null)
+			{
+				return null;
+			}
+
+			AudioManager.ChangeGain(soundAsset.Source, volume, time);
+		}
+		else
+		{
+			// sound asset index
+			AudioManager.SetAssetGain(index, volume);
+
+			// TODO : lerp on all existing instances
+			foreach (var item in AudioManager.GetAudioInstances(index))
+			{
+				AudioManager.ChangeGain(item.Source, volume, time);
+			}
+		}
 
 		return null;
 	}
@@ -1736,35 +1804,102 @@ public static class ScriptResolver
 		var index = Conv<int>(args.Args[0]);
 		var pitch = Conv<double>(args.Args[1]);
 
-		// todo : implement
+		if (index >= GMConstants.FIRST_INSTANCE_ID)
+		{
+			// instance id
+			var soundAsset = AudioManager.GetAudioInstance(index);
+			AL.Source(soundAsset.Source, ALSourcef.Pitch, (float)pitch);
+			AudioManager.CheckALError();
+		}
+		else
+		{
+			// sound asset index
+			AudioManager.SetAssetPitch(index, pitch);
+
+			foreach (var item in AudioManager.GetAudioInstances(index))
+			{
+				AL.Source(item.Source, ALSourcef.Pitch, (float)pitch);
+				AudioManager.CheckALError();
+			}
+		}
 
 		return null;
 	}
 
 	public static object audio_stop_all(Arguments args)
 	{
-		// todo : implement
+		DebugLog.Log($"audio_stop_all");
+		AudioManager.StopAllAudio();
 		return null;
 	}
 
 	public static object audio_stop_sound(Arguments args)
 	{
 		var id = Conv<int>(args.Args[0]);
-		// todo : implement
+		DebugLog.Log($"audio_stop_sound id:{id}");
+
+		if (id < GMConstants.FIRST_INSTANCE_ID)
+		{
+			foreach (var item in AudioManager.GetAudioInstances(id))
+			{
+				AL.SourceStop(item.Source);
+				AudioManager.CheckALError();
+			}
+		}
+		else
+		{
+			var soundAsset = AudioManager.GetAudioInstance(id);
+			AL.SourceStop(soundAsset.Source);
+			AudioManager.CheckALError();
+		}
+		
 		return null;
 	}
 
 	public static object audio_pause_sound(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
-		// todo : implement
+
+		if (index < GMConstants.FIRST_INSTANCE_ID)
+		{
+			foreach (var item in AudioManager.GetAudioInstances(index))
+			{
+				AL.SourcePause(item.Source);
+				AudioManager.CheckALError();
+			}
+		}
+		else
+		{
+			var instance = AudioManager.GetAudioInstance(index);
+			if (instance != null)
+			{
+				AL.SourcePause(instance.Source);
+				AudioManager.CheckALError();
+			}
+				
+		}
+		
 		return null;
 	}
 
 	public static object audio_resume_sound(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
-		// todo : implement
+
+		if (index < GMConstants.FIRST_INSTANCE_ID)
+		{
+			foreach (var item in AudioManager.GetAudioInstances(index))
+			{
+				AL.SourcePlay(item.Source);
+				AudioManager.CheckALError();
+			}
+		}
+		else
+		{
+			AL.SourcePlay(AudioManager.GetAudioInstance(index).Source);
+			AudioManager.CheckALError();
+		}
+
 		return null;
 	}
 
@@ -1772,15 +1907,40 @@ public static class ScriptResolver
 	{
 		var index = Conv<int>(args.Args[0]);
 		var time = Conv<double>(args.Args[1]);
-		// todo : implement
+
+		if (index < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// TODO : All further instances of this sound need to start at the given time
+		}
+		else
+		{
+			AL.Source(AudioManager.GetAudioInstance(index).Source, ALSourcef.SecOffset, (float)time);
+		}
+		
 		return null;
 	}
 
 	public static object audio_is_playing(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
-		// todo: implement
-		return false;
+
+		if (index < GMConstants.FIRST_INSTANCE_ID)
+		{
+			foreach (var item in AudioManager.GetAudioInstances(index))
+			{
+				if (item != null)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+		else
+		{
+			var instance = AudioManager.GetAudioInstance(index);
+			return instance != null;
+		}
 	}
 
 	static Random rnd = new Random();

@@ -14,8 +14,8 @@ internal class Entry
 		{
 			Console.WriteLine($"Extracting game assets...");
 			var dataPath = @"data.win";
-			var stream = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
-			var data = UndertaleIO.Read(stream);
+			using var stream = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
+			using var data = UndertaleIO.Read(stream);
 			GameConverter.ConvertGame(data);
 		}
 

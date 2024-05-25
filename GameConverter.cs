@@ -758,7 +758,7 @@ public static class GameConverter
 
 					var audioGroupPath = $"audiogroup{item.GroupID}.dat";
 					using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
-					var audioGroupData = UndertaleIO.Read(stream);
+					using var audioGroupData = UndertaleIO.Read(stream);
 
 					var embeddedAudio = audioGroupData.EmbeddedAudio;
 					File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);

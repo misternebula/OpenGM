@@ -10,8 +10,9 @@ namespace DELTARUNITYStandalone;
 
 /*
  * copied from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs
+ * organization is eh, spread out between here and ScriptResolver. its fine
  * 
- * installation:
+ * openal installation:
  * download release from https://github.com/kcat/openal-soft
  * rename bin/Win64/guy to OpenAL32.dll
  * copy into build folder
@@ -148,7 +149,7 @@ public static class AudioManager
 			int freq;
 			if (Path.GetExtension(asset.File) == ".wav")
 			{
-				var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
+				using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
 				data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
 				reader.Read(data, 0, data.Length);
 				stereo = reader.WaveFormat.Channels == 2;
@@ -156,7 +157,7 @@ public static class AudioManager
 			}
 			else if (Path.GetExtension(asset.File) == ".ogg")
 			{
-				var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
+				using var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
 				data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
 				reader.ReadSamples(data, 0, data.Length);
 				stereo = reader.Channels == 2;
@@ -225,6 +226,7 @@ public static class AudioManager
 			var source = _audioSources[i];
 			var state = (ALSourceState)AL.GetSource(source.Source, ALGetSourcei.SourceState);
 			CheckALError();
+			// you cant re-play an existing instance, so stopped audio is used as a sign to clean up
 			if (state == ALSourceState.Stopped)
 			{
 				DebugLog.LogWarning($"source {source.Source} {source.Asset.Name} stopped = done playing");
@@ -266,6 +268,7 @@ public static class AudioManager
 	{
 		var index = AssetIndexManager.Register(AssetType.sounds, asset.Name);
 
+		asset.AssetIndex = index;
 		_audioClips.Add(index, asset);
 		return index;
 	}
@@ -279,6 +282,11 @@ public static class AudioManager
 		}
 
 		var asset = _audioClips[index];
+
+		// no clue what happens if a source is using this buffer
+		AL.DeleteBuffer(asset.Clip);
+		CheckALError();
+
 		_audioClips.Remove(index);
 		AssetIndexManager.Unregister(AssetType.sounds, asset.Name);
 	}
@@ -384,5 +392,12 @@ public static class AudioManager
 		_audioSources.Add(instance);
 
 		return instance.SoundInstanceId;
+	}
+
+	public static void ChangeGain(int source, double volume, double milliseconds)
+	{
+		// todo implement lerping with timer
+		AL.Source(source, ALSourcef.Gain, (float)volume);
+		CheckALError();
 	}
 }
