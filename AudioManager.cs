@@ -229,7 +229,7 @@ public static class AudioManager
 			// you cant re-play an existing instance, so stopped audio is used as a sign to clean up
 			if (state == ALSourceState.Stopped)
 			{
-				DebugLog.LogWarning($"source {source.Source} {source.Asset.Name} stopped = done playing");
+				DebugLog.LogWarning($"source {source.Source} {source.Asset.Name} stopped manually or done playing");
 				AL.DeleteSource(source.Source);
 				CheckALError();
 				_audioSources.RemoveAt(i);
@@ -347,7 +347,7 @@ public static class AudioManager
 			CheckALError();
 			AL.Source(oldSource, ALSourcef.Gain, (float)gain);
 			CheckALError();
-			AL.Source(oldSource, ALSourcef.SecOffset, (float)pitch);
+			AL.Source(oldSource, ALSourcef.SecOffset, (float)offset);
 			CheckALError();
 			AL.Source(oldSource, ALSourcef.Pitch, (float)pitch);
 			CheckALError();
@@ -374,7 +374,7 @@ public static class AudioManager
 		CheckALError();
 		AL.Source(source, ALSourcef.Gain, (float)gain);
 		CheckALError();
-		AL.Source(source, ALSourcef.SecOffset, (float)pitch);
+		AL.Source(source, ALSourcef.SecOffset, (float)offset);
 		CheckALError();
 		AL.Source(source, ALSourcef.Pitch, (float)pitch);
 		CheckALError();
