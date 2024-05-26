@@ -330,8 +330,8 @@ public class CustomWindow : GameWindow
 		{
 			static Vector2 RotatePoint(Vector2 point, Vector2 pivot, double radians)
 			{
-				var cosTheta = Math.Cos(radians * CustomMath.Rad2Deg);
-				var sinTheta = Math.Sin(radians * CustomMath.Rad2Deg);
+				var cosTheta = Math.Cos(radians);
+				var sinTheta = Math.Sin(radians);
 
 				var x = (cosTheta * (point.X - pivot.X) - sinTheta * (point.Y - pivot.Y) + pivot.X);
 				var y = (sinTheta * (point.X - pivot.X) + cosTheta * (point.Y - pivot.Y) + pivot.Y);
@@ -339,10 +339,10 @@ public class CustomWindow : GameWindow
 				return new Vector2((float)x, (float)y);
 			}
 
-			topLeft = RotatePoint(topLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle);
-			topRight = RotatePoint(topRight, spriteJob.origin * spriteJob.scale, spriteJob.angle);
-			bottomRight = RotatePoint(bottomRight, spriteJob.origin * spriteJob.scale, spriteJob.angle);
-			bottomLeft = RotatePoint(bottomLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle);
+			topLeft = RotatePoint(topLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
+			topRight = RotatePoint(topRight, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
+			bottomRight = RotatePoint(bottomRight, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
+			bottomLeft = RotatePoint(bottomLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
 		}
 
 		var uvTopLeftX = (spriteJob.texture.SourcePosX + left) / pageTexture.Width;
