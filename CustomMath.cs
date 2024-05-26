@@ -28,4 +28,12 @@ public static class CustomMath
 	{
 		return (int)Math.Round(value);
 	}
+
+	/// <summary>
+	/// like Math.Sign but returns 1 when passed 0 (matches unity impl)
+	/// </summary>
+	public static double Sign(double value)
+	{
+		return value == 0 ? 1 : Math.Sign(value);
+	}
 }

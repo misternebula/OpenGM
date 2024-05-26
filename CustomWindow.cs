@@ -55,7 +55,8 @@ public class CustomWindow : GameWindow
 	{
 		base.OnFramebufferResize(e);
 		GL.Viewport(0, 0, e.Width, e.Height);
-		// "Resolution" below isnt really resolution, but just number of pixels you can see
+		// "Resolution" below isnt really resolution, but just number of "pixels" (units) you can see
+		// BUG: frame buffer should be fixed resolution thats just upscaled (for pixel perfect)
 	}
 
 	public void SetPosition(double x, double y)
@@ -326,6 +327,7 @@ public class CustomWindow : GameWindow
 		var bottomLeft = new Vector2(topLeft.X, bottomRight.Y);
 
 		// in this house we dont use matrices
+		// BUG: this definitely still does not work :P for the green battle area
 		if (spriteJob.angle != 0)
 		{
 			var sin = (float)Math.Sin(CustomMath.Deg2Rad * spriteJob.angle);

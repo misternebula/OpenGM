@@ -207,7 +207,7 @@ public class GamemakerObject : DrawWithDepth
 		{
 			_hspeed = value;
 			_direction = VectorToDir(hspeed, vspeed);
-			_speed = Math.Sign((float)_speed) * Math.Sqrt(Math.Pow(_hspeed, 2) + Math.Pow(_vspeed, 2));
+			_speed = CustomMath.Sign(_speed) * Math.Sqrt(Math.Pow(_hspeed, 2) + Math.Pow(_vspeed, 2));
 		}
 	}
 
@@ -219,7 +219,7 @@ public class GamemakerObject : DrawWithDepth
 		{
 			_vspeed = value;
 			_direction = VectorToDir(hspeed, vspeed);
-			_speed = Math.Sign((float)_speed) * Math.Sqrt(Math.Pow(_hspeed, 2) + Math.Pow(_vspeed, 2));
+			_speed = CustomMath.Sign(_speed) * Math.Sqrt(Math.Pow(_hspeed, 2) + Math.Pow(_vspeed, 2));
 		}
 	}
 
