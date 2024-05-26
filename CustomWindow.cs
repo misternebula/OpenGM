@@ -330,22 +330,23 @@ public class CustomWindow : GameWindow
 		// BUG: this definitely still does not work :P for the green battle area
 		if (spriteJob.angle != 0)
 		{
+			// stolen and edited from CollisionManager
 			var sin = (float)Math.Sin(CustomMath.Deg2Rad * spriteJob.angle);
 			var cos = (float)Math.Cos(CustomMath.Deg2Rad * spriteJob.angle);
 
 			var pivot = new Vector2(
-				spriteJob.screenPos.X + (spriteJob.origin.X * spriteJob.scale.X),
-				spriteJob.screenPos.Y + (spriteJob.origin.Y * spriteJob.scale.Y)
+				spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X),
+				spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y)
 			);
 
 			void RotateAroundPivot(ref Vector2 p)
 			{
 				p.X -= pivot.X;
 				p.Y -= pivot.Y;
-				p.X = (p.X * cos) - (p.Y * sin);
-				p.Y = (p.X * sin) + (p.Y * cos);
-				p.X += pivot.X;
-				p.Y += pivot.Y;
+				var xNew = (p.X * cos) - (p.Y * sin);
+				var yNew = (p.X * sin) + (p.Y * cos);
+				p.X = xNew + pivot.X;
+				p.Y = yNew + pivot.Y;
 			}
 
 			RotateAroundPivot(ref topLeft);
