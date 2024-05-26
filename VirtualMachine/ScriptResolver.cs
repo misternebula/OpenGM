@@ -12,182 +12,194 @@ using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
-public static class ScriptResolver
+public static partial class ScriptResolver
 {
 	public static Dictionary<string, VMScript> Scripts = new();
 	public static List<VMScript> GlobalInitScripts = new();
 
 	public static Dictionary<string, Func<Arguments, object>> BuiltInFunctions = new()
 	{
-		{ "layer_force_draw_depth", layer_force_draw_depth },
-		{ "array_length_1d", array_length_1d },
-		{ "@@NewGMLArray@@", newgmlarray },
-		{ "asset_get_index", asset_get_index },
-		{ "event_inherited", event_inherited },
-
-		#region ini_
-		{ "ini_open", ini_open },
-		{ "ini_read_string", ini_read_string },
-		{ "ini_write_string", ini_write_string },
-		{ "ini_read_real", ini_read_real },
-		{ "ini_write_real", ini_write_real },
-		{ "ini_close", ini_close },
-		#endregion
-
-		{ "variable_global_exists", variable_global_exists },
-		{ "show_debug_message", show_debug_message },
-		{ "json_decode", json_decode },
-		{ "font_add_sprite_ext", font_add_sprite_ext },
-		{ "merge_colour", merge_colour },
-		{ "merge_color", merge_colour },
-		{ "window_set_caption", window_set_caption },
-		{ "window_get_caption", window_get_caption },
-		{ "window_get_fullscreen", window_get_fullscreen },
-		{ "window_set_fullscreen", window_set_fullscreen },
-		{ "view_get_camera", view_get_camera },
-		{ "event_user", event_user },
+		#region Game
 		{ "place_meeting", place_meeting },
-		{ "collision_rectangle", collision_rectangle },
-		{ "script_execute", script_execute },
-		{ "point_distance", point_distance },
-		{ "point_direction", point_direction },
-		{ "distance_to_point", distance_to_point },
-		{ "gpu_set_fog", gpu_set_fog },
-		{ "choose", choose },
 		{ "move_towards_point", move_towards_point },
-		{ "sprite_get_number", sprite_get_number },
-
-		#region file_
-		{ "file_text_open_read", file_text_open_read },
-		{ "file_text_open_write", file_text_open_write },
-		{ "file_text_close", file_text_close },
-		{ "file_text_eof", file_text_eof },
-		{ "file_exists", file_exists },
-		{ "file_text_readln", file_text_readln },
-		{ "file_text_writeln", file_text_writeln },
-		{ "file_text_read_string", file_text_read_string },
-		{ "file_text_write_string", file_text_write_string },
-		{ "file_text_read_real", file_text_read_real },
-		{ "file_text_write_real", file_text_write_real },
-		{ "file_delete", file_delete },
-		{ "file_copy", file_copy },
-		#endregion
-
-		#region room_
-		{ "room_goto", room_goto },
-		{ "room_goto_next", room_goto_next },
-		{ "room_goto_previous", room_goto_previous },
-		{ "room_next", room_next },
-		{ "room_previous", room_previous },
-		#endregion
-
-		#region ds_
-		{ "ds_map_create", ds_map_create },
-		{ "ds_map_destroy", ds_map_destroy },
-		{ "ds_map_add", ds_map_add },
-		{ "ds_map_size", ds_map_size },
-		{ "ds_list_create", ds_list_create },
-		{ "ds_list_destroy", ds_list_destroy },
-		{ "ds_list_add", ds_list_add },
-		{ "ds_map_find_value", ds_map_find_value },
-		#endregion
-
-		#region string_
-		{ "string", _string },
-		{ "string_length", string_length },
-		{ "string_char_at", string_char_at },
-		{ "string_width", string_width },
-		{ "string_copy", string_copy },
-		{ "string_insert", string_insert },
-		{ "string_delete", string_delete },
-		{ "string_replace_all", string_replace_all },
-		{ "string_hash_to_newline", string_hash_to_newline },
-		{ "string_pos", string_pos },
-		#endregion
-
-		#region instance_
+		{ "distance_to_point", distance_to_point },
+		{ "collision_rectangle", collision_rectangle },
 		{ "instance_exists", instance_exists },
-		{ "instance_create_depth", instance_create_depth },
 		{ "instance_number", instance_number },
+		{ "instance_create_depth", instance_create_depth },
 		{ "instance_destroy", instance_destroy },
+		{ "room_goto", room_goto },
+		{ "room_goto_previous", room_goto_previous },
+		{ "room_goto_next", room_goto_next },
+		{ "room_previous", room_previous },
+		{ "room_next", room_next },
 		#endregion
 
 		#region Math
-		{ "floor", floor },
-		{ "ceil", ceil },
-		{ "abs", abs },
-		{ "sin", sin },
-		{ "cos", cos },
+		{ "array_length_1d", array_length_1d },
 		{ "random", random },
 		{ "random_range", random_range },
 		{ "irandom", irandom },
 		{ "irandom_range", irandom_range },
+		{ "abs", abs },
 		{ "round", round },
+		{ "floor", floor },
+		{ "ceil", ceil },
+		{ "sin", sin },
+		{ "cos", cos },
 		{ "min", min },
 		{ "max", max },
+		{ "choose", choose },
+		{ "string", _string },
+		{ "string_length", string_length },
+		{ "string_pos", string_pos },
+		{ "string_copy", string_copy },
+		{ "string_char_at", string_char_at },
+		{ "string_delete", string_delete },
+		{ "string_insert", string_insert },
+		{ "string_replace_all", string_replace_all },
+		{ "string_hash_to_newline", string_hash_to_newline },
+		{ "point_distance", point_distance },
+		{ "point_direction", point_direction },
 		#endregion
 
-		{ "keyboard_check", keyboard_check },
-		{ "keyboard_check_pressed", keyboard_check_pressed },
-		{ "display_get_height", display_get_height },
+		#region Graphic
 		{ "display_get_width", display_get_width },
+		{ "display_get_height", display_get_height },
+		{ "window_set_fullscreen", window_set_fullscreen },
+		{ "window_get_fullscreen", window_get_fullscreen },
+		{ "window_set_caption", window_set_caption },
+		{ "window_get_caption", window_get_caption },
 		{ "window_set_size", window_set_size },
 		{ "window_center", window_center },
-		{ "gamepad_button_check", gamepad_button_check },
-		{ "gamepad_axis_value", gamepad_axis_value },
-		{ "gamepad_is_connected", gamepad_is_connected },
-
-		#region draw_
 		{ "draw_set_colour", draw_set_colour },
 		{ "draw_set_color", draw_set_colour }, // mfw
+		{ "draw_set_alpha", draw_set_alpha },
 		{ "draw_get_colour", draw_get_colour },
 		{ "draw_get_color", draw_get_colour },
-		{ "draw_set_alpha", draw_set_alpha },
+		{ "merge_colour", merge_colour },
+		{ "merge_color", merge_colour },
+		{ "draw_line_width", draw_line_width },
+		{ "draw_rectangle", draw_rectangle },
 		{ "draw_set_font", draw_set_font },
 		{ "draw_set_halign", draw_set_halign },
 		{ "draw_set_valign", draw_set_valign },
-		{ "draw_rectangle", draw_rectangle },
+		{ "string_width", string_width },
 		{ "draw_text", draw_text },
 		{ "draw_text_transformed", draw_text_transformed },
-		{ "draw_sprite", draw_sprite },
-		{ "draw_sprite_ext", draw_sprite_ext },
-		{ "draw_sprite_part_ext", draw_sprite_part_ext },
-		{ "draw_sprite_part", draw_sprite_part },
-		{ "draw_self", draw_self },
-		{ "draw_sprite_stretched", draw_sprite_stretched },
 		{ "draw_text_color", draw_text_colour },
 		{ "draw_text_colour", draw_text_colour },
+		{ "draw_self", draw_self },
+		{ "draw_sprite", draw_sprite },
+		{ "draw_sprite_ext", draw_sprite_ext },
+		{ "draw_sprite_stretched", draw_sprite_stretched },
+		{ "draw_sprite_part", draw_sprite_part },
+		{ "draw_sprite_part_ext", draw_sprite_part_ext },
 		{ "draw_sprite_tiled_ext", draw_sprite_tiled_ext },
-		{ "draw_line_width", draw_line_width },
 		#endregion
 
-		#region camera_
+		#region File
+		{ "file_text_open_read", file_text_open_read },
+		{ "file_text_open_write", file_text_open_write },
+		{ "file_text_close", file_text_close },
+		{ "file_text_read_string", file_text_read_string },
+		{ "file_text_read_real", file_text_read_real },
+		{ "file_text_readln", file_text_readln },
+		{ "file_text_eof", file_text_eof },
+		{ "file_text_write_string", file_text_write_string },
+		{ "file_text_write_real", file_text_write_real },
+		{ "file_text_writeln", file_text_writeln },
+		{ "file_exists", file_exists },
+		{ "file_delete", file_delete },
+		{ "file_copy", file_copy },
+		{ "ini_open", ini_open },
+		{ "ini_close", ini_close },
+		{ "ini_read_string", ini_read_string },
+		{ "ini_read_real", ini_read_real },
+		{ "ini_write_string", ini_write_string },
+		{ "ini_write_real", ini_write_real },
+		{ "json_decode", json_decode },
+		#endregion
+
+		#region Resource
+		{ "sprite_get_number", sprite_get_number },
+		{ "font_add_sprite_ext", font_add_sprite_ext },
+		{ "script_execute", script_execute },
+		{ "asset_get_index", asset_get_index },
+		#endregion
+
+		#region Interaction
+		{ "keyboard_check", keyboard_check },
+		{ "keyboard_check_pressed", keyboard_check_pressed },
+		#endregion
+
+		#region 3D
+		{ "gpu_set_fog", gpu_set_fog },
+		#endregion
+
+		#region Misc
+		{ "event_inherited", event_inherited },
+		{ "event_user", event_user },
+		{ "show_debug_message", show_debug_message },
+		{ "variable_global_exists", variable_global_exists },
+		#endregion
+
+		#region DS
+		{ "ds_list_create", ds_list_create },
+		{ "ds_list_destroy", ds_list_destroy },
+		{ "ds_list_add", ds_list_add },
+		{ "ds_map_create", ds_map_create },
+		{ "ds_map_destroy", ds_map_destroy },
+		{ "ds_map_size", ds_map_size },
+		{ "ds_map_add", ds_map_add },
+		{ "ds_map_find_value", ds_map_find_value },
+		#endregion
+
+		#region Sound
+		{ "audio_play_sound", audio_play_sound },
+		{ "audio_stop_sound", audio_stop_sound },
+		{ "audio_pause_sound", audio_pause_sound },
+		{ "audio_resume_sound", audio_resume_sound },
+		{ "audio_is_playing", audio_is_playing },
+		{ "audio_sound_gain", audio_sound_gain },
+		{ "audio_sound_pitch", audio_sound_pitch},
+		{ "audio_stop_all", audio_stop_all },
+		{ "audio_set_master_gain", audio_set_master_gain },
+		{ "audio_sound_set_track_position", audio_sound_set_track_position },
+		{ "audio_group_load", audio_group_load },
+		{ "audio_group_is_loaded", audio_group_is_loaded },
+		{ "audio_group_set_gain", audio_group_set_gain },
+		{ "audio_create_stream", audio_create_stream },
+		{ "audio_destroy_stream", audio_destroy_stream },
+		#endregion
+
+		#region Gamepad
+		{ "gamepad_is_connected", gamepad_is_connected },
+		{ "gamepad_button_check", gamepad_button_check },
+		{ "gamepad_axis_value", gamepad_axis_value },
+		#endregion
+
+		#region YoYo
+		{ "@@NewGMLArray@@", newgmlarray },
+		#endregion
+
+		#region Layer
+		{ "layer_force_draw_depth", layer_force_draw_depth },
+		#endregion
+
+		#region Camera
+		{ "camera_set_view_pos", camera_set_view_pos },
+		{ "camera_set_view_target", camera_set_view_target },
 		{ "camera_get_view_x", camera_get_view_x },
 		{ "camera_get_view_y", camera_get_view_y },
 		{ "camera_get_view_width", camera_get_view_width },
 		{ "camera_get_view_height", camera_get_view_height },
-		{ "camera_set_view_target", camera_set_view_target },
 		//{ "camera_get_view_target", camera_get_view_target },
-		{ "camera_set_view_pos", camera_set_view_pos },
+		{ "view_get_camera", view_get_camera },
 		#endregion
 
-		#region audio_
-		{ "audio_create_stream", audio_create_stream },
-		{ "audio_destroy_stream", audio_destroy_stream },
-		{ "audio_play_sound", audio_play_sound },
-		{ "audio_sound_gain", audio_sound_gain },
-		{ "audio_sound_pitch", audio_sound_pitch},
-		{ "audio_stop_all", audio_stop_all },
-		{ "audio_stop_sound", audio_stop_sound },
-		{ "audio_group_load", audio_group_load },
-		{ "audio_is_playing", audio_is_playing },
-		{ "audio_group_set_gain", audio_group_set_gain },
-		{ "audio_set_master_gain", audio_set_master_gain },
-		{ "audio_pause_sound", audio_pause_sound },
-		{ "audio_resume_sound", audio_resume_sound },
-		{ "audio_sound_set_track_position", audio_sound_set_track_position },
-		{ "audio_group_is_loaded", audio_group_is_loaded },
-		#endregion
+		{ "lengthdir_x", lengthdir_x },
+		{ "lengthdir_y", lengthdir_y },
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -222,11 +234,7 @@ public static class ScriptResolver
 		return null;
 	}
 
-	public static object array_length_1d(Arguments args)
-	{
-		var array = (List<object>)args.Args[0];
-		return array.Count;
-	}
+	
 
 	public static object newgmlarray(Arguments args)
 	{
@@ -618,37 +626,6 @@ public static class ScriptResolver
 		return null;
 	}
 
-	public static object room_goto(Arguments args)
-	{
-		var index = Conv<int>(args.Args[0]);
-		RoomManager.ChangeRoomAfterEvent(index);
-		return null;
-	}
-
-	public static object room_goto_next(Arguments args)
-	{
-		RoomManager.room_goto_next();
-		return null;
-	}
-
-	public static object room_goto_previous(Arguments args)
-	{
-		RoomManager.room_goto_previous();
-		return null;
-	}
-
-	public static object room_next(Arguments args)
-	{
-		var numb = Conv<int>(args.Args[0]);
-		return RoomManager.room_next(numb);
-	}
-
-	public static object room_previous(Arguments args)
-	{
-		var numb = Conv<int>(args.Args[0]);
-		return RoomManager.room_previous(numb);
-	}
-
 	public static object variable_global_exists(Arguments args)
 	{
 		var name = Conv<string>(args.Args[0]);
@@ -824,201 +801,6 @@ public static class ScriptResolver
 		}
 	}
 
-	public static object _string(Arguments args)
-	{
-		var valueOrFormat = args.Args[0];
-		var values = new object[] { };
-		if (args.Args.Length > 1)
-		{
-			values = args.Args[1..];
-		}
-
-		if (args.Args.Length > 1)
-		{
-			// format
-			var format = (string)valueOrFormat;
-
-			// doing this like im in c lol
-			var result = new StringBuilder();
-			var bracesString = new StringBuilder();
-
-			var inBraces = false;
-			foreach (var formatChar in format)
-			{
-				if (!inBraces)
-				{
-					if (formatChar == '{')
-					{
-						inBraces = true;
-					}
-					else
-					{
-						result.Append(formatChar);
-					}
-				}
-				else
-				{
-					if (formatChar == '}')
-					{
-						inBraces = false;
-						var bracesNumber = int.Parse(bracesString.ToString());
-						bracesString.Clear();
-						result.Append(values[bracesNumber]);
-					}
-					else
-					{
-						bracesString.Append(formatChar);
-					}
-				}
-			}
-			if (inBraces)
-			{
-				result.Append(bracesString);
-			}
-
-			return result.ToString();
-		}
-		else
-		{
-			// value
-
-			if (valueOrFormat is List<object> list)
-			{
-				// array
-				// is any of this right? not sure.
-				var index = 0;
-				var result = new StringBuilder("[");
-				foreach (var item in list)
-				{
-					var elementString = (string)_string(new Arguments { Args = new object[] { item } });
-
-					result.Append(elementString);
-					if (index < list.Count - 1)
-					{
-						result.Append(", ");
-					}
-					index++;
-				}
-
-				result.Append("]");
-				return result.ToString();
-			}
-			else if (valueOrFormat is bool)
-			{
-				return Conv<string>(valueOrFormat);
-			}
-			else if (valueOrFormat is string)
-			{
-				return valueOrFormat;
-			}
-			else
-			{
-				// real
-				var num = Conv<double>(valueOrFormat);
-				var afterTwoDigits = num % 0.01f;
-				var truncated = num - afterTwoDigits;
-
-				return (truncated % 1) == 0
-					? truncated.ToString()
-					: Math.Round(truncated, 2).ToString();
-			}
-		}
-	}
-
-	public static object string_length(Arguments args)
-	{
-		var str = Conv<string>(args.Args[0]);
-
-		if (string.IsNullOrEmpty(str))
-		{
-			return 0;
-		}
-
-		return str.Length;
-	}
-
-	public static object string_char_at(Arguments args)
-	{
-		var str = Conv<string>(args.Args[0]);
-		var index = Conv<int>(args.Args[1]);
-
-		if (string.IsNullOrEmpty(str) || index > str.Length)
-		{
-			return "";
-		}
-
-		if (index <= 0)
-		{
-			return str[0].ToString();
-		}
-
-		// guh index starts at one? goofy gamemaker
-		return str[index - 1].ToString();
-	}
-
-	/*public static object string_width(Arguments args)
-	{
-		var str = Conv<string>(args.Args[0]);
-
-		return TextManager.TextManager.StringWidth(str);
-	}*/
-
-	public static object string_copy(Arguments args)
-	{
-		var str = Conv<string>(args.Args[0]);
-		var index = Conv<int>(args.Args[1]);
-		var count = Conv<int>(args.Args[2]);
-
-		return str.Substring(index - 1, count);
-	}
-
-	public static object string_insert(Arguments args)
-	{
-		var substr = Conv<string>(args.Args[0]);
-		var str = Conv<string>(args.Args[1]);
-		var index = Conv<int>(args.Args[2]);
-
-		return str.Insert(index - 1, substr);
-	}
-
-	public static object string_delete(Arguments args)
-	{
-		var str = Conv<string>(args.Args[0]);
-		var index = Conv<int>(args.Args[1]);
-		var count = Conv<int>(args.Args[2]);
-
-		return str.Remove(index - 1, count);
-	}
-
-	public static object string_replace_all(Arguments args)
-	{
-		var str = Conv<string>(args.Args[0]);
-		var substr = Conv<string>(args.Args[1]);
-		var newstr = Conv<string>(args.Args[2]);
-
-		return str.Replace(substr, newstr);
-	}
-
-	public static object string_hash_to_newline(Arguments args)
-	{
-		var text = Conv<string>(args.Args[0]);
-
-		if (string.IsNullOrEmpty(text))
-		{
-			return text;
-		}
-
-		return text.Replace("#", Environment.NewLine);
-	}
-
-	public static object string_pos(Arguments args)
-	{
-		var substr = Conv<string>(args.Args[0]);
-		var str = Conv<string>(args.Args[1]);
-
-		return str.IndexOf(substr) + 1;
-	}
-
 	public static object font_add_sprite_ext(Arguments args)
 	{
 		var spriteAssetIndex = Conv<int>(args.Args[0]);
@@ -1095,38 +877,6 @@ public static class ScriptResolver
 		}
 	}
 
-	public static object instance_exists(Arguments args)
-	{
-		var obj = Conv<int>(args.Args[0]);
-
-		if (obj > GMConstants.FIRST_INSTANCE_ID)
-		{
-			// instance id was passed
-			return InstanceManager.instance_exists_instanceid(obj);
-		}
-		else
-		{
-			// asset index was passed
-			return InstanceManager.instance_exists_index(obj);
-		}
-	}
-
-	public static object instance_create_depth(Arguments args)
-	{
-		var x = Conv<double>(args.Args[0]);
-		var y = Conv<double>(args.Args[1]);
-		var depth = Conv<int>(args.Args[2]);
-		var obj = Conv<int>(args.Args[3]);
-
-		return InstanceManager.instance_create_depth(x, y, depth, obj);
-	}
-
-	public static object instance_number(Arguments args)
-	{
-		var obj = Conv<int>(args.Args[0]);
-		return InstanceManager.instance_number(obj);
-	}
-
 	public static object draw_set_font(Arguments args)
 	{
 		var font = Conv<int>(args.Args[0]);
@@ -1181,63 +931,6 @@ public static class ScriptResolver
 		var valign = Conv<int>(args.Args[0]);
 		TextManager.valign = (VAlign)valign;
 		return null;
-	}
-
-	public static object floor(Arguments args)
-	{
-		var n = Conv<double>(args.Args[0]);
-		return Math.Floor(n);
-	}
-
-	public static object ceil(Arguments args)
-	{
-		var n = Conv<double>(args.Args[0]);
-		return Math.Ceiling(n);
-	}
-
-	public static object abs(Arguments args)
-	{
-		var val = Conv<double>(args.Args[0]);
-		return Math.Abs(val);
-	}
-
-	public static object sin(Arguments args)
-	{
-		var val = Conv<double>(args.Args[0]);
-		return Math.Sin(val);
-	}
-
-	public static object cos(Arguments args)
-	{
-		var val = Conv<double>(args.Args[0]);
-		return Math.Cos(val);
-	}
-
-	private static int realToInt(double value)
-	{
-		return value < 0 ? CustomMath.CeilToInt((float)value) : CustomMath.FloorToInt((float)value);
-	}
-
-	public static object min(Arguments args)
-	{
-		var arguments = new double[args.Args.Length];
-		for (var i = 0; i < args.Args.Length; i++)
-		{
-			arguments[i] = Conv<double>(args.Args[i]);
-		}
-
-		return arguments.Min();
-	}
-
-	public static object max(Arguments args)
-	{
-		var arguments = new double[args.Args.Length];
-		for (var i = 0; i < args.Args.Length; i++)
-		{
-			arguments[i] = Conv<double>(args.Args[i]);
-		}
-
-		return arguments.Max();
 	}
 
 	public static object draw_sprite(Arguments args)
@@ -1590,59 +1283,6 @@ public static class ScriptResolver
 		return null;
 	}
 
-	public static object instance_destroy(Arguments args)
-	{
-		if (args.Args.Length == 0)
-		{
-			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Destroy);
-			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.CleanUp);
-			InstanceManager.instance_destroy(args.Ctx.Self);
-			return null;
-		}
-
-		var id = Conv<int>(args.Args[0]);
-		var execute_event_flag = true;
-
-		if (args.Args.Length == 2)
-		{
-			execute_event_flag = Conv<bool>(args.Args[1]);
-		}
-
-		if (id < GMConstants.FIRST_INSTANCE_ID)
-		{
-			// asset index
-			var instances = InstanceManager.FindByAssetId(id);
-
-			foreach (var instance in instances)
-			{
-				if (execute_event_flag)
-				{
-					GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
-				}
-
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
-
-				InstanceManager.instance_destroy(instance);
-			}
-		}
-		else
-		{
-			// instance id
-			var instance = InstanceManager.FindByInstanceId(id);
-
-			if (execute_event_flag)
-			{
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
-			}
-
-			GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
-
-			InstanceManager.instance_destroy(instance);
-		}
-
-		return null;
-	}
-
 	public static object view_get_camera(Arguments args)
 	{
 		// TODO : ughhh implement multiple cameras
@@ -1984,41 +1624,6 @@ public static class ScriptResolver
 		}
 	}
 
-	static Random rnd = new Random();
-
-	public static object random(Arguments args)
-	{
-		var upper = Conv<double>(args.Args[0]);
-		return rnd.NextDouble() * upper;
-	}
-
-	public static object random_range(Arguments args)
-	{
-		var n1 = Conv<double>(args.Args[0]);
-		var n2 = Conv<double>(args.Args[1]);
-		return rnd.NextDouble() * (n2 - n1) + n1;
-	}
-
-	public static object irandom(Arguments args)
-	{
-		var n = realToInt(Conv<double>(args.Args[0]));
-		return rnd.Next(0, n + 1);
-	}
-
-	public static object irandom_range(Arguments args)
-	{
-		var n1 = realToInt(Conv<double>(args.Args[0]));
-		var n2 = realToInt(Conv<double>(args.Args[1]));
-
-		return rnd.Next(n1, n2 + 1);
-	}
-
-	public static object round(Arguments args)
-	{
-		var num = Conv<double>(args.Args[0]);
-		return CustomMath.RoundToInt((float)num);
-	}
-
 	public static object string_width(Arguments args)
 	{
 		var str = Conv<string>(args.Args[0]);
@@ -2033,52 +1638,6 @@ public static class ScriptResolver
 		return null;
 	}
 
-	public static object place_meeting(Arguments args)
-	{
-		var x = Conv<double>(args.Args[0]);
-		var y = Conv<double>(args.Args[1]);
-		var obj = Conv<int>(args.Args[2]); // TODO : this can be an array, or "all" or "other", or tile map stuff
-
-		if (obj < 0)
-		{
-			throw new NotImplementedException($"{obj} given to place_meeting");
-		}
-
-		if (obj < GMConstants.FIRST_INSTANCE_ID)
-		{
-			return CollisionManager.place_meeting_assetid(x, y, obj, args.Ctx.Self);
-		}
-		else
-		{
-			return CollisionManager.place_meeting_instanceid(x, y, obj, args.Ctx.Self);
-		}
-	}
-
-	public static object collision_rectangle(Arguments args)
-	{
-		var x1 = Conv<double>(args.Args[0]);
-		var y1 = Conv<double>(args.Args[1]);
-		var x2 = Conv<double>(args.Args[2]);
-		var y2 = Conv<double>(args.Args[3]);
-		var obj = Conv<int>(args.Args[4]); // TODO : this can be an array, or "all" or "other", or tile map stuff
-		var prec = Conv<bool>(args.Args[5]);
-		var notme = Conv<bool>(args.Args[6]);
-
-		if (obj < 0)
-		{
-			throw new NotImplementedException($"{obj} given to collision_rectangle!");
-		}
-
-		if (obj < GMConstants.FIRST_INSTANCE_ID)
-		{
-			return CollisionManager.collision_rectangle_assetid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
-		}
-		else
-		{
-			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
-		}
-	}
-
 	public static object script_execute(Arguments args)
 	{
 		var scriptAssetId = Conv<int>(args.Args[0]);
@@ -2086,97 +1645,6 @@ public static class ScriptResolver
 
 		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
 		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments() { Args = scriptArgs, Ctx = args.Ctx });
-	}
-
-	public static object point_distance(Arguments args)
-	{
-		var x1 = Conv<double>(args.Args[0]);
-		var y1 = Conv<double>(args.Args[1]);
-		var x2 = Conv<double>(args.Args[2]);
-		var y2 = Conv<double>(args.Args[3]);
-
-		var horizDistance = Math.Abs(x2 - x1);
-		var vertDistance = Math.Abs(y2 - y1);
-
-		return Math.Sqrt((horizDistance * horizDistance) + (vertDistance * vertDistance));
-	}
-
-	public static object point_direction(Arguments args)
-	{
-		var x1 = Conv<double>(args.Args[0]);
-		var y1 = Conv<double>(args.Args[1]);
-		var x2 = Conv<double>(args.Args[2]);
-		var y2 = Conv<double>(args.Args[3]);
-
-		// TODO : simplify this mess lol
-
-		var gmHoriz = x2 - x1;
-		var gmVert = y2 - y1;
-
-		if (gmHoriz >= 0 && gmVert == 0)
-		{
-			return 0;
-		}
-
-		if (gmHoriz > 0 && gmVert == 0)
-		{
-			return 0;
-		}
-
-		if (gmHoriz == 0 && gmVert < 0)
-		{
-			return 90;
-		}
-
-		// +gmVert means down, -gmVert means up
-		gmVert = -gmVert;
-
-		var angle = Math.Atan(gmVert / gmHoriz) * CustomMath.Rad2Deg;
-
-		if (gmVert > 0)
-		{
-			if (gmHoriz > 0)
-			{
-				return angle;
-			}
-
-			return angle + 180;
-		}
-
-		if (gmHoriz > 0)
-		{
-			return 360 + angle;
-		}
-
-		return 180 + angle;
-	}
-
-	public static object distance_to_point(Arguments args)
-	{
-		var x = Conv<double>(args.Args[0]);
-		var y = Conv<double>(args.Args[1]);
-
-		var self = args.Ctx.Self;
-
-		if (args.Ctx.Self.mask_id == -1 && args.Ctx.Self.sprite_index == -1)
-		{
-			// TODO : Docs just say this means the result will be "incorrect". Wtf does that mean???
-			// just assuming it does point_distance
-
-			var horizDistance = Math.Abs(self.x - x);
-			var vertDistance = Math.Abs(self.y - y);
-
-			return Math.Sqrt((horizDistance * horizDistance) + (vertDistance * vertDistance));
-		}
-
-		var centerX = (self.bbox_left + self.bbox_right) / 2.0;
-		var centerY = (self.bbox_top + self.bbox_bottom) / 2.0;
-		var width = self.bbox_right - self.bbox_left;
-		var height = self.bbox_bottom - self.bbox_top;
-
-		var dx = Math.Max(Math.Abs(x - centerX) - (width / 2.0), 0);
-		var dy = Math.Max(Math.Abs(y - centerY) - (height / 2.0), 0);
-		return Math.Sqrt((dx * dx) + (dy * dy));
 	}
 
 	public static object draw_line_width(Arguments args)
@@ -2217,27 +1685,26 @@ public static class ScriptResolver
 		return null;
 	}
 
-	public static object choose(Arguments args)
-	{
-		return args.Args[rnd.Next(0, args.Args.Length)];
-	}
-
-	public static object move_towards_point(Arguments args)
-	{
-		var targetx = Conv<double>(args.Args[0]);
-		var targety = Conv<double>(args.Args[1]);
-		var sp = Conv<double>(args.Args[2]);
-
-		args.Ctx.Self.direction = (double)point_direction(new Arguments() { Args = new object[] { args.Ctx.Self.x, args.Ctx.Self.y, targetx, targety } });
-		args.Ctx.Self.speed = sp;
-
-		return null;
-	}
-
 	public static object sprite_get_number(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
 		return SpriteManager.GetNumberOfFrames(index);
+	}
+
+	public static object lengthdir_x(Arguments args)
+	{
+		var len = Conv<double>(args.Args[0]);
+		var dir = Conv<double>(args.Args[1]);
+
+		return len * Math.Cos(dir * CustomMath.Deg2Rad);
+	}
+
+	public static object lengthdir_y(Arguments args)
+	{
+		var len = Conv<double>(args.Args[0]);
+		var dir = Conv<double>(args.Args[1]);
+
+		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
 	}
 }
 
