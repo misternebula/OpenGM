@@ -328,21 +328,28 @@ public class CustomWindow : GameWindow
 		// in this house we dont use matrices
 		if (spriteJob.angle != 0)
 		{
-			static Vector2 RotatePoint(Vector2 point, Vector2 pivot, double radians)
+			var sin = (float)Math.Sin(CustomMath.Deg2Rad * spriteJob.angle);
+			var cos = (float)Math.Cos(CustomMath.Deg2Rad * spriteJob.angle);
+
+			var pivot = new Vector2(
+				spriteJob.screenPos.X + (spriteJob.origin.X * spriteJob.scale.X),
+				spriteJob.screenPos.Y + (spriteJob.origin.Y * spriteJob.scale.Y)
+			);
+
+			void RotateAroundPivot(ref Vector2 p)
 			{
-				var cosTheta = Math.Cos(radians);
-				var sinTheta = Math.Sin(radians);
-
-				var x = (cosTheta * (point.X - pivot.X) - sinTheta * (point.Y - pivot.Y) + pivot.X);
-				var y = (sinTheta * (point.X - pivot.X) + cosTheta * (point.Y - pivot.Y) + pivot.Y);
-
-				return new Vector2((float)x, (float)y);
+				p.X -= pivot.X;
+				p.Y -= pivot.Y;
+				p.X = (p.X * cos) - (p.Y * sin);
+				p.Y = (p.X * sin) + (p.Y * cos);
+				p.X += pivot.X;
+				p.Y += pivot.Y;
 			}
 
-			topLeft = RotatePoint(topLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
-			topRight = RotatePoint(topRight, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
-			bottomRight = RotatePoint(bottomRight, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
-			bottomLeft = RotatePoint(bottomLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle * CustomMath.Deg2Rad);
+			RotateAroundPivot(ref topLeft);
+			RotateAroundPivot(ref topRight);
+			RotateAroundPivot(ref bottomRight);
+			RotateAroundPivot(ref bottomLeft);
 		}
 
 		var uvTopLeftX = (spriteJob.texture.SourcePosX + left) / pageTexture.Width;

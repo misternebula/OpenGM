@@ -205,6 +205,7 @@ public static class CollisionManager
 		 * We need to return the rotated mask in a new buffer, and where the top left of the new mask is, relative to (0, 0).
 		 */
 
+		// stolen and edited from CollisionManager
 		var sin = Math.Sin(CustomMath.Deg2Rad * angle);
 		var cos = Math.Cos(CustomMath.Deg2Rad * angle);
 
@@ -223,7 +224,7 @@ public static class CollisionManager
 			}
 
 			var xnew = (x * cos) - (y * useSin);
-			var ynew = (x * useSin) - (y * cos);
+			var ynew = (x * useSin) - (y * cos); // BUG?: y flip (subtract instead of add)
 
 			rotatedX = (float)xnew + pivotX;
 			rotatedY = (float)ynew + pivotY;

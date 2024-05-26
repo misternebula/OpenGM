@@ -92,8 +92,8 @@ public class GamemakerObject : DrawWithDepth
 
 	public double bbox_left => x + (margins.X * image_xscale) - (sprite_xoffset * image_xscale);
 	public double bbox_right => x + (margins.Y * image_xscale) - (sprite_xoffset * image_xscale);
-	public double bbox_top => -(-y - (margins.W * image_yscale)) - (sprite_yoffset * image_yscale);
-	public double bbox_bottom => -(-y - (margins.Z * image_yscale)) - (sprite_yoffset * image_yscale);
+	public double bbox_top => -(-y - (margins.W * image_yscale)) - (sprite_yoffset * image_yscale); // BUG?: y flip
+	public double bbox_bottom => -(-y - (margins.Z * image_yscale)) - (sprite_yoffset * image_yscale); // BUG?: y flip
 
 	private double _cached_sprite_xoffset;
 	public double sprite_xoffset
