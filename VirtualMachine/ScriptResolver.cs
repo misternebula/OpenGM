@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using NVorbis;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
 using System.Diagnostics;
@@ -41,6 +42,8 @@ public static class ScriptResolver
 		{ "merge_color", merge_colour },
 		{ "window_set_caption", window_set_caption },
 		{ "window_get_caption", window_get_caption },
+		{ "window_get_fullscreen", window_get_fullscreen },
+		{ "window_set_fullscreen", window_set_fullscreen },
 		{ "view_get_camera", view_get_camera },
 		{ "event_user", event_user },
 		{ "place_meeting", place_meeting },
@@ -1358,6 +1361,19 @@ public static class ScriptResolver
 		return null;
 	}
 
+	public static object window_get_fullscreen(Arguments args)
+	{
+		return CustomWindow.Instance.IsFullscreen;
+	}
+
+	public static object window_set_fullscreen(Arguments args)
+	{
+		var full = Conv<bool>(args.Args[0]);
+		CustomWindow.Instance.WindowState = full ? WindowState.Fullscreen : WindowState.Normal;
+		// BUG: this fucks resolution
+		return null;
+	}
+
 	public static object gamepad_button_check(Arguments args)
 	{
 		// TODO : implement?
@@ -1568,7 +1584,9 @@ public static class ScriptResolver
 
 	public static object audio_set_master_gain(Arguments args)
 	{
-		// TODO : implement
+		var listenerIndex = Conv<double>(args.Args[0]); // deltarune doesnt use other listeners rn so i dont care
+		var gain = Conv<double>(args.Args[1]);
+		AL.Listener(ALListenerf.Gain, (float)gain);
 		return null;
 	}
 
