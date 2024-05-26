@@ -79,6 +79,8 @@ public class CustomWindow : GameWindow
 		GL.LoadMatrix(ref matrix);
 	}
 
+	// TODO: draw immediately instead of using jobs
+	// maybe dont if we switch to not immediate-mode gl
 	public static List<GMBaseJob> RenderJobs = new();
 
 	protected override void OnUpdateFrame(FrameEventArgs args)
@@ -322,6 +324,26 @@ public class CustomWindow : GameWindow
 		var topRight = new Vector2(topLeft.X + (spriteWidth * spriteJob.scale.X), topLeft.Y);
 		var bottomRight = new Vector2(topRight.X, topRight.Y + (spriteHeight * spriteJob.scale.Y));
 		var bottomLeft = new Vector2(topLeft.X, bottomRight.Y);
+
+		// in this house we dont use matrices
+		if (spriteJob.angle != 0)
+		{
+			static Vector2 RotatePoint(Vector2 point, Vector2 pivot, double radians)
+			{
+				var cosTheta = Math.Cos(radians * CustomMath.Rad2Deg);
+				var sinTheta = Math.Sin(radians * CustomMath.Rad2Deg);
+
+				var x = (cosTheta * (point.X - pivot.X) - sinTheta * (point.Y - pivot.Y) + pivot.X);
+				var y = (sinTheta * (point.X - pivot.X) + cosTheta * (point.Y - pivot.Y) + pivot.Y);
+
+				return new Vector2((float)x, (float)y);
+			}
+
+			topLeft = RotatePoint(topLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle);
+			topRight = RotatePoint(topRight, spriteJob.origin * spriteJob.scale, spriteJob.angle);
+			bottomRight = RotatePoint(bottomRight, spriteJob.origin * spriteJob.scale, spriteJob.angle);
+			bottomLeft = RotatePoint(bottomLeft, spriteJob.origin * spriteJob.scale, spriteJob.angle);
+		}
 
 		var uvTopLeftX = (spriteJob.texture.SourcePosX + left) / pageTexture.Width;
 		var uvTopLeftY = (spriteJob.texture.SourcePosY + top) / pageTexture.Height;
