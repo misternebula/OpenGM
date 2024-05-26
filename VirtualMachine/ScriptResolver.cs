@@ -1749,6 +1749,15 @@ public static class ScriptResolver
 	{
 		var filename = Conv<string>(args.Args[0]);
 
+		var assetName = Path.GetFileNameWithoutExtension(filename);
+		var existingIndex = AssetIndexManager.GetIndex(assetName);
+		if (existingIndex != -1)
+		{
+			// happens in deltarune on battle.ogg
+			DebugLog.LogWarning($"audio_create_stream on {filename} already registered with index {existingIndex}");
+			return existingIndex;
+		}
+
 		// maybe this should be moved to RegisterAudioClip
 		using var reader = new VorbisReader(filename);
 		var data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
@@ -1764,7 +1773,7 @@ public static class ScriptResolver
 		return AudioManager.RegisterAudioClip(new()
 		{
 			// RegisterAudioClip sets AssetIndex
-			Name = Path.GetFileNameWithoutExtension(filename),
+			Name = assetName,
 			Clip = buffer,
 			Gain = 1,
 			Pitch = 1,
