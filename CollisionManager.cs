@@ -66,7 +66,7 @@ public class ColliderClass
 
 	public Vector3 BBSize => new(
 		BBox.right - BBox.left,
-		BBox.top - BBox.bottom,
+		BBox.bottom - BBox.top,
 		1);
 
 	/// <summary>
