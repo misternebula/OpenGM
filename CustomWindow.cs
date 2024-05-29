@@ -171,10 +171,10 @@ public class CustomWindow : GameWindow
 			var line = lines[i];
 			var width = TextManager.StringWidth(line);
 
-			var xOffset = 0;
+			var xOffset = 0f;
 			if (textJob.halign == HAlign.fa_center)
 			{
-				xOffset = -(width / 2);
+				xOffset = -(width / 2f);
 			}
 			else if (textJob.halign == HAlign.fa_right)
 			{
@@ -275,21 +275,21 @@ public class CustomWindow : GameWindow
 					// top right of letter
 					GL.TexCoord2(rightX, topY);
 					GL.Color4(LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w));
-					GL.Vertex2(topLeftX + glyph.w, topLeftY);
+					GL.Vertex2(topLeftX + glyph.w * textJob.scale.X, topLeftY);
 
 					// bottom right of letter
 					GL.TexCoord2(rightX, bottomY);
 					GL.Color4(LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w));
-					GL.Vertex2(topLeftX + glyph.w, topLeftY + glyph.h);
+					GL.Vertex2(topLeftX + glyph.w * textJob.scale.X, topLeftY + glyph.h * textJob.scale.Y);
 
 					// bottom left of letter
 					GL.TexCoord2(leftX, bottomY);
 					GL.Color4(LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX));
-					GL.Vertex2(topLeftX, topLeftY + glyph.h);
+					GL.Vertex2(topLeftX, topLeftY + glyph.h * textJob.scale.Y);
 
 					GL.End();
 
-					xOffset += glyph.shift;
+					xOffset += glyph.shift * textJob.scale.X;
 
 					GL.Disable(EnableCap.Texture2D);
 				}
