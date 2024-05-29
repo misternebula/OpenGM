@@ -203,6 +203,9 @@ public static partial class VMExecutor
 				{
 					var firstNumber = Conv<double>(first);
 					var secondNumber = Conv<double>(second);
+
+					var equal = CustomMath.ApproxEqual(firstNumber, secondNumber);
+
 					switch (instruction.Comparison)
 					{
 						case VMComparison.LT:
@@ -212,10 +215,10 @@ public static partial class VMExecutor
 							Ctx.Stack.Push(firstNumber <= secondNumber);
 							break;
 						case VMComparison.EQ:
-							Ctx.Stack.Push(firstNumber == secondNumber);
+							Ctx.Stack.Push(equal);
 							break;
 						case VMComparison.NEQ:
-							Ctx.Stack.Push(firstNumber != secondNumber);
+							Ctx.Stack.Push(!equal);
 							break;
 						case VMComparison.GTE:
 							Ctx.Stack.Push(firstNumber >= secondNumber);

@@ -66,12 +66,13 @@ public class GamemakerObject : DrawWithDepth
 		get => _image_index;
 		set
 		{
-			if ((int)_image_index == (int)value)
+			var prevValue = _image_index;
+			_image_index = value;
+
+			if ((int)_image_index == (int)prevValue)
 			{
 				return;
 			}
-
-			_image_index = value;
 
 			if (mask_id != -1)
 			{
@@ -335,7 +336,7 @@ public class GamemakerObject : DrawWithDepth
 			if (shouldIncrement)
 			{
 				_updateCounter = 0;
-				if (image_index + 1 == SpriteManager.GetNumberOfFrames(sprite_index))
+				if (CustomMath.ApproxEqual(image_index + 1, SpriteManager.GetNumberOfFrames(sprite_index)))
 				{
 					ExecuteScript(this, Definition, EventType.Other, (uint)EventSubtypeOther.AnimationEnd);
 					image_index = 0;
