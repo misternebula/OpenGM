@@ -236,7 +236,8 @@ public static partial class ScriptResolver
 		{ "make_color_hsv", make_color_hsv },
 		{ "make_colour_hsv", make_color_hsv },
 		{ "gpu_set_blendmode", gpu_set_blendmode},
-		{ "draw_circle", draw_circle }
+		{ "draw_circle", draw_circle },
+		{ "draw_triangle", draw_triangle }
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -2120,6 +2121,32 @@ public static partial class ScriptResolver
 			blend = SpriteManager.DrawColor.BGRToColor(),
 			alpha = SpriteManager.DrawAlpha,
 			Vertices = points,
+			Outline = outline
+		});
+
+		return null;
+	}
+
+	public static object draw_triangle(Arguments args)
+	{
+		var x1 = Conv<double>(args.Args[0]);
+		var y1 = Conv<double>(args.Args[1]);
+		var x2 = Conv<double>(args.Args[2]);
+		var y2 = Conv<double>(args.Args[3]);
+		var x3 = Conv<double>(args.Args[4]);
+		var y3 = Conv<double>(args.Args[5]);
+		var outline = Conv<bool>(args.Args[6]);
+
+		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		{
+			blend = SpriteManager.DrawColor.BGRToColor(),
+			alpha = SpriteManager.DrawAlpha,
+			Vertices = new []
+			{
+				new Vector2((float)x1, (float)y1),
+				new Vector2((float)x2, (float)y2),
+				new Vector2((float)x3, (float)y3)
+			},
 			Outline = outline
 		});
 
