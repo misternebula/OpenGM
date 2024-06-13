@@ -60,6 +60,7 @@ public static class RoomManager
 	private static void OnRoomChanged()
 	{
 		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
+		CustomWindow.Instance.SetPosition(0, 0);
 
 		var createdObjects = new List<GamemakerObject>();
 
