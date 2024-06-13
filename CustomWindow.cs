@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System.Drawing;
 using UndertaleModLib.Decompiler;
 using Vector2 = OpenTK.Mathematics.Vector2;
 
@@ -43,6 +42,8 @@ public class CustomWindow : GameWindow
 		Instance = this;
 		Width = width;
 		Height = height;
+
+		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha); // bm_normal
 	}
 
 	protected override void OnLoad()
@@ -89,13 +90,10 @@ public class CustomWindow : GameWindow
 		base.OnUpdateFrame(args);
 
 		GL.Enable(EnableCap.Blend);
-		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha); // bm_normal
 
 		KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
 		RenderJobs.Clear();
-		//RenderJobs.Add(new GMTriangleJob() { alpha = 0.5, blend = new Color4(255, 0, 0, 0), firstCorner = new Vector2(0, 0), secondCorner = new Vector2(100, 0), thirdCorner = new Vector2(0, 100) });
-		//RenderJobs.Add(new GMRectangleJob() { alpha = 0.5, blend = new Color4(0, 255, 0, 0), height = 100, width = 200, screenPos = new Vector2(10, 10)});
 
 		DrawManager.FixedUpdate();
 		AudioManager.Update();
@@ -129,6 +127,10 @@ public class CustomWindow : GameWindow
 			else if (item is GMLineJob lineJob)
 			{
 				RenderLine(lineJob);
+			}
+			else if (item is GMPolygonJon polyJob)
+			{
+				RenderPolygon(polyJob);
 			}
 		}
 
@@ -327,16 +329,15 @@ public class CustomWindow : GameWindow
 		var bottomLeft = new Vector2(topLeft.X, bottomRight.Y);
 
 		// in this house we dont use matrices
-		// BUG: this definitely still does not work :P for the green battle area
 		if (spriteJob.angle != 0)
 		{
 			// stolen and edited from CollisionManager
-			var sin = (float)Math.Sin(CustomMath.Deg2Rad * spriteJob.angle);
-			var cos = (float)Math.Cos(CustomMath.Deg2Rad * spriteJob.angle);
+			var sin = (float)Math.Sin(CustomMath.Deg2Rad * -spriteJob.angle);
+			var cos = (float)Math.Cos(CustomMath.Deg2Rad * -spriteJob.angle);
 
 			var pivot = new Vector2(
-				spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X),
-				spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y)
+				spriteJob.screenPos.X,
+				spriteJob.screenPos.Y
 			);
 
 			void RotateAroundPivot(ref Vector2 p)
@@ -400,6 +401,26 @@ public class CustomWindow : GameWindow
 		GL.End();
 	}
 
+	private static void RenderPolygon(GMPolygonJon polyJob)
+	{
+		if (polyJob.Outline)
+		{
+			GL.Begin(BeginMode.LineLoop);
+		}
+		else
+		{
+			GL.Begin(BeginMode.Polygon);
+		}
+		
+		GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
+
+		foreach (var item in polyJob.Vertices)
+		{
+			GL.Vertex2(item);
+		}
+
+		GL.End();
+	}
 	private const int LINE_OVERLAP_NONE = 0;
 	private const int LINE_OVERLAP_MAJOR = 0x01;
 	private const int LINE_OVERLAP_MINOR = 0x02;
@@ -732,6 +753,12 @@ public class GMTextJob : GMBaseJob
 	public Color4 c4 = Color4.White;
 	public FontAsset asset;
 	public int sep;
+}
+
+public class GMPolygonJon : GMBaseJob
+{
+	public Vector2[] Vertices;
+	public bool Outline;
 }
 
 public class GMBaseJob
