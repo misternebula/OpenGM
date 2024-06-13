@@ -165,7 +165,8 @@ public static class VariableResolver
 		{ "id", (get_id, null) },
 		{ "gravity", (get_gravity, set_gravity) },
 		{ "friction", (get_friction, set_friction) },
-		{ "room_persistent", (get_room_persistent, set_room_persistent)}
+		{ "gravity_direction", (get_gravity_direction, set_gravity_direction)}
+		//{ "room_persistent", (get_room_persistent, set_room_persistent)}
 	};
 
 	public static object get_working_directory(GamemakerObject instance)
@@ -268,6 +269,9 @@ public static class VariableResolver
 	public static object get_friction(GamemakerObject instance) => instance.friction;
 	public static void set_friction(GamemakerObject instance, object value) => instance.friction = VMExecutor.Conv<double>(value);
 
-	public static object get_room_persistent(GamemakerObject instance) => RoomManager.CurrentRoom.Persistent;
-	public static void set_room_persistent(GamemakerObject instance, object value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
+	public static object get_gravity_direction(GamemakerObject instance) => instance.gravity_direction;
+	public static void set_gravity_direction(GamemakerObject instance, object value) => instance.gravity_direction = VMExecutor.Conv<double>(value);
+
+	//public static object get_room_persistent(GamemakerObject instance) => RoomManager.CurrentRoom.Persistent;
+	//public static void set_room_persistent(GamemakerObject instance, object value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
 }
