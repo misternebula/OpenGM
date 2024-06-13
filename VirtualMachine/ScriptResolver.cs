@@ -10,6 +10,9 @@ using System.Diagnostics;
 using System.Text;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
+using static UndertaleModLib.Models.UndertaleRoom;
+
+using OpenTK.Graphics.OpenGL;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static partial class ScriptResolver
@@ -200,6 +203,40 @@ public static partial class ScriptResolver
 
 		{ "lengthdir_x", lengthdir_x },
 		{ "lengthdir_y", lengthdir_y },
+		{ "object_get_sprite", object_get_sprite },
+		{ "layer_get_all", layer_get_all },
+		{ "layer_get_all_elements", layer_get_all_elements },
+		{ "layer_get_depth", layer_get_depth },
+		{ "layer_tile_alpha", layer_tile_alpha },
+		{ "layer_get_element_type", layer_get_element_type },
+		{ "layer_get_name", layer_get_name },
+		{ "layer_create", layer_create },
+		{ "layer_x", layer_x },
+		{ "layer_y", layer_y },
+		{ "layer_get_x", layer_get_x },
+		{ "layer_get_y", layer_get_y },
+		{ "layer_hspeed", layer_hspeed },
+		{ "layer_vspeed", layer_vspeed },
+		{ "layer_get_hspeed", layer_get_hspeed },
+		{ "layer_get_vspeed", layer_get_vspeed },
+		/*{ "layer_background_create", layer_background_create },
+		{ "layer_background_visible", layer_background_visible },
+		{ "layer_background_htiled", layer_background_htiled },
+		{ "layer_background_vtiled", layer_background_vtiled },
+		{ "layer_background_xscale", layer_background_xscale },
+		{ "layer_background_yscale", layer_background_yscale },
+		{ "layer_background_stretch", layer_background_stretch },
+		{ "layer_background_blend", layer_background_blend },
+		{ "layer_background_alpha", layer_background_alpha },
+		{ "layer_background_exists", layer_background_exists },*/
+		{ "layer_depth", layer_depth },
+		{ "real", real },
+		{ "instance_find", instance_find },
+		{ "draw_arrow", draw_arrow },
+		{ "make_color_hsv", make_color_hsv },
+		{ "make_colour_hsv", make_color_hsv },
+		{ "gpu_set_blendmode", gpu_set_blendmode},
+		{ "draw_circle", draw_circle }
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -1705,6 +1742,395 @@ public static partial class ScriptResolver
 		var dir = Conv<double>(args.Args[1]);
 
 		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
+	}
+
+	public static object object_get_sprite(Arguments args)
+	{
+		var obj = Conv<int>(args.Args[0]);
+		return InstanceManager.ObjectDefinitions[obj].sprite;
+	}
+
+	public static object layer_get_all(Arguments args)
+	{
+		return RoomManager.CurrentRoom.Layers.Values.Select(x => (object)x.ID).ToList();
+	}
+
+	public static object layer_get_name(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		return RoomManager.CurrentRoom.Layers[layer_id].Name;
+	}
+
+	public static object real(Arguments args)
+	{
+		var str = Conv<string>(args.Args[0]);
+		return Conv<double>(str);
+	}
+
+	private static object layer_get_depth(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		return layer.Depth;
+	}
+
+	private static object layer_x(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var x = Conv<double>(args.Args[1]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		layer.X = (float)x;
+		return null;
+	}
+
+	private static object layer_y(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var y = Conv<double>(args.Args[1]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		layer.Y = (float)y;
+		return null;
+	}
+
+	private static object layer_get_x(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		return layer.X;
+	}
+
+	private static object layer_get_y(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		return layer.Y;
+	}
+
+	private static object layer_hspeed(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var hspd = Conv<double>(args.Args[1]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		layer.HSpeed = (float)hspd;
+		return null;
+	}
+
+	private static object layer_vspeed(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var vspd = Conv<double>(args.Args[1]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		layer.VSpeed = (float)vspd;
+		return null;
+	}
+
+	private static object layer_get_vspeed(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		return layer.VSpeed;
+	}
+
+	private static object layer_get_hspeed(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		return layer.HSpeed;
+	}
+
+	private static object layer_depth(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var depth = Conv<int>(args.Args[1]);
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		layer.Depth = depth;
+		return null;
+	}
+
+	private static object layer_get_all_elements(Arguments args)
+	{
+		var layer_id = Conv<int>(args.Args[0]);
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		return layer.Elements.Select(x => (object)x.instanceId).ToList();
+	}
+
+	private static object layer_get_element_type(Arguments args)
+	{
+		var element_id = Conv<int>(args.Args[0]);
+		var element = TileManager.Tiles.First(x => x.instanceId == element_id);
+
+		if (element is GMTile)
+		{
+			return 7;
+		}
+		else
+		{
+			return 9; // undefined
+		}
+	}
+
+	private static object layer_tile_alpha(Arguments args)
+	{
+		var __index = Conv<int>(args.Args[0]);
+		var __alpha = Conv<double>(args.Args[1]);
+		// TODO : implement
+		//(TileManager.Tiles.First(x => x.instanceId == __index) as GMTile).Alpha = __alpha;
+		return null;
+	}
+
+	private static object layer_create(Arguments args)
+	{
+		var depth = Conv<int>(args.Args[0]);
+		var name = "";
+		if (args.Args.Length > 1)
+		{
+			name = Conv<string>(args.Args[1]);
+		}
+
+		var newLayerId = RoomManager.CurrentRoom.Layers.Keys.Max() + 1;
+
+		if (string.IsNullOrEmpty(name))
+		{
+			name = $"_layer_{Guid.NewGuid()}";
+		}
+
+		var layerContainer = new LayerContainer(new SerializedFiles.Layer() { LayerName = name, LayerDepth = depth, LayerID = (uint)newLayerId });
+
+		RoomManager.CurrentRoom.Layers.Add(newLayerId, layerContainer);
+
+		return newLayerId;
+	}
+
+	private static object instance_find(Arguments args)
+	{
+		var obj = Conv<int>(args.Args[0]);
+		var n = Conv<int>(args.Args[1]);
+
+		/*
+		 * todo : this is really fucked.
+		 * "You specify the object that you want to find the instance of and a number,
+		 * and if there is an instance at that position in the instance list then the function
+		 * returns the id of that instance, and if not it returns the special keyword noone.
+		 * You can also use the keyword all to iterate through all the instances in a room,
+		 * as well as a parent object to iterate through all the instances that are part of
+		 * that parent / child hierarchy, and you can even specify an instance (if you have its id)
+		 * as a check to see if it actually exists in the current room."
+		 */
+
+		if (obj == GMConstants.all)
+		{
+			return InstanceManager.instances.ElementAt(n).instanceId;
+		}
+		else if (obj >= GMConstants.FIRST_INSTANCE_ID)
+		{
+			// is an instance id
+			// todo : implement
+		}
+		else
+		{
+			// is an object index
+			return InstanceManager.instances.Where(x => x.object_index == obj).ElementAt(n).instanceId;
+		}
+
+		return GMConstants.noone;
+	}
+
+	private static object draw_arrow(Arguments args)
+	{
+		var x1 = Conv<double>(args.Args[0]);
+		var y1 = Conv<double>(args.Args[1]);
+		var x2 = Conv<double>(args.Args[2]);
+		var y2 = Conv<double>(args.Args[3]);
+		var size = Conv<double>(args.Args[4]);
+
+		// todo : name all these variables better and refactor this
+
+		var height = y2 - y1;
+		var length = x2 - x1;
+
+		var magnitude = Math.Sqrt((height * height) + (length * length));
+
+		if (magnitude != 0)
+		{
+			// draw body of arrow
+
+			CustomWindow.RenderJobs.Add(new GMLineJob()
+			{
+				blend = SpriteManager.DrawColor.BGRToColor(),
+				alpha = SpriteManager.DrawAlpha,
+				width = 1,
+				start = new Vector2((float)x1, (float)y1),
+				end = new Vector2((float)x2, (float)y2)
+			});
+
+			// draw head of arrow
+
+			var headSize = magnitude;
+			if (size <= magnitude)
+			{
+				headSize = size;
+			}
+
+			var headLength = (length * headSize) / magnitude;
+			var headHeight = (height * headSize) / magnitude;
+
+			var a = (x2 - headLength) - headHeight / 3;
+			var b = (headLength / 3) + (y2 - headHeight);
+
+			var c = (headHeight / 3) + (x2 - headLength);
+			var d = (y2 - headHeight) - headLength / 3;
+
+			CustomWindow.RenderJobs.Add(new GMTriangleJob()
+			{
+				blend = SpriteManager.DrawColor.BGRToColor(),
+				alpha = SpriteManager.DrawAlpha,
+				firstCorner = new Vector2((float)x2, (float)y2),
+				secondCorner = new Vector2((float)a, (float)b),
+				thirdCorner = new Vector2((float)c, (float)d)
+			});
+		}
+
+		return null;
+	}
+
+	public static object make_color_hsv(Arguments args)
+	{
+		var hue = Conv<double>(args.Args[0]);
+		var sat = Conv<double>(args.Args[1]) / 255;
+		var val = Conv<double>(args.Args[2]) / 255;
+
+		var hueDegree = (hue / 255) * 360;
+
+		var chroma = val * sat;
+
+		var hPrime = hueDegree / 60;
+
+		var x = chroma * (1 - Math.Abs((hPrime % 2) - 1));
+
+		var r = 0.0;
+		var g = 0.0;
+		var b = 0.0;
+
+		switch (hPrime)
+		{
+			case >= 0 and < 1:
+				r = chroma;
+				g = x;
+				b = 0;
+				break;
+			case >= 1 and < 2:
+				r = x;
+				g = chroma;
+				b = 0;
+				break;
+			case >= 2 and < 3:
+				r = 0;
+				g = chroma;
+				b = x;
+				break;
+			case >= 3 and < 4:
+				r = 0;
+				g = x;
+				b = chroma;
+				break;
+			case >= 4 and < 5:
+				r = x;
+				g = 0;
+				b = chroma;
+				break;
+			case >= 5 and < 6:
+				r = chroma;
+				g = 0;
+				b = x;
+				break;
+		}
+
+		var m = val - chroma;
+		r += m;
+		g += m;
+		b += m;
+
+		var rByte = (byte)(r * 255);
+		var gByte = (byte)(g * 255);
+		var bByte = (byte)(b * 255);
+
+		return (bByte << 16) + (byte)(gByte << 8) + rByte;
+	}
+
+	public static object gpu_set_blendmode(Arguments args)
+	{
+		var mode = Conv<int>(args.Args[0]);
+
+		switch (mode)
+		{
+			case 0:
+				// bm_normal
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				break;
+			case 1:
+				// bm_add
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				break;
+			case 2:
+				// bm_subtract
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+				GL.BlendEquation(BlendEquationMode.FuncSubtract);
+				break;
+			case 3:
+				// bm_reverse_subtract
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+				GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
+				break;
+			case 4:
+				// bm_min
+				GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
+				GL.BlendEquation(BlendEquationMode.Min);
+				break;
+			case 5:
+				// bm_max
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcColor);
+				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				break;
+		}
+
+		return null;
+	}
+
+	public static object draw_circle(Arguments args)
+	{
+		var x = Conv<double>(args.Args[0]);
+		var y = Conv<double>(args.Args[1]);
+		var r = Conv<double>(args.Args[2]);
+		var outline = Conv<bool>(args.Args[3]);
+
+		var angle = 360 / DrawManager.CirclePrecision;
+
+		var points = new Vector2[DrawManager.CirclePrecision];
+		for (var i = 0; i < DrawManager.CirclePrecision; i++)
+		{
+			points[i] = new Vector2((float)(x + (r * Math.Sin(angle * i))), (float)(y + (r * Math.Cos(angle * i))));
+		}
+
+		CustomWindow.RenderJobs.Add(new GMPolygonJon()
+		{
+			blend = SpriteManager.DrawColor.BGRToColor(),
+			alpha = SpriteManager.DrawAlpha,
+			Vertices = points,
+			Outline = outline
+		});
+
+		return null;
 	}
 }
 
