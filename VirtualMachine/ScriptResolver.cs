@@ -1515,6 +1515,8 @@ public static partial class ScriptResolver
 		var index = Conv<int>(args.Args[0]);
 		var pitch = Conv<double>(args.Args[1]);
 
+		pitch = Math.Clamp(pitch, 1.0 / 256.0, 256.0);
+
 		if (index >= GMConstants.FIRST_INSTANCE_ID)
 		{
 			// instance id
