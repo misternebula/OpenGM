@@ -894,22 +894,17 @@ public static partial class ScriptResolver
 
 		static void draw(double x1, double y1, double x2, double y2)
 		{
-			var width = (x2 - x1);
-			var height = (y2 - y1);
-
-			if (height < 0)
+			CustomWindow.RenderJobs.Add(new GMPolygonJob()
 			{
-				height = -height;
-				y1 -= height;
-			}
-
-			CustomWindow.RenderJobs.Add(new GMRectangleJob()
-			{
-				width = (float)width,
-				height = (float)height,
-				screenPos = new Vector2((float)x1, (float)y1),
 				blend = SpriteManager.DrawColor.BGRToColor(),
-				alpha = SpriteManager.DrawAlpha
+				alpha = SpriteManager.DrawAlpha,
+				Vertices = new []
+				{
+					new Vector2((float)x1, (float)y1),
+					new Vector2((float)x2, (float)y1),
+					new Vector2((float)x2, (float)y2),
+					new Vector2((float)x1, (float)y2)
+				}
 			});
 		}
 	}
@@ -1989,13 +1984,11 @@ public static partial class ScriptResolver
 			var c = (headHeight / 3) + (x2 - headLength);
 			var d = (y2 - headHeight) - headLength / 3;
 
-			CustomWindow.RenderJobs.Add(new GMTriangleJob()
+			CustomWindow.RenderJobs.Add(new GMPolygonJob()
 			{
 				blend = SpriteManager.DrawColor.BGRToColor(),
 				alpha = SpriteManager.DrawAlpha,
-				firstCorner = new Vector2((float)x2, (float)y2),
-				secondCorner = new Vector2((float)a, (float)b),
-				thirdCorner = new Vector2((float)c, (float)d)
+				Vertices = new[] { new Vector2((float)x2, (float)y2), new Vector2((float)a, (float)b), new Vector2((float)c, (float)d) }
 			});
 		}
 
@@ -2122,7 +2115,7 @@ public static partial class ScriptResolver
 			points[i] = new Vector2((float)(x + (r * Math.Sin(angle * i))), (float)(y + (r * Math.Cos(angle * i))));
 		}
 
-		CustomWindow.RenderJobs.Add(new GMPolygonJon()
+		CustomWindow.RenderJobs.Add(new GMPolygonJob()
 		{
 			blend = SpriteManager.DrawColor.BGRToColor(),
 			alpha = SpriteManager.DrawAlpha,

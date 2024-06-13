@@ -108,15 +108,7 @@ public class CustomWindow : GameWindow
 
 		foreach (var item in RenderJobs)
 		{
-			if (item is GMRectangleJob rectJob)
-			{
-				RenderRectangle(rectJob);
-			}
-			else if (item is GMTriangleJob triangleJob)
-			{
-				RenderTriangle(triangleJob);
-			}
-			else if (item is GMTextJob textJob)
+			if (item is GMTextJob textJob)
 			{
 				RenderText(textJob);
 			}
@@ -128,34 +120,13 @@ public class CustomWindow : GameWindow
 			{
 				RenderLine(lineJob);
 			}
-			else if (item is GMPolygonJon polyJob)
+			else if (item is GMPolygonJob polyJob)
 			{
 				RenderPolygon(polyJob);
 			}
 		}
 
 		SwapBuffers();
-	}
-
-	private static void RenderRectangle(GMRectangleJob rectJob)
-	{
-		GL.Begin(BeginMode.Quads);
-		GL.Color4(new Color4(rectJob.blend.R, rectJob.blend.G, rectJob.blend.B, (float)rectJob.alpha));
-		GL.Vertex2(rectJob.screenPos.X, rectJob.screenPos.Y);
-		GL.Vertex2(rectJob.screenPos.X + rectJob.width, rectJob.screenPos.Y);
-		GL.Vertex2(rectJob.screenPos.X + rectJob.width, rectJob.screenPos.Y + rectJob.height);
-		GL.Vertex2(rectJob.screenPos.X, rectJob.screenPos.Y + rectJob.height);
-		GL.End();
-	}
-
-	private static void RenderTriangle(GMTriangleJob triangleJob)
-	{
-		GL.Begin(BeginMode.Triangles);
-		GL.Color4(new Color4(triangleJob.blend.R, triangleJob.blend.G, triangleJob.blend.B, (float)triangleJob.alpha));
-		GL.Vertex2(triangleJob.firstCorner.X, triangleJob.firstCorner.Y);
-		GL.Vertex2(triangleJob.secondCorner.X, triangleJob.secondCorner.Y);
-		GL.Vertex2(triangleJob.thirdCorner.X, triangleJob.thirdCorner.Y);
-		GL.End();
 	}
 
 	private static void RenderText(GMTextJob textJob)
@@ -401,7 +372,7 @@ public class CustomWindow : GameWindow
 		GL.End();
 	}
 
-	private static void RenderPolygon(GMPolygonJon polyJob)
+	private static void RenderPolygon(GMPolygonJob polyJob)
 	{
 		if (polyJob.Outline)
 		{
@@ -707,13 +678,6 @@ public class GMLineJob : GMBaseJob
 	public int width;
 }
 
-public class GMTriangleJob : GMBaseJob
-{
-	public Vector2 firstCorner;
-	public Vector2 secondCorner;
-	public Vector2 thirdCorner;
-}
-
 public class GMSpriteJob : GMBaseJob
 {
 	public Vector2 screenPos;
@@ -727,13 +691,6 @@ public class GMSpritePartJob : GMSpriteJob
 {
 	public float left;
 	public float top;
-	public float width;
-	public float height;
-}
-
-public class GMRectangleJob : GMBaseJob
-{
-	public Vector2 screenPos;
 	public float width;
 	public float height;
 }
@@ -755,7 +712,7 @@ public class GMTextJob : GMBaseJob
 	public int sep;
 }
 
-public class GMPolygonJon : GMBaseJob
+public class GMPolygonJob : GMBaseJob
 {
 	public Vector2[] Vertices;
 	public bool Outline;
