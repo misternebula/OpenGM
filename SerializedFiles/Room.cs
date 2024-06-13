@@ -16,6 +16,7 @@ public class Room
 
 	public uint CameraWidth;
 	public uint CameraHeight;
+	public int FollowsObject;
 
 	public List<Layer> Layers = new();
 }

@@ -29,6 +29,11 @@ public class GMTile : DrawWithDepth
 
 	public override void Draw()
 	{
+		if (Definition == -1)
+		{
+			return;
+		}
+
 		//SpriteManager.DrawSpritePartExt(Definition, 0, (int)left, (int)top, (int)width, (int)height, X, Y, 1, 1, Color, Alpha);
 		SpriteManager.DrawSpritePart(Definition, 0, (int)left, (int)top, (int)width, (int)height, X, Y);
 	}

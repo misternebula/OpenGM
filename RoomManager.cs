@@ -14,11 +14,9 @@ public static class RoomManager
 	/// The room to change to.
 	/// </summary>
 	public static Room RoomToChangeTo = null;
-
-	public static Room CurrentRoom;
+	public static RoomContainer CurrentRoom;
 
 	public static Dictionary<int, Room> RoomList = new();
-
 	public static bool RoomLoaded = false;
 
 	public static void ChangeToWaitingRoom()
@@ -51,7 +49,9 @@ public static class RoomManager
 		InstanceManager.instances = InstanceManager.instances.Where(x => x != null && x.persistent).ToList();
 
 		RoomLoaded = false;
-		CurrentRoom = RoomToChangeTo;
+
+		CurrentRoom = new RoomContainer(RoomToChangeTo);
+
 		RoomToChangeTo = null;
 
 		OnRoomChanged();
@@ -72,8 +72,10 @@ public static class RoomManager
 		InstanceManager.RoomChange();
 		CollisionManager.RoomChange();
 
-		foreach (var layer in CurrentRoom.Layers)
+		foreach (var layer in CurrentRoom.RoomAsset.Layers)
 		{
+			var layerContainer = new LayerContainer(layer);
+
 			if (layer.Instances_Objects != null)
 			{
 				foreach (var item in layer.Instances_Objects)
@@ -91,6 +93,8 @@ public static class RoomManager
 					newGM.image_angle = item.Rotation;
 					
 					createdObjects.Add(newGM);
+
+					layerContainer.Elements.Add(newGM);
 				}
 			}
 
@@ -115,8 +119,12 @@ public static class RoomManager
 					};
 
 					TileManager.Tiles.Add(newTile);
+
+					layerContainer.Elements.Add(newTile);
 				}
 			}
+
+			CurrentRoom.Layers.Add((int)layerContainer.ID, layerContainer);
 		}
 
 		foreach (var obj in createdObjects)

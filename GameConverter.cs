@@ -573,7 +573,8 @@ public static class GameConverter
 				GravityX = room.GravityX,
 				GravityY = room.GravityY,
 				CameraWidth = (uint)room.Views[0].ViewWidth,
-				CameraHeight = (uint)room.Views[0].ViewHeight
+				CameraHeight = (uint)room.Views[0].ViewHeight,
+				FollowsObject = data.GameObjects.IndexOf(room.Views[0].ObjectId)
 			};
 
 			foreach (var layer in room.Layers)

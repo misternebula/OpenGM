@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace DELTARUNITYStandalone;
 public static class TileManager
 {
-	public static List<GMTile> Tiles = new();
+	public static List<DrawWithDepth> Tiles = new();
 }
