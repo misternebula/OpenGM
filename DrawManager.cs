@@ -96,7 +96,7 @@ public static class DrawManager
 
 	public static void FixedUpdate()
 	{
-		var stepList = _drawObjects.OrderByDescending(x => x.instanceId);
+		var stepList = _drawObjects.OrderBy(x => x.instanceId);
 
 		if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
 		{
