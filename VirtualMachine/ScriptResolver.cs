@@ -237,7 +237,8 @@ public static partial class ScriptResolver
 		{ "make_colour_hsv", make_color_hsv },
 		{ "gpu_set_blendmode", gpu_set_blendmode},
 		{ "draw_circle", draw_circle },
-		{ "draw_triangle", draw_triangle }
+		{ "draw_triangle", draw_triangle },
+		{ "angle_difference", angle_difference }
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -2153,6 +2154,13 @@ public static partial class ScriptResolver
 		});
 
 		return null;
+	}
+
+	public static object angle_difference(Arguments args)
+	{
+		var dest = Conv<double>(args.Args[0]);
+		var src = Conv<double>(args.Args[1]);
+		return CustomMath.Mod(dest - src + 180, 360) - 180;
 	}
 }
 

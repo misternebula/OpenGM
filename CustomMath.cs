@@ -43,4 +43,10 @@ public static class CustomMath
 	{
 		return Math.Abs(a - b) <= Epsilon;
 	}
+
+	public static double Mod(double a, double b)
+	{
+		// % is actually remainder in C/C#, and will return a negative number
+		return ((a % b) + b) % b;
+	}
 }
