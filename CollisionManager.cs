@@ -55,8 +55,8 @@ public class ColliderClass
 	{
 		left = _pos.X + (Margins.X * _scale.X) - (Origin.X * _scale.X),
 		top = _pos.Y + (Margins.W * _scale.Y) - (Origin.Y * _scale.Y),
-		right = _pos.X + (Margins.Y * _scale.X) - (Origin.X * _scale.X),
-		bottom = _pos.Y + (Margins.Z * _scale.Y) - (Origin.Y * _scale.Y)
+		right = _pos.X + ((Margins.Y + 1) * _scale.X) - (Origin.X * _scale.X),
+		bottom = _pos.Y + ((Margins.Z + 1) * _scale.Y) - (Origin.Y * _scale.Y)
 	};
 
 	public Vector3 BBCenter => new(
@@ -89,7 +89,7 @@ public class ColliderClass
 
 public static class CollisionManager
 {
-	private static List<ColliderClass> colliders = new();
+	public static List<ColliderClass> colliders = new();
 
 	public static void RoomChange()
 	{
