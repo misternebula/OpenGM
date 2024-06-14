@@ -144,7 +144,7 @@ public static class DrawManager
 			return;
 		}
 
-		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId);
+		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
 		if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
 		{
