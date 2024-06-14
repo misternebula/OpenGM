@@ -245,6 +245,8 @@ public class GamemakerObject : DrawWithDepth
 
 	public bool _createRan;
 
+	public bool Destroyed;
+
 	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, uint instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
 	{
 		Definition = obj;
@@ -271,6 +273,7 @@ public class GamemakerObject : DrawWithDepth
 
 	public override void Destroy()
 	{
+		Destroyed = true;
 		DrawManager.Unregister(this);
 		CollisionManager.UnregisterCollider(this);
 	}
@@ -282,6 +285,23 @@ public class GamemakerObject : DrawWithDepth
 		if (!_createRan || !RoomManager.RoomLoaded)
 		{
 			return;
+		}
+
+		if (collider != null && (object_index == 331 || object_index == 81 || object_index == 336))
+		{
+			CustomWindow.DebugRenderJobs.Add(new GMPolygonJob()
+			{
+				blend = Color4.Yellow,
+				alpha = 1,
+				Outline = true,
+				Vertices = new[]
+				{
+					new Vector2((float)x + (float)(margins.X * image_xscale), (float)y + (float)(margins.W * image_yscale)),
+					new Vector2((float)x + (float)((margins.Y + 1) * image_xscale), (float)y + (float)(margins.W * image_yscale)),
+					new Vector2((float)x + (float)((margins.Y + 1) * image_xscale), (float)y + (float)((margins.Z + 1) * image_yscale)),
+					new Vector2((float)x + (float)(margins.X * image_xscale), (float)y + (float)((margins.Z + 1) * image_yscale))
+				}
+			});
 		}
 
 		if (friction != 0)

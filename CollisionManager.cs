@@ -176,7 +176,7 @@ public static class CollisionManager
 
 	public static void UnregisterCollider(GamemakerObject sprite)
 	{
-		colliders.RemoveAll(x => x.GMObject == sprite);
+		colliders.RemoveAll(x => x.GMObject == sprite || x.GMObject.Destroyed);
 	}
 
 	public static void UpdateRotationMask(GamemakerObject obj)
