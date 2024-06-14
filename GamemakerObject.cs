@@ -287,6 +287,7 @@ public class GamemakerObject : DrawWithDepth
 			return;
 		}
 
+		/*var collider = CollisionManager.colliders.FirstOrDefault(x => x.GMObject == this);
 		if (collider != null && (object_index == 331 || object_index == 81 || object_index == 336))
 		{
 			CustomWindow.DebugRenderJobs.Add(new GMPolygonJob()
@@ -302,7 +303,7 @@ public class GamemakerObject : DrawWithDepth
 					new Vector2((float)x + (float)(margins.X * image_xscale), (float)y + (float)((margins.Z + 1) * image_yscale))
 				}
 			});
-		}
+		}*/
 
 		if (friction != 0)
 		{

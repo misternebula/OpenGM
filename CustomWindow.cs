@@ -85,6 +85,8 @@ public class CustomWindow : GameWindow
 	// maybe dont if we switch to not immediate-mode gl
 	public static List<GMBaseJob> RenderJobs = new();
 
+	public static List<GMBaseJob> DebugRenderJobs = new();
+
 	protected override void OnUpdateFrame(FrameEventArgs args)
 	{
 		base.OnUpdateFrame(args);
@@ -94,6 +96,7 @@ public class CustomWindow : GameWindow
 		KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
 		RenderJobs.Clear();
+		DebugRenderJobs.Clear();
 
 		DrawManager.FixedUpdate();
 		AudioManager.Update();
@@ -105,8 +108,27 @@ public class CustomWindow : GameWindow
 
 		GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-
 		foreach (var item in RenderJobs)
+		{
+			if (item is GMTextJob textJob)
+			{
+				RenderText(textJob);
+			}
+			else if (item is GMSpriteJob spriteJob)
+			{
+				RenderSprite(spriteJob);
+			}
+			else if (item is GMLineJob lineJob)
+			{
+				RenderLine(lineJob);
+			}
+			else if (item is GMPolygonJob polyJob)
+			{
+				RenderPolygon(polyJob);
+			}
+		}
+
+		foreach (var item in DebugRenderJobs)
 		{
 			if (item is GMTextJob textJob)
 			{
