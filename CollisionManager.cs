@@ -778,6 +778,20 @@ public static class CollisionManager
 		return null;
 	}
 
+	public static double DistanceToObject(GamemakerObject a, GamemakerObject b)
+	{
+		var aBox = colliders.First(x => x.GMObject == a);
+		var bBox = colliders.First(x => x.GMObject == b);
+
+		var deltaX = CustomMath.Max(aBox.BBox.left, bBox.BBox.left) - CustomMath.Min(aBox.BBox.right, bBox.BBox.right);
+		var deltaY = CustomMath.Max(aBox.BBox.top, bBox.BBox.top) - CustomMath.Min(aBox.BBox.bottom, bBox.BBox.bottom);
+
+		deltaX = CustomMath.Max(0, deltaX);
+		deltaY = CustomMath.Max(0, deltaY);
+
+		return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+	}
+
 	private static bool DoBoxesOverlap(double left, double top, double right, double bottom, ColliderClass b)
 		=> left <= (b.BBox.right - 1) 
 		   && right - 1 >= b.BBox.left 

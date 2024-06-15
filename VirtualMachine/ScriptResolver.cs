@@ -238,7 +238,8 @@ public static partial class ScriptResolver
 		{ "gpu_set_blendmode", gpu_set_blendmode},
 		{ "draw_circle", draw_circle },
 		{ "draw_triangle", draw_triangle },
-		{ "angle_difference", angle_difference }
+		{ "angle_difference", angle_difference },
+		{ "distance_to_object", distance_to_object }
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -2161,6 +2162,30 @@ public static partial class ScriptResolver
 		var dest = Conv<double>(args.Args[0]);
 		var src = Conv<double>(args.Args[1]);
 		return CustomMath.Mod(dest - src + 180, 360) - 180;
+	}
+
+	public static object distance_to_object(Arguments args)
+	{
+		var obj = Conv<int>(args.Args[0]);
+
+		GamemakerObject objToCheck = null;
+
+		if (obj == GMConstants.other)
+		{
+			// todo - what the fuck does this mean gamemaker!? WHAT DO YOU WANT FROM ME
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// object index
+			objToCheck = InstanceManager.FindByAssetId(obj).First();
+		}
+		else
+		{
+			// instance id
+			objToCheck = InstanceManager.FindByInstanceId(obj);
+		}
+
+		return CollisionManager.DistanceToObject(args.Ctx.Self, objToCheck);
 	}
 }
 
