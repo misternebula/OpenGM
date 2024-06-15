@@ -8,6 +8,10 @@ namespace DELTARUNITYStandalone;
 
 internal class Entry
 {
+	public static int GameSpeed { get; private set; } = 30;
+
+	private static CustomWindow window;
+
 	static void Main(string[] args)
 	{
 		if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Output")))
@@ -30,7 +34,7 @@ internal class Entry
 		nativeSettings.ClientSize = new Vector2i((int)firstRoom.SizeX, (int)firstRoom.SizeY);
 		nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
 
-		var window = new CustomWindow(gameSettings, nativeSettings, firstRoom.SizeX, firstRoom.SizeY);
+		window = new CustomWindow(gameSettings, nativeSettings, firstRoom.SizeX, firstRoom.SizeY);
 
 		PageManager.BindTextures();
 		AudioManager.Init();
@@ -48,5 +52,11 @@ internal class Entry
 		window.Run();
 
 		AudioManager.Dispose();
+	}
+
+	public static void SetGameSpeed(int fps)
+	{
+		GameSpeed = fps;
+		window.UpdateFrequency = fps;
 	}
 }

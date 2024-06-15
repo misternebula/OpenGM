@@ -165,7 +165,9 @@ public static class VariableResolver
 		{ "id", (get_id, null) },
 		{ "gravity", (get_gravity, set_gravity) },
 		{ "friction", (get_friction, set_friction) },
-		{ "gravity_direction", (get_gravity_direction, set_gravity_direction)}
+		{ "gravity_direction", (get_gravity_direction, set_gravity_direction)},
+		{ "image_number", (get_image_number, null)},
+		{ "room_speed", (get_room_speed, set_room_speed)}
 		//{ "room_persistent", (get_room_persistent, set_room_persistent)}
 	};
 
@@ -176,7 +178,7 @@ public static class VariableResolver
 
 	public static object get_fps(GamemakerObject instance)
 	{
-		return 30; // TODO : different games have this as a different value
+		return Entry.GameSpeed; // TODO : this shouldnt be the desired fps, but the current fps (fluctuating)
 	}
 
 	public static object get_x(GamemakerObject instance) => instance.x;
@@ -272,6 +274,11 @@ public static class VariableResolver
 	public static object get_gravity_direction(GamemakerObject instance) => instance.gravity_direction;
 	public static void set_gravity_direction(GamemakerObject instance, object value) => instance.gravity_direction = VMExecutor.Conv<double>(value);
 
+	public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
+
 	//public static object get_room_persistent(GamemakerObject instance) => RoomManager.CurrentRoom.Persistent;
 	//public static void set_room_persistent(GamemakerObject instance, object value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
+
+	public static object get_room_speed(GamemakerObject instance) => Entry.GameSpeed;
+	public static void set_room_speed(GamemakerObject instance, object value) => Entry.SetGameSpeed(VMExecutor.Conv<int>(value));
 }
