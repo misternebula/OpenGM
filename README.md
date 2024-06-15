@@ -9,8 +9,9 @@ This program aims to run Gamemaker Studio games, emulating the original games as
 1. Build the project.
 2. Navigate to `\GMRunner\bin\Debug\net8.0\`
 3. Place all files and folders from the game folder into this folder.
-4. Run the project.
-5. OpenGM should now extract all the game data and assets and export them into custom formats. If any errors occur during this stage, OpenGM currently does not support low-level features of the GameMaker version the game uses.
+4. (Optional) Install OpenAL by following [these instructions](https://github.com/misternebula/OpenGM/blob/main/AudioManager.cs#L15-L18) (Windows only)
+5. Run the project.
+6. OpenGM should now extract all the game data and assets and export them into custom formats. If any errors occur during this stage, OpenGM currently does not support low-level features of the GameMaker version the game uses.
 
 ## Legal Stuff
 This project is covered by the MIT license. See [the license](LICENSE) for more information.
