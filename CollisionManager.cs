@@ -153,9 +153,34 @@ public static class CollisionManager
 		}
 
 		var collisionMask = new bool[spriteAsset.Height, spriteAsset.Width];
+
+		var newByteArray = new byte[byteData.Length];
+
+		for (int i = 0; i < byteData.Length; i++)
+		{
+			// https://softwarejuancarlos.com/2013/05/05/byte_bits_reverse/
+			byte result = 0x00;
+			for (var mask = 0x80; Convert.ToInt32(mask) > 0; mask >>= 1)
+			{
+				result = (byte)(result >> 1);
+				var tempbyte = (byte)(byteData[i] & mask);
+				if (tempbyte != 0x00)
+				{
+					result = (byte)(result | 0x80);
+				}
+			}
+			newByteArray[i] = result;
+		}
+
+		byteData = newByteArray;
+
 		var bitArray = new BitArray(byteData);
 
-		// byte[] data is 1 bit per pixel, increasing in row
+		// Collision mask is stored in a fucked format.
+		// The byte array stored each pixel of the mask in its bits.
+		// The pixels are defined from the top left, running along the row, until it loops back around to the start of the next row.
+		// If a row ends mid-way through a byte, the rest of the byte is 0-ed out. The next byte starts the new row.
+		// The bits in each byte need to be reversed first. For some fucking reason.
 
 		var index = 0;
 		for (var i = 0; i < spriteAsset.Height; i++)
@@ -165,6 +190,11 @@ public static class CollisionManager
 				var val = bitArray[index++];
 				collisionMask[i, j] = val;
 			}
+
+			// need to align to the next multiple of 8
+			var nextMultiple = ((index / 8) + 1) * 8;
+			var difference = nextMultiple - index;
+			index += difference;
 		}
 
 		if (colliders.Any(x => x.GMObject == sprite))
