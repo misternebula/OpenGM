@@ -91,10 +91,11 @@ public class GamemakerObject : DrawWithDepth
 	public double sprite_width => _cachedSpriteWidth * image_xscale;
 	public double sprite_height => _cachedSpriteHeight * image_yscale;
 
-	public double bbox_left => x + (margins.X * image_xscale) - (sprite_xoffset * image_xscale);
-	public double bbox_right => x + (margins.Y * image_xscale) - (sprite_xoffset * image_xscale);
-	public double bbox_top => -(-y - (margins.W * image_yscale)) - (sprite_yoffset * image_yscale); // BUG?: y flip
-	public double bbox_bottom => -(-y - (margins.Z * image_yscale)) - (sprite_yoffset * image_yscale); // BUG?: y flip
+	// todo : optimize!!!
+	public double bbox_left => CollisionManager.colliders.First(x => x.GMObject == this).BBox.left;
+	public double bbox_right => CollisionManager.colliders.First(x => x.GMObject == this).BBox.right;
+	public double bbox_top => CollisionManager.colliders.First(x => x.GMObject == this).BBox.top;
+	public double bbox_bottom => CollisionManager.colliders.First(x => x.GMObject == this).BBox.bottom;
 
 	private double _cached_sprite_xoffset;
 	public double sprite_xoffset

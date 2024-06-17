@@ -1,10 +1,12 @@
-﻿namespace DELTARUNITYStandalone;
+﻿using OpenTK.Mathematics;
+
+namespace DELTARUNITYStandalone;
 public static class CustomMath
 {
 	public const double Rad2Deg = 57.2957795131;
 	public const double Deg2Rad = 0.01745329251;
 
-	public static double Epsilon = 0.00001;
+	public static double Epsilon = 0.00001; // not const, as this value can be changed
 
 	public static double Min(params double[] values)
 	{
@@ -48,5 +50,22 @@ public static class CustomMath
 	{
 		// % is actually remainder in C/C#, and will return a negative number
 		return ((a % b) + b) % b;
+	}
+
+	public static Vector2 RotateAroundPoint(this Vector2 p, Vector2 pivot, double angleAntiClockwise)
+	{
+		// todo : maybe work out the actual formula for (+y = south) so we dont have to invert the angle
+
+		var sin = (float)Math.Sin(Deg2Rad * -angleAntiClockwise);
+		var cos = (float)Math.Cos(Deg2Rad * -angleAntiClockwise);
+
+		p.X -= pivot.X;
+		p.Y -= pivot.Y;
+		var xNew = (p.X * cos) - (p.Y * sin);
+		var yNew = (p.X * sin) + (p.Y * cos);
+		p.X = xNew + pivot.X;
+		p.Y = yNew + pivot.Y;
+
+		return p;
 	}
 }

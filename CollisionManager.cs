@@ -1,10 +1,7 @@
 ﻿using DELTARUNITYStandalone.VirtualMachine;
 using OpenTK.Mathematics;
-using System;
 using System.Collections;
-using System.Diagnostics;
 using UndertaleModLib.Models;
-using static UndertaleModLib.Compiler.Compiler;
 
 namespace DELTARUNITYStandalone;
 
@@ -51,13 +48,7 @@ public class ColliderClass
 
 	public Vector4 Margins;
 
-	public BBox BBox => new()
-	{
-		left = _pos.X + (Margins.X * _scale.X) - (Origin.X * _scale.X),
-		top = _pos.Y + (Margins.W * _scale.Y) - (Origin.Y * _scale.Y),
-		right = _pos.X + ((Margins.Y + 1) * _scale.X) - (Origin.X * _scale.X),
-		bottom = _pos.Y + ((Margins.Z + 1) * _scale.Y) - (Origin.Y * _scale.Y)
-	};
+	public BBox BBox => CollisionManager.CalculateBoundingBox(GMObject);
 
 	public Vector3 BBCenter => new(
 		(BBox.left + BBox.right) / 2,
@@ -90,6 +81,39 @@ public class ColliderClass
 public static class CollisionManager
 {
 	public static List<ColliderClass> colliders = new();
+
+	public static BBox CalculateBoundingBox(GamemakerObject gm)
+	{
+		// TODO : This is called a LOT. This needs to be as optimized as possible.
+
+		var pos = new Vector2((float)gm.x, (float)gm.y);
+		var origin = SpriteManager.GetSpriteOrigin(gm.sprite_index);
+
+		var left = (float)(pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale));
+		var top = (float)(pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale));
+		var right = (float)(pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale));
+		var bottom = (float)(pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale));
+
+		// co-ords of verts of unrotated bbox
+		var topLeft = new Vector2(left, top);
+		var topRight = new Vector2(right, top);
+		var bottomRight = new Vector2(right, bottom);
+		var bottomLeft = new Vector2(left, bottom);
+
+		// rotate co-ords
+		topLeft = topLeft.RotateAroundPoint(pos, gm.image_angle);
+		topRight = topRight.RotateAroundPoint(pos, gm.image_angle);
+		bottomRight = bottomRight.RotateAroundPoint(pos, gm.image_angle);
+		bottomLeft = bottomLeft.RotateAroundPoint(pos, gm.image_angle);
+
+		return new BBox
+		{
+			left = (float)CustomMath.Min(topLeft.X, topRight.X, bottomRight.X, bottomLeft.X),
+			right = (float)CustomMath.Max(topLeft.X, topRight.X, bottomRight.X, bottomLeft.X),
+			top = (float)CustomMath.Min(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y),
+			bottom = (float)CustomMath.Max(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y)
+		};
+	}
 
 	public static void RoomChange()
 	{
@@ -205,8 +229,8 @@ public static class CollisionManager
 		 * We need to return the rotated mask in a new buffer, and where the top left of the new mask is, relative to (0, 0).
 		 */
 
-		var sin = Math.Sin(CustomMath.Deg2Rad * angle);
-		var cos = Math.Cos(CustomMath.Deg2Rad * angle);
+		var sin = Math.Sin(CustomMath.Deg2Rad * -angle);
+		var cos = Math.Cos(CustomMath.Deg2Rad * -angle);
 
 		var maskWidth = mask.GetLength(1);
 		var maskHeight = mask.GetLength(0);

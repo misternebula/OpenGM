@@ -324,29 +324,10 @@ public class CustomWindow : GameWindow
 		// in this house we dont use matrices
 		if (spriteJob.angle != 0)
 		{
-			// stolen and edited from CollisionManager
-			var sin = (float)Math.Sin(CustomMath.Deg2Rad * -spriteJob.angle);
-			var cos = (float)Math.Cos(CustomMath.Deg2Rad * -spriteJob.angle);
-
-			var pivot = new Vector2(
-				spriteJob.screenPos.X,
-				spriteJob.screenPos.Y
-			);
-
-			void RotateAroundPivot(ref Vector2 p)
-			{
-				p.X -= pivot.X;
-				p.Y -= pivot.Y;
-				var xNew = (p.X * cos) - (p.Y * sin);
-				var yNew = (p.X * sin) + (p.Y * cos);
-				p.X = xNew + pivot.X;
-				p.Y = yNew + pivot.Y;
-			}
-
-			RotateAroundPivot(ref topLeft);
-			RotateAroundPivot(ref topRight);
-			RotateAroundPivot(ref bottomRight);
-			RotateAroundPivot(ref bottomLeft);
+			topLeft = topLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+			topRight = topRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+			bottomRight = bottomRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+			bottomLeft = bottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
 		}
 
 		var uvTopLeftX = (spriteJob.texture.SourcePosX + left) / pageTexture.Width;
