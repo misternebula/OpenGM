@@ -1,6 +1,7 @@
 ﻿using DELTARUNITYStandalone.VirtualMachine;
 using OpenTK.Mathematics;
 using System.Collections;
+using System.Diagnostics;
 using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone;
@@ -75,7 +76,7 @@ public class ColliderClass
 	public bool[,] CollisionMask;
 
 	public bool[,] CachedRotatedMask = null;
-	public Vector2i CachedRotatedMaskOffset;
+	public Vector2 CachedRotatedMaskOffset;
 }
 
 public static class CollisionManager
@@ -113,6 +114,100 @@ public static class CollisionManager
 			top = (float)CustomMath.Min(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y),
 			bottom = (float)CustomMath.Max(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y)
 		};
+	}
+
+	/// <summary>
+	/// Checks the collision of a single object at a certain position. 
+	/// </summary>
+	public static bool CheckColliderAtPoint(ColliderClass col, Vector2 position, bool precise)
+	{
+		if (col.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
+		{
+			// Easiest collision. "precise" does not affect anything. Just check if pixel is inside bounding box.
+
+			return position.X < col.BBox.right
+			       && position.X > col.BBox.left
+			       && position.Y < col.BBox.bottom
+			       && position.Y > col.BBox.top;
+		}
+		else if (col.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			// Check inside rotated bounding box. "precise" does not affect anything.
+
+			return false;
+		}
+		else
+		{
+			// Precise collision, my behated. If "precise" is true, we have to rotate the collision mask and other funky stuff.
+			// If "precise" is false, then this is the same as AxisAlignedRect.
+
+			return false;
+		}
+	}
+
+	public static bool CheckColliderWithRectagle(ColliderClass collider, Vector2 v1, Vector2 v2, bool precise)
+	{
+		// Collisions here have to cover the center of pixels
+
+		var left = v1.X;
+		var top = v1.Y;
+		var right = v2.X;
+		var bottom = v2.Y;
+
+		var boundingBoxesCollide = left < collider.BBox.right - 0.5
+		                           && right > collider.BBox.left + 0.5
+		                           && top < collider.BBox.bottom - 0.5
+		                           && bottom > collider.BBox.top + 0.5;
+
+		if (collider.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
+		{
+			return boundingBoxesCollide;
+		}
+		else if (collider.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			return false;
+		}
+		else
+		{
+			if (!precise)
+			{
+				return boundingBoxesCollide;
+			}
+
+			if (!boundingBoxesCollide)
+			{
+				return false;
+			}
+
+			var checkRotatedMask = collider.CachedRotatedMask;
+			var checkOffset = collider.CachedRotatedMaskOffset;
+			var checkMaskHeight = checkRotatedMask.GetLength(0);
+			var checkMaskLength = checkRotatedMask.GetLength(1);
+
+			// iterate through every pixel in the object's rotated mask
+			for (var row = 0; row < checkMaskHeight; row++)
+			{
+				for (var col = 0; col < checkMaskLength; col++)
+				{
+					// if it's false, dont even both checking the position
+					if (checkRotatedMask[row, col] == false)
+					{
+						continue;
+					}
+
+					// Get the world space position of the center of this pixel
+					var currentPixelPos = new Vector2((int)collider.GMObject.x + checkOffset.X + col + 0.5f, (int)collider.GMObject.y + checkOffset.Y + row + 0.5f);
+
+					// Check if position is inside rectangle
+					if (currentPixelPos.X < right && currentPixelPos.X > left && currentPixelPos.Y > top && currentPixelPos.Y < bottom)
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 
 	public static void RoomChange()
@@ -251,7 +346,7 @@ public static class CollisionManager
 		(collider.CachedRotatedMask, collider.CachedRotatedMaskOffset) = RotateMask(collider.CollisionMask, collider.GMObject.image_angle, collider.Origin.X, collider.Origin.Y, collider.Scale.X, collider.Scale.Y);
 	}
 
-	public static (bool[,] buffer, Vector2i topLeftOffset) RotateMask(bool[,] mask, double angle, int pivotX, int pivotY, double xScale, double yScale)
+	public static (bool[,] buffer, Vector2 topLeftOffset) RotateMask(bool[,] mask, double angle, int pivotX, int pivotY, double xScale, double yScale)
 	{
 		/*
 		 * Nearest-Neighbour algorithm for rotating a collision mask.
@@ -265,7 +360,7 @@ public static class CollisionManager
 		var maskWidth = mask.GetLength(1);
 		var maskHeight = mask.GetLength(0);
 
-		void RotateAroundPoint(int pivotX, int pivotY, bool reverse, double x, double y, out float rotatedX, out float rotatedY)
+		void RotateAroundPoint(int pivotX, int pivotY, bool reverse, double x, double y, out double rotatedX, out double rotatedY)
 		{
 			x -= pivotX;
 			y -= pivotY;
@@ -279,15 +374,22 @@ public static class CollisionManager
 			var xnew = (x * cos) - (y * useSin);
 			var ynew = (x * useSin) + (y * cos);
 
-			rotatedX = (float)xnew + pivotX;
-			rotatedY = (float)ynew + pivotY;
+			if (!reverse)
+			{
+				xnew *= xScale;
+				ynew *= yScale;
+			}
+			
+
+			rotatedX = xnew + pivotX;
+			rotatedY = ynew + pivotY;
 		}
 
 		// Calculate where the corners of the given mask will be when rotated.
 		RotateAroundPoint(pivotX, pivotY, false, 0, 0, out var newTLx, out var newTLy);
-		RotateAroundPoint(pivotX, pivotY, false, (int)(maskWidth * xScale), 0, out var newTRx, out var newTRy);
-		RotateAroundPoint(pivotX, pivotY, false, 0, (int)(maskHeight * yScale), out var newBLx, out var newBLy);
-		RotateAroundPoint(pivotX, pivotY, false, (int)(maskWidth * xScale), (int)(maskHeight * yScale), out var newBRx, out var newBRy);
+		RotateAroundPoint(pivotX, pivotY, false, maskWidth, 0, out var newTRx, out var newTRy);
+		RotateAroundPoint(pivotX, pivotY, false, 0, maskHeight, out var newBLx, out var newBLy);
+		RotateAroundPoint(pivotX, pivotY, false, maskWidth, maskHeight, out var newBRx, out var newBRy);
 
 		// Calculate where the edges of the bounding box will be.
 		var fMinX = CustomMath.Min(newTLx, newTRx, newBLx, newBRx);
@@ -312,26 +414,24 @@ public static class CollisionManager
 			{
 				// Get the position of the center of this pixel
 				var pixelCenterX = iMinX + col + 0.5f;
-				var pixelCenterY = iMaxY + row + 0.5f;
+				var pixelCenterY = iMinY + row + 0.5f;
 
 				// Rotate the center position backwards around the pivot to get a position in the original mask.
 				RotateAroundPoint(pivotX, pivotY, true, pixelCenterX, pixelCenterY, out var centerRotatedX, out var centerRotatedY);
 
 				// account for scaling
-				var vectorX = centerRotatedX - pivotX;
-				var vectorY = centerRotatedY - pivotY;
-				vectorX /= (float)xScale;
-				vectorY /= (float)yScale;
+				var vectorX = centerRotatedX / xScale;
+				var vectorY = centerRotatedY / yScale;
 
 				centerRotatedX = vectorX;
 				centerRotatedY = vectorY;
 
-				centerRotatedX += pivotX / (float)xScale;
-				centerRotatedY += pivotY / (float)yScale;
+				centerRotatedX += pivotX / xScale;
+				centerRotatedY += pivotY / yScale;
 
 				// Force this position to be an (int, int), so we can sample the original mask.
 				var snappedToGridX = CustomMath.FloorToInt(centerRotatedX);
-				var snappedToGridY = CustomMath.CeilToInt(centerRotatedY);
+				var snappedToGridY = CustomMath.FloorToInt(centerRotatedY);
 
 				if (snappedToGridX < 0 ||
 				    snappedToGridX > maskWidth - 1 ||
@@ -353,11 +453,13 @@ public static class CollisionManager
 			}
 		}
 
-		return (returnBuffer, new Vector2i(iMinX, iMaxY));
+		return (returnBuffer, new Vector2(iMinX - (float)(pivotX) , iMinY - (float)(pivotY)));
 	}
 
 	public static int collision_rectangle_assetid(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, int assetId, bool precise, bool notme, GamemakerObject current)
 	{
+		// swap values if needed
+
 		if (bottomRightX < topLeftX)
 		{
 			(bottomRightX, topLeftX) = (topLeftX, bottomRightX);
@@ -368,10 +470,12 @@ public static class CollisionManager
 			(bottomRightY, topLeftY) = (topLeftY, bottomRightY);
 		}
 
+		// sanity check
 		colliders.RemoveAll(x => x.GMObject == null);
 
 		foreach (var checkBox in colliders)
 		{
+			// Check if this or any parent matches
 			if (checkBox.GMObject.Definition.AssetId != assetId)
 			{
 				var currentDefinition = checkBox.GMObject.Definition.parent;
@@ -393,71 +497,15 @@ public static class CollisionManager
 				}
 			}
 
+			// Check if testing object is current object
 			if (notme && checkBox.GMObject == current)
 			{
 				continue;
 			}
 
-			var boxesOverlap = DoBoxesOverlap(topLeftX, topLeftY, bottomRightX, bottomRightY, checkBox);
+			var collision = CheckColliderWithRectagle(checkBox, new Vector2((float)topLeftX, (float)topLeftY), new Vector2((float)bottomRightX, (float)bottomRightY), precise);
 
-			if (!boxesOverlap)
-			{
-				continue;
-			}
-
-			if (precise && checkBox.SepMasks == UndertaleSprite.SepMaskType.Precise)
-			{
-				var iTopLeftX = CustomMath.Max((float)topLeftX, checkBox.BBox.left);
-				var iTopLeftY = CustomMath.Min((float)topLeftY, checkBox.BBox.top);
-				var iBottomRightX = CustomMath.Min((float)bottomRightX, checkBox.BBox.right);
-				var iBottomRightY = CustomMath.Max((float)bottomRightY, checkBox.BBox.bottom);
-
-				var iWidth = CustomMath.FloorToInt(Math.Abs(iTopLeftX - iBottomRightX));
-				var iHeight = CustomMath.FloorToInt(Math.Abs(iTopLeftY - iBottomRightY));
-
-				for (var i = 0; i < iHeight; i++)
-				{
-					for (var j = 0; j < iWidth; j++)
-					{
-						if (topLeftX == iTopLeftX)
-						{
-							var deltaX = CustomMath.RoundToInt(Math.Abs(iTopLeftX - checkBox.Position.X)) + j;
-							var deltaY = CustomMath.RoundToInt(Math.Abs(iTopLeftY - checkBox.Position.Y)) + i;
-							deltaX /= (int)checkBox.Scale.X;
-							deltaY /= (int)checkBox.Scale.Y;
-							try
-							{
-								if (checkBox.CollisionMask[deltaY, deltaX])
-								{
-									return (int)checkBox.GMObject.instanceId;
-								}
-							}
-							catch (IndexOutOfRangeException iex)
-							{
-								//Debug.Break();
-							}
-						}
-						else
-						{
-							var yAdjust = CustomMath.RoundToInt(Math.Abs(checkBox.Position.Y - iTopLeftY));
-							yAdjust = CustomMath.FloorToInt(yAdjust / checkBox.Scale.Y);
-							try
-							{
-								if (checkBox.CollisionMask[yAdjust + i, CustomMath.FloorToInt(j / checkBox.Scale.X)])
-								{
-									return (int)checkBox.GMObject.instanceId;
-								}
-							}
-							catch (IndexOutOfRangeException iex)
-							{
-								//Debug.Break();
-							}
-						}
-					}
-				}
-			}
-
-			if (boxesOverlap)
+			if (collision)
 			{
 				return (int)checkBox.GMObject.instanceId;
 			}
@@ -492,66 +540,9 @@ public static class CollisionManager
 				continue;
 			}
 
-			var boxesOverlap = DoBoxesOverlap(topLeftX, topLeftY, bottomRightX, -bottomRightY, checkBox);
+			var collision = CheckColliderWithRectagle(checkBox, new Vector2((float)topLeftX, (float)topLeftY), new Vector2((float)bottomRightX, (float)bottomRightY), precise);
 
-			if (!boxesOverlap)
-			{
-				continue;
-			}
-
-			if (precise && checkBox.SepMasks == UndertaleSprite.SepMaskType.Precise)
-			{
-				var iTopLeftX = CustomMath.Max((float)topLeftX, checkBox.BBox.left);
-				var iTopLeftY = CustomMath.Min((float)topLeftY, checkBox.BBox.top);
-				var iBottomRightX = CustomMath.Min((float)bottomRightX, checkBox.BBox.right);
-				var iBottomRightY = CustomMath.Max((float)bottomRightY, checkBox.BBox.bottom);
-
-				var iWidth = CustomMath.FloorToInt(Math.Abs(iTopLeftX - iBottomRightX));
-				var iHeight = CustomMath.FloorToInt(Math.Abs(iTopLeftY - iBottomRightY));
-
-				for (var i = 0; i < iHeight; i++)
-				{
-					for (var j = 0; j < iWidth; j++)
-					{
-						if (topLeftX == iTopLeftX)
-						{
-							var deltaX = CustomMath.RoundToInt(Math.Abs(iTopLeftX - checkBox.Position.X)) + j;
-							var deltaY = CustomMath.RoundToInt(Math.Abs(iTopLeftY - checkBox.Position.Y)) + i;
-							deltaX /= (int)checkBox.Scale.X;
-							deltaY /= (int)checkBox.Scale.Y;
-							try
-							{
-								if (checkBox.CollisionMask[deltaY, deltaX])
-								{
-									return (int)checkBox.GMObject.instanceId;
-								}
-							}
-							catch (IndexOutOfRangeException iex)
-							{
-								//Debug.Break();
-							}
-						}
-						else
-						{
-							var yAdjust = CustomMath.RoundToInt(Math.Abs(checkBox.Position.Y - iTopLeftY));
-							yAdjust = CustomMath.FloorToInt(yAdjust / checkBox.Scale.Y);
-							try
-							{
-								if (checkBox.CollisionMask[yAdjust + i, CustomMath.FloorToInt(j / checkBox.Scale.X)])
-								{
-									return (int)checkBox.GMObject.instanceId;
-								}
-							}
-							catch (IndexOutOfRangeException iex)
-							{
-								//Debug.Break();
-							}
-						}
-					}
-				}
-			}
-
-			if (boxesOverlap)
+			if (collision)
 			{
 				return (int)checkBox.GMObject.instanceId;
 			}
@@ -665,7 +656,7 @@ public static class CollisionManager
 						var currentPixelPos = new Vector2((int)movedBox.Position.X + currentOffset.X + col + 0.5f, (int)movedBox.Position.Y + currentOffset.Y + row + 0.5f);
 
 						// Get the world space position of the top-left of the other rotated mask
-						var checkMaskTopLeft = new Vector2i((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
+						var checkMaskTopLeft = new Vector2((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
 
 						var placeInOtherMask = currentPixelPos - checkMaskTopLeft;
 
@@ -790,7 +781,7 @@ public static class CollisionManager
 						var currentPixelPos = new Vector2((int)movedBox.Position.X + currentOffset.X + col + 0.5f, (int)movedBox.Position.Y + currentOffset.Y + row + 0.5f);
 
 						// Get the world space position of the top-left of the other rotated mask (up = +y)
-						var checkMaskTopLeft = new Vector2i((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
+						var checkMaskTopLeft = new Vector2((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
 
 						var placeInOtherMask = currentPixelPos - checkMaskTopLeft;
 
