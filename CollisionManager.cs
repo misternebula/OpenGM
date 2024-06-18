@@ -95,6 +95,18 @@ public static class CollisionManager
 		var right = (float)(pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale));
 		var bottom = (float)(pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale));
 
+		// Dont bother rotating if not needed
+		if (CustomMath.ApproxEqual(gm.image_angle % 360, 0))
+		{
+			return new BBox()
+			{
+				left = left,
+				top = top,
+				right = right,
+				bottom = bottom
+			};
+		}
+
 		// co-ords of verts of unrotated bbox
 		var topLeft = new Vector2(left, top);
 		var topRight = new Vector2(right, top);
@@ -154,7 +166,7 @@ public static class CollisionManager
 		var right = v2.X;
 		var bottom = v2.Y;
 
-		var boundingBoxesCollide = left < collider.BBox.right - 0.5
+		var boundingBoxesCollide = left < collider.BBox.right - 0.5 
 		                           && right > collider.BBox.left + 0.5
 		                           && top < collider.BBox.bottom - 0.5
 		                           && bottom > collider.BBox.top + 0.5;
