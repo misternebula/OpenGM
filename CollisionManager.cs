@@ -173,6 +173,8 @@ public static class CollisionManager
 
 		if (collider.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
 		{
+			// Easiest collision. "precise" does not affect anything. Just check if rectangles intersect..
+
 			return boundingBoxesCollide;
 		}
 		else if (collider.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
@@ -181,6 +183,9 @@ public static class CollisionManager
 		}
 		else
 		{
+			// Precise collision, my behated. If "precise" is true, we have to rotate the collision mask and other funky stuff.
+			// If "precise" is false, then this is the same as AxisAlignedRect.
+
 			if (!precise)
 			{
 				return boundingBoxesCollide;
@@ -208,10 +213,16 @@ public static class CollisionManager
 					}
 
 					// Get the world space position of the center of this pixel
-					var currentPixelPos = new Vector2((int)collider.GMObject.x + checkOffset.X + col + 0.5f, (int)collider.GMObject.y + checkOffset.Y + row + 0.5f);
+					var currentPixelPos = new Vector2(
+						(float)collider.GMObject.x + checkOffset.X + col + 0.5f,
+						(float)collider.GMObject.y + checkOffset.Y + row + 0.5f
+						);
 
 					// Check if position is inside rectangle
-					if (currentPixelPos.X < right && currentPixelPos.X > left && currentPixelPos.Y > top && currentPixelPos.Y < bottom)
+					if (currentPixelPos.X < right
+					    && currentPixelPos.X > left
+					    && currentPixelPos.Y > top
+					    && currentPixelPos.Y < bottom)
 					{
 						return true;
 					}
@@ -391,6 +402,11 @@ public static class CollisionManager
 				xnew *= xScale;
 				ynew *= yScale;
 			}
+			else
+			{
+				xnew /= xScale;
+				ynew /= yScale;
+			}
 			
 
 			rotatedX = xnew + pivotX;
@@ -430,16 +446,6 @@ public static class CollisionManager
 
 				// Rotate the center position backwards around the pivot to get a position in the original mask.
 				RotateAroundPoint(pivotX, pivotY, true, pixelCenterX, pixelCenterY, out var centerRotatedX, out var centerRotatedY);
-
-				// account for scaling
-				var vectorX = centerRotatedX / xScale;
-				var vectorY = centerRotatedY / yScale;
-
-				centerRotatedX = vectorX;
-				centerRotatedY = vectorY;
-
-				centerRotatedX += pivotX / xScale;
-				centerRotatedY += pivotY / yScale;
 
 				// Force this position to be an (int, int), so we can sample the original mask.
 				var snappedToGridX = CustomMath.FloorToInt(centerRotatedX);
@@ -613,13 +619,6 @@ public static class CollisionManager
 				{
 					continue;
 				}
-			}
-
-			// generate the collision mask if in editor
-			if (checkBox.CollisionMask == null || movedBox.CollisionMask == null)
-			{
-				var spriteIndex = checkBox.CollisionMask == null ? checkBox.GMObject.sprite_index : movedBox.GMObject.sprite_index;
-				throw new Exception($"collision mask not defined for {spriteIndex}");
 			}
 
 			if ((checkBox.SepMasks == UndertaleSprite.SepMaskType.Precise
