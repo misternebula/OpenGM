@@ -411,6 +411,11 @@ public static class CollisionManager
 				collisionMask[i, j] = val;
 			}
 
+			if (index % 8 == 0)
+			{
+				continue;
+			}
+
 			// need to align to the next multiple of 8
 			var nextMultiple = ((index / 8) + 1) * 8;
 			var difference = nextMultiple - index;
