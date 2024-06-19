@@ -146,6 +146,8 @@ public static class CollisionManager
 		{
 			// Check inside rotated bounding box. "precise" does not affect anything.
 
+			throw new NotImplementedException();
+
 			return false;
 		}
 		else
