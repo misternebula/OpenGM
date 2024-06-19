@@ -59,12 +59,9 @@ public static class CustomMath
 		var sin = (float)Math.Sin(Deg2Rad * -angleAntiClockwise);
 		var cos = (float)Math.Cos(Deg2Rad * -angleAntiClockwise);
 
-		p.X -= pivot.X;
-		p.Y -= pivot.Y;
-		var xNew = (p.X * cos) - (p.Y * sin);
-		var yNew = (p.X * sin) + (p.Y * cos);
-		p.X = xNew + pivot.X;
-		p.Y = yNew + pivot.Y;
+		(p.X, p.Y) = (p.X - pivot.X, p.Y - pivot.Y); // translate matrix
+		(p.X, p.Y) = (p.X * cos - p.Y * sin, p.X * sin + p.Y * cos); // rotate matrix
+		(p.X, p.Y) = (p.X + pivot.X, p.Y + pivot.Y); // translate matrix
 
 		return p;
 	}
