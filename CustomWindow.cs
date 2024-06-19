@@ -166,7 +166,7 @@ public class CustomWindow : GameWindow
 			var line = lines[i];
 			var width = TextManager.StringWidth(line);
 
-			var xOffset = 0f;
+			var xOffset = 0d;
 			if (textJob.halign == HAlign.fa_center)
 			{
 				xOffset = -(width / 2f);
@@ -191,15 +191,15 @@ public class CustomWindow : GameWindow
 			var stringTop = -textJob.screenPos.Y - yOffset;
 			var stringBottom = -textJob.screenPos.Y - yOffset - TextManager.StringHeight(line);
 
-			float map(float s, float a1, float a2, float b1, float b2)
+			double map(double s, double a1, double a2, double b1, double b2)
 			{
 				return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
 			}
 
-			Color4 LerpBetweenColors(Color4 leftColor, Color4 rightColor, float left, float right, float value)
+			Color4 LerpBetweenColors(Color4 leftColor, Color4 rightColor, double left, double right, double value)
 			{
 				var distance = map(value, left, right, 0, 1);
-				return Lerp(leftColor, rightColor, distance);
+				return Lerp(leftColor, rightColor, (float)distance);
 			}
 
 			Color4 Lerp(Color4 a, Color4 b, float t)
@@ -316,10 +316,10 @@ public class CustomWindow : GameWindow
 			top = partJob.top;
 		}
 
-		var topLeft = new Vector2(spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X), spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y));
-		var topRight = new Vector2(topLeft.X + (spriteWidth * spriteJob.scale.X), topLeft.Y);
-		var bottomRight = new Vector2(topRight.X, topRight.Y + (spriteHeight * spriteJob.scale.Y));
-		var bottomLeft = new Vector2(topLeft.X, bottomRight.Y);
+		var topLeft = new Vector2d(spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X), spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y));
+		var topRight = new Vector2d(topLeft.X + (spriteWidth * spriteJob.scale.X), topLeft.Y);
+		var bottomRight = new Vector2d(topRight.X, topRight.Y + (spriteHeight * spriteJob.scale.Y));
+		var bottomLeft = new Vector2d(topLeft.X, bottomRight.Y);
 
 		// in this house we dont use matrices
 		if (spriteJob.angle != 0)
@@ -683,9 +683,9 @@ public class GMLineJob : GMBaseJob
 
 public class GMSpriteJob : GMBaseJob
 {
-	public Vector2 screenPos;
+	public Vector2d screenPos;
 	public SpritePageItem texture;
-	public Vector2 scale;
+	public Vector2d scale;
 	public double angle;
 	public Vector2 origin;
 }
@@ -700,12 +700,12 @@ public class GMSpritePartJob : GMSpriteJob
 
 public class GMTextJob : GMBaseJob
 {
-	public Vector2 screenPos;
+	public Vector2d screenPos;
 	public string text;
-	public Vector2 scale;
+	public Vector2d scale;
 	public HAlign halign;
 	public VAlign valign;
-	public float angle;
+	public double angle;
 	public bool isColor;
 	public Color4 c1 = Color4.White;
 	public Color4 c2 = Color4.White;
@@ -717,7 +717,7 @@ public class GMTextJob : GMBaseJob
 
 public class GMPolygonJob : GMBaseJob
 {
-	public Vector2[] Vertices;
+	public Vector2d[] Vertices;
 	public bool Outline;
 }
 

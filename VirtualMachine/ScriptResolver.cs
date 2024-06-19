@@ -901,12 +901,12 @@ public static partial class ScriptResolver
 			{
 				blend = SpriteManager.DrawColor.BGRToColor(),
 				alpha = SpriteManager.DrawAlpha,
-				Vertices = new []
+				Vertices = new Vector2d[]
 				{
-					new Vector2((float)x1, (float)y1),
-					new Vector2((float)x2, (float)y1),
-					new Vector2((float)x2, (float)y2),
-					new Vector2((float)x1, (float)y2)
+					new(x1, y1),
+					new(x2, y1),
+					new(x2, y2),
+					new(x1, y2)
 				}
 			});
 		}
@@ -1993,7 +1993,7 @@ public static partial class ScriptResolver
 			{
 				blend = SpriteManager.DrawColor.BGRToColor(),
 				alpha = SpriteManager.DrawAlpha,
-				Vertices = new[] { new Vector2((float)x2, (float)y2), new Vector2((float)a, (float)b), new Vector2((float)c, (float)d) }
+				Vertices = new[] { new Vector2d(x2, y2), new Vector2d(a, b), new Vector2d(c, d) }
 			});
 		}
 
@@ -2114,10 +2114,10 @@ public static partial class ScriptResolver
 
 		var angle = 360 / DrawManager.CirclePrecision;
 
-		var points = new Vector2[DrawManager.CirclePrecision];
+		var points = new Vector2d[DrawManager.CirclePrecision];
 		for (var i = 0; i < DrawManager.CirclePrecision; i++)
 		{
-			points[i] = new Vector2((float)(x + (r * Math.Sin(angle * i))), (float)(y + (r * Math.Cos(angle * i))));
+			points[i] = new Vector2d(x + (r * Math.Sin(angle * i)), y + (r * Math.Cos(angle * i)));
 		}
 
 		CustomWindow.RenderJobs.Add(new GMPolygonJob()
@@ -2145,11 +2145,11 @@ public static partial class ScriptResolver
 		{
 			blend = SpriteManager.DrawColor.BGRToColor(),
 			alpha = SpriteManager.DrawAlpha,
-			Vertices = new []
+			Vertices = new Vector2d[]
 			{
-				new Vector2((float)x1, (float)y1),
-				new Vector2((float)x2, (float)y2),
-				new Vector2((float)x3, (float)y3)
+				new Vector2d(x1, y1),
+				new Vector2d(x2, y2),
+				new Vector2d(x3, y3)
 			},
 			Outline = outline
 		});

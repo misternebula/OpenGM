@@ -11,22 +11,22 @@ public class BBox
 	/// <summary>
 	/// X co-ordinate of the left-hand side of the bounding box.
 	/// </summary>
-	public float left;
+	public double left;
 
 	/// <summary>
 	/// X co-ordinate of the right-hand side of the bounding box.
 	/// </summary>
-	public float right;
+	public double right;
 
 	/// <summary>
 	/// Y co-ordinate of the top of the bounding box.
 	/// </summary>
-	public float top;
+	public double top;
 
 	/// <summary>
 	/// Y co-ordinate of the top of the bounding box.
 	/// </summary>
-	public float bottom;
+	public double bottom;
 }
 
 public class ColliderClass
@@ -36,8 +36,8 @@ public class ColliderClass
 	public string spriteAssetName;
 	public int collisionMaskIndex;
 
-	private Vector2 _pos => new((float)GMObject.x, (float)GMObject.y);
-	private Vector2 _scale => new((float)GMObject.image_xscale, (float)GMObject.image_yscale);
+	private Vector2d _pos => new(GMObject.x, GMObject.y);
+	private Vector2d _scale => new(GMObject.image_xscale, GMObject.image_yscale);
 
 	public Vector2i Origin;
 
@@ -51,12 +51,12 @@ public class ColliderClass
 
 	public BBox BBox => CollisionManager.CalculateBoundingBox(GMObject);
 
-	public Vector3 BBCenter => new(
+	public Vector3d BBCenter => new(
 		(BBox.left + BBox.right) / 2,
 		(BBox.top + BBox.bottom) / 2,
 		0);
 
-	public Vector3 BBSize => new(
+	public Vector3d BBSize => new(
 		BBox.right - BBox.left,
 		BBox.bottom - BBox.top,
 		1);
@@ -64,19 +64,19 @@ public class ColliderClass
 	/// <summary>
 	/// The position of the collider
 	/// </summary>
-	public Vector3 Position => new(
+	public Vector3d Position => new(
 		_pos.X - (Origin.X * _scale.X),
 		_pos.Y - (Origin.Y * _scale.Y),
 		0);
 
-	public Vector2 Scale => _scale;
+	public Vector2d Scale => _scale;
 
 	public UndertaleSprite.SepMaskType SepMasks;
 	public uint BoundingBoxMode;
 	public bool[,] CollisionMask;
 
 	public bool[,] CachedRotatedMask = null;
-	public Vector2 CachedRotatedMaskOffset;
+	public Vector2i CachedRotatedMaskOffset;
 }
 
 public static class CollisionManager
@@ -87,13 +87,13 @@ public static class CollisionManager
 	{
 		// TODO : This is called a LOT. This needs to be as optimized as possible.
 
-		var pos = new Vector2((float)gm.x, (float)gm.y);
+		var pos = new Vector2d(gm.x, gm.y);
 		var origin = SpriteManager.GetSpriteOrigin(gm.sprite_index);
 
-		var left = (float)(pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale));
-		var top = (float)(pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale));
-		var right = (float)(pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale));
-		var bottom = (float)(pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale));
+		var left = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
+		var top = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
+		var right = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale);
+		var bottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale);
 
 		// Dont bother rotating if not needed
 		if (CustomMath.ApproxEqual(gm.image_angle % 360, 0))
@@ -108,10 +108,10 @@ public static class CollisionManager
 		}
 
 		// co-ords of verts of unrotated bbox
-		var topLeft = new Vector2(left, top);
-		var topRight = new Vector2(right, top);
-		var bottomRight = new Vector2(right, bottom);
-		var bottomLeft = new Vector2(left, bottom);
+		var topLeft = new Vector2d(left, top);
+		var topRight = new Vector2d(right, top);
+		var bottomRight = new Vector2d(right, bottom);
+		var bottomLeft = new Vector2d(left, bottom);
 
 		// rotate co-ords
 		topLeft = topLeft.RotateAroundPoint(pos, gm.image_angle);
@@ -121,10 +121,10 @@ public static class CollisionManager
 
 		return new BBox
 		{
-			left = (float)CustomMath.Min(topLeft.X, topRight.X, bottomRight.X, bottomLeft.X),
-			right = (float)CustomMath.Max(topLeft.X, topRight.X, bottomRight.X, bottomLeft.X),
-			top = (float)CustomMath.Min(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y),
-			bottom = (float)CustomMath.Max(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y)
+			left = CustomMath.Min(topLeft.X, topRight.X, bottomRight.X, bottomLeft.X),
+			right = CustomMath.Max(topLeft.X, topRight.X, bottomRight.X, bottomLeft.X),
+			top = CustomMath.Min(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y),
+			bottom = CustomMath.Max(topLeft.Y, topRight.Y, bottomRight.Y, bottomLeft.Y)
 		};
 	}
 
@@ -159,7 +159,7 @@ public static class CollisionManager
 		}
 	}
 
-	public static bool CheckColliderWithRectagle(ColliderClass collider, Vector2 v1, Vector2 v2, bool precise)
+	public static bool CheckColliderWithRectagle(ColliderClass collider, Vector2d v1, Vector2d v2, bool precise)
 	{
 		// Collisions here have to cover the center of pixels
 
@@ -193,19 +193,19 @@ public static class CollisionManager
 			// -- GET CORNERS OF ROTATED BOUNDING BOX --
 
 			var gm = collider.GMObject;
-			var pos = new Vector2((float)gm.x, (float)gm.y);
+			var pos = new Vector2d(gm.x, gm.y);
 			var origin = SpriteManager.GetSpriteOrigin(gm.sprite_index);
 
-			var bleft = (float)(pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale));
-			var btop = (float)(pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale));
-			var bright = (float)(pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale));
-			var bbottom = (float)(pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale));
+			var bleft = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
+			var btop = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
+			var bright = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale);
+			var bbottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale);
 
 			// co-ords of verts of unrotated bbox
-			var bbv1 = new Vector2(bleft, btop);
-			var bbv2 = new Vector2(bright, btop);
-			var bbv3 = new Vector2(bright, bbottom);
-			var bbv4 = new Vector2(bleft, bbottom);
+			var bbv1 = new Vector2d(bleft, btop);
+			var bbv2 = new Vector2d(bright, btop);
+			var bbv3 = new Vector2d(bright, bbottom);
+			var bbv4 = new Vector2d(bleft, bbottom);
 
 			// rotate co-ords
 			bbv1 = bbv1.RotateAroundPoint(pos, gm.image_angle);
@@ -215,30 +215,30 @@ public static class CollisionManager
 
 			// -- GET CORNERS OF RECTANGLE --
 			var rv1 = v1;
-			var rv2 = new Vector2(v2.X, v1.Y);
+			var rv2 = new Vector2d(v2.X, v1.Y);
 			var rv3 = v2;
-			var rv4 = new Vector2(v1.X, v2.Y);
+			var rv4 = new Vector2d(v1.X, v2.Y);
 
 			// -- GET NORMALS --
 
 			var rNormals = new Vector2[] { new(0, -1), new(1, 0), new(0, 1), new(-1, 0) };
 
-			var bbv12 = Vector2.Normalize(bbv2 - bbv1);
-			var bbv23 = Vector2.Normalize(bbv3 - bbv2);
-			var bbv34 = Vector2.Normalize(bbv4 - bbv3);
-			var bbv41 = Vector2.Normalize(bbv1 - bbv4);
+			var bbv12 = Vector2d.Normalize(bbv2 - bbv1);
+			var bbv23 = Vector2d.Normalize(bbv3 - bbv2);
+			var bbv34 = Vector2d.Normalize(bbv4 - bbv3);
+			var bbv41 = Vector2d.Normalize(bbv1 - bbv4);
 
-			var bbNormals = new Vector2[] { new(bbv12.Y, -bbv12.X), new(bbv23.Y, -bbv23.X), new(bbv34.Y, -bbv34.X), new(bbv41.Y, -bbv41.X) };
+			var bbNormals = new Vector2d[] { new(bbv12.Y, -bbv12.X), new(bbv23.Y, -bbv23.X), new(bbv34.Y, -bbv34.X), new(bbv41.Y, -bbv41.X) };
 
 			// https://gamedev.stackexchange.com/a/60225
 
-			static void SATtest(Vector2 axis, Vector2[] verts, out float minAlong, out float maxAlong)
+			static void SATtest(Vector2d axis, Vector2d[] verts, out double minAlong, out double maxAlong)
 			{
-				minAlong = float.MaxValue;
-				maxAlong = -float.MaxValue;
+				minAlong = double.MaxValue;
+				maxAlong = -double.MaxValue;
 				foreach (var vert in verts)
 				{
-					var dotVal = Vector2.Dot(vert, axis);
+					var dotVal = Vector2d.Dot(vert, axis);
 					if (dotVal < minAlong)
 					{
 						minAlong = dotVal;
@@ -250,18 +250,18 @@ public static class CollisionManager
 				}
 			}
 
-			static bool overlaps(float min1, float max1, float min2, float max2)
+			static bool overlaps(double min1, double max1, double min2, double max2)
 			{
 				return isBetweenOrdered(min2, min1, max1) || isBetweenOrdered(min1, min2, max2);
 			}
 
-			static bool isBetweenOrdered(float val, float lowerBound, float upperBound)
+			static bool isBetweenOrdered(double val, double lowerBound, double upperBound)
 			{
 				return lowerBound <= val && val <= upperBound;
 			}
 
-			var rVerts = new Vector2[] { rv1, rv2, rv3, rv4 };
-			var bbVerts = new Vector2[] { bbv1, bbv2, bbv3, bbv4 };
+			var rVerts = new Vector2d[] { rv1, rv2, rv3, rv4 };
+			var bbVerts = new Vector2d[] { bbv1, bbv2, bbv3, bbv4 };
 
 			foreach (var norm in rNormals)
 			{
@@ -317,9 +317,9 @@ public static class CollisionManager
 					}
 
 					// Get the world space position of the center of this pixel
-					var currentPixelPos = new Vector2(
-						(float)collider.GMObject.x + checkOffset.X + col + 0.5f,
-						(float)collider.GMObject.y + checkOffset.Y + row + 0.5f
+					var currentPixelPos = new Vector2d(
+						collider.GMObject.x + checkOffset.X + col + 0.5f,
+						collider.GMObject.y + checkOffset.Y + row + 0.5f
 						);
 
 					// Check if position is inside rectangle
@@ -478,7 +478,7 @@ public static class CollisionManager
 		(collider.CachedRotatedMask, collider.CachedRotatedMaskOffset) = RotateMask(collider.CollisionMask, collider.GMObject.image_angle, collider.Origin.X, collider.Origin.Y, collider.Scale.X, collider.Scale.Y);
 	}
 
-	public static (bool[,] buffer, Vector2 topLeftOffset) RotateMask(bool[,] mask, double angle, int pivotX, int pivotY, double xScale, double yScale)
+	public static (bool[,] buffer, Vector2i topLeftOffset) RotateMask(bool[,] mask, double angle, int pivotX, int pivotY, double xScale, double yScale)
 	{
 		/*
 		 * Nearest-Neighbour algorithm for rotating a collision mask.
@@ -588,7 +588,7 @@ public static class CollisionManager
 			}
 		}
 
-		return (returnBuffer, new Vector2(iMinX - (float)(pivotX) , iMinY - (float)(pivotY)));
+		return (returnBuffer, new Vector2i(iMinX - pivotX , iMinY - pivotY));
 	}
 
 	public static int collision_rectangle_assetid(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, int assetId, bool precise, bool notme, GamemakerObject current)
@@ -638,7 +638,7 @@ public static class CollisionManager
 				continue;
 			}
 
-			var collision = CheckColliderWithRectagle(checkBox, new Vector2((float)topLeftX, (float)topLeftY), new Vector2((float)bottomRightX, (float)bottomRightY), precise);
+			var collision = CheckColliderWithRectagle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
 
 			if (collision)
 			{
@@ -675,7 +675,7 @@ public static class CollisionManager
 				continue;
 			}
 
-			var collision = CheckColliderWithRectagle(checkBox, new Vector2((float)topLeftX, (float)topLeftY), new Vector2((float)bottomRightX, (float)bottomRightY), precise);
+			var collision = CheckColliderWithRectagle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
 
 			if (collision)
 			{

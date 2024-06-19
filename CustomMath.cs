@@ -52,12 +52,12 @@ public static class CustomMath
 		return ((a % b) + b) % b;
 	}
 
-	public static Vector2 RotateAroundPoint(this Vector2 p, Vector2 pivot, double angleAntiClockwise)
+	public static Vector2d RotateAroundPoint(this Vector2d p, Vector2d pivot, double angleAntiClockwise)
 	{
 		// todo : maybe work out the actual formula for (+y = south) so we dont have to invert the angle
 
-		var sin = (float)Math.Sin(Deg2Rad * -angleAntiClockwise);
-		var cos = (float)Math.Cos(Deg2Rad * -angleAntiClockwise);
+		var sin = Math.Sin(Deg2Rad * -angleAntiClockwise);
+		var cos = Math.Cos(Deg2Rad * -angleAntiClockwise);
 
 		(p.X, p.Y) = (p.X - pivot.X, p.Y - pivot.Y); // translate matrix
 		(p.X, p.Y) = (p.X * cos - p.Y * sin, p.X * sin + p.Y * cos); // rotate matrix

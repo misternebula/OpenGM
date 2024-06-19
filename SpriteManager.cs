@@ -57,9 +57,9 @@ public static class SpriteManager
 		CustomWindow.RenderJobs.Add(new GMSpriteJob()
 		{
 			texture = sprite,
-			screenPos = new Vector2((float)x, (float)y),
+			screenPos = new Vector2d(x, y),
 			angle = rot,
-			scale = new Vector2((float)xscale, (float)yscale),
+			scale = new Vector2d(xscale, yscale),
 			blend = blend.BGRToColor(),
 			alpha = alpha,
 			origin = origin,
@@ -80,9 +80,9 @@ public static class SpriteManager
 		CustomWindow.RenderJobs.Add(new GMSpritePartJob()
 		{
 			texture = sprite,
-			screenPos = new Vector2((float)x, (float)y),
+			screenPos = new Vector2d(x, y),
 			angle = 0,
-			scale = new Vector2((float)xscale, (float)yscale),
+			scale = new Vector2d(xscale, yscale),
 			blend = blend.BGRToColor(),
 			alpha = alpha,
 			origin = Vector2.Zero,
@@ -113,9 +113,9 @@ public static class SpriteManager
 		CustomWindow.RenderJobs.Add(new GMSpriteJob()
 		{
 			texture = sprite,
-			screenPos = new Vector2((float)x, (float)y),
+			screenPos = new Vector2d(x, y),
 			angle = 0,
-			scale = new Vector2((float)w / spriteWidth, (float)h / spriteHeight),
+			scale = new Vector2d(w / spriteWidth, h / spriteHeight),
 			blend = Color.White,
 			alpha = 1,
 			origin = Vector2.Zero

@@ -22,13 +22,13 @@ public static class TextManager
 		CustomWindow.RenderJobs.Add(new GMTextJob()
 		{
 			text = text,
-			screenPos = new Vector2((float)x, (float)y),
+			screenPos = new Vector2d(x, y),
 			blend = SpriteManager.DrawColor.BGRToColor(),
 			alpha = SpriteManager.DrawAlpha,
 			halign = halign,
 			valign = valign,
-			scale = new Vector2((float)xscale, (float)yscale),
-			angle = (float)angle,
+			scale = new Vector2d(xscale, yscale),
+			angle = angle,
 			asset = fontAsset,
 			// gamemaker is weird
 			// "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
@@ -113,7 +113,7 @@ public static class TextManager
 		CustomWindow.RenderJobs.Add(new GMTextJob()
 		{
 			text = text,
-			screenPos = new Vector2((float)x, (float)y),
+			screenPos = new Vector2d(x, y),
 			blend = SpriteManager.DrawColor.BGRToColor(),
 			alpha = alpha,
 			halign = halign,
