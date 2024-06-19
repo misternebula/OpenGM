@@ -230,7 +230,7 @@ public static class CollisionManager
 
 			// https://gamedev.stackexchange.com/a/60225
 
-			void SATtest(Vector2 axis, Vector2[] verts, out float minAlong, out float maxAlong)
+			static void SATtest(Vector2 axis, Vector2[] verts, out float minAlong, out float maxAlong)
 			{
 				minAlong = float.MaxValue;
 				maxAlong = -float.MaxValue;
@@ -248,12 +248,12 @@ public static class CollisionManager
 				}
 			}
 
-			bool overlaps(float min1, float max1, float min2, float max2)
+			static bool overlaps(float min1, float max1, float min2, float max2)
 			{
 				return isBetweenOrdered(min2, min1, max1) || isBetweenOrdered(min1, min2, max2);
 			}
 
-			bool isBetweenOrdered(float val, float lowerBound, float upperBound)
+			static bool isBetweenOrdered(float val, float lowerBound, float upperBound)
 			{
 				return lowerBound <= val && val <= upperBound;
 			}
@@ -506,25 +506,26 @@ public static class CollisionManager
 		 * To rotate then scale, substitute (x', y') from R as the values of (x, y) into S.
 		 */
 
-		void ScaleThenRotatePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double rotatedX, out double rotatedY)
+		static void ScaleThenRotatePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double xPrime, out double yPrime)
 		{
 			var sin = Math.Sin(CustomMath.Deg2Rad * -theta);
 			var cos = Math.Cos(CustomMath.Deg2Rad * -theta);
 
-			var innerX = (scaleX * x) - (scaleX * pivotX);
-			var innerY = (scaleY * y) - (scaleY * pivotY);
-
-			rotatedX = (cos * innerX) - (sin * innerY) + pivotX;
-			rotatedY = (sin * innerX) + (cos * innerY) + pivotY;
+			(x, y) = (x - pivotX, y - pivotY); // translate matrix
+			(x, y) = (x * scaleX, y * scaleY); // scale matrix
+			(x, y) = (x * cos - y * sin, x * sin + y * cos); // rotate matrix
+			(xPrime, yPrime) = (x + pivotX, y + pivotY); // translate matrix
 		}
 
-		void RotateThenScalePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double rotatedX, out double rotatedY)
+		static void RotateThenScalePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double xPrime, out double yPrime)
 		{
 			var sin = Math.Sin(CustomMath.Deg2Rad * -theta);
 			var cos = Math.Cos(CustomMath.Deg2Rad * -theta);
 
-			rotatedX = (scaleX * x * cos) - (scaleX * pivotX * cos) - (scaleX * y * sin) + (scaleX * pivotY * sin) + pivotX;
-			rotatedY = (scaleY * x * sin) - (scaleY * pivotX * sin) + (scaleY * y * cos) - (scaleY * pivotY * cos) + pivotY;
+			(x, y) = (x - pivotX, y - pivotY); // translate matrix
+			(x, y) = (x * cos - y * sin, x * sin + y * cos); // rotate matrix
+			(x, y) = (x * scaleX, y * scaleY); // scale matrix
+			(xPrime, yPrime) = (x + pivotX, y + pivotY); // translate matrix
 		}
 
 		// Calculate where the corners of the given mask will be when rotated.
