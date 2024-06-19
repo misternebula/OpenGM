@@ -484,47 +484,54 @@ public static class CollisionManager
 		 * We need to return the rotated mask in a new buffer, and where the top left of the new mask is, relative to (0, 0).
 		 */
 
-		var sin = Math.Sin(CustomMath.Deg2Rad * -angle);
-		var cos = Math.Cos(CustomMath.Deg2Rad * -angle);
-
 		var maskWidth = mask.GetLength(1);
 		var maskHeight = mask.GetLength(0);
 
-		void RotateAroundPoint(int pivotX, int pivotY, bool reverse, double x, double y, out double rotatedX, out double rotatedY)
+		/*
+		 * The maths on these two functions took me a few hours and a lot of graph paper to work out.
+		 *
+		 * Rotating a point (x, y) around pivot (Px, Py) by angle θ can be found by solving this matrix equation R :
+		 *
+		 * [ x' ]    [ 1 0 Px ]  [ cosθ -sinθ 0 ]  [ 1 0 -Px ]  [ x ]
+		 * [ y' ] =  [ 0 1 Py ]  [ sinθ  cosθ 0 ]  [ 0 1 -Py ]  [ y ]
+		 * [ 1  ]    [ 0 0 1  ]  [  0	  0   1 ]  [ 0 0  1  ]  [ 1 ]
+		 *
+		 * Scaling a point (x, y) around pivot (Px, Py) by scale factor (Sx, Sy) can be found by solving this matrix equation S :
+		 *
+		 * [ x' ]    [ 1 0 Px ]  [ Sx 0  0 ]  [ 1 0 -Px ]  [ x ]
+		 * [ y' ] =  [ 0 1 Py ]  [ 0  Sy 0 ]  [ 0 1 -Py ]  [ y ]
+		 * [ 1  ]    [ 0 0 1  ]  [ 0  0  1 ]  [ 0 0  1  ]  [ 1 ]
+		 *
+		 * To scale then rotate, substitute (x', y') from S as the values of (x, y) into R.
+		 * To rotate then scale, substitute (x', y') from R as the values of (x, y) into S.
+		 */
+
+		void ScaleThenRotatePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double rotatedX, out double rotatedY)
 		{
-			x -= pivotX;
-			y -= pivotY;
+			var sin = Math.Sin(CustomMath.Deg2Rad * -theta);
+			var cos = Math.Cos(CustomMath.Deg2Rad * -theta);
 
-			var useSin = sin;
-			if (reverse)
-			{
-				useSin = -sin;
-			}
+			var innerX = (scaleX * x) - (scaleX * pivotX);
+			var innerY = (scaleY * y) - (scaleY * pivotY);
 
-			var xnew = (x * cos) - (y * useSin);
-			var ynew = (x * useSin) + (y * cos);
+			rotatedX = (cos * innerX) - (sin * innerY) + pivotX;
+			rotatedY = (sin * innerX) + (cos * innerY) + pivotY;
+		}
 
-			if (!reverse)
-			{
-				xnew *= xScale;
-				ynew *= yScale;
-			}
-			else
-			{
-				xnew /= xScale;
-				ynew /= yScale;
-			}
-			
+		void RotateThenScalePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double rotatedX, out double rotatedY)
+		{
+			var sin = Math.Sin(CustomMath.Deg2Rad * -theta);
+			var cos = Math.Cos(CustomMath.Deg2Rad * -theta);
 
-			rotatedX = xnew + pivotX;
-			rotatedY = ynew + pivotY;
+			rotatedX = (scaleX * x * cos) - (scaleX * pivotX * cos) - (scaleX * y * sin) + (scaleX * pivotY * sin) + pivotX;
+			rotatedY = (scaleY * x * sin) - (scaleY * pivotX * sin) + (scaleY * y * cos) - (scaleY * pivotY * cos) + pivotY;
 		}
 
 		// Calculate where the corners of the given mask will be when rotated.
-		RotateAroundPoint(pivotX, pivotY, false, 0, 0, out var newTLx, out var newTLy);
-		RotateAroundPoint(pivotX, pivotY, false, maskWidth, 0, out var newTRx, out var newTRy);
-		RotateAroundPoint(pivotX, pivotY, false, 0, maskHeight, out var newBLx, out var newBLy);
-		RotateAroundPoint(pivotX, pivotY, false, maskWidth, maskHeight, out var newBRx, out var newBRy);
+		ScaleThenRotatePoint(0, 0, pivotX, pivotY, xScale, yScale, angle, out var newTLx, out var newTLy);
+		ScaleThenRotatePoint(maskWidth, 0, pivotX, pivotY, xScale, yScale, angle, out var newTRx, out var newTRy);
+		ScaleThenRotatePoint(0, maskHeight, pivotX, pivotY, xScale, yScale, angle, out var newBLx, out var newBLy);
+		ScaleThenRotatePoint(maskWidth, maskHeight, pivotX, pivotY, xScale, yScale, angle, out var newBRx, out var newBRy);
 
 		// Calculate where the edges of the bounding box will be.
 		var fMinX = CustomMath.Min(newTLx, newTRx, newBLx, newBRx);
@@ -552,7 +559,7 @@ public static class CollisionManager
 				var pixelCenterY = iMinY + row + 0.5f;
 
 				// Rotate the center position backwards around the pivot to get a position in the original mask.
-				RotateAroundPoint(pivotX, pivotY, true, pixelCenterX, pixelCenterY, out var centerRotatedX, out var centerRotatedY);
+				RotateThenScalePoint(pixelCenterX, pixelCenterY, pivotX, pivotY, 1 / xScale, 1 / yScale, -angle, out var centerRotatedX, out var centerRotatedY);
 
 				// Force this position to be an (int, int), so we can sample the original mask.
 				var snappedToGridX = CustomMath.FloorToInt(centerRotatedX);
