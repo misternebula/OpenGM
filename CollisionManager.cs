@@ -179,7 +179,109 @@ public static class CollisionManager
 		}
 		else if (collider.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
 		{
-			return false;
+			// Check inside rotated bounding box. "precise" does not affect anything.
+
+			// TODO: this seems to be placed incorrectly? double check this math
+
+			if (!boundingBoxesCollide)
+			{
+				return false;
+			}
+
+			// -- GET CORNERS OF ROTATED BOUNDING BOX --
+
+			var gm = collider.GMObject;
+			var pos = new Vector2((float)gm.x, (float)gm.y);
+			var origin = SpriteManager.GetSpriteOrigin(gm.sprite_index);
+
+			var bleft = (float)(pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale));
+			var btop = (float)(pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale));
+			var bright = (float)(pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale));
+			var bbottom = (float)(pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale));
+
+			// co-ords of verts of unrotated bbox
+			var bbv1 = new Vector2(bleft, btop);
+			var bbv2 = new Vector2(bright, btop);
+			var bbv3 = new Vector2(bright, bbottom);
+			var bbv4 = new Vector2(bleft, bbottom);
+
+			// rotate co-ords
+			bbv1 = bbv1.RotateAroundPoint(pos, gm.image_angle);
+			bbv2 = bbv2.RotateAroundPoint(pos, gm.image_angle);
+			bbv3 = bbv3.RotateAroundPoint(pos, gm.image_angle);
+			bbv4 = bbv4.RotateAroundPoint(pos, gm.image_angle);
+
+			// -- GET CORNERS OF RECTANGLE --
+			var rv1 = v1;
+			var rv2 = new Vector2(v2.X, v1.Y);
+			var rv3 = v2;
+			var rv4 = new Vector2(v1.X, v2.Y);
+
+			// -- GET NORMALS --
+
+			var rNormals = new Vector2[] { new(0, -1), new(1, 0), new(0, 1), new(-1, 0) };
+
+			var bbv12 = Vector2.Normalize(bbv2 - bbv1);
+			var bbv23 = Vector2.Normalize(bbv3 - bbv2);
+			var bbv34 = Vector2.Normalize(bbv4 - bbv3);
+			var bbv41 = Vector2.Normalize(bbv1 - bbv4);
+
+			var bbNormals = new Vector2[] { new(bbv12.Y, -bbv12.X), new(bbv23.Y, -bbv23.X), new(bbv34.Y, -bbv34.X), new(bbv41.Y, -bbv41.X) };
+
+			// https://gamedev.stackexchange.com/a/60225
+
+			void SATtest(Vector2 axis, Vector2[] verts, out float minAlong, out float maxAlong)
+			{
+				minAlong = float.MaxValue;
+				maxAlong = -float.MaxValue;
+				foreach (var vert in verts)
+				{
+					var dotVal = Vector2.Dot(vert, axis);
+					if (dotVal < minAlong)
+					{
+						minAlong = dotVal;
+					}
+					if (dotVal > maxAlong)
+					{
+						maxAlong = dotVal;
+					}
+				}
+			}
+
+			bool overlaps(float min1, float max1, float min2, float max2)
+			{
+				return isBetweenOrdered(min2, min1, max1) || isBetweenOrdered(min1, min2, max2);
+			}
+
+			bool isBetweenOrdered(float val, float lowerBound, float upperBound)
+			{
+				return lowerBound <= val && val <= upperBound;
+			}
+
+			var rVerts = new Vector2[] { rv1, rv2, rv3, rv4 };
+			var bbVerts = new Vector2[] { bbv1, bbv2, bbv3, bbv4 };
+
+			foreach (var norm in rNormals)
+			{
+				SATtest(norm, rVerts, out var shape1Min, out var shape1Max);
+				SATtest(norm, bbVerts, out var shape2Min, out var shape2Max);
+				if (!overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+				{
+					return false;
+				}
+			}
+
+			foreach (var norm in bbNormals)
+			{
+				SATtest(norm, rVerts, out var shape1Min, out var shape1Max);
+				SATtest(norm, bbVerts, out var shape2Min, out var shape2Max);
+				if (!overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 		else
 		{
