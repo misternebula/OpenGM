@@ -128,9 +128,18 @@ public static class RoomManager
 			CurrentRoom.Layers.Add((int)layerContainer.ID, layerContainer);
 		}
 
+		foreach (var obj in InstanceManager.instances)
+		{
+			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (uint)EventSubtypeOther.RoomStart);
+		}
+
 		foreach (var obj in createdObjects)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.PreCreate);
+		}
+
+		foreach (var obj in createdObjects)
+		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Create);
 		}
 
