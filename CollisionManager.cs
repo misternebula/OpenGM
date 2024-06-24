@@ -1,7 +1,6 @@
 ﻿using DELTARUNITYStandalone.VirtualMachine;
 using OpenTK.Mathematics;
 using System.Collections;
-using System.Diagnostics;
 using UndertaleModLib.Models;
 
 namespace DELTARUNITYStandalone;
@@ -36,9 +35,6 @@ public class ColliderClass
 	public string spriteAssetName;
 	public int collisionMaskIndex;
 
-	private Vector2d _pos => new(GMObject.x, GMObject.y);
-	private Vector2d _scale => new(GMObject.image_xscale, GMObject.image_yscale);
-
 	public Vector2i Origin;
 
 	public ColliderClass(GamemakerObject obj)
@@ -51,31 +47,13 @@ public class ColliderClass
 
 	public BBox BBox => CollisionManager.CalculateBoundingBox(GMObject);
 
-	public Vector3d BBCenter => new(
-		(BBox.left + BBox.right) / 2,
-		(BBox.top + BBox.bottom) / 2,
-		0);
-
-	public Vector3d BBSize => new(
-		BBox.right - BBox.left,
-		BBox.bottom - BBox.top,
-		1);
-
-	/// <summary>
-	/// The position of the collider
-	/// </summary>
-	public Vector3d Position => new(
-		_pos.X - (Origin.X * _scale.X),
-		_pos.Y - (Origin.Y * _scale.Y),
-		0);
-
-	public Vector2d Scale => _scale;
+	public Vector2d Scale => new(GMObject.image_xscale, GMObject.image_yscale);
 
 	public UndertaleSprite.SepMaskType SepMasks;
 	public uint BoundingBoxMode;
 	public bool[,] CollisionMask;
 
-	public bool[,] CachedRotatedMask = null;
+	public bool[,] CachedRotatedMask;
 	public Vector2i CachedRotatedMaskOffset;
 }
 
@@ -154,6 +132,8 @@ public static class CollisionManager
 		{
 			// Precise collision, my behated. If "precise" is true, we have to rotate the collision mask and other funky stuff.
 			// If "precise" is false, then this is the same as AxisAlignedRect.
+
+			throw new NotImplementedException();
 
 			return false;
 		}
@@ -334,6 +314,89 @@ public static class CollisionManager
 			}
 
 			return false;
+		}
+	}
+
+	public static bool CheckColliderAgainstCollider(ColliderClass a, ColliderClass b)
+	{
+		var boxesOverlap = DoBoxesOverlap(a, b);
+
+		// TODO : This feels like RotatedRect should be counted as precise, but the docs are vauge. Check in GameMaker.
+
+		if ((a.SepMasks == UndertaleSprite.SepMaskType.Precise && b.SepMasks == UndertaleSprite.SepMaskType.Precise)
+		    || a.SepMasks != b.SepMasks) // TODO: what the fuck is this, why is this here
+		{
+			// check precise collision masks
+
+			if (!boxesOverlap)
+			{
+				return false;
+			}
+
+			if (a.CachedRotatedMask == null)
+			{
+				(a.CachedRotatedMask, a.CachedRotatedMaskOffset) = RotateMask(a.CollisionMask, a.GMObject.image_angle, a.Origin.X, a.Origin.Y, a.Scale.X, a.Scale.Y);
+			}
+
+			if (b.CachedRotatedMask == null)
+			{
+				(b.CachedRotatedMask, b.CachedRotatedMaskOffset) = RotateMask(b.CollisionMask, b.GMObject.image_angle, b.Origin.X, b.Origin.Y, b.Scale.X, b.Scale.Y);
+			}
+
+			var currentRotatedMask = a.CachedRotatedMask;
+			var currentOffset = a.CachedRotatedMaskOffset;
+			var checkRotatedMask = b.CachedRotatedMask;
+			var checkOffset = b.CachedRotatedMaskOffset;
+
+			var currentMaskHeight = currentRotatedMask.GetLength(0);
+			var currentMaskLength = currentRotatedMask.GetLength(1);
+			var checkMaskHeight = checkRotatedMask.GetLength(0);
+			var checkMaskLength = checkRotatedMask.GetLength(1);
+
+			// iterate through every pixel in the current object's rotated mask
+			for (var row = 0; row < currentMaskHeight; row++)
+			{
+				for (var col = 0; col < currentMaskLength; col++)
+				{
+					// if it's false, dont even both checking the value of the other mask
+					if (currentRotatedMask[row, col] == false)
+					{
+						continue;
+					}
+
+					// Get the world space position of the center of this pixel
+					var currentPixelPos = new Vector2d(a.GMObject.x + currentOffset.X + col + 0.5f, a.GMObject.y + currentOffset.Y + row + 0.5f);
+
+					// Get the world space position of the top-left of the other rotated mask
+					var checkMaskTopLeft = new Vector2d(b.GMObject.x + checkOffset.X, b.GMObject.y + checkOffset.Y);
+
+					var placeInOtherMask = currentPixelPos - checkMaskTopLeft;
+
+					var snappedToGrid = new Vector2i((int)Math.Floor(placeInOtherMask.X), (int)Math.Floor(placeInOtherMask.Y));
+
+					if (snappedToGrid.X < 0 || snappedToGrid.X >= checkMaskLength)
+					{
+						continue;
+					}
+
+					if (snappedToGrid.Y < 0 || snappedToGrid.Y >= checkMaskHeight)
+					{
+						continue;
+					}
+
+					if (checkRotatedMask[snappedToGrid.Y, snappedToGrid.X])
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+		else
+		{
+			// check bounding boxes
+			return boxesOverlap;
 		}
 	}
 
@@ -738,86 +801,11 @@ public static class CollisionManager
 				}
 			}
 
-			if ((checkBox.SepMasks == UndertaleSprite.SepMaskType.Precise
-			     && movedBox.SepMasks == UndertaleSprite.SepMaskType.Precise)
-			    || (checkBox.SepMasks != movedBox.SepMasks))
+			if (CheckColliderAgainstCollider(movedBox, checkBox))
 			{
-				// precise collisions
-				if (!DoBoxesOverlap(movedBox, checkBox))
-				{
-					// bounding boxes don't even overlap, don't bother testing precise collision
-					continue;
-				}
-
-				if (movedBox.CachedRotatedMask == null)
-				{
-					(movedBox.CachedRotatedMask, movedBox.CachedRotatedMaskOffset) = RotateMask(movedBox.CollisionMask, movedBox.GMObject.image_angle, movedBox.Origin.X, movedBox.Origin.Y, movedBox.Scale.X, movedBox.Scale.Y);
-				}
-
-				if (checkBox.CachedRotatedMask == null)
-				{
-					(checkBox.CachedRotatedMask, checkBox.CachedRotatedMaskOffset) = RotateMask(checkBox.CollisionMask, checkBox.GMObject.image_angle, checkBox.Origin.X, checkBox.Origin.Y, checkBox.Scale.X, checkBox.Scale.Y);
-				}
-
-				var currentRotatedMask = movedBox.CachedRotatedMask;
-				var currentOffset = movedBox.CachedRotatedMaskOffset;
-				var checkRotatedMask = checkBox.CachedRotatedMask;
-				var checkOffset = checkBox.CachedRotatedMaskOffset;
-
-				var currentMaskHeight = currentRotatedMask.GetLength(0);
-				var currentMaskLength = currentRotatedMask.GetLength(1);
-				var checkMaskHeight = checkRotatedMask.GetLength(0);
-				var checkMaskLength = checkRotatedMask.GetLength(1);
-
-				// iterate through every pixel in the current object's rotated mask
-				for (var row = 0; row < currentMaskHeight; row++)
-				{
-					for (var col = 0; col < currentMaskLength; col++)
-					{
-						// if it's false, dont even both checking the value of the other mask
-						if (currentRotatedMask[row, col] == false)
-						{
-							continue;
-						}
-
-						// Get the world space position of the center of this pixel
-						var currentPixelPos = new Vector2((int)movedBox.Position.X + currentOffset.X + col + 0.5f, (int)movedBox.Position.Y + currentOffset.Y + row + 0.5f);
-
-						// Get the world space position of the top-left of the other rotated mask
-						var checkMaskTopLeft = new Vector2((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
-
-						var placeInOtherMask = currentPixelPos - checkMaskTopLeft;
-
-						var snappedToGrid = new Vector2i((int)Math.Floor(placeInOtherMask.X), (int)Math.Ceiling(placeInOtherMask.Y));
-
-						if (snappedToGrid.X < 0 || snappedToGrid.X >= checkMaskLength)
-						{
-							continue;
-						}
-
-						if (snappedToGrid.Y < 0 || snappedToGrid.Y >= checkMaskHeight)
-						{
-							continue;
-						}
-
-						if (checkRotatedMask[snappedToGrid.Y, snappedToGrid.X])
-						{
-							current.x = savedX;
-							current.y = savedY;
-							return checkBox.GMObject;
-						}
-					}
-				}
-			}
-			else
-			{
-				// bounding box collision
-				if (DoBoxesOverlap(movedBox, checkBox))
-				{
-					current.x = savedX;
-					current.y = savedY;
-					return checkBox.GMObject;
-				}
+				current.x = savedX;
+				current.y = savedY;
+				return checkBox.GMObject;
 			}
 		}
 
@@ -852,97 +840,11 @@ public static class CollisionManager
 				continue;
 			}
 
-			// generate the collision mask if in editor
-			if (checkBox.CollisionMask == null || movedBox.CollisionMask == null)
+			if (CheckColliderAgainstCollider(movedBox, checkBox))
 			{
-				var spriteIndex = checkBox.CollisionMask == null ? checkBox.GMObject.sprite_index : movedBox.GMObject.sprite_index;
-				throw new Exception($"collision mask not defined for {spriteIndex}");
-			}
-
-			if ((checkBox.SepMasks == UndertaleSprite.SepMaskType.Precise
-				&& movedBox.SepMasks == UndertaleSprite.SepMaskType.Precise)
-				|| (checkBox.SepMasks != movedBox.SepMasks))
-			{
-				// precise collisions
-
-				if (!DoBoxesOverlap(movedBox, checkBox))
-				{
-					// bounding boxes don't even overlap, don't bother testing precise collision
-					continue;
-				}
-
-				//var (currentRotatedMask, currentOffset) = RotateMask(movedBox.CollisionMask, movedBox.GMObject.image_angle, movedBox.Origin.x, movedBox.Origin.y, movedBox.Scale.x, movedBox.Scale.y);
-				//var (checkRotatedMask, checkOffset) = RotateMask(checkBox.CollisionMask, checkBox.GMObject.image_angle, checkBox.Origin.x, checkBox.Origin.y, checkBox.Scale.x, checkBox.Scale.y);
-
-				if (movedBox.CachedRotatedMask == null)
-				{
-					(movedBox.CachedRotatedMask, movedBox.CachedRotatedMaskOffset) = RotateMask(movedBox.CollisionMask, movedBox.GMObject.image_angle, movedBox.Origin.X, movedBox.Origin.Y, movedBox.Scale.X, movedBox.Scale.Y);
-				}
-
-				if (checkBox.CachedRotatedMask == null)
-				{
-					(checkBox.CachedRotatedMask, checkBox.CachedRotatedMaskOffset) = RotateMask(checkBox.CollisionMask, checkBox.GMObject.image_angle, checkBox.Origin.X, checkBox.Origin.Y, checkBox.Scale.X, checkBox.Scale.Y);
-				}
-
-				var currentRotatedMask = movedBox.CachedRotatedMask;
-				var currentOffset = movedBox.CachedRotatedMaskOffset;
-				var checkRotatedMask = checkBox.CachedRotatedMask;
-				var checkOffset = checkBox.CachedRotatedMaskOffset;
-
-				var currentMaskHeight = currentRotatedMask.GetLength(0);
-				var currentMaskLength = currentRotatedMask.GetLength(1);
-				var checkMaskHeight = checkRotatedMask.GetLength(0);
-				var checkMaskLength = checkRotatedMask.GetLength(1);
-
-				// iterate through every pixel in the current object's rotated mask
-				for (var row = 0; row < currentMaskHeight; row++)
-				{
-					for (var col = 0; col < currentMaskLength; col++)
-					{
-						// if it's false, dont even both checking the value of the other mask
-						if (currentRotatedMask[row, col] == false)
-						{
-							continue;
-						}
-
-						// Get the world space position of the center of this pixel (up = +y)
-						var currentPixelPos = new Vector2((int)movedBox.Position.X + currentOffset.X + col + 0.5f, (int)movedBox.Position.Y + currentOffset.Y + row + 0.5f);
-
-						// Get the world space position of the top-left of the other rotated mask (up = +y)
-						var checkMaskTopLeft = new Vector2((int)checkBox.Position.X + checkOffset.X, (int)checkBox.Position.Y + checkOffset.Y);
-
-						var placeInOtherMask = currentPixelPos - checkMaskTopLeft;
-
-						var snappedToGrid = new Vector2i((int)Math.Floor(placeInOtherMask.X), (int)Math.Ceiling(placeInOtherMask.Y));
-
-						if (snappedToGrid.X < 0 || snappedToGrid.X >= checkMaskLength)
-						{
-							continue;
-						}
-
-						if (snappedToGrid.Y < 0 || snappedToGrid.Y >= checkMaskHeight)
-						{
-							continue;
-						}
-
-						if (checkRotatedMask[snappedToGrid.Y, snappedToGrid.X])
-						{
-							current.x = savedX;
-							current.y = savedY;
-							return checkBox.GMObject;
-						}
-					}
-				}
-			}
-			else
-			{
-				// bounding box collision
-				if (DoBoxesOverlap(movedBox, checkBox))
-				{
-					current.x = savedX;
-					current.y = savedY;
-					return checkBox.GMObject;
-				}
+				current.x = savedX;
+				current.y = savedY;
+				return checkBox.GMObject;
 			}
 		}
 
