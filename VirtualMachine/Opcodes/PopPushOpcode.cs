@@ -381,22 +381,33 @@ public static partial class VMExecutor
 			}
 			else if (prefix == VariablePrefix.Stacktop)
 			{
-				int instanceId = 0;
+				int val = 0;
 				object value = null;
 
 				if (instruction.TypeOne == VMType.i)
 				{
 					value = Ctx.Stack.Pop();
-					instanceId = Conv<int>(Ctx.Stack.Pop());
+					val = Conv<int>(Ctx.Stack.Pop());
 				}
 				else
 				{
-					instanceId = Conv<int>(Ctx.Stack.Pop());
+					val = Conv<int>(Ctx.Stack.Pop());
 					value = Ctx.Stack.Pop();
 				}
 
-				var instance = InstanceManager.FindByInstanceId(instanceId);
-				VariableResolver.SetSelfVariable(instance, variableName, value);
+				GamemakerObject obj;
+
+				if (val < GMConstants.FIRST_INSTANCE_ID)
+				{
+					// TODO : GM probably gets the "first" instance by lowest instance id or something.
+					obj = InstanceManager.FindByAssetId(val).First();
+				}
+				else
+				{
+					obj = InstanceManager.FindByInstanceId(val);
+				}
+
+				VariableResolver.SetSelfVariable(obj, variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 			else
