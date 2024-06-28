@@ -79,6 +79,14 @@ public static class GameConverter
 			{
 				asset.Name = code.Name.Content.Substring("gml_Script_".Length);
 			}
+			else if (code.Name.Content.StartsWith("gml_GlobalScript_"))
+			{
+				asset.Name = code.Name.Content.Substring("gml_GlobalScript_".Length);
+			}
+			else if (code.Name.Content.StartsWith("gml_RoomCC_"))
+			{
+				asset.Name = code.Name.Content.Substring("gml_RoomCC_".Length);
+			}
 			else
 			{
 				asset.Name = code.Name.Content;
@@ -89,7 +97,7 @@ public static class GameConverter
 				// no code in file???
 
 				asset.Instructions = new();
-				asset.Labels = new() { { 0, 0 } };
+				asset.Labels = new() { { 0, new Label() { InstructionIndex = 0 } } };
 				File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
 
 				continue;
@@ -98,10 +106,14 @@ public static class GameConverter
 			asmFileLines = asmFileLines.Skip(startLine).ToArray();
 			asmFileLines = asmFileLines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
+			string functionLabelAtNextLine = null;
+
 			foreach (var line in asmFileLines)
 			{
 				if (line.StartsWith(":["))
 				{
+					// Label Declaration
+
 					var id = line.Substring(2, line.Length - 3);
 
 					if (id == "end")
@@ -109,10 +121,28 @@ public static class GameConverter
 						break;
 					}
 
-					asset.Labels.Add(int.Parse(id), asset.Instructions.Count);
+					var label = new Label() { InstructionIndex = asset.Instructions.Count };
+
+					if (functionLabelAtNextLine != null)
+					{
+						label.FunctionName = functionLabelAtNextLine;
+						functionLabelAtNextLine = null;
+					}
+
+					asset.Labels.Add(int.Parse(id), label);
+				}
+				else if (line.StartsWith("> "))
+				{
+					// Function Declaration
+
+					// next line should be a label
+					var removeChevron = line[2..];
+					var split = removeChevron.Split(" (");
+					functionLabelAtNextLine = split[0];
 				}
 				else
 				{
+					// Instruction
 					// instructions are in form OPERATION.TYPE.TYPE DATA
 
 					var opcode = line.Split(" ")[0];
@@ -178,7 +208,22 @@ public static class GameConverter
 							break;
 						case VMOpcode.DUP:
 							var indexBack = line.Substring(opcode.Length + 1);
-							instruction.IntData = int.Parse(indexBack);
+
+							indexBack = indexBack.Split(" ;;; ")[0];
+
+							var splitBySpace = indexBack.Split(" ");
+							if (splitBySpace.Length == 1)
+							{
+								instruction.IntData = int.Parse(indexBack);
+							}
+							else
+							{
+								// This opcode has TWO PARAMETERS?? Gamemaker you've gone TOO FAR.
+								instruction.IntData = int.Parse(splitBySpace[0]);
+								instruction.SecondIntData = int.Parse(splitBySpace[1]);
+							}
+
+							
 							break;
 						case VMOpcode.RET:
 							// ???
@@ -198,6 +243,10 @@ public static class GameConverter
 							if (blockId == "end")
 							{
 								instruction.JumpToEnd = true;
+							}
+							else if (blockId == "drop")
+							{
+								instruction.Drop = true;
 							}
 							else
 							{
@@ -223,7 +272,15 @@ public static class GameConverter
 									instruction.StringData = stringData;
 									break;
 								case VMType.i:
-									instruction.IntData = int.Parse(value);
+									if (int.TryParse(value, out var intResult))
+									{
+										instruction.IntData = intResult;
+									}
+									else
+									{
+										// Probably dealing with text.
+										instruction.StringData = value;
+									}
 									break;
 								case VMType.l:
 									instruction.LongData = long.Parse(value);
@@ -246,7 +303,6 @@ public static class GameConverter
 							}
 							break;
 						case VMOpcode.CALL:
-						case VMOpcode.CALLV:
 							var function = line.Substring(opcode.Length + 1);
 							var argcIndex = function.IndexOf("argc=");
 							var argumentCount = int.Parse(function[(argcIndex + 5)..^1]);
@@ -254,8 +310,21 @@ public static class GameConverter
 							instruction.FunctionArgumentCount = argumentCount;
 							instruction.FunctionName = functionName;
 							break;
+						case VMOpcode.CALLV:
+							instruction.IntData = int.Parse(line.Substring(opcode.Length + 1));
+							break;
 						case VMOpcode.BREAK:
 							// ???
+							break;
+						case VMOpcode.SETOWNER:
+							break;
+						case VMOpcode.PUSHAF:
+							break;
+						case VMOpcode.POPAF:
+							break;
+						case VMOpcode.SAVEAREF:
+							break;
+						case VMOpcode.RESTOREAREF:
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
@@ -318,6 +387,11 @@ public static class GameConverter
 
 			foreach (var item in sprite.Textures)
 			{
+				if (item == null || item.Texture == null)
+				{
+					continue;
+				}
+
 				var pageItem = new SpritePageItem
 				{
 					SourcePosX = item.Texture.SourceX,

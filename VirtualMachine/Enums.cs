@@ -19,7 +19,8 @@ public enum VariableType
 	Self,
 	Local,
 	Index,
-	Other
+	Other,
+	BuiltIn
 }
 
 public enum VariablePrefix
@@ -84,7 +85,12 @@ public enum VMOpcode
 	CALL,
 	CALLV,
 	BREAK,
-	CHKINDEX
+	CHKINDEX,
+	SETOWNER,
+	PUSHAF,
+	POPAF,
+	SAVEAREF,
+	RESTOREAREF
 }
 
 public enum VMType
