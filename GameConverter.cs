@@ -33,6 +33,8 @@ public static class GameConverter
 		ExportFonts(data);
 
 		ExportSounds(data);
+
+		ExportTextureGroups(data);
 	}
 
 	public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
@@ -769,6 +771,28 @@ public static class GameConverter
 			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.json");
 			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
 		}
+		Console.WriteLine(" Done!");
+	}
+
+	public static void ExportTextureGroups(UndertaleData data)
+	{
+		Console.Write($"Exporting texture groups...");
+		var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
+		Directory.CreateDirectory(outputPath);
+
+		foreach (var group in data.TextureGroupInfo)
+		{
+			var asset = new TextureGroup();
+
+			asset.GroupName = group.Name.Content;
+			asset.TexturePages = group.TexturePages.Select(x => x.Resource.Name.Content).ToArray();
+			asset.Sprites = group.Sprites.Select(x => data.Sprites.IndexOf(x.Resource)).ToArray();
+			asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
+
+			var saveDirectory = Path.Combine(outputPath, $"{group.Name.Content}.json");
+			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+		}
+
 		Console.WriteLine(" Done!");
 	}
 }
