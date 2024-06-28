@@ -276,26 +276,12 @@ public static class GameConverter
 		var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
 		Directory.CreateDirectory(outputPath);
 
-		List<string> pages = new();
-
-		foreach (var sprite in data.Sprites)
+		foreach (var page in data.EmbeddedTextures)
 		{
-			if (sprite.Textures == null || sprite.Textures.Count == 0)
-			{
-				continue;
-			}
-
-			foreach (var texture in sprite.Textures)
-			{
-				var pageName = texture.Texture.TexturePage.Name.Content;
-				if (!pages.Contains(pageName))
-				{
-					var blob = texture.Texture.TexturePage.TextureData.TextureBlob;
-					var texPath = Path.Combine(outputPath, $"{pageName}.png");
-					File.WriteAllBytes(texPath, blob);
-					pages.Add(pageName);
-				}
-			}
+			var pageName = page.Name.Content;
+			var blob = page.TextureData.TextureBlob;
+			var texPath = Path.Combine(outputPath, $"{pageName}.png");
+			File.WriteAllBytes(texPath, blob);
 		}
 		Console.WriteLine($" Done!");
 	}
