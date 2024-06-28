@@ -7,6 +7,13 @@ public class VMScript
 	public string Name;
 	public bool IsGlobalInit;
 	public List<string> LocalVariables;
-	public Dictionary<int, int> Labels = new();
+	public Dictionary<int, Label> Labels = new();
 	public List<VMScriptInstruction> Instructions = new();
+}
+
+[Serializable]
+public class Label
+{
+	public int InstructionIndex;
+	public string FunctionName = null;
 }
