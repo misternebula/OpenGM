@@ -48,7 +48,7 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null)
+	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
@@ -78,8 +78,7 @@ public static partial class VMExecutor
 		// Make the current object the current instance
 		EnvironmentStack.Push(newCtx);
 
-		// Setup variables to start execution at label [0]
-		var instructionIndex = script.Labels[0]; // this *should* always be 0, but idk.
+		var instructionIndex = startingIndex;
 		var lastJumpedLabel = 0; // just for debugging
 
 		currentExecutingScript.Push(script);
@@ -102,6 +101,12 @@ public static partial class VMExecutor
 			if (executionResult == ExecutionResult.Failed)
 			{
 				DebugLog.LogError($"Execution of instruction {script.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {script.Name} failed : {data}");
+
+				/*DebugLog.LogError($"--Stacktrace--");
+				foreach (var item in currentExecutingScript)
+				{
+					DebugLog.LogError($" - {item.Name}");
+				}*/
 				//Debug.Break();
 				break;
 			}
@@ -126,7 +131,7 @@ public static partial class VMExecutor
 			if (executionResult == ExecutionResult.JumpedToLabel)
 			{
 				var label = (int)data;
-				instructionIndex = script.Labels[label];
+				instructionIndex = script.Labels[label].InstructionIndex;
 				lastJumpedLabel = label;
 				continue;
 			}
@@ -304,6 +309,13 @@ public static partial class VMExecutor
 					break;
 				}
 
+				if (ScriptResolver.ScriptFunctions.ContainsKey(instruction.FunctionName))
+				{
+					var (script, instructionIndex) = ScriptResolver.ScriptFunctions[instruction.FunctionName];
+					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex));
+					break;
+				}
+
 				return (ExecutionResult.Failed, $"Can't resolve script {instruction.FunctionName} !");
 			case VMOpcode.PUSHENV:
 				return PUSHENV(instruction);
@@ -361,6 +373,7 @@ public static partial class VMExecutor
 					break;
 				}
 			case VMOpcode.CHKINDEX:
+			{
 				var index = Ctx.Stack.Peek();
 
 				if (index is int)
@@ -369,9 +382,53 @@ public static partial class VMExecutor
 				}
 
 				throw new Exception($"CHKINDEX failed - {index}");
+			}
+			case VMOpcode.EXIT:
+				return (ExecutionResult.ReturnedValue, null);
+			case VMOpcode.SETOWNER:
+				break;
+			case VMOpcode.POPAF:
+			{
+				var index = Conv<int>(Ctx.Stack.Pop());
+				var array = Conv<ArrayReference>(Ctx.Stack.Pop());
+				var value = Conv<object>(Ctx.Stack.Pop());
+
+				if (array.Array.Count <= index)
+				{
+					array.Array.AddRange(new object[array.Array.Count + 1 - index]);
+				}
+
+				array.Array[index] = value;
+
+				if (array.IsGlobal)
+				{
+					VariableResolver.SetGlobalVariable(array.ArrayName, array.Array);
+				}
+				else
+				{
+					array.Instance.SelfVariables[array.ArrayName] = array.Array;
+				}
+
+				break;
+			}
+			case VMOpcode.PUSHAF: 
+			{
+				var index = Conv<int>(Ctx.Stack.Pop());
+				var array = Conv<ArrayReference>(Ctx.Stack.Pop());
+
+				var value = array.Array[index];
+
+				if (value is List<object>)
+				{
+					throw new NotImplementedException();
+				}
+
+				Ctx.Stack.Push(value);
+
+				break;
+			}
 			case VMOpcode.CALLV:
 			case VMOpcode.BREAK:
-			case VMOpcode.EXIT:
 			default:
 				return (ExecutionResult.Failed, $"Unknown opcode {instruction.Opcode}");
 		}
@@ -426,6 +483,17 @@ public static partial class VMExecutor
 		if (obj is null && (type == typeof(int) || type == typeof(double)))
 		{
 			return 0;
+		}
+
+		if (obj is null && type == typeof(List<object>))
+		{
+			return new List<object>();
+		}
+
+		if (obj is null)
+		{
+			DebugLog.LogError($"Trying to convert null object to {type}!");
+			return default;
 		}
 
 		if (obj.GetType() == type)

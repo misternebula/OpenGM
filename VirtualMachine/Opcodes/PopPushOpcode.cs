@@ -21,6 +21,20 @@ public static partial class VMExecutor
 			variableName = variableName[10..]; // skip [stacktop]
 		}
 
+		var arraypopaf = variableName.StartsWith("[arraypopaf]");
+		if (arraypopaf)
+		{
+			prefix = VariablePrefix.ArrayPopAF;
+			variableName = variableName[12..]; // skip [arraypopaf]
+		}
+
+		var arraypushaf = variableName.StartsWith("[arraypushaf]");
+		if (arraypushaf)
+		{
+			prefix = VariablePrefix.ArrayPushAF;
+			variableName = variableName[13..]; // skip [arraypushaf]
+		}
+
 		variableType = VariableType.None;
 
 		assetIndex = -1;
@@ -43,6 +57,14 @@ public static partial class VMExecutor
 		else if (context == "other")
 		{
 			variableType = VariableType.Other;
+		}
+		else if (context == "builtin")
+		{
+			variableType = VariableType.BuiltIn;
+		}
+		else if (context == "arg")
+		{
+			variableType = VariableType.Argument;
 		}
 		else if (int.TryParse(context, out var index))
 		{
@@ -105,13 +127,59 @@ public static partial class VMExecutor
 				}
 				else if (variableType == VariableType.Self)
 				{
-					if (prefix == VariablePrefix.Array)
+					if (prefix == VariablePrefix.Array || prefix == VariablePrefix.ArrayPopAF || prefix == VariablePrefix.ArrayPushAF)
 					{
 						var index = Conv<int>(Ctx.Stack.Pop());
 						var instanceId = Conv<int>(Ctx.Stack.Pop());
 
 						if (instanceId == GMConstants.self)
 						{
+							if (prefix == VariablePrefix.ArrayPushAF)
+							{
+								var existingArray = (List<object>)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
+
+								// Push array reference
+								var newArrReference = new ArrayReference
+								{
+									Array = existingArray,
+									ArrayName = variableName,
+									IsGlobal = false,
+									Instance = Ctx.Self
+								};
+
+								Ctx.Stack.Push(newArrReference);
+								return (ExecutionResult.Success, null);
+							}
+
+							if (prefix == VariablePrefix.ArrayPopAF)
+							{
+								if (!VariableResolver.ContainsSelfVariable(Ctx.Self, Ctx.Locals, variableName))
+								{
+									VariableResolver.SetSelfVariable(Ctx.Self, variableName, new List<object>(new object[index + 1]));
+								}
+
+								var existingArray = (List<object>)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
+
+								// Resize array
+								if (existingArray.Count <= index)
+								{
+									existingArray.AddRange(new object[existingArray.Count + 1 - index]);
+									VariableResolver.SetSelfVariable(Ctx.Self, variableName, existingArray);
+								}
+
+								// Push array reference
+								var newArrReference = new ArrayReference
+								{
+									Array = existingArray,
+									ArrayName = variableName,
+									IsGlobal = false,
+									Instance = Ctx.Self
+								};
+
+								Ctx.Stack.Push(newArrReference);
+								return (ExecutionResult.Success, null);
+							}
+							
 							if (variableName == "alarm")
 							{
 								Ctx.Stack.Push(Ctx.Self.alarm[index]);
@@ -123,6 +191,51 @@ public static partial class VMExecutor
 									() => (List<object>)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName)));
 								return (ExecutionResult.Success, null);
 							}
+						}
+						else if (instanceId == GMConstants.local)
+						{
+							var array = Ctx.Locals[variableName];
+							Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)array));
+							return (ExecutionResult.Success, null);
+						}
+						else if (instanceId == GMConstants.global)
+						{
+							if (prefix == VariablePrefix.ArrayPopAF)
+							{
+								if (!VariableResolver.GlobalVariableExists(variableName))
+								{
+									VariableResolver.SetGlobalVariable(variableName, new List<object>(new object[index + 1]));
+								}
+
+								var existingArray = (List<object>)VariableResolver.GetGlobalVariable(variableName);
+
+								// Resize array
+								if (existingArray.Count <= index)
+								{
+									existingArray.AddRange(new object[existingArray.Count + 1 - index]);
+									VariableResolver.SetGlobalVariable(variableName, existingArray);
+								}
+
+								// Push array reference
+								var newArrReference = new ArrayReference
+								{
+									Array = existingArray,
+									ArrayName = variableName,
+									IsGlobal = true
+								};
+
+								Ctx.Stack.Push(newArrReference);
+								return (ExecutionResult.Success, null);
+							}
+
+							Ctx.Stack.Push(VariableResolver.GetGlobalArrayIndex(variableName, index));
+							return (ExecutionResult.Success, null);
+						}
+						else if (instanceId == GMConstants.argument)
+						{
+							var array = VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
+							Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)array));
+							return (ExecutionResult.Success, null);
 						}
 						else
 						{
@@ -195,6 +308,27 @@ public static partial class VMExecutor
 						Ctx.Stack.Push(VariableResolver.GetSelfVariable(instance.Self, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
+				}
+				else if (variableType == VariableType.BuiltIn)
+				{
+					if (variableName == "argument_count")
+					{
+						Ctx.Stack.Push(VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName));
+					}
+					else
+					{
+						var getter = VariableResolver.BuiltInVariables[variableName].getter;
+						Ctx.Stack.Push(getter(Ctx.Self));
+					}
+
+					
+					return (ExecutionResult.Success, null);
+				}
+				else if (variableType == VariableType.Argument)
+				{
+					var value = VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
+					Ctx.Stack.Push(value);
+					return (ExecutionResult.Success, null);
 				}
 
 				DebugLog.LogError($"Don't know how to push variable! raw:{instruction.StringData} variableType:{variableType} prefix:{prefix}");
@@ -350,6 +484,22 @@ public static partial class VMExecutor
 						return (ExecutionResult.Success, null);
 					}
 				}
+				else if (instanceId == GMConstants.global)
+				{
+					VariableResolver.ArraySet(index, value,
+						() => VariableResolver.GetGlobalVariable(variableName),
+						list => VariableResolver.SetGlobalVariable(variableName, list),
+						() => VariableResolver.GlobalVariableExists(variableName));
+					return (ExecutionResult.Success, null);
+				}
+				else if (instanceId == GMConstants.local)
+				{
+					VariableResolver.ArraySet(index, value,
+						() => Ctx.Locals[variableName],
+						list => Ctx.Locals[variableName] = list,
+						() => Ctx.Locals.ContainsKey(variableName));
+					return (ExecutionResult.Success, null);
+				}
 				else
 				{
 					GamemakerObject instance;
@@ -388,10 +538,21 @@ public static partial class VMExecutor
 				{
 					value = Ctx.Stack.Pop();
 					val = Conv<int>(Ctx.Stack.Pop());
+
+					if (val == GMConstants.stacktop)
+					{
+						val = Conv<int>(Ctx.Stack.Pop());
+					}
 				}
 				else
 				{
 					val = Conv<int>(Ctx.Stack.Pop());
+
+					if (val == GMConstants.stacktop)
+					{
+						val = Conv<int>(Ctx.Stack.Pop());
+					}
+
 					value = Ctx.Stack.Pop();
 				}
 

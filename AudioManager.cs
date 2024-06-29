@@ -150,11 +150,20 @@ public static class AudioManager
 			int freq;
 			if (Path.GetExtension(asset.File) == ".wav")
 			{
-				using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
-				data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
-				reader.Read(data, 0, data.Length);
-				stereo = reader.WaveFormat.Channels == 2;
-				freq = reader.WaveFormat.SampleRate;
+				try
+				{
+					using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
+					data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
+					reader.Read(data, 0, data.Length);
+					stereo = reader.WaveFormat.Channels == 2;
+					freq = reader.WaveFormat.SampleRate;
+				}
+				catch (Exception e)
+				{
+					data = new float[] { };
+					freq = 1;
+					stereo = false;
+				}
 			}
 			else if (Path.GetExtension(asset.File) == ".ogg")
 			{
@@ -230,7 +239,7 @@ public static class AudioManager
 			// you cant re-play an existing instance, so stopped audio is used as a sign to clean up
 			if (state == ALSourceState.Stopped)
 			{
-				DebugLog.Log($"source {source.Source} {source.Asset.Name} stopped manually or done playing");
+				//DebugLog.Log($"source {source.Source} {source.Asset.Name} stopped manually or done playing");
 				AL.DeleteSource(source.Source);
 				CheckALError();
 				_audioSources.RemoveAt(i);

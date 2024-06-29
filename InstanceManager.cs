@@ -67,6 +67,11 @@ public static class InstanceManager
 
 	public static List<GamemakerObject> FindByAssetId(int assetId)
 	{
+		if (assetId < 0)
+		{
+			throw new Exception($"Tried to find instances with asset id {assetId}");
+		}
+
 		var result = new List<GamemakerObject>();
 		foreach (var instance in instances)
 		{

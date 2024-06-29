@@ -20,14 +20,17 @@ public enum VariableType
 	Local,
 	Index,
 	Other,
-	BuiltIn
+	BuiltIn,
+	Argument
 }
 
 public enum VariablePrefix
 {
 	None,
 	Stacktop,
-	Array
+	Array,
+	ArrayPopAF,
+	ArrayPushAF
 }
 
 public enum EventType

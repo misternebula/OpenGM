@@ -5,6 +5,12 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object) PUSHENV(VMScriptInstruction instruction)
 	{
 		var id = Conv<int>(Ctx.Stack.Pop());
+
+		if (id == GMConstants.stacktop)
+		{
+			id = Conv<int>(Ctx.Stack.Pop());
+		}
+
 		var currentContext = Ctx;
 
 		// marks the beginning of the instances pushed. popenv will stop jumping when it reaches this

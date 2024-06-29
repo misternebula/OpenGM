@@ -62,6 +62,8 @@ public static class RoomManager
 		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
 		CustomWindow.Instance.SetPosition(0, 0);
 
+		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
+
 		var createdObjects = new List<GamemakerObject>();
 
 		foreach (var item in TileManager.Tiles)

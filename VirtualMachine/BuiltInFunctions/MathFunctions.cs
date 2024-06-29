@@ -16,6 +16,12 @@ public static partial class ScriptResolver
 		return array.Count;
 	}
 
+	public static object array_length(Arguments args)
+	{
+		var array = (List<object>)args.Args[0];
+		return array.Count;
+	}
+
 	public static object random(Arguments args)
 	{
 		var upper = Conv<double>(args.Args[0]);

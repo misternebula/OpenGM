@@ -10,4 +10,6 @@ public static class GMConstants
 	public const int noone = -4;
 	public const int global = -5;
 	public const int local = -7;
+	public const int stacktop = -9;
+	public const int argument = -15;
 }

@@ -20,6 +20,8 @@ public static partial class ScriptResolver
 	public static Dictionary<string, VMScript> Scripts = new();
 	public static List<VMScript> GlobalInitScripts = new();
 
+	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
+
 	public static Dictionary<string, Func<Arguments, object>> BuiltInFunctions = new()
 	{
 		#region Game
@@ -239,7 +241,25 @@ public static partial class ScriptResolver
 		{ "draw_circle", draw_circle },
 		{ "draw_triangle", draw_triangle },
 		{ "angle_difference", angle_difference },
-		{ "distance_to_object", distance_to_object }
+		{ "distance_to_object", distance_to_object },
+		{ "texturegroup_get_textures", texturegroup_get_textures},
+		{ "array_length", array_length},
+		{ "texture_prefetch", texture_prefetch},
+		{ "window_get_width", window_get_width},
+		{ "window_get_height", window_get_height},
+		{ "surface_get_width", surface_get_width},
+		{ "surface_get_height", surface_get_height},
+		{ "os_get_language", os_get_language},
+		{ "surface_resize", surface_resize },
+		{ "lerp", lerp },
+		{ "clamp", clamp },
+		{ "gamepad_button_check_pressed", gamepad_button_check_pressed},
+		{ "sprite_create_from_surface", sprite_create_from_surface},
+		{ "sprite_set_offset", sprite_set_offset },
+		{ "gamepad_get_device_count", gamepad_get_device_count},
+		{ "draw_text_ext", draw_text_ext },
+		{ "ord", ord},
+		{ "texture_flush", texture_flush}
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -2186,6 +2206,154 @@ public static partial class ScriptResolver
 		}
 
 		return CollisionManager.DistanceToObject(args.Ctx.Self, objToCheck);
+	}
+
+	public static object texturegroup_get_textures(Arguments args)
+	{
+		var tex_id = Conv<string>(args.Args[0]);
+
+		var asset = GameLoader.TexGroups[tex_id];
+
+		return asset.TexturePages.ToList<object>();
+	}
+
+	public static object texture_prefetch(Arguments args)
+	{
+		var tex_id = Conv<string>(args.Args[0]);
+		// TODO : Implement? Or not?
+		return null;
+	}
+
+	public static object texture_flush(Arguments args)
+	{
+		var tex_id = Conv<string>(args.Args[0]);
+		// TODO : Implement? Or not?
+		return null;
+	}
+
+	public static object window_get_width(Arguments args)
+	{
+		return CustomWindow.Instance.ClientSize.X;
+	}
+
+	public static object window_get_height(Arguments args)
+	{
+		return CustomWindow.Instance.ClientSize.Y;
+	}
+
+	public static object surface_get_width(Arguments args)
+	{
+		var surface_id = Conv<int>(args.Args[0]);
+		return SurfaceManager.GetSurfaceWidth(surface_id);
+	}
+
+	public static object surface_get_height(Arguments args)
+	{
+		var surface_id = Conv<int>(args.Args[0]);
+		return SurfaceManager.GetSurfaceHeight(surface_id);
+	}
+
+	public static object os_get_language(Arguments args)
+	{
+		return "en"; // TODO : actually implement
+	}
+
+	public static object surface_resize(Arguments args)
+	{
+		var surface_id = Conv<int>(args.Args[0]);
+		var w = Conv<int>(args.Args[1]);
+		var h = Conv<int>(args.Args[2]);
+		SurfaceManager.ResizeSurface(surface_id, w, h);
+		return null;
+	}
+
+	public static object lerp(Arguments args)
+	{
+		var a = Conv<double>(args.Args[0]);
+		var b = Conv<double>(args.Args[1]);
+		var amt = Conv<double>(args.Args[2]);
+
+		return a + ((b - a) * amt);
+	}
+
+	public static object clamp(Arguments args)
+	{
+		var val = Conv<double>(args.Args[0]);
+		var min = Conv<double>(args.Args[1]);
+		var max = Conv<double>(args.Args[2]);
+
+		if (val <= min)
+		{
+			return min;
+		}
+
+		if (val >= max)
+		{
+			return max;
+		}
+
+		return val;
+	}
+
+	public static object gamepad_button_check_pressed(Arguments args)
+	{
+		// TODO : implement
+		return false;
+	}
+
+	public static object sprite_create_from_surface(Arguments args)
+	{
+		// TODO : implement
+		return 1;
+	}
+
+	public static object sprite_set_offset(Arguments args)
+	{
+		var ind = Conv<int>(args.Args[0]);
+		var xoff = Conv<int>(args.Args[1]);
+		var yoff = Conv<int>(args.Args[2]);
+
+		var data = SpriteManager._spriteDict[ind];
+		data.OriginX = xoff;
+		data.OriginY = yoff;
+		return null;
+	}
+
+	public static object gamepad_get_device_count(Arguments args)
+	{
+		// TODO : implement
+		return 0;
+	}
+
+	public static object draw_text_ext(Arguments args)
+	{
+		var x = Conv<double>(args.Args[0]);
+		var y = Conv<double>(args.Args[1]);
+		var str = Conv<string>(args.Args[2]);
+		var sep = Conv<int>(args.Args[3]);
+		var w = Conv<double>(args.Args[4]);
+
+		CustomWindow.RenderJobs.Add(new GMTextJob()
+		{
+			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.BGRToColor(),
+			angle = 0,
+			asset = TextManager.fontAsset,
+			halign = TextManager.halign,
+			valign = TextManager.valign,
+			sep = sep,
+			text = str,
+			screenPos = new Vector2d(x, y)
+		});
+
+		return null;
+	}
+
+	public static object ord(Arguments args)
+	{
+		var str = Conv<string>(args.Args[0]);
+
+		return (int)Encoding.UTF8.GetBytes(str)[0];
 	}
 }
 

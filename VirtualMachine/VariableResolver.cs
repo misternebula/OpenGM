@@ -43,8 +43,16 @@ public static class VariableResolver
 
 	public static object GetGlobalArrayIndex(string name, int index)
 	{
-		return ArrayGet(index,
-			() => (List<object>)GlobalVariables[name]);
+		try
+		{
+			return ArrayGet(index,
+				() => (List<object>)GlobalVariables[name]);
+		}
+		catch (Exception e)
+		{
+			DebugLog.LogError($"Tried to index {name} with out-of-bounds index {index} (Count is {((List<object>)GlobalVariables[name]).Count})");
+			throw;
+		}
 	}
 
 	public static void SetGlobalVariable(string name, object value)
@@ -110,7 +118,7 @@ public static class VariableResolver
 
 		if (!self.SelfVariables.ContainsKey(name))
 		{
-			DebugLog.LogWarning($"Creating variable {name} with value of {value} for {self.object_index}");
+			//DebugLog.LogWarning($"Creating variable {name} with value of {value} for {self.object_index}");
 		}
 
 		self.SelfVariables[name] = value;
@@ -167,7 +175,9 @@ public static class VariableResolver
 		{ "friction", (get_friction, set_friction) },
 		{ "gravity_direction", (get_gravity_direction, set_gravity_direction)},
 		{ "image_number", (get_image_number, null)},
-		{ "room_speed", (get_room_speed, set_room_speed)}
+		{ "room_speed", (get_room_speed, set_room_speed)},
+		{ "os_type", (get_os_type, null)},
+		{ "application_surface", (get_application_surface, null)},
 		//{ "room_persistent", (get_room_persistent, set_room_persistent)}
 	};
 
@@ -281,4 +291,8 @@ public static class VariableResolver
 
 	public static object get_room_speed(GamemakerObject instance) => Entry.GameSpeed;
 	public static void set_room_speed(GamemakerObject instance, object value) => Entry.SetGameSpeed(VMExecutor.Conv<int>(value));
+
+	public static object get_os_type(GamemakerObject instance) => 0; // TODO : Check if this is actually os_windows
+
+	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
 }

@@ -18,6 +18,7 @@ public static class GameLoader
 		LoadSprites();
 		LoadFonts();
 		LoadTexturePages();
+		LoadTextureGroups();
 	}
 
 	private static void LoadScripts()
@@ -37,6 +38,16 @@ public static class GameLoader
 			else
 			{
 				ScriptResolver.Scripts.Add(asset.Name, asset);
+			}
+
+			foreach (var label in asset.Labels)
+			{
+				if (label.Value.FunctionName == null)
+				{
+					continue;
+				}
+
+				ScriptResolver.ScriptFunctions.Add(label.Value.FunctionName, (asset, label.Value.InstructionIndex));
 			}
 		}
 		Console.WriteLine($" Done!");
@@ -185,5 +196,22 @@ public static class GameLoader
 		}
 
 		Console.WriteLine($" Done!");
+	}
+
+	public static Dictionary<string, TextureGroup> TexGroups = new();
+
+	private static void LoadTextureGroups()
+	{
+		Console.Write($"Loading Texture Groups...");
+		var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
+		var files = Directory.GetFiles(objectsFolder);
+
+		foreach (var file in files)
+		{
+			var text = File.ReadAllText(file);
+			var asset = JsonConvert.DeserializeObject<TextureGroup>(text);
+
+			TexGroups.Add(asset.GroupName, asset);
+		}
 	}
 }
