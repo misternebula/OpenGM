@@ -202,19 +202,9 @@ public static partial class VMExecutor
 						{
 							if (prefix == VariablePrefix.ArrayPopAF)
 							{
-								if (!VariableResolver.GlobalVariableExists(variableName))
-								{
-									VariableResolver.SetGlobalVariable(variableName, new List<object>(new object[index + 1]));
-								}
+								VariableResolver.SetGlobalArrayIndex(variableName, index, null);
 
 								var existingArray = (List<object>)VariableResolver.GetGlobalVariable(variableName);
-
-								// Resize array
-								if (existingArray.Count <= index)
-								{
-									existingArray.AddRange(new object[existingArray.Count + 1 - index]);
-									VariableResolver.SetGlobalVariable(variableName, existingArray);
-								}
 
 								// Push array reference
 								var newArrReference = new ArrayReference
