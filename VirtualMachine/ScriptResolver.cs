@@ -259,7 +259,8 @@ public static partial class ScriptResolver
 		{ "gamepad_get_device_count", gamepad_get_device_count},
 		{ "draw_text_ext", draw_text_ext },
 		{ "ord", ord},
-		{ "texture_flush", texture_flush}
+		{ "texture_flush", texture_flush},
+		{ "room_get_name", room_get_name}
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -2354,6 +2355,13 @@ public static partial class ScriptResolver
 		var str = Conv<string>(args.Args[0]);
 
 		return (int)Encoding.UTF8.GetBytes(str)[0];
+	}
+
+	public static object room_get_name(Arguments args)
+	{
+		var index = Conv<int>(args.Args[0]);
+
+		return RoomManager.RoomList[index].Name;
 	}
 }
 
