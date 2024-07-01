@@ -105,8 +105,6 @@ public static class BufferManager
 				string chr;
 				byte chrCode = 0;
 
-				// TODO : this shit is SLOOOWWWWWW
-
 				while (buffer.SeekPosition < buffer.UsedSize)
 				{
 					var v = 0;
