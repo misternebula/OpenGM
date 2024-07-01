@@ -260,7 +260,10 @@ public static partial class ScriptResolver
 		{ "draw_text_ext", draw_text_ext },
 		{ "ord", ord},
 		{ "texture_flush", texture_flush},
-		{ "room_get_name", room_get_name}
+		{ "room_get_name", room_get_name},
+		{ "buffer_load", buffer_load },
+		{ "buffer_read", buffer_read },
+		{ "buffer_delete", buffer_delete}
 	};
 
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
@@ -837,6 +840,9 @@ public static partial class ScriptResolver
 		}
 
 		var @string = (string)args.Args[0];
+
+		DebugLog.Log($"Trying to parse {@string}");
+
 		var jToken = JToken.Parse(@string);
 
 		switch (jToken)
@@ -2362,6 +2368,31 @@ public static partial class ScriptResolver
 		var index = Conv<int>(args.Args[0]);
 
 		return RoomManager.RoomList[index].Name;
+	}
+
+	public static object buffer_load(Arguments args)
+	{
+		var filename = Conv<string>(args.Args[0]);
+		return BufferManager.LoadBuffer(filename);
+	}
+
+	public static object buffer_read(Arguments args)
+	{
+		var bufferIndex = Conv<int>(args.Args[0]);
+		var type = Conv<int>(args.Args[1]);
+		return BufferManager.ReadBuffer(bufferIndex, (BufferDataType)type);
+	}
+
+	public static object buffer_delete(Arguments args)
+	{
+		var bufferIndex = Conv<int>(args.Args[0]);
+
+		var buffer = BufferManager.Buffers[bufferIndex];
+		buffer.Data = null;
+
+		BufferManager.Buffers.Remove(bufferIndex);
+
+		return null;
 	}
 }
 

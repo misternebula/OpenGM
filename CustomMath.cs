@@ -13,7 +13,17 @@ public static class CustomMath
 		return values.Min();
 	}
 
+	public static int Min(params int[] values)
+	{
+		return values.Min();
+	}
+
 	public static double Max(params double[] values)
+	{
+		return values.Max();
+	}
+
+	public static int Max(params int[] values)
 	{
 		return values.Max();
 	}
