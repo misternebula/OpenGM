@@ -194,12 +194,38 @@ public static partial class VMExecutor
 						}
 						else if (instanceId == GMConstants.local)
 						{
+							if (prefix == VariablePrefix.ArrayPushAF)
+							{
+								throw new NotImplementedException();
+							}
+
+							if (prefix == VariablePrefix.ArrayPopAF)
+							{
+								throw new NotImplementedException();
+							}
+
 							var array = Ctx.Locals[variableName];
 							Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)array));
 							return (ExecutionResult.Success, null);
 						}
 						else if (instanceId == GMConstants.global)
 						{
+							if (prefix == VariablePrefix.ArrayPushAF)
+							{
+								var existingArray = (List<object>)VariableResolver.GetGlobalVariable(variableName);
+
+								// Push array reference
+								var newArrReference = new ArrayReference
+								{
+									Array = existingArray,
+									ArrayName = variableName,
+									IsGlobal = true
+								};
+
+								Ctx.Stack.Push(newArrReference);
+								return (ExecutionResult.Success, null);
+							}
+
 							if (prefix == VariablePrefix.ArrayPopAF)
 							{
 								VariableResolver.SetGlobalArrayIndex(variableName, index, null);
@@ -223,12 +249,32 @@ public static partial class VMExecutor
 						}
 						else if (instanceId == GMConstants.argument)
 						{
+							if (prefix == VariablePrefix.ArrayPushAF)
+							{
+								throw new NotImplementedException();
+							}
+
+							if (prefix == VariablePrefix.ArrayPopAF)
+							{
+								throw new NotImplementedException();
+							}
+
 							var array = VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
 							Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)array));
 							return (ExecutionResult.Success, null);
 						}
 						else
 						{
+							if (prefix == VariablePrefix.ArrayPushAF)
+							{
+								throw new NotImplementedException();
+							}
+
+							if (prefix == VariablePrefix.ArrayPopAF)
+							{
+								throw new NotImplementedException();
+							}
+
 							var instance = InstanceManager.FindByInstanceId(instanceId);
 
 							if (variableName == "alarm")
