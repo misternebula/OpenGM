@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+﻿using System.Text;
 
 namespace DELTARUNITYStandalone;
 public static class BufferManager
@@ -101,7 +101,7 @@ public static class BufferManager
 				break;
 			case BufferDataType.buffer_string:
 			case BufferDataType.buffer_text:
-				var result = "";
+				var strbuilder = new StringBuilder();
 				string chr;
 				byte chrCode = 0;
 
@@ -151,10 +151,10 @@ public static class BufferManager
 						chr = new string((char)v, 1);
 					}
 
-					result += chr;
+					strbuilder.Append(chr);
 				}
 
-				res = result;
+				res = strbuilder.ToString();
 
 				break;
 			case BufferDataType.buffer_s8:
