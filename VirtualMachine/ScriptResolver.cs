@@ -840,9 +840,6 @@ public static partial class ScriptResolver
 		}
 
 		var @string = (string)args.Args[0];
-
-		DebugLog.Log($"Trying to parse {@string}");
-
 		var jToken = JToken.Parse(@string);
 
 		switch (jToken)
