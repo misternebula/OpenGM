@@ -294,6 +294,11 @@ public static partial class VMExecutor
 					{
 						var stackTopValue = Conv<int>(Ctx.Stack.Pop());
 
+						if (stackTopValue == GMConstants.stacktop)
+						{
+							stackTopValue = Conv<int>(Ctx.Stack.Pop());
+						}
+
 						GamemakerObject instance = null;
 						if (stackTopValue < GMConstants.FIRST_INSTANCE_ID)
 						{
@@ -337,7 +342,7 @@ public static partial class VMExecutor
 
 					if (prefix == VariablePrefix.Array)
 					{
-
+						throw new NotImplementedException();
 					}
 					else
 					{
