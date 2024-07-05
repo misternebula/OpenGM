@@ -1,8 +1,11 @@
-﻿namespace DELTARUNITYStandalone.VirtualMachine;
+﻿using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+
+namespace DELTARUNITYStandalone.VirtualMachine;
 public static class VariableResolver
 {
-	public static object ArrayGet(int index,
-		Func<List<object>> get)
+	public static T ArrayGet<T>(int index,
+		Func<List<T>> get)
 	{
 		return get()[index];
 	}
@@ -33,29 +36,35 @@ public static class VariableResolver
 
 	public static readonly Dictionary<string, object> GlobalVariables = new();
 
-	public static void SetGlobalArrayIndex(string name, int index, object value)
+	public static void SetGlobalArrayIndex(string name, int index, RValue value)
 	{
 		ArraySet(index, value,
 			() => GetGlobalVariable(name),
-			list => SetGlobalVariable(name, list),
+			list => SetGlobalVariable(name, new RValue(list)),
 			() => GlobalVariables.ContainsKey(name));
 	}
 
-	public static object GetGlobalArrayIndex(string name, int index)
+	public static RValue GetGlobalArrayIndex(string name, int index)
 	{
 		try
 		{
-			return ArrayGet(index,
-				() => (List<object>)GlobalVariables[name]);
+			var val = (RValue)ArrayGet(index, () => (List<object>)((RValue)GlobalVariables[name]).Value);
+
+			if (val == null)
+			{
+				DebugLog.LogWarning($"Null value!");
+			}
+
+			return val;
 		}
 		catch (Exception e)
 		{
-			DebugLog.LogError($"Tried to index {name} with out-of-bounds index {index} (Count is {((List<object>)GlobalVariables[name]).Count})");
+			DebugLog.LogError($"Tried to index {name} with out-of-bounds index {index} (Count is {((List<object>)((RValue)GlobalVariables[name]).Value).Count}) : {e}");
 			throw;
 		}
 	}
 
-	public static void SetGlobalVariable(string name, object value)
+	public static void SetGlobalVariable(string name, RValue value)
 	{
 		GlobalVariables[name] = value;
 	}
@@ -76,16 +85,16 @@ public static class VariableResolver
 		return GlobalVariables.ContainsKey(name);
 	}
 
-	public static object GetSelfVariable(GamemakerObject self, Dictionary<string, object> locals, string name)
+	public static RValue GetSelfVariable(GamemakerObject self, Dictionary<string, object> locals, string name)
 	{
 		if (name == "argument_count")
 		{
-			return ((List<object>)locals["arguments"]).Count;
+			return new RValue(((List<object>)((RValue)locals["arguments"]).Value).Count);
 		}
 
 		if (name == "argument")
 		{
-			return (List<object>)locals["arguments"];
+			return locals["arguments"];
 		}
 
 		if (name.StartsWith("argument"))
@@ -93,20 +102,27 @@ public static class VariableResolver
 			var withoutArgument = name.Substring("argument".Length);
 			if (int.TryParse(withoutArgument, out var index))
 			{
-				return ((List<object>)locals["arguments"])[index];
+				var obj = ((List<object>)((RValue)locals["arguments"]).Value)[index];
+
+				if (obj is RValue r)
+				{
+					return r;
+				}
+
+				return new RValue(obj);
 			}
 		}
 
 		// global builtins are also self for some reason
 		if (BuiltInVariables.ContainsKey(name))
 		{
-			return BuiltInVariables[name].getter(self);
+			return new RValue(BuiltInVariables[name].getter(self));
 		}
 
 		return self.SelfVariables[name];
 	}
 
-	public static void SetSelfVariable(GamemakerObject self, string name, object value)
+	public static void SetSelfVariable(GamemakerObject self, string name, RValue value)
 	{
 		// TODO: should this also set arguments????
 
@@ -121,10 +137,19 @@ public static class VariableResolver
 			//DebugLog.LogWarning($"Creating variable {name} with value of {value} for {self.object_index}");
 		}
 
+		if (value is RValue r)
+		{
+			//DebugLog.LogInfo($"Set {self.instanceId}.{name} to RValue {r}");
+		}
+		else
+		{
+			DebugLog.LogInfo($"Set {self.instanceId}.{name} to {value}");
+		}
+
 		self.SelfVariables[name] = value;
 	}
 
-	public static bool ContainsSelfVariable(GamemakerObject self, Dictionary<string, object> locals, string name)
+	public static bool ContainsSelfVariable(GamemakerObject self, Dictionary<string, RValue> locals, string name)
 	{
 		if (name.StartsWith("argument"))
 		{

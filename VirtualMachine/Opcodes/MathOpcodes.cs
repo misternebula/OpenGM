@@ -8,7 +8,7 @@ public static partial class VMExecutor
 		var valOne = Ctx.Stack.Pop();
 
 		var hasString = instruction.TypeOne == VMType.s || instruction.TypeTwo == VMType.s;
-		var variableIsString = (instruction.TypeOne == VMType.v && valOne is string) || (instruction.TypeTwo == VMType.v && valTwo is string);
+		var variableIsString = (instruction.TypeOne == VMType.v && valOne is RValue { Value: string }) || (instruction.TypeTwo == VMType.v && valTwo is RValue { Value: string });
 
 		if (hasString || variableIsString)
 		{

@@ -13,6 +13,7 @@ using UndertaleModLib.Models;
 using static UndertaleModLib.Models.UndertaleRoom;
 
 using OpenTK.Graphics.OpenGL;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static partial class ScriptResolver
@@ -307,7 +308,7 @@ public static partial class ScriptResolver
 
 	public static object asset_get_index(Arguments args)
 	{
-		var name = (string)args.Args[0];
+		var name = Conv<string>(args.Args[0]);
 		return AssetIndexManager.GetIndex(name);
 	}
 
@@ -327,6 +328,8 @@ public static partial class ScriptResolver
 	public static object ini_open(Arguments args)
 	{
 		var name = (string)args.Args[0];
+
+		DebugLog.Log($"ini_open {name}");
 
 		if (_iniFile != null)
 		{
@@ -501,6 +504,8 @@ public static partial class ScriptResolver
 		var fname = (string)args.Args[0];
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 
+		DebugLog.Log($"file_text_open_read {filepath}");
+
 		if (!File.Exists(filepath))
 		{
 			return -1;
@@ -583,28 +588,28 @@ public static partial class ScriptResolver
 
 	public static object file_text_eof(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var reader = _fileHandles[fileid].Reader;
 		return reader.EndOfStream;
 	}
 
 	public static object file_exists(Arguments args)
 	{
-		var fname = (string)args.Args[0];
+		var fname = Conv<string>(args.Args[0]);
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		return File.Exists(filepath);
 	}
 
 	public static object file_text_readln(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var reader = _fileHandles[fileid].Reader;
 		return reader.ReadLine();
 	}
 
 	public static object file_text_writeln(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var writer = _fileHandles[fileid].Writer;
 		writer.WriteLine();
 		return null;
@@ -612,7 +617,7 @@ public static partial class ScriptResolver
 
 	public static object file_text_read_string(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var reader = _fileHandles[fileid].Reader;
 
 		var result = "";
@@ -626,7 +631,7 @@ public static partial class ScriptResolver
 
 	public static object file_text_write_string(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var str = Conv<string>(args.Args[1]);
 		var writer = _fileHandles[fileid].Writer;
 		writer.Write(str);
@@ -635,7 +640,7 @@ public static partial class ScriptResolver
 
 	public static object file_text_read_real(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var reader = _fileHandles[fileid].Reader;
 
 		var result = "";
@@ -649,7 +654,7 @@ public static partial class ScriptResolver
 
 	public static object file_text_write_real(Arguments args)
 	{
-		var fileid = (int)args.Args[0];
+		var fileid = Conv<int>(args.Args[0]);
 		var val = args.Args[1];
 		var writer = _fileHandles[fileid].Writer;
 
@@ -666,7 +671,7 @@ public static partial class ScriptResolver
 
 	public static object file_delete(Arguments args)
 	{
-		var fname = (string)args.Args[0];
+		var fname = Conv<string>(args.Args[0]);
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		File.Delete(filepath);
 		return true; // TODO : this should return false if this fails.
@@ -674,8 +679,8 @@ public static partial class ScriptResolver
 
 	public static object file_copy(Arguments args)
 	{
-		var fname = (string)args.Args[0];
-		var newname = (string)args.Args[1];
+		var fname = Conv<string>(args.Args[0]);
+		var newname = Conv<string>(args.Args[1]);
 
 		fname = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		newname = Path.Combine(Directory.GetCurrentDirectory(), newname);
@@ -740,7 +745,7 @@ public static partial class ScriptResolver
 
 	public static object ds_map_size(Arguments args)
 	{
-		var id = (int)args.Args[0];
+		var id = Conv<int>(args.Args[0]);
 		return _dsMapDict[id].Count;
 	}
 
@@ -839,7 +844,7 @@ public static partial class ScriptResolver
 			}
 		}
 
-		var @string = (string)args.Args[0];
+		var @string = Conv<string>(args.Args[0]);
 		var jToken = JToken.Parse(@string);
 
 		switch (jToken)
@@ -1100,6 +1105,8 @@ public static partial class ScriptResolver
 	{
 		var w = Conv<int>(args.Args[0]);
 		var h = Conv<int>(args.Args[1]);
+
+		DebugLog.Log($"window_set_size {w} {h}");
 
 		CustomWindow.Instance.ClientSize = new Vector2i(w, h);
 

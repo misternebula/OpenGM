@@ -1,4 +1,7 @@
-﻿namespace DELTARUNITYStandalone.VirtualMachine;
+﻿using System;
+using System.Xml.Linq;
+
+namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class VMExecutor
 {
@@ -77,6 +80,66 @@ public static partial class VMExecutor
 		}
 	}
 
+	private static void PushV(object data)
+	{
+		if (data is RValue)
+		{
+			Ctx.Stack.Push(data);
+		}
+		else
+		{
+			Ctx.Stack.Push(new RValue(data));
+		}
+	}
+
+	private static void PopGlobalV(string variable, object data)
+	{
+		if (data is RValue r)
+		{
+			VariableResolver.SetGlobalVariable(variable, r);
+		}
+		else
+		{
+			VariableResolver.SetGlobalVariable(variable, new RValue(data));
+		}
+	}
+
+	private static void PopGlobalIndexV(string variable, int index, object data)
+	{
+		if (data is RValue r)
+		{
+			VariableResolver.SetGlobalArrayIndex(variable, index, r);
+		}
+		else
+		{
+			VariableResolver.SetGlobalArrayIndex(variable, index, new RValue(data));
+		}
+	}
+
+	private static void PopSelfV(string variable, object data)
+	{
+		if (data is RValue r)
+		{
+			VariableResolver.SetSelfVariable(Ctx.Self, variable, r);
+		}
+		else
+		{
+			VariableResolver.SetSelfVariable(Ctx.Self, variable, new RValue(data));
+		}
+	}
+
+	private static void PopSelfV(GamemakerObject gm, string variable, object data)
+	{
+		if (data is RValue r)
+		{
+			VariableResolver.SetSelfVariable(gm, variable, r);
+		}
+		else
+		{
+			VariableResolver.SetSelfVariable(gm, variable, new RValue(data));
+		}
+	}
+
 	public static (ExecutionResult, object) PUSH(VMScriptInstruction instruction)
 	{
 		switch (instruction.TypeOne)
@@ -100,12 +163,12 @@ public static partial class VMExecutor
 						var index = Conv<int>(Ctx.Stack.Pop());
 						var instanceId = Conv<int>(Ctx.Stack.Pop());
 
-						Ctx.Stack.Push(VariableResolver.GetGlobalArrayIndex(variableName, index));
+						PushV(VariableResolver.GetGlobalArrayIndex(variableName, index));
 						return (ExecutionResult.Success, null);
 					}
 					else
 					{
-						Ctx.Stack.Push(VariableResolver.GetGlobalVariable(variableName));
+						PushV(VariableResolver.GetGlobalVariable(variableName));
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -116,12 +179,12 @@ public static partial class VMExecutor
 						var index = Conv<int>(Ctx.Stack.Pop());
 						var instanceId = Conv<int>(Ctx.Stack.Pop());
 
-						Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)Ctx.Locals[variableName]));
+						PushV(VariableResolver.ArrayGet(index, () => (List<object>)Ctx.Locals[variableName].Value));
 						return (ExecutionResult.Success, null);
 					}
 					else
 					{
-						Ctx.Stack.Push(Ctx.Locals[variableName]);
+						PushV(Ctx.Locals[variableName]);
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -136,7 +199,7 @@ public static partial class VMExecutor
 						{
 							if (prefix == VariablePrefix.ArrayPushAF)
 							{
-								var existingArray = (List<object>)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
+								var existingArray = (List<object>)((RValue)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName)).Value;
 
 								// Push array reference
 								var newArrReference = new ArrayReference
@@ -147,7 +210,7 @@ public static partial class VMExecutor
 									Instance = Ctx.Self
 								};
 
-								Ctx.Stack.Push(newArrReference);
+								PushV(newArrReference);
 								return (ExecutionResult.Success, null);
 							}
 
@@ -155,16 +218,16 @@ public static partial class VMExecutor
 							{
 								if (!VariableResolver.ContainsSelfVariable(Ctx.Self, Ctx.Locals, variableName))
 								{
-									VariableResolver.SetSelfVariable(Ctx.Self, variableName, new List<object>(new object[index + 1]));
+									PopSelfV(variableName, new List<object>(new object[index + 1]));
 								}
 
-								var existingArray = (List<object>)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
+								var existingArray = (List<object>)((RValue)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName)).Value;
 
 								// Resize array
 								if (existingArray.Count <= index)
 								{
 									existingArray.AddRange(new object[existingArray.Count + 1 - index]);
-									VariableResolver.SetSelfVariable(Ctx.Self, variableName, existingArray);
+									PopSelfV(variableName, existingArray);
 								}
 
 								// Push array reference
@@ -176,19 +239,19 @@ public static partial class VMExecutor
 									Instance = Ctx.Self
 								};
 
-								Ctx.Stack.Push(newArrReference);
+								PushV(newArrReference);
 								return (ExecutionResult.Success, null);
 							}
 							
 							if (variableName == "alarm")
 							{
-								Ctx.Stack.Push(Ctx.Self.alarm[index]);
+								PushV(Ctx.Self.alarm[index]);
 								return (ExecutionResult.Success, null);
 							}
 							else
 							{
-								Ctx.Stack.Push(VariableResolver.ArrayGet(index,
-									() => (List<object>)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName)));
+								PushV(VariableResolver.ArrayGet(index,
+									() => (List<object>)((RValue)VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName)).Value));
 								return (ExecutionResult.Success, null);
 							}
 						}
@@ -205,14 +268,14 @@ public static partial class VMExecutor
 							}
 
 							var array = Ctx.Locals[variableName];
-							Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)array));
+							PushV(VariableResolver.ArrayGet(index, () => (List<object>)array.Value));
 							return (ExecutionResult.Success, null);
 						}
 						else if (instanceId == GMConstants.global)
 						{
 							if (prefix == VariablePrefix.ArrayPushAF)
 							{
-								var existingArray = (List<object>)VariableResolver.GetGlobalVariable(variableName);
+								var existingArray = (List<object>)(((RValue)VariableResolver.GetGlobalVariable(variableName)).Value);
 
 								// Push array reference
 								var newArrReference = new ArrayReference
@@ -222,7 +285,7 @@ public static partial class VMExecutor
 									IsGlobal = true
 								};
 
-								Ctx.Stack.Push(newArrReference);
+								PushV(newArrReference);
 								return (ExecutionResult.Success, null);
 							}
 
@@ -230,7 +293,7 @@ public static partial class VMExecutor
 							{
 								VariableResolver.SetGlobalArrayIndex(variableName, index, null);
 
-								var existingArray = (List<object>)VariableResolver.GetGlobalVariable(variableName);
+								var existingArray = (List<object>)(((RValue)VariableResolver.GetGlobalVariable(variableName)).Value);
 
 								// Push array reference
 								var newArrReference = new ArrayReference
@@ -240,11 +303,11 @@ public static partial class VMExecutor
 									IsGlobal = true
 								};
 
-								Ctx.Stack.Push(newArrReference);
+								PushV(newArrReference);
 								return (ExecutionResult.Success, null);
 							}
 
-							Ctx.Stack.Push(VariableResolver.GetGlobalArrayIndex(variableName, index));
+							PushV(VariableResolver.GetGlobalArrayIndex(variableName, index));
 							return (ExecutionResult.Success, null);
 						}
 						else if (instanceId == GMConstants.argument)
@@ -260,7 +323,7 @@ public static partial class VMExecutor
 							}
 
 							var array = VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
-							Ctx.Stack.Push(VariableResolver.ArrayGet(index, () => (List<object>)array));
+							PushV(VariableResolver.ArrayGet(index, () => (List<object>)array.Value));
 							return (ExecutionResult.Success, null);
 						}
 						else
@@ -279,13 +342,13 @@ public static partial class VMExecutor
 
 							if (variableName == "alarm")
 							{
-								Ctx.Stack.Push(instance.alarm[index]);
+								PushV(instance.alarm[index]);
 								return (ExecutionResult.Success, null);
 							}
 							else
 							{
-								Ctx.Stack.Push(VariableResolver.ArrayGet(index,
-									() => (List<object>)VariableResolver.GetSelfVariable(instance, Ctx.Locals, variableName)));
+								PushV(VariableResolver.ArrayGet(index,
+									() => (List<object>)VariableResolver.GetSelfVariable(instance, Ctx.Locals, variableName).Value));
 								return (ExecutionResult.Success, null);
 							}
 						}
@@ -309,12 +372,12 @@ public static partial class VMExecutor
 							instance = InstanceManager.FindByInstanceId(stackTopValue);
 						}
 
-						Ctx.Stack.Push(VariableResolver.GetSelfVariable(instance, Ctx.Locals, variableName));
+						PushV(VariableResolver.GetSelfVariable(instance, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
 					else
 					{
-						Ctx.Stack.Push(VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName));
+						PushV(VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -330,7 +393,7 @@ public static partial class VMExecutor
 					}
 					else
 					{
-						Ctx.Stack.Push(VariableResolver.GetSelfVariable(firstInstance, Ctx.Locals, variableName));
+						PushV(VariableResolver.GetSelfVariable(firstInstance, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -346,7 +409,7 @@ public static partial class VMExecutor
 					}
 					else
 					{
-						Ctx.Stack.Push(VariableResolver.GetSelfVariable(instance.Self, Ctx.Locals, variableName));
+						PushV(VariableResolver.GetSelfVariable(instance.Self, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -354,12 +417,12 @@ public static partial class VMExecutor
 				{
 					if (variableName == "argument_count")
 					{
-						Ctx.Stack.Push(VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName));
+						PushV(VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName));
 					}
 					else
 					{
 						var getter = VariableResolver.BuiltInVariables[variableName].getter;
-						Ctx.Stack.Push(getter(Ctx.Self));
+						PushV(getter(Ctx.Self));
 					}
 
 					
@@ -368,7 +431,7 @@ public static partial class VMExecutor
 				else if (variableType == VariableType.Argument)
 				{
 					var value = VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName);
-					Ctx.Stack.Push(value);
+					PushV(value);
 					return (ExecutionResult.Success, null);
 				}
 
@@ -444,13 +507,13 @@ public static partial class VMExecutor
 					value = Ctx.Stack.Pop();
 				}
 
-				VariableResolver.SetGlobalArrayIndex(variableName, index, value);
+				PopGlobalIndexV(variableName, index, value);
 				return (ExecutionResult.Success, null);
 			}
 			else
 			{
 				var value = Ctx.Stack.Pop();
-				VariableResolver.SetGlobalVariable(variableName, value);
+				PopGlobalV(variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -477,14 +540,33 @@ public static partial class VMExecutor
 
 				VariableResolver.ArraySet(index, value,
 					() => Ctx.Locals[variableName],
-					list => Ctx.Locals[variableName] = list,
+					list => Ctx.Locals[variableName].Value = list,
 					() => Ctx.Locals.ContainsKey(variableName));
 				return (ExecutionResult.Success, null);
 			}
 			else
 			{
 				var value = Ctx.Stack.Pop();
-				Ctx.Locals[variableName] = value;
+
+				/*if (value is RValue r)
+				{
+					DebugLog.LogInfo($"Set {Ctx.Self.instanceId}.{variableName} to RValue {r}");
+				}
+				else
+				{
+					DebugLog.LogInfo($"Set {Ctx.Self.instanceId}.{variableName} to {value}");
+				}*/
+
+				if (value is RValue r)
+				{
+					Ctx.Locals[variableName] = r;
+				}
+				else
+				{
+					Ctx.Locals[variableName] = new RValue(value);
+				}
+
+				
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -520,24 +602,21 @@ public static partial class VMExecutor
 					{
 						VariableResolver.ArraySet(index, value,
 							() => VariableResolver.GetSelfVariable(Ctx.Self, Ctx.Locals, variableName),
-							list => VariableResolver.SetSelfVariable(Ctx.Self, variableName, list),
+							list => VariableResolver.SetSelfVariable(Ctx.Self, variableName, new RValue(list) ),
 							() => VariableResolver.ContainsSelfVariable(Ctx.Self, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
 				}
 				else if (instanceId == GMConstants.global)
 				{
-					VariableResolver.ArraySet(index, value,
-						() => VariableResolver.GetGlobalVariable(variableName),
-						list => VariableResolver.SetGlobalVariable(variableName, list),
-						() => VariableResolver.GlobalVariableExists(variableName));
+					PopGlobalIndexV(variableName, index, value);
 					return (ExecutionResult.Success, null);
 				}
 				else if (instanceId == GMConstants.local)
 				{
 					VariableResolver.ArraySet(index, value,
 						() => Ctx.Locals[variableName],
-						list => Ctx.Locals[variableName] = list,
+						list => Ctx.Locals[variableName].Value = list,
 						() => Ctx.Locals.ContainsKey(variableName));
 					return (ExecutionResult.Success, null);
 				}
@@ -564,7 +643,7 @@ public static partial class VMExecutor
 					{
 						VariableResolver.ArraySet(index, value,
 							() => VariableResolver.GetSelfVariable(instance, Ctx.Locals, variableName),
-							list => VariableResolver.SetSelfVariable(instance, variableName, list),
+							list => VariableResolver.SetSelfVariable(instance, variableName, new RValue(list)),
 							() => VariableResolver.ContainsSelfVariable(instance, Ctx.Locals, variableName));
 						return (ExecutionResult.Success, null);
 					}
@@ -609,13 +688,13 @@ public static partial class VMExecutor
 					obj = InstanceManager.FindByInstanceId(val);
 				}
 
-				VariableResolver.SetSelfVariable(obj, variableName, value);
+				PopSelfV(obj, variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 			else
 			{
 				var value = Ctx.Stack.Pop();
-				VariableResolver.SetSelfVariable(Ctx.Self, variableName, value);
+				PopSelfV(variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -632,7 +711,7 @@ public static partial class VMExecutor
 			else
 			{
 				var value = Ctx.Stack.Pop();
-				VariableResolver.SetSelfVariable(firstInstance, variableName, value);
+				PopSelfV(firstInstance, variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -649,7 +728,7 @@ public static partial class VMExecutor
 			else
 			{
 				var value = Ctx.Stack.Pop();
-				VariableResolver.SetSelfVariable(instance.Self, variableName, value);
+				PopSelfV(instance.Self, variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 		}

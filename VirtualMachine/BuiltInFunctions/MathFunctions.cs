@@ -12,13 +12,13 @@ public static partial class ScriptResolver
 
 	public static object array_length_1d(Arguments args)
 	{
-		var array = (List<object>)args.Args[0];
+		var array = Conv<List<object>>(args.Args[0]);
 		return array.Count;
 	}
 
 	public static object array_length(Arguments args)
 	{
-		var array = (List<object>)args.Args[0];
+		var array = Conv<List<object>>(args.Args[0]);
 		return array.Count;
 	}
 
@@ -120,6 +120,12 @@ public static partial class ScriptResolver
 	public static object _string(Arguments args)
 	{
 		var valueOrFormat = args.Args[0];
+
+		if (valueOrFormat is RValue r)
+		{
+			valueOrFormat = r.Value;
+		}
+
 		var values = new object[] { };
 		if (args.Args.Length > 1)
 		{

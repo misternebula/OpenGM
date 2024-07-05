@@ -1,4 +1,5 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using System.Diagnostics;
+using DELTARUNITYStandalone.SerializedFiles;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 
@@ -10,7 +11,7 @@ public class VMScriptExecutionContext
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
 	public Stack<object> Stack;
-	public Dictionary<string, object> Locals;
+	public Dictionary<string, RValue> Locals;
 	public object ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
@@ -55,6 +56,11 @@ public static partial class VMExecutor
 			return null;
 		}
 
+		//if (!script.IsGlobalInit)
+		//{
+			DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
+		//}
+
 		var newCtx = new VMScriptExecutionContext
 		{
 			Self = obj,
@@ -70,9 +76,10 @@ public static partial class VMExecutor
 		{
 			newCtx.Locals.Add(item, null);
 		}
+
 		if (arguments != null)
 		{
-			newCtx.Locals["arguments"] = arguments.Args.ToList();
+			newCtx.Locals["arguments"] = new RValue(arguments.Args.ToList());
 		}
 
 		// Make the current object the current instance
@@ -91,6 +98,15 @@ public static partial class VMExecutor
 			try
 			{
 				(executionResult, data) = ExecuteInstruction(script.Instructions[instructionIndex]);
+
+				var stackStr = "{ ";
+				foreach (var item in Ctx.Stack)
+				{
+					stackStr += $"{item}, ";
+				}
+
+				stackStr += "}";
+				DebugLog.LogInfo($"STACK: {stackStr}");
 			}
 			catch (Exception e)
 			{
@@ -107,6 +123,7 @@ public static partial class VMExecutor
 				{
 					DebugLog.LogError($" - {item.Name}");
 				}*/
+
 				//Debug.Break();
 				break;
 			}
@@ -155,6 +172,8 @@ public static partial class VMExecutor
 	// BUG: throws sometimes instead of returning ExecutionResult.Failure
 	public static (ExecutionResult result, object data) ExecuteInstruction(VMScriptInstruction instruction)
 	{
+		DebugLog.LogInfo($" - {instruction.Raw}");
+
 		switch (instruction.Opcode)
 		{
 			case VMOpcode.B:
@@ -200,6 +219,16 @@ public static partial class VMExecutor
 
 				var second = Ctx.Stack.Pop();
 				var first = Ctx.Stack.Pop();
+
+				if (second is RValue r2)
+				{
+					second = r2.Value;
+				}
+
+				if (first is RValue r1)
+				{
+					first = r1.Value;
+				}
 
 				first ??= 0;
 				second ??= 0;
@@ -299,20 +328,31 @@ public static partial class VMExecutor
 						DebugLog.LogError($"NULL STACK");
 					}
 
-					Ctx.Stack.Push(builtInFunction(arguments));
+					Ctx.Stack.Push(new RValue(builtInFunction(arguments)));
 					break;
 				}
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments));
+					Ctx.Stack.Push(new RValue(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments)));
 					break;
 				}
 
 				if (ScriptResolver.ScriptFunctions.ContainsKey(instruction.FunctionName))
 				{
 					var (script, instructionIndex) = ScriptResolver.ScriptFunctions[instruction.FunctionName];
-					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex));
+
+					var result = ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex);
+
+					if (result is RValue r)
+					{
+						Ctx.Stack.Push(r);
+					}
+					else
+					{
+						Ctx.Stack.Push(new RValue(result));
+					}
+					
 					break;
 				}
 
@@ -322,16 +362,7 @@ public static partial class VMExecutor
 			case VMOpcode.POPENV:
 				return POPENV(instruction);
 			case VMOpcode.DUP:
-				{
-					var indexBack = instruction.IntData;
-
-					for (var i = 0; i <= indexBack; i++)
-					{
-						Ctx.Stack.Push(Ctx.Stack.Skip(indexBack).First());
-					}
-
-					break;
-				}
+				return DoDup(instruction);
 			case VMOpcode.ADD:
 				return ADD(instruction);
 			case VMOpcode.SUB:
@@ -386,6 +417,7 @@ public static partial class VMExecutor
 			case VMOpcode.EXIT:
 				return (ExecutionResult.ReturnedValue, null);
 			case VMOpcode.SETOWNER:
+				var id = Conv<int>(Ctx.Stack.Pop());
 				break;
 			case VMOpcode.POPAF:
 			{
@@ -402,11 +434,11 @@ public static partial class VMExecutor
 
 				if (array.IsGlobal)
 				{
-					VariableResolver.SetGlobalVariable(array.ArrayName, array.Array);
+					VariableResolver.SetGlobalVariable(array.ArrayName, new RValue(array.Array));
 				}
 				else
 				{
-					array.Instance.SelfVariables[array.ArrayName] = array.Array;
+					array.Instance.SelfVariables[array.ArrayName] = new RValue(array.Array);
 				}
 
 				break;
@@ -443,6 +475,7 @@ public static partial class VMExecutor
 			case VMType.s:
 				return typeof(string);
 			case VMType.i:
+			case VMType.e:
 				return typeof(int);
 			case VMType.b:
 				return typeof(bool);
@@ -450,8 +483,8 @@ public static partial class VMExecutor
 				return typeof(double);
 			case VMType.l:
 				return typeof(long);
-			case VMType.e:
 			case VMType.v:
+				return typeof(RValue);
 			default:
 				return typeof(object);
 		}
@@ -475,6 +508,11 @@ public static partial class VMExecutor
 			return obj;
 		}
 
+		if (type == typeof(RValue))
+		{
+			return new RValue(obj);
+		}
+
 		if (obj is null && type == typeof(bool))
 		{
 			return false;
@@ -492,7 +530,7 @@ public static partial class VMExecutor
 
 		if (obj is null)
 		{
-			DebugLog.LogError($"Trying to convert null object to {type}!");
+			DebugLog.LogError($"Trying to convert null object to {type}! Current script:{currentExecutingScript.First().Name}");
 			return default;
 		}
 
@@ -503,7 +541,12 @@ public static partial class VMExecutor
 
 		try
 		{
-			if (obj is string s)
+			if (obj is RValue r)
+			{
+				//DebugLog.Log($"Converting RValue {r} to {type}");
+				return Convert(r.Value, type);
+			}
+			else if (obj is string s)
 			{
 				// not sure how to implement numeric -> string properly
 
