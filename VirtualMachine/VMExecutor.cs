@@ -490,6 +490,43 @@ public static partial class VMExecutor
 		_ => throw new NotImplementedException("what")
 	};
 
+	public static int VMTypeToSize(VMType type) => type switch
+	{
+		VMType.v => 16,
+		VMType.d => 8,
+		VMType.l => 8,
+		VMType.i => 4,
+		VMType.b => 4,
+		VMType.s => 4,
+		VMType.e => 4
+	};
+
+	public static VMType GetTypeOfObject(object obj) => obj switch
+	{
+		int => VMType.i,
+		short => VMType.e, // no idea????? int16s are stored in 4 bytes on the stack.
+		string => VMType.s,
+		bool => VMType.b,
+		double => VMType.d,
+		long => VMType.l,
+		RValue => VMType.v,
+		_ => throw new NotImplementedException($"Can't get type of {obj}")
+	};
+
+	public static object PopType(VMType typeToPop)
+	{
+		var poppedValue = Ctx.Stack.Pop();
+		var typeOfPopped = GetTypeOfObject(poppedValue);
+		var sizeOfPopped = VMTypeToSize(typeOfPopped);
+
+		if (sizeOfPopped != VMTypeToSize(typeToPop))
+		{
+			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
+		}
+
+		return ConvertTypes(poppedValue, typeOfPopped, typeToPop);
+	}
+
 	/// <summary>
 	/// does a bitcast with the gamemaker sizes.
 	/// sanity checks that you wont get garbage from bitcasting
@@ -501,6 +538,57 @@ public static partial class VMExecutor
 		 * this is primarily for stuff like b to i casting. maybe we dont need a whole function for that
 		 */
 		throw new NotImplementedException();
+	}
+
+	public static object ConvertTypes(object obj, VMType from, VMType to)
+	{
+		if (from == to)
+		{
+			return obj;
+		}
+
+		if (from == VMType.i)
+		{
+			if (to == VMType.b)
+			{
+				return (int)obj != 0;
+			}
+			else if (to == VMType.e)
+			{
+				// todo : cap to int16?
+				return (int)obj;
+			}
+			else if (to == VMType.s)
+			{
+				throw new NotImplementedException($"Can't convert from {from} to {to}");
+			}
+		}
+		else if (from == VMType.b)
+		{
+
+		}
+		else if (from == VMType.s)
+		{
+			
+		}
+		else if (from == VMType.e)
+		{
+
+		}
+		else if (from == VMType.d)
+		{
+
+		}
+		else if (from == VMType.l)
+		{
+
+		}
+		else if (from == VMType.v)
+		{
+
+		}
+
+		throw new NotImplementedException($"Don't know how to convert from {from} to {to}");
 	}
 	
 	// TODO: make this more strict, only work with the actual VMTypes (int, long, double, bool, string, RValue)
@@ -516,6 +604,7 @@ public static partial class VMExecutor
 			return (T)Convert(obj, Activator.CreateInstance(typeof(T), null).GetType());
 		}
 	}
+
 	public static object Convert(object obj, Type type)
 	{
 		if (type == typeof(object))

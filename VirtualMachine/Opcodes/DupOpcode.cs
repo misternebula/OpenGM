@@ -56,26 +56,4 @@ public static partial class VMExecutor
 
 		return (ExecutionResult.Success, null);
 	}
-
-	public static int VMTypeToSize(VMType type) => type switch
-	{
-		VMType.v => 16,
-		VMType.d => 8,
-		VMType.l => 8,
-		VMType.i => 4,
-		VMType.b => 4,
-		VMType.s => 4,
-		VMType.e => 4
-	};
-
-	public static VMType GetTypeOfObject(object obj) => obj switch
-	{
-		int => VMType.i,
-		string => VMType.s,
-		bool => VMType.b,
-		double => VMType.d,
-		long => VMType.l,
-		RValue => VMType.v,
-		_ => throw new NotImplementedException($"Can't get type of {obj}")
-	};
 }

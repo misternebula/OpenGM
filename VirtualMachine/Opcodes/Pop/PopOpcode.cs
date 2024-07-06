@@ -8,32 +8,21 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class VMExecutor
 {
+	public static void PopToGlobal(string varName, object obj)
+	{
+		if (obj is RValue)
+		{
+			VariableResolver.GlobalVariables[varName] = obj;
+		}
+		else
+		{
+			VariableResolver.GlobalVariables[varName] = new RValue(obj);
+		}
+	}
+
 	public static (ExecutionResult, object) DoPop(VMScriptInstruction instruction)
 	{
-		object dataPopped = null;
-		switch (instruction.TypeTwo)
-		{
-			case VMType.i:
-				dataPopped = (int)Ctx.Stack.Pop();
-				break;
-			case VMType.v:
-				break;
-			case VMType.b:
-				dataPopped = (bool)Ctx.Stack.Pop();
-				break;
-			case VMType.d:
-				dataPopped = (double)Ctx.Stack.Pop();
-				break;
-			case VMType.e:
-				dataPopped = (int)Ctx.Stack.Pop();
-				break;
-			case VMType.s:
-				dataPopped = (string)Ctx.Stack.Pop();
-				break;
-			case VMType.l:
-				dataPopped = (long)Ctx.Stack.Pop();
-				break;
-		}
+		var dataPopped = PopType(instruction.TypeTwo);
 
 		if (instruction.TypeOne == VMType.e)
 		{
@@ -41,6 +30,19 @@ public static partial class VMExecutor
 			throw new NotImplementedException();
 		}
 
-		return (ExecutionResult.Failed, $"Don't know how to pop {instruction.Raw}");
+		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
+
+		if (variablePrefix == VariablePrefix.None)
+		{
+			// we're just popping to a normal variable. thank god.
+
+			if (variableType == VariableType.Global)
+			{
+				PopToGlobal(variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+		}
+
+		return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw}");
 	}
 }
