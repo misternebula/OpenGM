@@ -6,6 +6,9 @@
 /// </summary>
 public readonly struct RValue
 {
+	/// <summary>
+	/// can store: int, long, double, bool, string, array, null
+	/// </summary>
 	public readonly object? Value;
 
 	public RValue(object? value)

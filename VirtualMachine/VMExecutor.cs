@@ -10,8 +10,17 @@ public class VMScriptExecutionContext
 {
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
+	/// <summary>
+	/// can store: int, long, double, bool, string, RValue
+	/// </summary>
 	public Stack<object> Stack;
+	/// <summary>
+	/// stores RValue.Value
+	/// </summary>
 	public Dictionary<string, object> Locals;
+	/// <summary>
+	/// stores RValue.Value
+	/// </summary>
 	public object ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
@@ -36,7 +45,7 @@ public class VMScriptExecutionContext
 public class Arguments
 {
 	public VMScriptExecutionContext Ctx; // TODO: can we just use VMExecutor.Ctx instead? they should always be the same
-	public object[] Args;
+	public object?[] Args;
 }
 
 public static partial class VMExecutor
@@ -308,7 +317,8 @@ public static partial class VMExecutor
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
-					arguments.Args[i] = Ctx.Stack.Pop();
+					// args are always pushed as rvalues
+					arguments.Args[i] = ((RValue)Ctx.Stack.Pop()).Value;
 				}
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
@@ -434,11 +444,11 @@ public static partial class VMExecutor
 
 				if (array.IsGlobal)
 				{
-					VariableResolver.GlobalVariables[array.ArrayName] = new RValue(array.Array);
+					VariableResolver.GlobalVariables[array.ArrayName] = array.Array;
 				}
 				else
 				{
-					array.Instance.SelfVariables[array.ArrayName] = new RValue(array.Array);
+					array.Instance.SelfVariables[array.ArrayName] = array.Array;
 				}
 
 				break;
@@ -493,7 +503,7 @@ public static partial class VMExecutor
 		throw new NotImplementedException();
 	}
 	
-	// TODO: make this more strict, only work with the actual VMTypes (some primitives and RValue)
+	// TODO: make this more strict, only work with the actual VMTypes (int, long, double, bool, string, RValue)
 	// TODO: move Conv into opcodes so the proper types go onto the stack, rather than deferring conversion until the value is needed
 	public static T Conv<T>(object obj)
 	{
