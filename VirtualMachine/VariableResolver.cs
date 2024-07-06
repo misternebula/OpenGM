@@ -4,26 +4,26 @@ using Newtonsoft.Json.Linq;
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static class VariableResolver
 {
-	public static object ArrayGet(int index,
-		Func<List<object>> get)
+	public static RValue ArrayGet(int index,
+		Func<List<RValue>> get)
 	{
 		return get()[index];
 	}
 
-	public static void ArraySet(int index, object value,
-		Func<List<object>?> get,
-		Action<List<object>> set)
+	public static void ArraySet(int index, RValue value,
+		Func<List<RValue>?> get,
+		Action<List<RValue>> set)
 	{
 		var list = get();
 		if (list == null)
 		{
-			list = new List<object>();
+			list = new List<RValue>();
 			set(list);
 		}
 
 		if (index >= list.Count)
 		{
-			list.AddRange(new object[index - list.Count + 1]);
+			list.AddRange(new RValue[index - list.Count + 1]);
 		}
 
 		list[index] = value;
