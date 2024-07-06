@@ -70,10 +70,11 @@ public static partial class VMExecutor
 
 	public static VMType GetTypeOfObject(object obj) => obj switch
 	{
-		int or uint => VMType.i,
+		int => VMType.i,
 		string => VMType.s,
 		bool => VMType.b,
-		float or double => VMType.d,
+		double => VMType.d,
+		long => VMType.l,
 		RValue => VMType.v,
 		_ => throw new NotImplementedException($"Can't get type of {obj}")
 	};

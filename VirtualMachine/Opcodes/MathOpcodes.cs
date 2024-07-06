@@ -20,6 +20,7 @@ public static partial class VMExecutor
 		else
 		{
 			// technically should convert using TypeOne and TypeTwo, but later instructions convert anyway so it's fine
+			// TODO: above statement should be made false. convert early so stack has correct types
 			Ctx.Stack.Push(Conv<double>(valOne) + Conv<double>(valTwo));
 		}
 

@@ -468,28 +468,31 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	private static Type GetType(VMType type)
+	private static Type GetType(VMType type) => type switch
 	{
-		switch (type)
-		{
-			case VMType.s:
-				return typeof(string);
-			case VMType.i:
-			case VMType.e:
-				return typeof(int);
-			case VMType.b:
-				return typeof(bool);
-			case VMType.d:
-				return typeof(double);
-			case VMType.l:
-				return typeof(long);
-			case VMType.v:
-				return typeof(RValue);
-			default:
-				return typeof(object);
-		}
-	}
+		VMType.s => typeof(string),
+		VMType.i => typeof(int),
+		VMType.e => typeof(int),
+		VMType.b => typeof(bool),
+		VMType.d => typeof(double),
+		VMType.l => typeof(long),
+		VMType.v => typeof(RValue),
+		_ => throw new NotImplementedException("what")
+	};
 
+	/// <summary>
+	/// does a bitcast with the gamemaker sizes.
+	/// sanity checks that you wont get garbage from bitcasting
+	/// </summary>
+	public static U BitCast<T, U>(T t)
+	{
+		/*
+		 * may be able to get away with just using Conv here
+		 * this is primarily for stuff like b to i casting. maybe we dont need a whole function for that
+		 */
+		throw new NotImplementedException();
+	}
+	
 	// TODO: make this more strict, only work with the actual VMTypes (some primitives and RValue)
 	// TODO: move Conv into opcodes so the proper types go onto the stack, rather than deferring conversion until the value is needed
 	public static T Conv<T>(object obj)
