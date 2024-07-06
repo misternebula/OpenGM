@@ -13,14 +13,11 @@ public readonly struct RValue
 
 	public RValue(object? value)
 	{
-		// unwrap nested rvalues
-		var curValue = value;
-		while (curValue is RValue r)
-		{
-			curValue = r.Value;
-		}
+		// sanity check (probably do this for the stack too)
+		if (value is not (int or long or double or bool or string or List<RValue> or null))
+			throw new ArgumentException($"bad value {value} passed into rvalue");
 
-		Value = curValue;
+		Value = value;
 	}
 
 	public override string ToString()
