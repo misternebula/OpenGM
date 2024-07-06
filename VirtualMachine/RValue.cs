@@ -4,9 +4,9 @@
 /// a wrapper around an object to mark that it is the v type on the stack.
 /// also used whenever a value escapes (is stored outside of) the stack (e.g. variables).
 /// </summary>
-public class RValue
+public readonly struct RValue
 {
-	public object? Value;
+	public readonly object? Value;
 
 	public RValue(object? value)
 	{

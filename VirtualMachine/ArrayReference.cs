@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 
+// TODO: merge this into RValue and delete it here
 public class ArrayReference
 {
 	public List<object> Array;

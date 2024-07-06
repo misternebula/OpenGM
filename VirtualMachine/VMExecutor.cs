@@ -11,8 +11,8 @@ public class VMScriptExecutionContext
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
 	public Stack<object> Stack;
-	public Dictionary<string, RValue> Locals;
-	public RValue ReturnValue;
+	public Dictionary<string, object> Locals;
+	public object ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
 
@@ -490,6 +490,8 @@ public static partial class VMExecutor
 		}
 	}
 
+	// TODO: make this more strict, only work with the actual VMTypes (some primitives and RValue)
+	// TODO: move Conv into opcodes so the proper types go onto the stack, rather than deferring conversion until the value is needed
 	public static T Conv<T>(object obj)
 	{
 		if (typeof(T) != typeof(object))
