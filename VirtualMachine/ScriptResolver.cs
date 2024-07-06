@@ -23,7 +23,7 @@ public static partial class ScriptResolver
 
 	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
 
-	public static Dictionary<string, Func<Arguments, object>> BuiltInFunctions = new()
+	public static Dictionary<string, Func<Arguments, object?>> BuiltInFunctions = new()
 	{
 		#region Game
 		{ "place_meeting", place_meeting },
@@ -56,7 +56,7 @@ public static partial class ScriptResolver
 		{ "min", min },
 		{ "max", max },
 		{ "choose", choose },
-		{ "string", _string },
+		{ "string", @string },
 		{ "string_length", string_length },
 		{ "string_pos", string_pos },
 		{ "string_copy", string_copy },

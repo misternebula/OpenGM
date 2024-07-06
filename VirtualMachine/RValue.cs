@@ -24,4 +24,20 @@ public readonly struct RValue
 	{
 		return $"RValue({Value})";
 	}
+
+	/*
+	// prefer using these over accessing Value
+	public static implicit operator int(RValue v) => (int)(v.Value ?? throw new NullReferenceException());
+	public static implicit operator RValue(int v) => new(v);
+	public static implicit operator long(RValue v) => (long)(v.Value ?? throw new NullReferenceException());
+	public static implicit operator RValue(long v) => new(v);
+	public static implicit operator double(RValue v) => (double)(v.Value ?? throw new NullReferenceException());
+	public static implicit operator RValue(double v) => new(v);
+	public static implicit operator bool(RValue v) => (bool)(v.Value ?? throw new NullReferenceException());
+	public static implicit operator RValue(bool v) => new(v);
+	public static implicit operator string(RValue v) => (string)(v.Value ?? throw new NullReferenceException());
+	public static implicit operator RValue(string v) => new(v);
+	public static implicit operator List<RValue>(RValue v) => (List<RValue>)(v.Value ?? throw new NullReferenceException());
+	public static implicit operator RValue(List<RValue> v) => new(v);
+	*/
 }

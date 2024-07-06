@@ -17,11 +17,11 @@ public class VMScriptExecutionContext
 	/// <summary>
 	/// stores RValue.Value
 	/// </summary>
-	public Dictionary<string, object> Locals;
+	public Dictionary<string, object?> Locals;
 	/// <summary>
 	/// stores RValue.Value
 	/// </summary>
-	public object ReturnValue;
+	public object? ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
 
@@ -45,6 +45,9 @@ public class VMScriptExecutionContext
 public class Arguments
 {
 	public VMScriptExecutionContext Ctx; // TODO: can we just use VMExecutor.Ctx instead? they should always be the same
+	/// <summary>
+	/// stores RValue.Value
+	/// </summary>
 	public object?[] Args;
 }
 
@@ -58,7 +61,7 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
+	public static object? ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
@@ -88,7 +91,7 @@ public static partial class VMExecutor
 
 		if (arguments != null)
 		{
-			newCtx.Locals["arguments"] = new RValue(arguments.Args.ToList());
+			newCtx.Locals["arguments"] = arguments.Args.ToList();
 		}
 
 		// Make the current object the current instance
@@ -102,7 +105,7 @@ public static partial class VMExecutor
 		while (true)
 		{
 			ExecutionResult executionResult;
-			object data;
+			object? data;
 
 			try
 			{
@@ -156,7 +159,7 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.JumpedToLabel)
 			{
-				var label = (int)data;
+				var label = (int)data!;
 				instructionIndex = script.Labels[label].InstructionIndex;
 				lastJumpedLabel = label;
 				continue;
@@ -179,7 +182,7 @@ public static partial class VMExecutor
 	}
 
 	// BUG: throws sometimes instead of returning ExecutionResult.Failure
-	public static (ExecutionResult result, object data) ExecuteInstruction(VMScriptInstruction instruction)
+	public static (ExecutionResult result, object? data) ExecuteInstruction(VMScriptInstruction instruction)
 	{
 		DebugLog.LogInfo($" - {instruction.Raw}");
 
@@ -300,9 +303,10 @@ public static partial class VMExecutor
 			case VMOpcode.POP:
 				return DoPop(instruction);
 			case VMOpcode.RET:
-				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop());
+				// ret value is always stored as rvalue
+				return (ExecutionResult.ReturnedValue, ((RValue)Ctx.Stack.Pop()).Value);
 			case VMOpcode.CONV:
-				var toType = GetType(instruction.TypeTwo);
+				var toType = GetType(instruction.TypeTwo); // TODO: change this to new conv
 				Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
 				break;
 			case VMOpcode.POPZ:
@@ -312,7 +316,7 @@ public static partial class VMExecutor
 				var arguments = new Arguments
 				{
 					Ctx = Ctx,
-					Args = new object[instruction.FunctionArgumentCount]
+					Args = new object?[instruction.FunctionArgumentCount]
 				};
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
@@ -351,18 +355,7 @@ public static partial class VMExecutor
 				if (ScriptResolver.ScriptFunctions.ContainsKey(instruction.FunctionName))
 				{
 					var (script, instructionIndex) = ScriptResolver.ScriptFunctions[instruction.FunctionName];
-
-					var result = ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex);
-
-					if (result is RValue r)
-					{
-						Ctx.Stack.Push(r);
-					}
-					else
-					{
-						Ctx.Stack.Push(new RValue(result));
-					}
-					
+					Ctx.Stack.Push(new RValue(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex)));
 					break;
 				}
 
@@ -433,14 +426,14 @@ public static partial class VMExecutor
 			{
 				var index = Conv<int>(Ctx.Stack.Pop());
 				var array = Conv<ArrayReference>(Ctx.Stack.Pop());
-				var value = Conv<object>(Ctx.Stack.Pop());
+				var value = Conv<RValue>(Ctx.Stack.Pop());
 
 				if (array.Array.Count <= index)
 				{
 					array.Array.AddRange(new object[array.Array.Count + 1 - index]);
 				}
 
-				array.Array[index] = value;
+				array.Array[index] = value; // this is definitely wrong and still broke. make it work with rvalue (just make arrayreference be rvalue actually)
 
 				if (array.IsGlobal)
 				{
@@ -460,7 +453,7 @@ public static partial class VMExecutor
 
 				var value = array.Array[index];
 
-				if (value is List<object>)
+				if (value is List<RValue>)
 				{
 					throw new NotImplementedException();
 				}
@@ -489,7 +482,7 @@ public static partial class VMExecutor
 		VMType.v => typeof(RValue),
 		_ => throw new NotImplementedException("what")
 	};
-
+	
 	public static int VMTypeToSize(VMType type) => type switch
 	{
 		VMType.v => 16,
@@ -524,6 +517,7 @@ public static partial class VMExecutor
 			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
 		}
 
+		// todo: strict bitcast instead of conv
 		return ConvertTypes(poppedValue, typeOfPopped, typeToPop);
 	}
 
@@ -531,7 +525,7 @@ public static partial class VMExecutor
 	/// does a bitcast with the gamemaker sizes.
 	/// sanity checks that you wont get garbage from bitcasting
 	/// </summary>
-	public static U BitCast<T, U>(T t)
+	public static U BitCast<T, U>(this T t)
 	{
 		/*
 		 * may be able to get away with just using Conv here
@@ -539,6 +533,11 @@ public static partial class VMExecutor
 		 */
 		throw new NotImplementedException();
 	}
+	
+	/*
+	 * old conv functions are below here. we should move away from these,
+	 * bitcasting/poptyping most of the time and conving only when we should
+	 */
 
 	public static object ConvertTypes(object obj, VMType from, VMType to)
 	{

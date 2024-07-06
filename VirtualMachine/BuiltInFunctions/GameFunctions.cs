@@ -29,7 +29,7 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object move_towards_point(Arguments args)
+	public static object? move_towards_point(Arguments args)
 	{
 		var targetx = Conv<double>(args.Args[0]);
 		var targety = Conv<double>(args.Args[1]);

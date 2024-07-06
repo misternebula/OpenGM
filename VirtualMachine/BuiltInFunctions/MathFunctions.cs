@@ -117,14 +117,9 @@ public static partial class ScriptResolver
 		return args.Args[rnd.Next(0, args.Args.Length)];
 	}
 
-	public static object _string(Arguments args)
+	public static object @string(Arguments args)
 	{
 		var valueOrFormat = args.Args[0];
-
-		if (valueOrFormat is RValue r)
-		{
-			valueOrFormat = r.Value;
-		}
 
 		var values = new object[] { };
 		if (args.Args.Length > 1)
@@ -135,7 +130,7 @@ public static partial class ScriptResolver
 		if (args.Args.Length > 1)
 		{
 			// format
-			var format = (string)valueOrFormat;
+			var format = (string)(valueOrFormat ?? throw new NullReferenceException());
 
 			// doing this like im in c lol
 			var result = new StringBuilder();
@@ -162,7 +157,7 @@ public static partial class ScriptResolver
 						inBraces = false;
 						var bracesNumber = int.Parse(bracesString.ToString());
 						bracesString.Clear();
-						result.Append(values[bracesNumber]);
+						result.Append(@string(new Arguments { Args = new[] { values[bracesNumber] } }));
 					}
 					else
 					{
@@ -181,7 +176,7 @@ public static partial class ScriptResolver
 		{
 			// value
 
-			if (valueOrFormat is List<object> list)
+			if (valueOrFormat is List<RValue> list)
 			{
 				// array
 				// is any of this right? not sure.
@@ -189,7 +184,7 @@ public static partial class ScriptResolver
 				var result = new StringBuilder("[");
 				foreach (var item in list)
 				{
-					var elementString = (string)_string(new Arguments { Args = new object[] { item } });
+					var elementString = (string)@string(new Arguments { Args = new[] { item.Value } });
 
 					result.Append(elementString);
 					if (index < list.Count - 1)
@@ -202,13 +197,13 @@ public static partial class ScriptResolver
 				result.Append("]");
 				return result.ToString();
 			}
-			else if (valueOrFormat is bool)
+			else if (valueOrFormat is bool b)
 			{
-				return Conv<string>(valueOrFormat);
+				return Conv<string>(b);
 			}
-			else if (valueOrFormat is string)
+			else if (valueOrFormat is string s)
 			{
-				return valueOrFormat;
+				return s;
 			}
 			else
 			{
