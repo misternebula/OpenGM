@@ -4,10 +4,10 @@ using Newtonsoft.Json.Linq;
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static class VariableResolver
 {
-	public static object? ArrayGet(int index,
-		Func<List<object>?> get)
+	public static object ArrayGet(int index,
+		Func<List<object>> get)
 	{
-		return get()?[index];
+		return get()[index];
 	}
 
 	public static void ArraySet(int index, object value,
