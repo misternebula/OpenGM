@@ -1,11 +1,16 @@
 ﻿namespace DELTARUNITYStandalone.VirtualMachine;
 
+/// <summary>
+/// a wrapper around an object to mark that it is the v type on the stack.
+/// also used whenever a value escapes (is stored outside of) the stack (e.g. variables).
+/// </summary>
 public class RValue
 {
-	public object Value;
+	public object? Value;
 
-	public RValue(object value)
+	public RValue(object? value)
 	{
+		// unwrap nested rvalues
 		var curValue = value;
 		while (curValue is RValue r)
 		{

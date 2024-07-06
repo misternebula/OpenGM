@@ -11,8 +11,8 @@ public class VMScriptExecutionContext
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
 	public Stack<object> Stack;
-	public Dictionary<string, object> Locals;
-	public object ReturnValue;
+	public Dictionary<string, RValue> Locals;
+	public RValue ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
 
