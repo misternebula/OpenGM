@@ -698,7 +698,7 @@ public static partial class ScriptResolver
 	public static object variable_global_exists(Arguments args)
 	{
 		var name = Conv<string>(args.Args[0]);
-		return VariableResolver.GlobalVariableExists(name);
+		return VariableResolver.GlobalVariables.ContainsKey(name);
 	}
 
 	private static Dictionary<int, Dictionary<object, object>> _dsMapDict = new();

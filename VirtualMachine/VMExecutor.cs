@@ -11,7 +11,7 @@ public class VMScriptExecutionContext
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
 	public Stack<object> Stack;
-	public Dictionary<string, RValue> Locals;
+	public Dictionary<string, object> Locals;
 	public object ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
@@ -287,9 +287,9 @@ public static partial class VMExecutor
 			case VMOpcode.PUSHBLTN:
 			case VMOpcode.PUSHI:
 			case VMOpcode.PUSH:
-				return PUSH(instruction);
+				return DoPush(instruction);
 			case VMOpcode.POP:
-				return POP(instruction);
+				return DoPop(instruction);
 			case VMOpcode.RET:
 				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop());
 			case VMOpcode.CONV:
@@ -434,7 +434,7 @@ public static partial class VMExecutor
 
 				if (array.IsGlobal)
 				{
-					VariableResolver.SetGlobalVariable(array.ArrayName, new RValue(array.Array));
+					VariableResolver.GlobalVariables[array.ArrayName] = new RValue(array.Array);
 				}
 				else
 				{
