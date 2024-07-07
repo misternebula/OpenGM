@@ -85,7 +85,7 @@ public static partial class VMExecutor
 
 	public static void PushGlobal(string varName)
 	{
-		Ctx.Stack.Push(new RValue(VariableResolver.GlobalVariables[varName]));
+		Ctx.Stack.Push(VariableResolver.GlobalVariables[varName]);
 	}
 
 	public static (ExecutionResult, object) DoPush(VMScriptInstruction instruction)
