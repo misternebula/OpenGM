@@ -15,10 +15,7 @@ public class VMScriptExecutionContext
 	/// </summary>
 	public Stack<object> Stack;
 	public Dictionary<string, RValue> Locals;
-	/// <summary>
-	/// stores RValue.Value
-	/// </summary>
-	public object? ReturnValue;
+	public RValue ReturnValue;
 	public EventType EventType;
 	public uint EventIndex;
 
@@ -58,11 +55,11 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static object? ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
+	public static RValue ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
-			return null;
+			return new RValue(null);
 		}
 
 		//if (!script.IsGlobalInit)
@@ -76,7 +73,7 @@ public static partial class VMExecutor
 			ObjectDefinition = objectDefinition,
 			Stack = new(),
 			Locals = new(),
-			ReturnValue = null,
+			ReturnValue = new RValue(null),
 			EventType = eventType,
 			EventIndex = eventIndex
 		};
@@ -169,7 +166,7 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.ReturnedValue)
 			{
-				Ctx.ReturnValue = data;
+				Ctx.ReturnValue = (RValue)data!;
 				break;
 			}
 		}
@@ -306,7 +303,7 @@ public static partial class VMExecutor
 				return DoPop(instruction);
 			case VMOpcode.RET:
 				// ret value is always stored as rvalue
-				return (ExecutionResult.ReturnedValue, ((RValue)Ctx.Stack.Pop()).Value);
+				return (ExecutionResult.ReturnedValue, (RValue)Ctx.Stack.Pop());
 			case VMOpcode.CONV:
 				var toType = GetType(instruction.TypeTwo); // TODO: change this to new conv
 				Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
@@ -350,14 +347,14 @@ public static partial class VMExecutor
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(new RValue(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments)));
+					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments));
 					break;
 				}
 
 				if (ScriptResolver.ScriptFunctions.ContainsKey(instruction.FunctionName))
 				{
 					var (script, instructionIndex) = ScriptResolver.ScriptFunctions[instruction.FunctionName];
-					Ctx.Stack.Push(new RValue(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex)));
+					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex));
 					break;
 				}
 
@@ -420,7 +417,7 @@ public static partial class VMExecutor
 				throw new Exception($"CHKINDEX failed - {index}");
 			}
 			case VMOpcode.EXIT:
-				return (ExecutionResult.ReturnedValue, null);
+				return (ExecutionResult.ReturnedValue, new RValue(null));
 			case VMOpcode.SETOWNER:
 				var id = Conv<int>(Ctx.Stack.Pop());
 				break;
