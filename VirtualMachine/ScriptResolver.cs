@@ -267,6 +267,7 @@ public static partial class ScriptResolver
 		{ "buffer_delete", buffer_delete}
 	};
 
+	[Obsolete("use direct cast")]
 	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
 
 	private static object layer_force_draw_depth(Arguments args)

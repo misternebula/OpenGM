@@ -517,27 +517,22 @@ public static partial class VMExecutor
 			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
 		}
 
-		// todo: strict bitcast instead of conv
+		// TODO: this should bitcast instead of conving, right??
 		return ConvertTypes(poppedValue, typeOfPopped, typeToPop);
 	}
 
-	/// <summary>
-	/// does a bitcast with the gamemaker sizes.
-	/// sanity checks that you wont get garbage from bitcasting
-	/// </summary>
-	public static U BitCast<T, U>(this T t)
-	{
-		/*
-		 * may be able to get away with just using Conv here
-		 * this is primarily for stuff like b to i casting. maybe we dont need a whole function for that
-		 */
-		throw new NotImplementedException();
-	}
-	
 	/*
-	 * old conv functions are below here. we should move away from these,
-	 * bitcasting/poptyping most of the time and conving only when we should
-	 */
+	/// <summary>
+	/// casts in the most strict way possible.
+	/// doesnt allow numerical conversions.
+	/// </summary>
+	public static T StrictCast<T>(this object? o)
+	{
+		if (o == null) throw new NullReferenceException("strict cast on undefined");
+		if (o.GetType() != typeof(T)) throw new ArgumentException($"trying to cast {o.GetType()} to {typeof(T)}");
+		return (T)o;
+	}
+	*/
 
 	public static object ConvertTypes(object obj, VMType from, VMType to)
 	{
@@ -590,8 +585,14 @@ public static partial class VMExecutor
 		throw new NotImplementedException($"Don't know how to convert from {from} to {to}");
 	}
 	
+	/*
+	* old conv functions are below here. we should move away from these,
+	* bitcasting/poptyping most of the time and conving only when we should
+	*/
+	
 	// TODO: make this more strict, only work with the actual VMTypes (int, long, double, bool, string, RValue)
 	// TODO: move Conv into opcodes so the proper types go onto the stack, rather than deferring conversion until the value is needed
+	[Obsolete("use direct cast")]
 	public static T Conv<T>(object obj)
 	{
 		if (typeof(T) != typeof(object))
@@ -604,6 +605,7 @@ public static partial class VMExecutor
 		}
 	}
 
+	[Obsolete("use direct cast")]
 	public static object Convert(object obj, Type type)
 	{
 		if (type == typeof(object))
