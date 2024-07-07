@@ -19,7 +19,7 @@ public class GamemakerObject : DrawWithDepth
 	public ObjectDefinition Definition;
 
 	public int object_index => Definition.AssetId;
-	public int[] alarm = Enumerable.Repeat(-1, 12).ToArray();
+	public List<RValue> alarm = new(Enumerable.Repeat(new RValue(-1), 12).ToArray());
 
 	public bool persistent = false;
 	public double x;
@@ -457,19 +457,19 @@ public class GamemakerObject : DrawWithDepth
 
 	public void UpdateAlarms()
 	{
-		for (var i = 0u; i < alarm.Length; i++)
+		for (var i = 0; i < alarm.Count; i++)
 		{
-			if (alarm[i] != -1)
+			if ((int)alarm[i].Value != -1)
 			{
-				alarm[i] -= 1;
+				alarm[i] = new RValue((int)alarm[i].Value - 1);
 
-				if (alarm[i] == 0)
+				if ((int)alarm[i].Value == 0)
 				{
-					ExecuteScript(this, Definition, EventType.Alarm, i);
+					ExecuteScript(this, Definition, EventType.Alarm, (uint)i);
 
-					if (alarm[i] == 0)
+					if ((int)alarm[i].Value == 0)
 					{
-						alarm[i] = -1;
+						alarm[i] = new RValue(-1);
 					}
 				}
 			}
