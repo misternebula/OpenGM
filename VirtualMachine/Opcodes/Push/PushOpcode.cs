@@ -83,6 +83,11 @@ public static partial class VMExecutor
 		}
 	}
 
+	public static void PushGlobal(string varName)
+	{
+		Ctx.Stack.Push(VariableResolver.GlobalVariables[varName]);
+	}
+
 	public static (ExecutionResult, object) DoPush(VMScriptInstruction instruction)
 	{
 		switch (instruction.TypeOne)
@@ -112,6 +117,17 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object) DoPushV(VMScriptInstruction instruction)
 	{
+		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
+
+		if (variablePrefix == VariablePrefix.None)
+		{
+			if (variableType == VariableType.Global)
+			{
+				PushGlobal(variableName);
+				return (ExecutionResult.Success, null);
+			}
+		}
+
 		return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
 	}
 }
