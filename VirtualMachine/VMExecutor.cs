@@ -36,9 +36,13 @@ public class VMScriptExecutionContext
 	}
 }
 
+/// <summary>
+/// TODO: remove and replace with just using `object?[]` and eventually `RValue[]`
+///		  OR revert this if it explodes
+/// </summary>
 public class Arguments
 {
-	public VMScriptExecutionContext Ctx; // TODO: can we just use VMExecutor.Ctx instead? they should always be the same
+	public VMScriptExecutionContext Ctx => VMExecutor.Ctx;
 	/// <summary>
 	/// stores RValue.Value
 	/// </summary>
@@ -314,7 +318,6 @@ public static partial class VMExecutor
 			case VMOpcode.CALL:
 				var arguments = new Arguments
 				{
-					Ctx = Ctx,
 					Args = new object?[instruction.FunctionArgumentCount]
 				};
 

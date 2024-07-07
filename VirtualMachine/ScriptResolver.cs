@@ -1707,13 +1707,14 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object script_execute(Arguments args)
+	public static object? script_execute(Arguments args)
 	{
 		var scriptAssetId = Conv<int>(args.Args[0]);
 		var scriptArgs = args.Args[1..];
 
 		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
-		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments() { Args = scriptArgs, Ctx = args.Ctx });
+		// TODO: dont do .Value once we have functions return RValue
+		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments() { Args = scriptArgs }).Value;
 	}
 
 	public static object draw_line_width(Arguments args)
