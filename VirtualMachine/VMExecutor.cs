@@ -557,34 +557,6 @@ public static partial class VMExecutor
 				// todo : cap to int16?
 				return (int)obj;
 			}
-			else if (to == VMType.s)
-			{
-				throw new NotImplementedException($"Can't convert from {from} to {to}");
-			}
-		}
-		else if (from == VMType.b)
-		{
-
-		}
-		else if (from == VMType.s)
-		{
-			
-		}
-		else if (from == VMType.e)
-		{
-
-		}
-		else if (from == VMType.d)
-		{
-
-		}
-		else if (from == VMType.l)
-		{
-
-		}
-		else if (from == VMType.v)
-		{
-
 		}
 
 		throw new NotImplementedException($"Don't know how to convert from {from} to {to}");
