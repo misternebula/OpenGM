@@ -121,7 +121,7 @@ public static partial class ScriptResolver
 	{
 		var valueOrFormat = args.Args[0];
 
-		var values = new object[] { };
+		var values = new object?[] { };
 		if (args.Args.Length > 1)
 		{
 			values = args.Args[1..];
@@ -130,7 +130,7 @@ public static partial class ScriptResolver
 		if (args.Args.Length > 1)
 		{
 			// format
-			var format = (string)(valueOrFormat ?? throw new NullReferenceException());
+			var format = (string)valueOrFormat!;
 
 			// doing this like im in c lol
 			var result = new StringBuilder();
