@@ -10,10 +10,7 @@ public class VMScriptExecutionContext
 {
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
-	/// <summary>
-	/// can store: int, long, double, bool, string, RValue
-	/// </summary>
-	public Stack<object> Stack;
+	public DataStack Stack;
 	public Dictionary<string, RValue> Locals;
 	public RValue ReturnValue;
 	public EventType EventType;
