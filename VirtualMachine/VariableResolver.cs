@@ -76,6 +76,7 @@ public static class VariableResolver
 		{ "room_speed", (get_room_speed, set_room_speed)},
 		{ "os_type", (get_os_type, null)},
 		{ "application_surface", (get_application_surface, null)},
+		{ "alarm", (get_alarm, set_alarm)}
 		//{ "room_persistent", (get_room_persistent, set_room_persistent)}
 	};
 
@@ -193,4 +194,7 @@ public static class VariableResolver
 	public static object get_os_type(GamemakerObject instance) => 0; // TODO : Check if this is actually os_windows
 
 	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
+
+	public static object get_alarm(GamemakerObject instance) => instance.alarm;
+	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = (List<RValue>)value;
 }
