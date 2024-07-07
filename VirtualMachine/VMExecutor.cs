@@ -88,7 +88,9 @@ public static partial class VMExecutor
 
 		if (arguments != null)
 		{
-			newCtx.Locals["arguments"] = new RValue(arguments.Args.ToList());
+			// turn list of rvalue.value into rvalue of list of values
+			// this can be removed later when we just use rvalues for all functions
+			newCtx.Locals["arguments"] = new RValue(arguments.Args.Select(x => new RValue(x)).ToList());
 		}
 
 		// Make the current object the current instance
