@@ -10,9 +10,9 @@ public static partial class VMExecutor
 {
 	public static void PopToGlobal(string varName, object obj)
 	{
-		if (obj is RValue)
+		if (obj is RValue r)
 		{
-			VariableResolver.GlobalVariables[varName] = obj;
+			VariableResolver.GlobalVariables[varName] = r;
 		}
 		else
 		{
@@ -35,8 +35,8 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index, 
 			valueToSet, 
-			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var val) ? val as List<RValue> : null,
-			list => VariableResolver.GlobalVariables[varName] = list);
+			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var val) ? val.Value as List<RValue> : null,
+			list => VariableResolver.GlobalVariables[varName] = new RValue(list));
 	}
 
 	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object obj)
@@ -54,8 +54,8 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index,
 			valueToSet,
-			() => self.SelfVariables.TryGetValue(varName, out var val) ? val as List<RValue> : null,
-			list => self.SelfVariables[varName] = list);
+			() => self.SelfVariables.TryGetValue(varName, out var val) ? val.Value as List<RValue> : null,
+			list => self.SelfVariables[varName] = new RValue(list));
 	}
 
 	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object obj)

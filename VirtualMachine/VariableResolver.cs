@@ -29,10 +29,7 @@ public static class VariableResolver
 		list[index] = value;
 	}
 
-	/// <summary>
-	/// stores RValue.Value
-	/// </summary>
-	public static readonly Dictionary<string, object?> GlobalVariables = new();
+	public static readonly Dictionary<string, RValue> GlobalVariables = new();
 
 	public static Dictionary<string, (Func<GamemakerObject, object?> getter, Action<GamemakerObject, object?>? setter)> BuiltInVariables = new()
 	{

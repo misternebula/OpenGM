@@ -14,10 +14,7 @@ public class VMScriptExecutionContext
 	/// can store: int, long, double, bool, string, RValue
 	/// </summary>
 	public Stack<object> Stack;
-	/// <summary>
-	/// stores RValue.Value
-	/// </summary>
-	public Dictionary<string, object?> Locals;
+	public Dictionary<string, RValue> Locals;
 	/// <summary>
 	/// stores RValue.Value
 	/// </summary>
@@ -86,12 +83,12 @@ public static partial class VMExecutor
 
 		foreach (var item in script.LocalVariables)
 		{
-			newCtx.Locals.Add(item, null);
+			newCtx.Locals.Add(item, new RValue(null));
 		}
 
 		if (arguments != null)
 		{
-			newCtx.Locals["arguments"] = arguments.Args.ToList();
+			newCtx.Locals["arguments"] = new RValue(arguments.Args.ToList());
 		}
 
 		// Make the current object the current instance
@@ -440,11 +437,11 @@ public static partial class VMExecutor
 
 				if (array.IsGlobal)
 				{
-					VariableResolver.GlobalVariables[array.ArrayName] = array.Array;
+					VariableResolver.GlobalVariables[array.ArrayName] = new RValue(array.Array);
 				}
 				else
 				{
-					array.Instance.SelfVariables[array.ArrayName] = array.Array;
+					array.Instance.SelfVariables[array.ArrayName] = new RValue(array.Array);
 				}
 
 				break;
