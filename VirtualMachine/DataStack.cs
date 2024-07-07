@@ -12,7 +12,7 @@ public class DataStack : Stack<object>
 	{
 		// sanity check
 		if (value is not (int or long or double or bool or string or RValue))
-			throw new ArgumentException($"bad value {value} pushed to data stack");
+			throw new ArgumentException($"bad value {value.GetType()} {value} pushed to data stack");
 
 		base.Push(value);
 	}

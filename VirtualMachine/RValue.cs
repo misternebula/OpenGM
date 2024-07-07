@@ -15,7 +15,7 @@ public readonly struct RValue
 	{
 		// sanity check (probably do this for the stack too)
 		if (value is not (int or long or double or bool or string or List<RValue> or null))
-			throw new ArgumentException($"bad value {value} passed into rvalue");
+			throw new ArgumentException($"bad value {value.GetType()} {value} passed into rvalue");
 
 		Value = value;
 	}
