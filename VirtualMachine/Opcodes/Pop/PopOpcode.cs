@@ -58,6 +58,26 @@ public static partial class VMExecutor
 			list => self.SelfVariables[varName] = list);
 	}
 
+	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object obj)
+	{
+		RValue valueToSet;
+		if (obj is RValue r)
+		{
+			valueToSet = r;
+		}
+		else
+		{
+			valueToSet = new RValue(obj);
+		}
+
+		VariableResolver.ArraySet(
+			index,
+			valueToSet,
+			() => VariableResolver.BuiltInVariables.TryGetValue(varName, out var val) ? val.getter(self) as List<RValue> : null,
+			list => VariableResolver.BuiltInVariables[varName].setter(self, list)
+		);
+	}
+
 	public static (ExecutionResult, object) DoPop(VMScriptInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -109,6 +129,13 @@ public static partial class VMExecutor
 			{
 				if (variablePrefix == VariablePrefix.Array)
 				{
+					// Built-in instance variables are "self".
+					if (VariableResolver.BuiltInVariables.ContainsKey(variableName))
+					{
+						PopToBuiltInArray(Ctx.Self, variableName, index, value);
+						return (ExecutionResult.Success, null);
+					}
+
 					PopToSelfArray(Ctx.Self, variableName, index, value);
 					return (ExecutionResult.Success, null);
 				}
