@@ -111,14 +111,17 @@ public static partial class VMExecutor
 			{
 				(executionResult, data) = ExecuteInstruction(script.Instructions[instructionIndex]);
 
-				var stackStr = "{ ";
-				foreach (var item in Ctx.Stack)
+				if (Ctx != null)
 				{
-					stackStr += $"{item}, ";
-				}
+					var stackStr = "{ ";
+					foreach (var item in Ctx.Stack)
+					{
+						stackStr += $"{item}, ";
+					}
 
-				stackStr += "}";
-				DebugLog.LogInfo($"STACK: {stackStr}");
+					stackStr += "}";
+					DebugLog.LogInfo($"STACK: {stackStr}");
+				}
 			}
 			catch (Exception e)
 			{
