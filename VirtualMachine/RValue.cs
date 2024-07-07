@@ -6,14 +6,11 @@
 /// </summary>
 public readonly struct RValue
 {
-	/// <summary>
-	/// can store: int, long, double, bool, string, array, null
-	/// </summary>
 	public readonly object? Value;
 
 	public RValue(object? value)
 	{
-		// sanity check (probably do this for the stack too)
+		// sanity check
 		if (value is not (int or long or double or bool or string or List<RValue> or null))
 			throw new ArgumentException($"bad value {value.GetType()} {value} passed into rvalue");
 
