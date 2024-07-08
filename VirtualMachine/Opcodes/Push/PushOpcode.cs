@@ -88,6 +88,71 @@ public static partial class VMExecutor
 		Ctx.Stack.Push(VariableResolver.GlobalVariables[varName]);
 	}
 
+	public static void PushGlobalArrayIndex(string varName, int index)
+	{
+		var array = (List<RValue>)VariableResolver.GlobalVariables[varName].Value;
+		Ctx.Stack.Push(array[index]);
+	}
+
+	public static void PushLocalArrayIndex(string varName, int index)
+	{
+		var array = (List<RValue>)Ctx.Locals[varName].Value;
+		Ctx.Stack.Push(array[index]);
+	}
+
+	public static void PushLocal(string varName)
+	{
+		Ctx.Stack.Push(Ctx.Locals[varName]);
+	}
+
+	public static void PushBuiltin(string varName)
+	{
+		var value = VariableResolver.BuiltInVariables[varName].getter(null);
+
+		if (value is RValue r)
+		{
+			Ctx.Stack.Push(r);
+		}
+		else
+		{
+			Ctx.Stack.Push(new RValue(value));
+		}
+	}
+
+	public static void PushSelf(GamemakerObject self, string varName)
+	{
+		Ctx.Stack.Push(self.SelfVariables[varName]);
+	}
+
+	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
+	{
+		var array = (List<RValue>)self.SelfVariables[varName].Value;
+		Ctx.Stack.Push(array[index]);
+	}
+
+	public static void PushArgument(int index)
+	{
+		var arguments = (List<RValue>)Ctx.Locals["arguments"].Value;
+		Ctx.Stack.Push(arguments[index]);
+	}
+
+	public static void PushIndex(int assetId, string varName)
+	{
+		if (assetId <= GMConstants.FIRST_INSTANCE_ID)
+		{
+			// Asset Id
+
+			var asset = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId);
+			PushSelf(asset, varName);
+		}
+		else
+		{
+			// Instance Id
+			var asset = InstanceManager.FindByInstanceId(assetId);
+			PushSelf(asset, varName);
+		}
+	}
+
 	public static (ExecutionResult, object) DoPush(VMScriptInstruction instruction)
 	{
 		switch (instruction.TypeOne)
@@ -125,6 +190,67 @@ public static partial class VMExecutor
 			{
 				PushGlobal(variableName);
 				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Local)
+			{
+				PushLocal(variableName);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.BuiltIn)
+			{
+				PushBuiltin(variableName);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Self)
+			{
+				PushSelf(Ctx.Self, variableName);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Argument)
+			{
+				var strIndex = variableName[8..]; // skip "argument"
+				var index = int.Parse(strIndex);
+				PushArgument(index);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Index)
+			{
+				PushIndex(assetId, variableName);
+				return (ExecutionResult.Success, null);
+			}
+		}
+		else if (variablePrefix == VariablePrefix.Array || variablePrefix == VariablePrefix.ArrayPopAF || variablePrefix == VariablePrefix.ArrayPushAF)
+		{
+			if (variablePrefix == VariablePrefix.Array)
+			{
+				if (variableType == VariableType.Self)
+				{
+					var index = Ctx.Stack.Pop<int>(VMType.i);
+					var instanceId = Ctx.Stack.Pop<int>(VMType.i);
+
+					if (instanceId == GMConstants.global)
+					{
+						PushGlobalArrayIndex(variableName, index);
+						return (ExecutionResult.Success, null);
+					}
+					else if (instanceId == GMConstants.local)
+					{
+						PushLocalArrayIndex(variableName, index);
+						return (ExecutionResult.Success, null);
+					}
+					else if (instanceId == GMConstants.argument)
+					{
+						PushArgument(index);
+						return (ExecutionResult.Success, null);
+					}
+					else if (instanceId == GMConstants.self)
+					{
+						PushSelfArrayIndex(Ctx.Self, variableName, index);
+						return (ExecutionResult.Success, null);
+					}
+
+					return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");
+				}
 			}
 		}
 
