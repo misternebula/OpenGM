@@ -108,15 +108,7 @@ public static partial class VMExecutor
 	public static void PushBuiltin(string varName)
 	{
 		var value = VariableResolver.BuiltInVariables[varName].getter(null);
-
-		if (value is RValue r)
-		{
-			Ctx.Stack.Push(r);
-		}
-		else
-		{
-			Ctx.Stack.Push(new RValue(value));
-		}
+		Ctx.Stack.Push(new RValue(value));
 	}
 
 	public static void PushSelf(GamemakerObject self, string varName)

@@ -456,15 +456,15 @@ public class GamemakerObject : DrawWithDepth
 	{
 		for (var i = 0; i < alarm.Count; i++)
 		{
-			if ((int)alarm[i].Value != -1)
+			if ((int)alarm[i].Value! != -1)
 			{
-				alarm[i] = new RValue((int)alarm[i].Value - 1);
+				alarm[i] = new RValue((int)alarm[i].Value! - 1);
 
-				if ((int)alarm[i].Value == 0)
+				if ((int)alarm[i].Value! == 0)
 				{
 					ExecuteScript(this, Definition, EventType.Alarm, i);
 
-					if ((int)alarm[i].Value == 0)
+					if ((int)alarm[i].Value! == 0)
 					{
 						alarm[i] = new RValue(-1);
 					}
