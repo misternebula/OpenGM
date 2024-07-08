@@ -306,9 +306,9 @@ public static partial class VMExecutor
 				// ret value is always stored as rvalue
 				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop<RValue>(VMType.v));
 			case VMOpcode.CONV:
-				Ctx.Stack.Push(ConvertTypes(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeOne, instruction.TypeTwo));
-				// var toType = GetType(instruction.TypeTwo);
-				// Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
+				// Ctx.Stack.Push(ConvertTypes(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeOne, instruction.TypeTwo));
+				var toType = GetType(instruction.TypeTwo);
+				Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
 				break;
 			case VMOpcode.POPZ:
 				Ctx.Stack.Pop(instruction.TypeOne);
@@ -471,7 +471,6 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	/*
 	private static Type GetType(VMType type) => type switch
 	{
 		VMType.s => typeof(string),
@@ -483,7 +482,6 @@ public static partial class VMExecutor
 		VMType.v => typeof(RValue),
 		_ => throw new NotImplementedException("what")
 	};
-	*/
 	
 	public static int VMTypeToSize(VMType type) => type switch
 	{
@@ -507,22 +505,7 @@ public static partial class VMExecutor
 		RValue => VMType.v,
 		_ => throw new NotImplementedException($"Can't get type of {obj}")
 	};
-
 	
-
-	/*
-	/// <summary>
-	/// casts in the most strict way possible.
-	/// doesnt allow numerical conversions.
-	/// </summary>
-	public static T StrictCast<T>(this object? o)
-	{
-		if (o == null) throw new NullReferenceException("strict cast on undefined");
-		if (o.GetType() != typeof(T)) throw new ArgumentException($"trying to cast {o.GetType()} to {typeof(T)}");
-		return (T)o;
-	}
-	*/
-
 	public static object ConvertTypes(object obj, VMType from, VMType to)
 	{
 		if (from == to)
