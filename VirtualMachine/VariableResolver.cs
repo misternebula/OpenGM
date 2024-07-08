@@ -4,12 +4,10 @@ using Newtonsoft.Json.Linq;
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static class VariableResolver
 {
-	public static RValue ArrayGet(int index,
-		Func<List<RValue>> get)
-	{
-		return get()[index];
-	}
-
+	/// <summary>
+	/// general form of the array index setting logic.
+	/// `get` should do trygetvalue and "as" cast to return null instead of throwing.
+	/// </summary>
 	public static void ArraySet(int index, RValue value,
 		Func<List<RValue>?> get,
 		Action<List<RValue>> set)
