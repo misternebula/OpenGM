@@ -23,7 +23,10 @@ public static partial class ScriptResolver
 
 	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
 
-	public static Dictionary<string, Func<Arguments, object?>> BuiltInFunctions = new()
+	/// <summary>
+	/// `object` here is `RValue.Value`
+	/// </summary>
+	public static Dictionary<string, Func<Arguments, object>> BuiltInFunctions = new()
 	{
 		#region Game
 		{ "place_meeting", place_meeting },
@@ -1707,7 +1710,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? script_execute(Arguments args)
+	public static object script_execute(Arguments args)
 	{
 		var scriptAssetId = Conv<int>(args.Args[0]);
 		var scriptArgs = args.Args[1..];

@@ -121,7 +121,7 @@ public static partial class ScriptResolver
 	{
 		var valueOrFormat = args.Args[0];
 
-		var values = new object?[] { };
+		var values = new object[] { };
 		if (args.Args.Length > 1)
 		{
 			values = args.Args[1..];

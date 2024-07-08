@@ -34,16 +34,16 @@ public class VMScriptExecutionContext
 }
 
 /// <summary>
-/// TODO: remove and replace with just using `object?[]` and eventually `RValue[]`
+/// TODO: remove and replace with just using `object[]` and eventually `RValue[]`
 ///		  OR revert this if it explodes
 /// </summary>
 public class Arguments
 {
 	public VMScriptExecutionContext Ctx => VMExecutor.Ctx;
 	/// <summary>
-	/// stores RValue.Value
+	/// `object` here is `RValue.Value`
 	/// </summary>
-	public object?[] Args;
+	public object[] Args;
 }
 
 public static partial class VMExecutor
@@ -60,7 +60,7 @@ public static partial class VMExecutor
 	{
 		if (script.Instructions.Count == 0)
 		{
-			return new RValue(null);
+			return new RValue(Undefined.Value);
 		}
 
 		//if (!script.IsGlobalInit)
@@ -74,14 +74,14 @@ public static partial class VMExecutor
 			ObjectDefinition = objectDefinition,
 			Stack = new(),
 			Locals = new(),
-			ReturnValue = new RValue(null),
+			ReturnValue = new RValue(Undefined.Value),
 			EventType = eventType,
 			EventIndex = eventIndex
 		};
 
 		foreach (var item in script.LocalVariables)
 		{
-			newCtx.Locals.Add(item, new RValue(null));
+			newCtx.Locals.Add(item, new RValue(Undefined.Value));
 		}
 
 		if (arguments != null)
@@ -316,7 +316,7 @@ public static partial class VMExecutor
 			case VMOpcode.CALL:
 				var arguments = new Arguments
 				{
-					Args = new object?[instruction.FunctionArgumentCount]
+					Args = new object[instruction.FunctionArgumentCount]
 				};
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
@@ -418,7 +418,7 @@ public static partial class VMExecutor
 				throw new Exception($"CHKINDEX failed - {index}");
 			}
 			case VMOpcode.EXIT:
-				return (ExecutionResult.ReturnedValue, new RValue(null));
+				return (ExecutionResult.ReturnedValue, new RValue(Undefined.Value));
 			case VMOpcode.SETOWNER:
 				var id = Conv<int>(Ctx.Stack.Pop());
 				break;

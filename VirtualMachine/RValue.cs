@@ -6,12 +6,12 @@
 /// </summary>
 public readonly struct RValue
 {
-	public readonly object? Value;
+	public readonly object Value;
 
-	public RValue(object? value)
+	public RValue(object value)
 	{
 		// sanity check
-		if (value is not (int or long or double or bool or string or List<RValue> or null))
+		if (value is not (int or long or double or bool or string or List<RValue> or Undefined))
 			throw new ArgumentException($"bad value {value.GetType()} {value} passed into rvalue");
 
 		Value = value;
@@ -37,4 +37,12 @@ public readonly struct RValue
 	public static implicit operator List<RValue>(RValue v) => (List<RValue>)(v.Value ?? throw new NullReferenceException());
 	public static implicit operator RValue(List<RValue> v) => new(v);
 	*/
+}
+
+/// <summary>
+/// use this in RValue instead of null
+/// </summary>
+public readonly struct Undefined
+{
+	public static readonly Undefined Value = new();
 }
