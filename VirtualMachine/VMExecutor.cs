@@ -566,6 +566,12 @@ public static partial class VMExecutor
 	[Obsolete("use direct cast")]
 	public static object Convert(object obj, Type type)
 	{
+		if (obj is null)
+		{
+			DebugLog.LogError("null value passed into convert, should be Undefined!");
+			obj = Undefined.Value;
+		}
+
 		if (type == typeof(object))
 		{
 			return obj;
@@ -593,7 +599,7 @@ public static partial class VMExecutor
 
 		if (obj is Undefined)
 		{
-			DebugLog.LogError($"Trying to convert undefinde to {type}! Current script:{currentExecutingScript.First().Name}");
+			DebugLog.LogError($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 			return Undefined.Value;
 		}
 
