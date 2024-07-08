@@ -552,6 +552,20 @@ public static partial class VMExecutor
 				return (int)obj;
 			}
 		}
+		else if (from == VMType.d)
+		{
+			if (to == VMType.v)
+			{
+				return new RValue((double)obj);
+			}
+		}
+		else if (from == VMType.s)
+		{
+			if (to == VMType.v)
+			{
+				return new RValue((string)obj);
+			}
+		}
 
 		throw new NotImplementedException($"Don't know how to convert from {from} to {to}");
 	}
