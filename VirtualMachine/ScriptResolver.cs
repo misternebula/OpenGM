@@ -304,7 +304,7 @@ public static partial class ScriptResolver
 
 	public static object newgmlarray(Arguments args)
 	{
-		return new List<object>();
+		return new List<RValue>();
 	}
 
 	public static object asset_get_index(Arguments args)
