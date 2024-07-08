@@ -21,19 +21,18 @@ public class DataStack : Stack<object>
 	{
 		var poppedValue = base.Pop();
 		var typeOfPopped = VMExecutor.GetTypeOfObject(poppedValue);
-		var sizeOfPopped = VMExecutor.VMTypeToSize(typeOfPopped);
 
-		if (sizeOfPopped != VMExecutor.VMTypeToSize(typeToPop))
+		if (VMExecutor.VMTypeToSize(typeOfPopped) != VMExecutor.VMTypeToSize(typeToPop))
 		{
 			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
 		}
 
-		// TODO: this should bitcast instead of conving, right??
+		// return (T)poppedValue;
 		return (T)VMExecutor.ConvertTypes(poppedValue, typeOfPopped, typeToPop);
 	}
 
 	public object Pop(VMType typeToPop) => Pop<object>(typeToPop);
 
-	[Obsolete("pass in VMType")]
+	[Obsolete("use Pop(VMType) or Pop<T>(VMType)")]
 	public new object Pop() => base.Pop();
 }

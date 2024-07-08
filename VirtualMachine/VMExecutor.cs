@@ -306,7 +306,8 @@ public static partial class VMExecutor
 				// ret value is always stored as rvalue
 				return (ExecutionResult.ReturnedValue, (RValue)Ctx.Stack.Pop());
 			case VMOpcode.CONV:
-				var toType = GetType(instruction.TypeTwo); // TODO: change this to new conv
+				// Ctx.Stack.Push(ConvertTypes(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeOne, instruction.TypeTwo));
+				var toType = GetType(instruction.TypeTwo);
 				Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
 				break;
 			case VMOpcode.POPZ:

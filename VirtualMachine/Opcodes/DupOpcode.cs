@@ -8,6 +8,7 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class VMExecutor
 {
+	// see https://github.com/UnderminersTeam/Underanalyzer/blob/main/Underanalyzer/Decompiler/AST/BlockSimulator.cs#L104
 	public static (ExecutionResult, object) DoDup(VMScriptInstruction instruction)
 	{
 		var dupType = instruction.TypeOne;
@@ -33,7 +34,7 @@ public static partial class VMExecutor
 
 			while (size > 0)
 			{
-				var curr = Ctx.Stack.Pop();
+				var curr = Ctx.Stack.Pop(); // i think this is the only time its okay to use untyped pop
 				toDuplicate.Add(curr);
 				size -= VMTypeToSize(GetTypeOfObject(curr));
 			}
