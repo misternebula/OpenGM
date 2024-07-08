@@ -115,7 +115,7 @@ public static partial class VMExecutor
 		if (variablePrefix == VariablePrefix.None)
 		{
 			// we're just popping to a normal variable. thank god.
-			var dataPopped = Ctx.Stack.Pop<object>(instruction.TypeTwo);
+			var dataPopped = Ctx.Stack.Pop(instruction.TypeTwo);
 
 			if (variableType == VariableType.Global)
 			{
@@ -142,11 +142,11 @@ public static partial class VMExecutor
 			{
 				index = Ctx.Stack.Pop<int>(VMType.i);
 				instanceId = Ctx.Stack.Pop<int>(VMType.i);
-				value = Ctx.Stack.Pop<object>(instruction.TypeTwo);
+				value = Ctx.Stack.Pop(instruction.TypeTwo);
 			}
 			else
 			{
-				value = Ctx.Stack.Pop<object>(instruction.TypeTwo);
+				value = Ctx.Stack.Pop(instruction.TypeTwo);
 				index = Ctx.Stack.Pop<int>(VMType.i);
 				instanceId = Ctx.Stack.Pop<int>(VMType.i);
 			}

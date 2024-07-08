@@ -31,4 +31,9 @@ public class DataStack : Stack<object>
 		// TODO: this should bitcast instead of conving, right??
 		return (T)VMExecutor.ConvertTypes(poppedValue, typeOfPopped, typeToPop);
 	}
+
+	public object Pop(VMType typeToPop) => Pop<object>(typeToPop);
+
+	[Obsolete("pass in VMType")]
+	public new object Pop() => base.Pop();
 }
