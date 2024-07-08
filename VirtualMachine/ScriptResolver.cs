@@ -281,14 +281,14 @@ public static partial class ScriptResolver
 
 		// not implementing yet because uhhhhhhhhhhhhhhhhhhh
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_set_colour(Arguments args)
 	{
 		var color = Conv<int>(args.Args[0]);
 		SpriteManager.DrawColor = color;
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_get_colour(Arguments args)
@@ -300,7 +300,7 @@ public static partial class ScriptResolver
 	{
 		var alpha = Conv<double>(args.Args[0]);
 		SpriteManager.DrawAlpha = alpha;
-		return null;
+		return Undefined.Value;
 	}
 
 	
@@ -320,11 +320,11 @@ public static partial class ScriptResolver
 	{
 		if (args.Ctx.ObjectDefinition.parent == null)
 		{
-			return null;
+			return Undefined.Value;
 		}
 
 		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition.parent, args.Ctx.EventType, args.Ctx.EventIndex);
-		return null;
+		return Undefined.Value;
 	}
 
 	private static IniFile _iniFile;
@@ -345,7 +345,7 @@ public static partial class ScriptResolver
 		if (!File.Exists(filepath))
 		{
 			_iniFile = new IniFile { Name = name };
-			return null;
+			return Undefined.Value;
 		}
 
 		var lines = File.ReadAllLines(filepath);
@@ -381,7 +381,7 @@ public static partial class ScriptResolver
 			currentSection.Dict.Add(keyvalue.Key, keyvalue.Value);
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ini_read_string(Arguments args)
@@ -421,7 +421,7 @@ public static partial class ScriptResolver
 
 		sectionClass.Dict[key] = value;
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ini_read_real(Arguments args)
@@ -467,7 +467,7 @@ public static partial class ScriptResolver
 
 		sectionClass.Dict[key] = value.ToString();
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ini_close(Arguments args)
@@ -492,7 +492,7 @@ public static partial class ScriptResolver
 		streamWriter.Dispose();
 		_iniFile = null;
 
-		return text;
+		return text; // BUG: this does NOT return the written text
 	}
 
 	public static object audio_group_is_loaded(Arguments args)
@@ -587,7 +587,7 @@ public static partial class ScriptResolver
 			_fileHandles.Remove(index);
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object file_text_eof(Arguments args)
@@ -608,7 +608,7 @@ public static partial class ScriptResolver
 	{
 		var fileid = Conv<int>(args.Args[0]);
 		var reader = _fileHandles[fileid].Reader;
-		return reader.ReadLine();
+		return reader.ReadLine(); // BUG: returns null if eof
 	}
 
 	public static object file_text_writeln(Arguments args)
@@ -616,7 +616,7 @@ public static partial class ScriptResolver
 		var fileid = Conv<int>(args.Args[0]);
 		var writer = _fileHandles[fileid].Writer;
 		writer.WriteLine();
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object file_text_read_string(Arguments args)
@@ -639,7 +639,7 @@ public static partial class ScriptResolver
 		var str = Conv<string>(args.Args[1]);
 		var writer = _fileHandles[fileid].Writer;
 		writer.Write(str);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object file_text_read_real(Arguments args)
@@ -666,11 +666,11 @@ public static partial class ScriptResolver
 		{
 			// i have no fucking idea
 			writer.Write(0);
-			return null;
+			return Undefined.Value;
 		}
 
 		writer.Write(Conv<double>(val));
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object file_delete(Arguments args)
@@ -696,7 +696,7 @@ public static partial class ScriptResolver
 
 		File.Copy(fname, newname);
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object variable_global_exists(Arguments args)
@@ -723,7 +723,7 @@ public static partial class ScriptResolver
 	{
 		var index = Conv<int>(args.Args[0]);
 		_dsMapDict.Remove(index);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ds_map_add(Arguments args)
@@ -771,7 +771,7 @@ public static partial class ScriptResolver
 	{
 		var index = Conv<int>(args.Args[0]);
 		_dsListDict.Remove(index);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ds_list_add(Arguments args)
@@ -781,12 +781,12 @@ public static partial class ScriptResolver
 
 		if (!_dsListDict.ContainsKey(id))
 		{
-			return null;
+			return Undefined.Value;
 		}
 
 		var list = _dsListDict[id];
 		list.AddRange(values);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ds_map_find_value(Arguments args)
@@ -796,13 +796,13 @@ public static partial class ScriptResolver
 
 		if (!_dsMapDict.ContainsKey(id))
 		{
-			return null;
+			return Undefined.Value;
 		}
 
 		var dict = _dsMapDict[id];
 		if (!dict.ContainsKey(key))
 		{
-			return null;
+			return Undefined.Value;
 		}
 
 		return dict[key];
@@ -811,7 +811,7 @@ public static partial class ScriptResolver
 	public static object show_debug_message(Arguments args)
 	{
 		DebugLog.Log(args.Args[0].ToString());
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object json_decode(Arguments args)
@@ -922,11 +922,11 @@ public static partial class ScriptResolver
 			draw(x2 - 1, y1 + 1, x2, y2);
 			draw(x1, y2 - 1, x2, y2);
 			draw(x1, y1, x1 + 1, y2);
-			return null;
+			return Undefined.Value;
 		}
 
 		draw(x1, y1, x2, y2);
-		return null;
+		return Undefined.Value;
 
 		static void draw(double x1, double y1, double x2, double y2)
 		{
@@ -952,7 +952,7 @@ public static partial class ScriptResolver
 		var library = TextManager.FontAssets;
 		var fontAsset = library.FirstOrDefault(x => x.AssetIndex == font);
 		TextManager.fontAsset = fontAsset;
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_text(Arguments args)
@@ -961,7 +961,7 @@ public static partial class ScriptResolver
 		var y = Conv<double>(args.Args[1]);
 		var str = Conv<string>(args.Args[2]);
 		TextManager.DrawText(x, y, str);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object merge_colour(Arguments args)
@@ -991,14 +991,14 @@ public static partial class ScriptResolver
 	{
 		var halign = Conv<int>(args.Args[0]);
 		TextManager.halign = (HAlign)halign;
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_set_valign(Arguments args)
 	{
 		var valign = Conv<int>(args.Args[0]);
 		TextManager.valign = (VAlign)valign;
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_sprite(Arguments args)
@@ -1009,7 +1009,7 @@ public static partial class ScriptResolver
 		var y = Conv<double>(args.Args[3]);
 
 		SpriteManager.DrawSprite(sprite, subimg, x, y);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object window_set_caption(Arguments args)
@@ -1017,7 +1017,7 @@ public static partial class ScriptResolver
 		var caption = Conv<string>(args.Args[0]);
 
 		CustomWindow.Instance.Title = caption;
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object window_get_caption(Arguments args)
@@ -1114,14 +1114,14 @@ public static partial class ScriptResolver
 
 		CustomWindow.Instance.ClientSize = new Vector2i(w, h);
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object window_center(Arguments args)
 	{
 		CustomWindow.Instance.CenterWindow();
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object window_get_fullscreen(Arguments args)
@@ -1134,7 +1134,7 @@ public static partial class ScriptResolver
 		var full = Conv<bool>(args.Args[0]);
 		CustomWindow.Instance.WindowState = full ? WindowState.Fullscreen : WindowState.Normal;
 		// BUG: this fucks resolution
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object gamepad_button_check(Arguments args)
@@ -1168,7 +1168,7 @@ public static partial class ScriptResolver
 		var alpha = Conv<double>(args.Args[8]);
 
 		SpriteManager.DrawSpriteExt(sprite, subimg, x, y, xscale, yscale, rot, colour, alpha);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_text_transformed(Arguments args)
@@ -1180,7 +1180,7 @@ public static partial class ScriptResolver
 		var yscale = Conv<double>(args.Args[4]);
 		var angle = Conv<double>(args.Args[5]);
 		TextManager.DrawTextTransformed(x, y, str, xscale, yscale, angle);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_sprite_part_ext(Arguments args)
@@ -1200,7 +1200,7 @@ public static partial class ScriptResolver
 
 		SpriteManager.DrawSpritePartExt(sprite, subimg, left, top, width, height, x, y, xscale, yscale, colour, alpha);
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_sprite_part(Arguments args)
@@ -1216,13 +1216,13 @@ public static partial class ScriptResolver
 
 		SpriteManager.DrawSpritePart(sprite, subimg, left, top, width, height, x, y);
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_self(Arguments args)
 	{
 		SpriteManager.DrawSelf(args.Ctx.Self);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_sprite_stretched(Arguments args)
@@ -1235,7 +1235,7 @@ public static partial class ScriptResolver
 		var h = Conv<double>(args.Args[5]);
 
 		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_text_colour(Arguments args)
@@ -1251,7 +1251,7 @@ public static partial class ScriptResolver
 
 		TextManager.DrawTextColor(x, y, str, c1, c2, c3, c4, alpha);
 		
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_sprite_tiled_ext(Arguments args)
@@ -1302,13 +1302,13 @@ public static partial class ScriptResolver
 			}
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_group_set_gain(Arguments args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_play_sound(Arguments args)
@@ -1350,7 +1350,7 @@ public static partial class ScriptResolver
 		var listenerIndex = Conv<double>(args.Args[0]); // deltarune doesnt use other listeners rn so i dont care
 		var gain = Conv<double>(args.Args[1]);
 		AL.Listener(ALListenerf.Gain, (float)gain);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object view_get_camera(Arguments args)
@@ -1438,7 +1438,7 @@ public static partial class ScriptResolver
 
 		//GamemakerCamera.Instance.ObjectToFollow = instance;
 
-		return null;
+		return Undefined.Value;
 	}
 
 	/*public static object camera_get_view_target(Arguments args)
@@ -1470,7 +1470,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Instance.SetPosition(x, y);
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_create_stream(Arguments args)
@@ -1513,7 +1513,7 @@ public static partial class ScriptResolver
 	{
 		var index = Conv<int>(args.Args[0]);
 		AudioManager.UnregisterAudio(index);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_sound_gain(Arguments args)
@@ -1528,7 +1528,7 @@ public static partial class ScriptResolver
 			var soundAsset = AudioManager.GetAudioInstance(index);
 			if (soundAsset == null)
 			{
-				return null;
+				return Undefined.Value;
 			}
 
 			AudioManager.ChangeGain(soundAsset.Source, volume, time);
@@ -1544,7 +1544,7 @@ public static partial class ScriptResolver
 			}
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_sound_pitch(Arguments args)
@@ -1573,14 +1573,14 @@ public static partial class ScriptResolver
 			}
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_stop_all(Arguments args)
 	{
 		DebugLog.Log($"audio_stop_all");
 		AudioManager.StopAllAudio();
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_stop_sound(Arguments args)
@@ -1604,7 +1604,7 @@ public static partial class ScriptResolver
 		}
 		AudioManager.Update(); // hack: deletes the sources. maybe make official stop and delete function
 		
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_pause_sound(Arguments args)
@@ -1630,7 +1630,7 @@ public static partial class ScriptResolver
 				
 		}
 		
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_resume_sound(Arguments args)
@@ -1651,7 +1651,7 @@ public static partial class ScriptResolver
 			AudioManager.CheckALError();
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_sound_set_track_position(Arguments args)
@@ -1670,7 +1670,7 @@ public static partial class ScriptResolver
 			AL.Source(AudioManager.GetAudioInstance(index).Source, ALSourcef.SecOffset, (float)time);
 		}
 		
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object audio_is_playing(Arguments args)
@@ -1707,7 +1707,7 @@ public static partial class ScriptResolver
 	{
 		var numb = Conv<int>(args.Args[0]);
 		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object script_execute(Arguments args)
@@ -1737,7 +1737,7 @@ public static partial class ScriptResolver
 			width = w
 		});
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object gpu_set_fog(Arguments args)
@@ -1755,7 +1755,7 @@ public static partial class ScriptResolver
 		SpriteManager.FogEnabled = enable;
 		SpriteManager.FogColor = colour;
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object sprite_get_number(Arguments args)
@@ -1817,7 +1817,7 @@ public static partial class ScriptResolver
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.X = (float)x;
-		return null;
+		return Undefined.Value;
 	}
 
 	private static object layer_y(Arguments args)
@@ -1827,7 +1827,7 @@ public static partial class ScriptResolver
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.Y = (float)y;
-		return null;
+		return Undefined.Value;
 	}
 
 	private static object layer_get_x(Arguments args)
@@ -1853,7 +1853,7 @@ public static partial class ScriptResolver
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.HSpeed = (float)hspd;
-		return null;
+		return Undefined.Value;
 	}
 
 	private static object layer_vspeed(Arguments args)
@@ -1863,7 +1863,7 @@ public static partial class ScriptResolver
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.VSpeed = (float)vspd;
-		return null;
+		return Undefined.Value;
 	}
 
 	private static object layer_get_vspeed(Arguments args)
@@ -1889,7 +1889,7 @@ public static partial class ScriptResolver
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.Depth = depth;
-		return null;
+		return Undefined.Value;
 	}
 
 	private static object layer_get_all_elements(Arguments args)
@@ -1920,7 +1920,7 @@ public static partial class ScriptResolver
 		var __alpha = Conv<double>(args.Args[1]);
 		// TODO : implement
 		//(TileManager.Tiles.First(x => x.instanceId == __index) as GMTile).Alpha = __alpha;
-		return null;
+		return Undefined.Value;
 	}
 
 	private static object layer_create(Arguments args)
@@ -2033,7 +2033,7 @@ public static partial class ScriptResolver
 			});
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object make_color_hsv(Arguments args)
@@ -2138,7 +2138,7 @@ public static partial class ScriptResolver
 				break;
 		}
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_circle(Arguments args)
@@ -2164,7 +2164,7 @@ public static partial class ScriptResolver
 			Outline = outline
 		});
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object draw_triangle(Arguments args)
@@ -2190,7 +2190,7 @@ public static partial class ScriptResolver
 			Outline = outline
 		});
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object angle_difference(Arguments args)
@@ -2237,14 +2237,14 @@ public static partial class ScriptResolver
 	{
 		var tex_id = Conv<string>(args.Args[0]);
 		// TODO : Implement? Or not?
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object texture_flush(Arguments args)
 	{
 		var tex_id = Conv<string>(args.Args[0]);
 		// TODO : Implement? Or not?
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object window_get_width(Arguments args)
@@ -2280,7 +2280,7 @@ public static partial class ScriptResolver
 		var w = Conv<int>(args.Args[1]);
 		var h = Conv<int>(args.Args[2]);
 		SurfaceManager.ResizeSurface(surface_id, w, h);
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object lerp(Arguments args)
@@ -2332,7 +2332,7 @@ public static partial class ScriptResolver
 		var data = SpriteManager._spriteDict[ind];
 		data.OriginX = xoff;
 		data.OriginY = yoff;
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object gamepad_get_device_count(Arguments args)
@@ -2362,7 +2362,7 @@ public static partial class ScriptResolver
 			screenPos = new Vector2d(x, y)
 		});
 
-		return null;
+		return Undefined.Value;
 	}
 
 	public static object ord(Arguments args)
@@ -2401,7 +2401,7 @@ public static partial class ScriptResolver
 
 		BufferManager.Buffers.Remove(bufferIndex);
 
-		return null;
+		return Undefined.Value;
 	}
 }
 
