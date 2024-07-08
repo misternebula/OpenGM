@@ -20,6 +20,18 @@ public static partial class VMExecutor
 		}
 	}
 
+	public static void PopToLocal(string varName, object obj)
+	{
+		if (obj is RValue r)
+		{
+			Ctx.Locals[varName] = r;
+		}
+		else
+		{
+			Ctx.Locals[varName] = new RValue(obj);
+		}
+	}
+
 	public static void PopToGlobalArray(string varName, int index, object obj)
 	{
 		RValue valueToSet;
@@ -37,6 +49,18 @@ public static partial class VMExecutor
 			valueToSet, 
 			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var val) ? val.Value as List<RValue> : null,
 			list => VariableResolver.GlobalVariables[varName] = new RValue(list));
+	}
+
+	public static void PopToSelf(GamemakerObject self, string varName, object obj)
+	{
+		if (obj is RValue r)
+		{
+			self.SelfVariables[varName] = r;
+		}
+		else
+		{
+			self.SelfVariables[varName] = new RValue(obj);
+		}
 	}
 
 	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object obj)
@@ -96,6 +120,16 @@ public static partial class VMExecutor
 			if (variableType == VariableType.Global)
 			{
 				PopToGlobal(variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Local)
+			{
+				PopToLocal(variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Self)
+			{
+				PopToSelf(Ctx.Self, variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
