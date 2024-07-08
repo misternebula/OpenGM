@@ -115,7 +115,7 @@ public static partial class VMExecutor
 		if (variablePrefix == VariablePrefix.None)
 		{
 			// we're just popping to a normal variable. thank god.
-			var dataPopped = PopType(instruction.TypeTwo);
+			var dataPopped = Ctx.Stack.Pop<object>(instruction.TypeTwo);
 
 			if (variableType == VariableType.Global)
 			{
@@ -140,15 +140,15 @@ public static partial class VMExecutor
 			object value;
 			if (instruction.TypeOne == VMType.v)
 			{
-				index = (int)PopType(VMType.i);
-				instanceId = (int)PopType(VMType.i);
-				value = PopType(instruction.TypeTwo);
+				index = Ctx.Stack.Pop<int>(VMType.i);
+				instanceId = Ctx.Stack.Pop<int>(VMType.i);
+				value = Ctx.Stack.Pop<object>(instruction.TypeTwo);
 			}
 			else
 			{
-				value = PopType(instruction.TypeTwo);
-				index = (int)PopType(VMType.i);
-				instanceId = (int)PopType(VMType.i);
+				value = Ctx.Stack.Pop<object>(instruction.TypeTwo);
+				index = Ctx.Stack.Pop<int>(VMType.i);
+				instanceId = Ctx.Stack.Pop<int>(VMType.i);
 			}
 
 			if (instanceId == GMConstants.global)
@@ -174,6 +174,7 @@ public static partial class VMExecutor
 					return (ExecutionResult.Success, null);
 				}
 			}
+
 		}
 
 		return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw}");

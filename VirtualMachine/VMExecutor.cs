@@ -505,20 +505,7 @@ public static partial class VMExecutor
 		_ => throw new NotImplementedException($"Can't get type of {obj}")
 	};
 
-	public static object PopType(VMType typeToPop)
-	{
-		var poppedValue = Ctx.Stack.Pop();
-		var typeOfPopped = GetTypeOfObject(poppedValue);
-		var sizeOfPopped = VMTypeToSize(typeOfPopped);
-
-		if (sizeOfPopped != VMTypeToSize(typeToPop))
-		{
-			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
-		}
-
-		// TODO: this should bitcast instead of conving, right??
-		return ConvertTypes(poppedValue, typeOfPopped, typeToPop);
-	}
+	
 
 	/*
 	/// <summary>
