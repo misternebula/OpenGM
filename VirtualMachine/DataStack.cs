@@ -23,12 +23,13 @@ public class DataStack : Stack<object>
 		var typeOfPopped = VMExecutor.GetTypeOfObject(poppedValue);
 
 		if (VMExecutor.VMTypeToSize(typeOfPopped) != VMExecutor.VMTypeToSize(typeToPop))
+		// if (typeOfPopped != typeToPop)
 		{
 			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
 		}
 
 		// return (T)poppedValue;
-		return (T)VMExecutor.ConvertTypes(poppedValue, typeOfPopped, typeToPop);
+		return (T)VMExecutor.ConvertTypes(poppedValue, typeOfPopped, typeToPop); // prolly should be more strict here
 	}
 
 	public object Pop(VMType typeToPop) => Pop<object>(typeToPop);

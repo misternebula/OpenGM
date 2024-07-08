@@ -199,7 +199,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BT:
 				{
-					var boolValue = Conv<bool>(Ctx.Stack.Pop());
+					var boolValue = Ctx.Stack.Pop<bool>(VMType.b);
 					if (!boolValue)
 					{
 						break;
@@ -214,7 +214,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BF:
 				{
-					var boolValue = Conv<bool>(Ctx.Stack.Pop());
+					var boolValue = Ctx.Stack.Pop<bool>(VMType.b);
 					if (boolValue)
 					{
 						break;
@@ -245,7 +245,7 @@ public static partial class VMExecutor
 				first ??= 0;
 				second ??= 0;
 
-				if (second is bool or int or double && first is bool or int or double)
+				if (second is bool or int or double or long && first is bool or int or double or long)
 				{
 					var firstNumber = Conv<double>(first);
 					var secondNumber = Conv<double>(second);
@@ -304,14 +304,14 @@ public static partial class VMExecutor
 				return DoPop(instruction);
 			case VMOpcode.RET:
 				// ret value is always stored as rvalue
-				return (ExecutionResult.ReturnedValue, (RValue)Ctx.Stack.Pop());
+				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop<RValue>(VMType.v));
 			case VMOpcode.CONV:
-				// Ctx.Stack.Push(ConvertTypes(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeOne, instruction.TypeTwo));
-				var toType = GetType(instruction.TypeTwo);
-				Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
+				Ctx.Stack.Push(ConvertTypes(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeOne, instruction.TypeTwo));
+				// var toType = GetType(instruction.TypeTwo);
+				// Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
 				break;
 			case VMOpcode.POPZ:
-				Ctx.Stack.Pop();
+				Ctx.Stack.Pop(instruction.TypeOne);
 				break;
 			case VMOpcode.CALL:
 				var arguments = new Arguments
@@ -322,7 +322,7 @@ public static partial class VMExecutor
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
 					// args are always pushed as rvalues
-					arguments.Args[i] = ((RValue)Ctx.Stack.Pop()).Value;
+					arguments.Args[i] = Ctx.Stack.Pop<RValue>(VMType.v).Value;
 				}
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
@@ -471,6 +471,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
+	/*
 	private static Type GetType(VMType type) => type switch
 	{
 		VMType.s => typeof(string),
@@ -482,6 +483,7 @@ public static partial class VMExecutor
 		VMType.v => typeof(RValue),
 		_ => throw new NotImplementedException("what")
 	};
+	*/
 	
 	public static int VMTypeToSize(VMType type) => type switch
 	{
