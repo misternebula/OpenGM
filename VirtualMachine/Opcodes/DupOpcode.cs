@@ -9,7 +9,7 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 public static partial class VMExecutor
 {
 	// see https://github.com/UnderminersTeam/Underanalyzer/blob/main/Underanalyzer/Decompiler/AST/BlockSimulator.cs#L104
-	public static (ExecutionResult, object) DoDup(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoDup(VMScriptInstruction instruction)
 	{
 		var dupType = instruction.TypeOne;
 		var dupTypeSize = VMTypeToSize(dupType);

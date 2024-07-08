@@ -90,13 +90,13 @@ public static partial class VMExecutor
 
 	public static void PushGlobalArrayIndex(string varName, int index)
 	{
-		var array = (List<RValue>)VariableResolver.GlobalVariables[varName].Value;
+		var array = (List<RValue>)VariableResolver.GlobalVariables[varName].Value!;
 		Ctx.Stack.Push(array[index]);
 	}
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = (List<RValue>)Ctx.Locals[varName].Value;
+		var array = (List<RValue>)Ctx.Locals[varName].Value!;
 		Ctx.Stack.Push(array[index]);
 	}
 
@@ -126,13 +126,13 @@ public static partial class VMExecutor
 
 	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
 	{
-		var array = (List<RValue>)self.SelfVariables[varName].Value;
+		var array = (List<RValue>)self.SelfVariables[varName].Value!;
 		Ctx.Stack.Push(array[index]);
 	}
 
 	public static void PushArgument(int index)
 	{
-		var arguments = (List<RValue>)Ctx.Locals["arguments"].Value;
+		var arguments = (List<RValue>)Ctx.Locals["arguments"].Value!;
 		Ctx.Stack.Push(arguments[index]);
 	}
 
@@ -142,7 +142,7 @@ public static partial class VMExecutor
 		{
 			// Asset Id
 
-			var asset = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId);
+			var asset = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId)!;
 			PushSelf(asset, varName);
 		}
 		else
@@ -153,7 +153,7 @@ public static partial class VMExecutor
 		}
 	}
 
-	public static (ExecutionResult, object) DoPush(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoPush(VMScriptInstruction instruction)
 	{
 		switch (instruction.TypeOne)
 		{
@@ -180,7 +180,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
 	}
 
-	public static (ExecutionResult, object) DoPushV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoPushV(VMScriptInstruction instruction)
 	{
 		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
 

@@ -98,11 +98,11 @@ public static partial class VMExecutor
 			index,
 			valueToSet,
 			() => VariableResolver.BuiltInVariables.TryGetValue(varName, out var val) ? val.getter(self) as List<RValue> : null,
-			list => VariableResolver.BuiltInVariables[varName].setter(self, list)
+			list => VariableResolver.BuiltInVariables[varName].setter!(self, list)
 		);
 	}
 
-	public static (ExecutionResult, object) DoPop(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
 		{
