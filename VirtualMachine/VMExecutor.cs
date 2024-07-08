@@ -14,7 +14,7 @@ public class VMScriptExecutionContext
 	public Dictionary<string, RValue> Locals;
 	public RValue ReturnValue;
 	public EventType EventType;
-	public uint EventIndex;
+	public int EventIndex;
 
 	public override string ToString()
 	{
@@ -56,7 +56,7 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static RValue ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, uint eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
+	public static RValue ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
@@ -644,7 +644,7 @@ public static partial class VMExecutor
 					return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 				}
 			}
-			else if (obj is int or long or uint)
+			else if (obj is int or long)
 			{
 				var i = System.Convert.ToInt64(obj);
 

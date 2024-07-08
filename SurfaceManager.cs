@@ -14,7 +14,7 @@ public static class SurfaceManager
 
 	private static Dictionary<int, int> _framebuffers = new();
 
-	public static int CreateSurface(uint width, uint height, uint format)
+	public static int CreateSurface(int width, int height, int format)
 	{
 		DebugLog.LogInfo($"CreateSurface width:{width} height:{height} format:{format}");
 
@@ -25,7 +25,7 @@ public static class SurfaceManager
 		// Generate texture to attach to framebuffer
 		var newId = GL.GenTexture();
 		GL.BindTexture(TextureTarget.Texture2D, newId);
-		GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, (int)width, (int)height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
+		GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
 		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
 		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
 

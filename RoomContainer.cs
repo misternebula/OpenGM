@@ -16,11 +16,11 @@ public class RoomContainer
 	public Room RoomAsset;
 
 	public int AssetId => RoomAsset.AssetId;
-	public uint CameraWidth => RoomAsset.CameraWidth;
-	public uint CameraHeight => RoomAsset.CameraHeight;
+	public int CameraWidth => RoomAsset.CameraWidth;
+	public int CameraHeight => RoomAsset.CameraHeight;
 	public bool Persistent => RoomAsset.Persistent;
-	public uint SizeX => RoomAsset.SizeX;
-	public uint SizeY => RoomAsset.SizeY;
+	public int SizeX => RoomAsset.SizeX;
+	public int SizeY => RoomAsset.SizeY;
 
 	public Dictionary<int, LayerContainer> Layers = new();
 }
@@ -41,7 +41,7 @@ public class LayerContainer
 
 	public List<DrawWithDepth> Elements = new();
 
-	public uint ID => LayerAsset.LayerID;
+	public int ID => LayerAsset.LayerID;
 	public string Name => LayerAsset.LayerName;
 	public float X;
 	public float Y;

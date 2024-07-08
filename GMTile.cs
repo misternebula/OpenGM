@@ -13,14 +13,14 @@ public class GMTile : DrawWithDepth
 
 	public int Definition;
 
-	public uint left;
-	public uint top;
-	public uint width;
-	public uint height;
+	public int left;
+	public int top;
+	public int width;
+	public int height;
 
 	public float XScale;
 	public float YScale;
-	public uint Color;
+	public int Color;
 
 	public GMTile()
 	{

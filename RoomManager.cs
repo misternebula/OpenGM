@@ -115,7 +115,7 @@ public static class RoomManager
 						width = tile.SourceWidth,
 						height = tile.SourceHeight,
 						depth = tile.Depth,
-						instanceId = tile.InstanceID,
+						instanceId = (int)tile.InstanceID,
 						XScale = tile.ScaleX,
 						YScale = tile.ScaleY,
 						Color = tile.Color
@@ -132,7 +132,7 @@ public static class RoomManager
 
 		foreach (var obj in InstanceManager.instances)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (uint)EventSubtypeOther.RoomStart);
+			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
 
 		foreach (var obj in createdObjects)

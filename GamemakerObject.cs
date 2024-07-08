@@ -248,7 +248,7 @@ public class GamemakerObject : DrawWithDepth
 
 	public bool Destroyed;
 
-	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, uint instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
+	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
 	{
 		Definition = obj;
 		this.x = x;
@@ -360,7 +360,7 @@ public class GamemakerObject : DrawWithDepth
 				_updateCounter = 0;
 				if (CustomMath.ApproxEqual(image_index + 1, SpriteManager.GetNumberOfFrames(sprite_index)))
 				{
-					ExecuteScript(this, Definition, EventType.Other, (uint)EventSubtypeOther.AnimationEnd);
+					ExecuteScript(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
 					image_index = 0;
 				}
 				else
@@ -371,7 +371,7 @@ public class GamemakerObject : DrawWithDepth
 		}
 	}
 
-	public static bool ExecuteScript(GamemakerObject obj, ObjectDefinition definition, EventType type, uint otherData = 0)
+	public static bool ExecuteScript(GamemakerObject obj, ObjectDefinition definition, EventType type, int otherData = 0)
 	{
 		if (definition == null)
 		{
@@ -462,7 +462,7 @@ public class GamemakerObject : DrawWithDepth
 
 				if ((int)alarm[i].Value == 0)
 				{
-					ExecuteScript(this, Definition, EventType.Alarm, (uint)i);
+					ExecuteScript(this, Definition, EventType.Alarm, i);
 
 					if ((int)alarm[i].Value == 0)
 					{

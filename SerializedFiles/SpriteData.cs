@@ -9,13 +9,13 @@ public class SpriteData
 {
 	public int AssetIndex;
 	public string Name;
-	public uint Width;
-	public uint Height;
+	public int Width;
+	public int Height;
 	public int MarginLeft;
 	public int MarginRight;
 	public int MarginBottom;
 	public int MarginTop;
-	public uint BBoxMode;
+	public int BBoxMode;
 	public UndertaleSprite.SepMaskType SepMasks;
 	public int OriginX;
 	public int OriginY;

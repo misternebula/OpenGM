@@ -67,10 +67,10 @@ public class CustomWindow : GameWindow
 		UpdatePositionResolution();
 	}
 
-	public void SetResolution(uint width, uint height)
+	public void SetResolution(int width, int height)
 	{
-		Width = width;
-		Height = height;
+		Width = (uint)width;
+		Height = (uint)height;
 		UpdatePositionResolution();
 	}
 

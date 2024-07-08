@@ -1703,7 +1703,7 @@ public static partial class ScriptResolver
 	public static object event_user(Arguments args)
 	{
 		var numb = Conv<int>(args.Args[0]);
-		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Other, (uint)(EventSubtypeOther.User0 + (uint)numb));
+		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null;
 	}
 
@@ -1936,7 +1936,7 @@ public static partial class ScriptResolver
 			name = $"_layer_{Guid.NewGuid()}";
 		}
 
-		var layerContainer = new LayerContainer(new SerializedFiles.Layer() { LayerName = name, LayerDepth = depth, LayerID = (uint)newLayerId });
+		var layerContainer = new LayerContainer(new SerializedFiles.Layer() { LayerName = name, LayerDepth = depth, LayerID = newLayerId });
 
 		RoomManager.CurrentRoom.Layers.Add(newLayerId, layerContainer);
 

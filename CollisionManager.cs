@@ -50,7 +50,7 @@ public class ColliderClass
 	public Vector2d Scale => new(GMObject.image_xscale, GMObject.image_yscale);
 
 	public UndertaleSprite.SepMaskType SepMasks;
-	public uint BoundingBoxMode;
+	public int BoundingBoxMode;
 	public bool[,] CollisionMask;
 
 	public bool[,] CachedRotatedMask;

@@ -34,7 +34,7 @@ internal class Entry
 		nativeSettings.ClientSize = new Vector2i((int)firstRoom.SizeX, (int)firstRoom.SizeY);
 		nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
 
-		window = new CustomWindow(gameSettings, nativeSettings, firstRoom.SizeX, firstRoom.SizeY);
+		window = new CustomWindow(gameSettings, nativeSettings, (uint)firstRoom.SizeX, (uint)firstRoom.SizeY);
 
 		PageManager.BindTextures();
 		AudioManager.Init();

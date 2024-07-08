@@ -370,13 +370,13 @@ public static class GameConverter
 			{
 				AssetIndex = i,
 				Name = sprite.Name.Content,
-				Width = sprite.Width,
-				Height = sprite.Height,
+				Width = (int)sprite.Width,
+				Height = (int)sprite.Height,
 				MarginLeft = sprite.MarginLeft,
 				MarginRight = sprite.MarginRight,
 				MarginBottom = sprite.MarginBottom,
 				MarginTop = sprite.MarginTop,
-				BBoxMode = sprite.BBoxMode,
+				BBoxMode = (int)sprite.BBoxMode,
 				SepMasks = sprite.SepMasks,
 				OriginX = sprite.OriginX,
 				OriginY = sprite.OriginY,
@@ -569,7 +569,7 @@ public static class GameConverter
 			storage.AlarmScriptIDs = new();
 			foreach (var subtypeContainer in obj.Events[(int)EventType.Alarm - 1])
 			{
-				storage.AlarmScriptIDs.Add(subtypeContainer.EventSubtype, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
+				storage.AlarmScriptIDs.Add((int)subtypeContainer.EventSubtype, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
 			}
 
 			storage.StepScriptIDs = new();
@@ -581,7 +581,7 @@ public static class GameConverter
 			storage.CollisionScriptIDs = new();
 			foreach (var subtypeContainer in obj.Events[(int)EventType.Collision - 1])
 			{
-				storage.CollisionScriptIDs.Add(subtypeContainer.EventSubtype, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
+				storage.CollisionScriptIDs.Add((int)subtypeContainer.EventSubtype, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
 			}
 
 			// keyboard
@@ -628,14 +628,14 @@ public static class GameConverter
 			{
 				AssetId = data.Rooms.IndexOf(room),
 				Name = room.Name.Content,
-				SizeX = room.Width,
-				SizeY = room.Height,
+				SizeX = (int)room.Width,
+				SizeY = (int)room.Height,
 				Persistent = room.Persistent,
 				CreationCodeId = codes.IndexOf(room.CreationCodeId),
 				GravityX = room.GravityX,
 				GravityY = room.GravityY,
-				CameraWidth = (uint)room.Views[0].ViewWidth,
-				CameraHeight = (uint)room.Views[0].ViewHeight,
+				CameraWidth = room.Views[0].ViewWidth,
+				CameraHeight = room.Views[0].ViewHeight,
 				FollowsObject = data.GameObjects.IndexOf(room.Views[0].ObjectId)
 			};
 
@@ -644,7 +644,7 @@ public static class GameConverter
 				var layerasset = new Layer
 				{
 					LayerName = layer.LayerName.Content,
-					LayerID = layer.LayerId,
+					LayerID = (int)layer.LayerId,
 					LayerDepth = layer.LayerDepth,
 					LayerType = layer.LayerType,
 					XOffset = layer.XOffset,
@@ -663,11 +663,11 @@ public static class GameConverter
 							X = instance.X,
 							Y = instance.Y,
 							DefinitionID = data.GameObjects.IndexOf(instance.ObjectDefinition),
-							InstanceID = instance.InstanceID,
+							InstanceID = (int)instance.InstanceID,
 							CreationCodeID = codes.IndexOf(instance.CreationCode),
 							ScaleX = instance.ScaleX,
 							ScaleY = instance.ScaleY,
-							Color = instance.Color,
+							Color = (int)instance.Color,
 							Rotation = instance.Rotation,
 							PreCreateCodeID = codes.IndexOf(instance.PreCreateCode)
 						};
@@ -683,7 +683,7 @@ public static class GameConverter
 					layerasset.Background_TilingH = layer.BackgroundData.TiledHorizontally;
 					layerasset.Background_TilingV = layer.BackgroundData.TiledVertically;
 					layerasset.Background_Stretch = layer.BackgroundData.Stretch;
-					layerasset.Background_Color = layer.BackgroundData.Color;
+					layerasset.Background_Color = (int)layer.BackgroundData.Color;
 					layerasset.Background_FirstFrame = layer.BackgroundData.FirstFrame;
 					layerasset.Background_AnimationSpeed = layer.BackgroundData.AnimationSpeed;
 					layerasset.Background_AnimationType = layer.BackgroundData.AnimationSpeedType;
@@ -697,15 +697,15 @@ public static class GameConverter
 							X = tile.X,
 							Y = tile.Y,
 							Definition = data.Sprites.IndexOf(tile.SpriteDefinition),
-							SourceLeft = tile.SourceX,
-							SourceTop = tile.SourceY,
-							SourceWidth = tile.Width,
-							SourceHeight = tile.Height,
+							SourceLeft = (int)tile.SourceX,
+							SourceTop = (int)tile.SourceY,
+							SourceWidth = (int)tile.Width,
+							SourceHeight = (int)tile.Height,
 							Depth = tile.TileDepth,
-							InstanceID = tile.InstanceID,
+							InstanceID = (int)tile.InstanceID,
 							ScaleX = tile.ScaleX,
 							ScaleY = tile.ScaleY,
-							Color = tile.Color
+							Color = (int)tile.Color
 						};
 
 						layerasset.Assets_LegacyTiles.Add(legacyTile);

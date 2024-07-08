@@ -36,11 +36,11 @@ public class ObjectDefinition
 	public VMScript DestroyScript;
 
 	[JsonIgnore]
-	public Dictionary<uint, VMScript> AlarmScript = new();
+	public Dictionary<int, VMScript> AlarmScript = new();
 	[JsonIgnore]
 	public Dictionary<EventSubtypeStep, VMScript> StepScript = new();
 	[JsonIgnore]
-	public Dictionary<uint, VMScript> CollisionScript = new();
+	public Dictionary<int, VMScript> CollisionScript = new();
 	//keyboard
 	//mouse
 	[JsonIgnore]
@@ -63,9 +63,9 @@ public class ObjectDefinitionStorage
 	public int ParentID;
 	public int CreateScriptID;
 	public int DestroyScriptID;
-	public Dictionary<uint, int> AlarmScriptIDs = new();
+	public Dictionary<int, int> AlarmScriptIDs = new();
 	public Dictionary<EventSubtypeStep, int> StepScriptIDs = new();
-	public Dictionary<uint, int> CollisionScriptIDs = new();
+	public Dictionary<int, int> CollisionScriptIDs = new();
 	//keyboard
 	//mouse
 	public Dictionary<EventSubtypeOther, int> OtherScriptIDs = new();

@@ -35,7 +35,7 @@ public static class DrawManager
 		{
 			if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded)
 			{
-				GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Step, (uint)stepType);
+				GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Step, (int)stepType);
 			}
 		}
 
@@ -77,7 +77,7 @@ public static class DrawManager
 					}
 				}
 
-				GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Draw, (uint)drawType);
+				GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Draw, (int)drawType);
 			}
 			else if (drawType == EventSubtypeDraw.Draw)
 			{
