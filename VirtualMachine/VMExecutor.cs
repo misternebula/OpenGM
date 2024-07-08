@@ -576,25 +576,25 @@ public static partial class VMExecutor
 			return new RValue(obj);
 		}
 
-		if (obj is null && type == typeof(bool))
+		if (obj is Undefined && type == typeof(bool))
 		{
 			return false;
 		}
 
-		if (obj is null && (type == typeof(int) || type == typeof(double)))
+		if (obj is Undefined && (type == typeof(int) || type == typeof(double) || type == typeof(long)))
 		{
 			return 0;
 		}
 
-		if (obj is null && type == typeof(List<object>))
+		if (obj is Undefined && type == typeof(List<object>))
 		{
 			return new List<object>();
 		}
 
-		if (obj is null)
+		if (obj is Undefined)
 		{
-			DebugLog.LogError($"Trying to convert null object to {type}! Current script:{currentExecutingScript.First().Name}");
-			return default;
+			DebugLog.LogError($"Trying to convert undefinde to {type}! Current script:{currentExecutingScript.First().Name}");
+			return Undefined.Value;
 		}
 
 		if (obj.GetType() == type)
@@ -710,6 +710,6 @@ public static partial class VMExecutor
 		}
 
 		DebugLog.LogError($"Don't know how to convert {obj} ({obj.GetType().FullName}) to {type}");
-		return default;
+		return Undefined.Value;
 	}
 }
