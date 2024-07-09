@@ -296,7 +296,7 @@ public static partial class VMExecutor
 				Ctx.Stack.Pop(instruction.TypeOne);
 				break;
 			case VMOpcode.CALL:
-				var args = new object?[instruction.FunctionArgumentCount!];
+				var args = new object?[instruction.FunctionArgumentCount];
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
@@ -304,7 +304,7 @@ public static partial class VMExecutor
 					args[i] = Ctx.Stack.Pop(VMType.v);
 				}
 
-				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName!, out var builtInFunction))
+				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
 				{
 					// goofy null checks
 					if (builtInFunction == null)
@@ -326,13 +326,13 @@ public static partial class VMExecutor
 					break;
 				}
 
-				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName!, out var scriptName))
+				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
 					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
-				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName!, out var scriptFunction))
+				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
 					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);

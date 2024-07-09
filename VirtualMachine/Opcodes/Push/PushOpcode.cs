@@ -177,7 +177,7 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object?) DoPushV(VMScriptInstruction instruction)
 	{
-		GetVariableInfo(instruction.StringData!, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
+		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
 
 		if (variablePrefix == VariablePrefix.None)
 		{
@@ -198,7 +198,7 @@ public static partial class VMExecutor
 			}
 			else if (variableType == VariableType.Self)
 			{
-				PushSelf(Ctx.Self!, variableName);
+				PushSelf(Ctx.Self, variableName);
 				return (ExecutionResult.Success, null);
 			}
 			else if (variableType == VariableType.Argument)
@@ -240,7 +240,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.self)
 					{
-						PushSelfArrayIndex(Ctx.Self!, variableName, index);
+						PushSelfArrayIndex(Ctx.Self, variableName, index);
 						return (ExecutionResult.Success, null);
 					}
 

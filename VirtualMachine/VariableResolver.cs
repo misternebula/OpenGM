@@ -99,8 +99,8 @@ public static class VariableResolver
 	public static object get_y(GamemakerObject instance) => instance.y;
 	public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<double>();
 
-	public static object get_room_width(GamemakerObject instance) => (double)RoomManager.CurrentRoom!.SizeX;
-	public static object get_room_height(GamemakerObject instance) => (double)RoomManager.CurrentRoom!.SizeY;
+	public static object get_room_width(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeX;
+	public static object get_room_height(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeY;
 
 	public static object get_image_index(GamemakerObject instance) => instance.image_index;
 	public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
@@ -124,7 +124,7 @@ public static class VariableResolver
 	public static object get_depth(GamemakerObject instance) => instance.depth;
 	public static void set_depth(GamemakerObject instance, object? value) => instance.depth = value.Conv<double>();
 
-	public static object get_room(GamemakerObject instance) => RoomManager.CurrentRoom!.AssetId;
+	public static object get_room(GamemakerObject instance) => RoomManager.CurrentRoom.AssetId;
 	public static void set_room(GamemakerObject instance, object? value) => RoomManager.ChangeRoomAfterEvent(value.Conv<int>());
 
 	public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_bottom;

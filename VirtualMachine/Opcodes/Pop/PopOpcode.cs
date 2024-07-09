@@ -60,7 +60,7 @@ public static partial class VMExecutor
 			throw new NotImplementedException();
 		}
 
-		GetVariableInfo(instruction.StringData!, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
+		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
 
 		if (variablePrefix == VariablePrefix.None)
 		{
@@ -79,7 +79,7 @@ public static partial class VMExecutor
 			}
 			else if (variableType == VariableType.Self)
 			{
-				PopToSelf(Ctx.Self!, variableName, dataPopped);
+				PopToSelf(Ctx.Self, variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -116,11 +116,11 @@ public static partial class VMExecutor
 					// Built-in instance variables are "self".
 					if (VariableResolver.BuiltInVariables.ContainsKey(variableName))
 					{
-						PopToBuiltInArray(Ctx.Self!, variableName, index, value);
+						PopToBuiltInArray(Ctx.Self, variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
 
-					PopToSelfArray(Ctx.Self!, variableName, index, value);
+					PopToSelfArray(Ctx.Self, variableName, index, value);
 					return (ExecutionResult.Success, null);
 				}
 			}

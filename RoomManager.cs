@@ -50,7 +50,7 @@ public static class RoomManager
 
 		RoomLoaded = false;
 
-		CurrentRoom = new RoomContainer(RoomToChangeTo!);
+		CurrentRoom = new RoomContainer(RoomToChangeTo);
 
 		RoomToChangeTo = null;
 
@@ -59,7 +59,7 @@ public static class RoomManager
 
 	private static void OnRoomChanged()
 	{
-		CustomWindow.Instance.SetResolution(CurrentRoom!.CameraWidth, CurrentRoom.CameraHeight);
+		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
 		CustomWindow.Instance.SetPosition(0, 0);
 
 		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
@@ -182,12 +182,12 @@ public static class RoomManager
 
 	public static void room_goto_next()
 	{
-		ChangeRoomAfterEvent(RoomList[CurrentRoom!.AssetId + 1]);
+		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId + 1]);
 	}
 
 	public static void room_goto_previous()
 	{
-		ChangeRoomAfterEvent(RoomList[CurrentRoom!.AssetId -1]);
+		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId -1]);
 	}
 
 	public static int room_next(int numb)
