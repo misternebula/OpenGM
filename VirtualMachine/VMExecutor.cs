@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using DELTARUNITYStandalone.SerializedFiles;
+using System.Collections;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 
@@ -53,11 +54,11 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static RValue ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
+	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
-			return new RValue(Undefined.Value);
+			return null!;
 		}
 
 		//if (!script.IsGlobalInit)
@@ -71,21 +72,20 @@ public static partial class VMExecutor
 			ObjectDefinition = objectDefinition,
 			Stack = new(),
 			Locals = new(),
-			ReturnValue = new RValue(Undefined.Value),
+			ReturnValue = null!,
 			EventType = eventType,
 			EventIndex = eventIndex
 		};
 
 		foreach (var item in script.LocalVariables)
 		{
-			newCtx.Locals.Add(item, new RValue(Undefined.Value));
+			newCtx.Locals.Add(item, null!);
 		}
 
 		if (arguments != null)
 		{
-			// turn list of rvalue.value into rvalue of list of values
-			// this can be removed later when we just use rvalues for all functions
-			newCtx.Locals["arguments"] = new RValue(arguments.Args.Select(x => new RValue(x)).ToList());
+			// conv should be able to handle list to array via casting to ICollection
+			newCtx.Locals["arguments"] = arguments.Args;
 		}
 
 		// Make the current object the current instance
@@ -164,7 +164,7 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.ReturnedValue)
 			{
-				Ctx.ReturnValue = (RValue)data!;
+				Ctx.ReturnValue = data!;
 				break;
 			}
 		}
@@ -226,24 +226,15 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.CMP:
 
-				var second = Ctx.Stack.Pop();
-				var first = Ctx.Stack.Pop();
+				var second = Ctx.Stack.Pop(instruction.TypeTwo);
+				var first = Ctx.Stack.Pop(instruction.TypeOne);
 
-				if (second is RValue r2)
-				{
-					second = r2.Value;
-				}
-
-				if (first is RValue r1)
-				{
-					first = r1.Value;
-				}
-
-				first ??= 0;
-				second ??= 0;
+				// first ??= 0;
+				// second ??= 0;
 				
 				// TODO: array and undefined cmp
 
+				// TODO: handle all numerical types
 				if (second is bool or int or double or long && first is bool or int or double or long)
 				{
 					var firstNumber = Conv<double>(first);
@@ -254,22 +245,22 @@ public static partial class VMExecutor
 					switch (instruction.Comparison)
 					{
 						case VMComparison.LT:
-							Ctx.Stack.Push(firstNumber < secondNumber);
+							Ctx.Stack.Push(firstNumber < secondNumber, VMType.b);
 							break;
 						case VMComparison.LTE:
-							Ctx.Stack.Push(firstNumber <= secondNumber);
+							Ctx.Stack.Push(firstNumber <= secondNumber, VMType.b);
 							break;
 						case VMComparison.EQ:
-							Ctx.Stack.Push(equal);
+							Ctx.Stack.Push(equal, VMType.b);
 							break;
 						case VMComparison.NEQ:
-							Ctx.Stack.Push(!equal);
+							Ctx.Stack.Push(!equal, VMType.b);
 							break;
 						case VMComparison.GTE:
-							Ctx.Stack.Push(firstNumber >= secondNumber);
+							Ctx.Stack.Push(firstNumber >= secondNumber, VMType.b);
 							break;
 						case VMComparison.GT:
-							Ctx.Stack.Push(firstNumber > secondNumber);
+							Ctx.Stack.Push(firstNumber > secondNumber, VMType.b);
 							break;
 						case VMComparison.None:
 						default:
@@ -278,18 +269,20 @@ public static partial class VMExecutor
 				}
 				else
 				{
+					// this should handle strings and whatever else
+
 					if (instruction.Comparison == VMComparison.EQ)
 					{
-						Ctx.Stack.Push(first.Equals(second));
+						Ctx.Stack.Push(first.Equals(second), VMType.b);
 					}
 					else if (instruction.Comparison == VMComparison.NEQ)
 					{
-						Ctx.Stack.Push(!first.Equals(second));
+						Ctx.Stack.Push(!first.Equals(second), VMType.b);
 					}
 					else
 					{
 						// ??? no idea if this is what GM does
-						Ctx.Stack.Push(false);
+						Ctx.Stack.Push(false, VMType.b);
 					}
 				}
 				break;
@@ -341,20 +334,20 @@ public static partial class VMExecutor
 						DebugLog.LogError($"NULL STACK");
 					}
 
-					Ctx.Stack.Push(new RValue(builtInFunction(arguments)));
+					Ctx.Stack.Push(builtInFunction(arguments), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments));
+					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments), VMType.v);
 					break;
 				}
 
-				if (ScriptResolver.ScriptFunctions.ContainsKey(instruction.FunctionName))
+				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
-					var (script, instructionIndex) = ScriptResolver.ScriptFunctions[instruction.FunctionName];
-					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex));
+					var (script, instructionIndex) = scriptFunction;
+					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex), VMType.v);
 					break;
 				}
 
@@ -387,6 +380,7 @@ public static partial class VMExecutor
 				return XOR(instruction);
 			case VMOpcode.NOT:
 				return NOT(instruction);
+			// TODO: move to MathOpcodes.cs
 			case VMOpcode.SHL:
 				{
 					// is this the right order?
@@ -419,16 +413,17 @@ public static partial class VMExecutor
 				throw new Exception($"CHKINDEX failed - {index}");
 			}
 			case VMOpcode.EXIT:
-				return (ExecutionResult.ReturnedValue, new RValue(Undefined.Value));
+				return (ExecutionResult.ReturnedValue, null!);
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
 				var id = Conv<int>(Ctx.Stack.Pop());
 				break;
+			// TODO: fix these eventually
 			case VMOpcode.POPAF:
 			{
 				var index = Conv<int>(Ctx.Stack.Pop());
 				var array = Conv<ArrayReference>(Ctx.Stack.Pop());
-				var value = Conv<RValue>(Ctx.Stack.Pop());
+				var value = Ctx.Stack.Pop();
 
 				if (array.Array.Count <= index)
 				{
@@ -439,11 +434,11 @@ public static partial class VMExecutor
 
 				if (array.IsGlobal)
 				{
-					VariableResolver.GlobalVariables[array.ArrayName] = new RValue(array.Array);
+					VariableResolver.GlobalVariables[array.ArrayName] = array.Array;
 				}
 				else
 				{
-					array.Instance.SelfVariables[array.ArrayName] = new RValue(array.Array);
+					array.Instance.SelfVariables[array.ArrayName] = array.Array;
 				}
 
 				break;
@@ -455,12 +450,12 @@ public static partial class VMExecutor
 
 				var value = array.Array[index];
 
-				if (value is List<RValue>)
+				if (value is IEnumerable)
 				{
 					throw new NotImplementedException();
 				}
 
-				Ctx.Stack.Push(value);
+				Ctx.Stack.Push(value, VMType.v);
 
 				break;
 			}
@@ -499,7 +494,7 @@ public static partial class VMExecutor
 
 	public static object Conv(this object @this, Type type)
 	{
-		if (@this is null)
+		if (@this == null)
 		{
 			throw new NullReferenceException("null/undefined passed into conv");
 		}
