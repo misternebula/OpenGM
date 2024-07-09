@@ -1781,7 +1781,7 @@ public static partial class ScriptResolver
 
 	public static object? layer_get_all(object?[] args)
 	{
-		return RoomManager.CurrentRoom.Layers.Values.Select(x => (object)x.ID).ToList();
+		return RoomManager.CurrentRoom.Layers.Values.Select(x => x.ID).ToList();
 	}
 
 	public static object? layer_get_name(object?[] args)
