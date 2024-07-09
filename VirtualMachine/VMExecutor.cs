@@ -224,8 +224,7 @@ public static partial class VMExecutor
 				
 				// TODO: array and undefined cmp
 
-				// TODO: handle all numeric primitives
-				if (second is bool or int or double or long && first is bool or int or double or long)
+				if (second is int or short or long or double or float && first is int or short or long or double or float)
 				{
 					var firstNumber = first.Conv<double>();
 					var secondNumber = second.Conv<double>();
@@ -271,8 +270,7 @@ public static partial class VMExecutor
 					}
 					else
 					{
-						// ??? no idea if this is what GM does
-						Ctx.Stack.Push(false, VMType.b);
+						return (ExecutionResult.Failed, $"cant cmp {instruction.Comparison} on {first?.GetType()} {first} and {second?.GetType()} {second}");
 					}
 				}
 				break;
