@@ -389,9 +389,10 @@ public static partial class VMExecutor
 				return (ExecutionResult.ReturnedValue, null);
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
-				var id = Conv<int>(Ctx.Stack.Pop());
+				var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 				break;
 			// TODO: fix these eventually
+			/*
 			case VMOpcode.POPAF:
 			{
 				var index = Conv<int>(Ctx.Stack.Pop());
@@ -432,6 +433,7 @@ public static partial class VMExecutor
 
 				break;
 			}
+			*/
 			case VMOpcode.CALLV:
 			case VMOpcode.BREAK:
 			default:
@@ -449,8 +451,14 @@ public static partial class VMExecutor
 		VMType.i => 4,
 		VMType.b => 4,
 		VMType.s => 4,
-		VMType.e => 4
+		VMType.e => 4,
+		_ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
 	};
+
+	public static void Joe()
+	{
+		
+	}
 
 	public static T Conv<T>(this object? @this)
 	{

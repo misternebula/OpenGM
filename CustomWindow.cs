@@ -258,7 +258,7 @@ public class CustomWindow : GameWindow
 					GL.Enable(EnableCap.Texture2D);
 					GL.BindTexture(TextureTarget.Texture2D, pageId);
 
-					GL.Begin(BeginMode.Quads);
+					GL.Begin(PrimitiveType.Quads);
 
 					// TODO : this will make the different lines of a string have the gradient applied seperately.
 
@@ -299,7 +299,7 @@ public class CustomWindow : GameWindow
 		GL.Enable(EnableCap.Texture2D);
 		GL.BindTexture(TextureTarget.Texture2D, id);
 
-		GL.Begin(BeginMode.Quads);
+		GL.Begin(PrimitiveType.Quads);
 
 		GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
 
@@ -361,7 +361,7 @@ public class CustomWindow : GameWindow
 	{
 		var plotCoords = GetLinePoints(lineJob.start, lineJob.end, lineJob.width);
 
-		GL.Begin(BeginMode.Quads);
+		GL.Begin(PrimitiveType.Quads);
 		GL.Color4(new Color4(lineJob.blend.R, lineJob.blend.G, lineJob.blend.B, (float)lineJob.alpha));
 		for (var i = 0; i < plotCoords.Count; i++)
 		{
@@ -379,11 +379,11 @@ public class CustomWindow : GameWindow
 	{
 		if (polyJob.Outline)
 		{
-			GL.Begin(BeginMode.LineLoop);
+			GL.Begin(PrimitiveType.LineLoop);
 		}
 		else
 		{
-			GL.Begin(BeginMode.Polygon);
+			GL.Begin(PrimitiveType.Polygon);
 		}
 		
 		GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));

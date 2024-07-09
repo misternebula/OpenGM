@@ -70,6 +70,7 @@ public static class AudioManager
 		Console.WriteLine(AL.Get(ALGetString.Extensions));
 		CheckALError();
 
+#pragma warning disable CS0162
 		// test
 		if (false)
 		{
@@ -128,6 +129,7 @@ public static class AudioManager
 				Source = source,
 			});
 		}
+#pragma warning restore CS0162
 	}
 
 	/// <summary>
@@ -158,7 +160,7 @@ public static class AudioManager
 					stereo = reader.WaveFormat.Channels == 2;
 					freq = reader.WaveFormat.SampleRate;
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
 					data = new float[] { };
 					freq = 1;

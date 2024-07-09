@@ -126,7 +126,7 @@ public static class CollisionManager
 
 			throw new NotImplementedException();
 
-			return false;
+			// return false;
 		}
 		else
 		{
@@ -135,7 +135,7 @@ public static class CollisionManager
 
 			throw new NotImplementedException();
 
-			return false;
+			// return false;
 		}
 	}
 
@@ -644,7 +644,7 @@ public static class CollisionManager
 				{
 					returnBuffer[row, col] = mask[snappedToGridY, snappedToGridX];
 				}
-				catch (IndexOutOfRangeException e)
+				catch (IndexOutOfRangeException)
 				{
 					DebugLog.LogError($"Mask size : ({mask.GetLength(0)}, {mask.GetLength(1)}) snappedToGrid.y:{snappedToGridY} snappedToGrid.x:{snappedToGridX}");
 				}

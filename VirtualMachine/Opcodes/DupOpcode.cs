@@ -34,7 +34,9 @@ public static partial class VMExecutor
 
 			while (size > 0)
 			{
+#pragma warning disable CS0618
 				var curr = Ctx.Stack.Pop(); // i think this is the only time its okay to use untyped pop
+#pragma warning restore CS0618
 				toDuplicate.Add(curr);
 				size -= VMTypeToSize(curr.type);
 			}
@@ -50,7 +52,9 @@ public static partial class VMExecutor
 			{
 				for (int j = toDuplicate.Count - 1; j >= 0; j--)
 				{
+#pragma warning disable CS0618
 					Ctx.Stack.Push(toDuplicate[j]);
+#pragma warning restore CS0618
 				}
 			}
 		}

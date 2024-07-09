@@ -184,7 +184,6 @@ public static class BufferManager
 			}
 			case BufferDataType.buffer_f16:
 				throw new NotImplementedException();
-				break;
 			case BufferDataType.buffer_u32:
 			{
 				var bytes = new[]
@@ -215,7 +214,6 @@ public static class BufferManager
 			}
 			case BufferDataType.buffer_f32:
 				throw new NotImplementedException();
-				break;
 			case BufferDataType.buffer_u64:
 			{
 				var bytes = new[]
@@ -236,7 +234,6 @@ public static class BufferManager
 			}
 			case BufferDataType.buffer_f64:
 				throw new NotImplementedException();
-				break;
 		}
 
 		return res;
