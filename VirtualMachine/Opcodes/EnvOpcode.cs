@@ -15,7 +15,7 @@ public static partial class VMExecutor
 
 		// marks the beginning of the instances pushed. popenv will stop jumping when it reaches this
 		// SUPER HACKY. there HAS to be a better way of doing this
-		EnvironmentStack.Push(null);
+		EnvironmentStack.Push(null!);
 
 		DebugLog.Log($"Pushenv {id}");
 

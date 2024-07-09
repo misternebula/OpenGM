@@ -30,7 +30,7 @@ public static partial class VMExecutor
 		{
 			// Normal duplication mode
 			var size = (dupSize + 1) * dupTypeSize;
-			List<(object value, VMType type)> toDuplicate = new();
+			List<(object? value, VMType type)> toDuplicate = new();
 
 			while (size > 0)
 			{

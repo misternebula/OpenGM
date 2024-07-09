@@ -9,11 +9,11 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 /// </summary>
 public class VMScriptExecutionContext
 {
-	public GamemakerObject Self;
-	public ObjectDefinition ObjectDefinition;
-	public DataStack Stack;
-	public Dictionary<string, object> Locals;
-	public object ReturnValue;
+	public GamemakerObject Self = null!;
+	public ObjectDefinition? ObjectDefinition;
+	public DataStack Stack = null!;
+	public Dictionary<string, object?> Locals = null!;
+	public object? ReturnValue;
 	public EventType EventType;
 	public int EventIndex;
 
@@ -44,11 +44,11 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object[] args = null, int startingIndex = 0)
+	public static object? ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
-			return null!;
+			return null;
 		}
 
 		//if (!script.IsGlobalInit)
@@ -62,14 +62,14 @@ public static partial class VMExecutor
 			ObjectDefinition = objectDefinition,
 			Stack = new(),
 			Locals = new(),
-			ReturnValue = null!,
+			ReturnValue = null,
 			EventType = eventType,
 			EventIndex = eventIndex
 		};
 
 		foreach (var item in script.LocalVariables)
 		{
-			newCtx.Locals.Add(item, null!);
+			newCtx.Locals.Add(item, null);
 		}
 
 		if (args != null)
@@ -154,13 +154,13 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.ReturnedValue)
 			{
-				Ctx.ReturnValue = data!;
+				Ctx!.ReturnValue = data!;
 				break;
 			}
 		}
 
 		// Current object has finished executing, remove from stack
-		var returnValue = Ctx.ReturnValue;
+		var returnValue = Ctx!.ReturnValue;
 		EnvironmentStack.Pop();
 
 		currentExecutingScript.Pop();
@@ -227,8 +227,8 @@ public static partial class VMExecutor
 				// TODO: handle all numeric primitives
 				if (second is bool or int or double or long && first is bool or int or double or long)
 				{
-					var firstNumber = Conv<double>(first);
-					var secondNumber = Conv<double>(second);
+					var firstNumber = first.Conv<double>();
+					var secondNumber = second.Conv<double>();
 
 					var equal = CustomMath.ApproxEqual(firstNumber, secondNumber);
 
@@ -263,11 +263,11 @@ public static partial class VMExecutor
 
 					if (instruction.Comparison == VMComparison.EQ)
 					{
-						Ctx.Stack.Push(first.Equals(second), VMType.b);
+						Ctx.Stack.Push(first?.Equals(second), VMType.b);
 					}
 					else if (instruction.Comparison == VMComparison.NEQ)
 					{
-						Ctx.Stack.Push(!first.Equals(second), VMType.b);
+						Ctx.Stack.Push(first?.Equals(second), VMType.b);
 					}
 					else
 					{
@@ -296,7 +296,7 @@ public static partial class VMExecutor
 				Ctx.Stack.Pop(instruction.TypeOne);
 				break;
 			case VMOpcode.CALL:
-				var args = new object[instruction.FunctionArgumentCount];
+				var args = new object?[instruction.FunctionArgumentCount];
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
@@ -316,12 +316,12 @@ public static partial class VMExecutor
 						DebugLog.LogError($"NULL CTX");
 					}
 
-					if (Ctx.Stack == null)
+					if (Ctx!.Stack == null)
 					{
 						DebugLog.LogError($"NULL STACK");
 					}
 
-					Ctx.Stack.Push(builtInFunction(args), VMType.v);
+					Ctx.Stack!.Push(builtInFunction!(args), VMType.v);
 					break;
 				}
 
@@ -386,7 +386,7 @@ public static partial class VMExecutor
 				throw new Exception($"CHKINDEX failed - {index}");
 			}
 			case VMOpcode.EXIT:
-				return (ExecutionResult.ReturnedValue, null!);
+				return (ExecutionResult.ReturnedValue, null);
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
 				var id = Conv<int>(Ctx.Stack.Pop());
@@ -452,7 +452,7 @@ public static partial class VMExecutor
 		VMType.e => 4
 	};
 
-	public static T Conv<T>(this object @this)
+	public static T Conv<T>(this object? @this)
 	{
 		// TODO: i want to try removing this and see how Conv<object> reacts
 		if (typeof(T) != typeof(object))
@@ -465,11 +465,13 @@ public static partial class VMExecutor
 		}
 	}
 
-	public static object Conv(this object @this, Type type)
+	public static object Conv(this object? @this, Type type)
 	{
 		// TODO: collections
 		// TODO: check all numeric primitives
 		// TODO: cleanup
+		
+		// TODO: use typeof(guy).IsAssignableFrom(type)
 		
 		if (@this is null)
 		{
@@ -499,7 +501,7 @@ public static partial class VMExecutor
 		if (@this is null)
 		{
 			DebugLog.LogError($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
-			return null!;
+			return null!; // ruh roh
 		}
 
 		if (@this.GetType() == type)

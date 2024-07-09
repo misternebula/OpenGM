@@ -35,7 +35,7 @@ public static class VariableResolver
 
 	public static readonly Dictionary<string, object> GlobalVariables = new();
 
-	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object>? setter)> BuiltInVariables = new()
+	public static Dictionary<string, (Func<GamemakerObject, object?> getter, Action<GamemakerObject, object>? setter)> BuiltInVariables = new()
 	{
 		{ "working_directory", (get_working_directory, null) },
 		{ "fps", (get_fps, null) },
@@ -95,36 +95,37 @@ public static class VariableResolver
 
 	public static object get_x(GamemakerObject instance) => instance.x;
 
-	public static void set_x(GamemakerObject instance, object value) => instance.x = VMExecutor.Conv<double>(value);
+	public static void set_x(GamemakerObject instance, object? value) => instance.x = value.Conv<double>();
 	public static object get_y(GamemakerObject instance) => instance.y;
-	public static void set_y(GamemakerObject instance, object value) => instance.y = VMExecutor.Conv<double>(value);
+	public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<double>();
 
 	public static object get_room_width(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeX;
 	public static object get_room_height(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeY;
 
 	public static object get_image_index(GamemakerObject instance) => instance.image_index;
-	public static void set_image_index(GamemakerObject instance, object value) => instance.image_index = VMExecutor.Conv<double>(value);
+	public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
 
 	public static object get_sprite_index(GamemakerObject instance) => instance.sprite_index;
-	public static void set_sprite_index(GamemakerObject instance, object value) => instance.sprite_index = VMExecutor.Conv<int>(value);
+	public static void set_sprite_index(GamemakerObject instance, object? value) => instance.sprite_index = value.Conv<int>();
 
 	public static object get_sprite_width(GamemakerObject instance) => instance.sprite_width;
 	public static object get_sprite_height(GamemakerObject instance) => instance.sprite_height;
 
 	public static object get_xstart(GamemakerObject instance) => instance.xstart;
-	public static void set_xstart(GamemakerObject instance, object value) => instance.xstart = VMExecutor.Conv<double>(value);
+	public static void set_xstart(GamemakerObject instance, object? value) => instance.xstart = value.Conv<double>();
 	public static object get_ystart(GamemakerObject instance) => instance.ystart;
-	public static void set_ystart(GamemakerObject instance, object value) => instance.ystart = VMExecutor.Conv<double>(value);
+	public static void set_ystart(GamemakerObject instance, object? value) => instance.ystart = value.Conv<double>();
 
 	public static object get_object_index(GamemakerObject instance) => instance.object_index;
 
 	public static object get_image_blend(GamemakerObject instance) => instance.image_blend;
-	public static void set_image_blend(GamemakerObject instance, object value) => instance.image_blend = VMExecutor.Conv<int>(value);
+	public static void set_image_blend(GamemakerObject instance, object? value) => instance.image_blend = value.Conv<int>();
 
 	public static object get_depth(GamemakerObject instance) => instance.depth;
-	public static void set_depth(GamemakerObject instance, object value) => instance.depth = VMExecutor.Conv<double>(value);
+	public static void set_depth(GamemakerObject instance, object? value) => instance.depth = value.Conv<double>();
 
 	public static object get_room(GamemakerObject instance) => RoomManager.CurrentRoom.AssetId;
+	public static void set_room(GamemakerObject instance, object? value) => RoomManager.ChangeRoomAfterEvent(value.Conv<int>());
 
 	public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_bottom;
 	public static object get_bbox_top(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_top;
@@ -132,77 +133,71 @@ public static class VariableResolver
 	public static object get_bbox_right(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.x : instance.bbox_right;
 
 	public static object get_image_yscale(GamemakerObject instance) => instance.image_yscale;
-	public static void set_image_yscale(GamemakerObject instance, object value) => instance.image_yscale = VMExecutor.Conv<double>(value);
+	public static void set_image_yscale(GamemakerObject instance, object? value) => instance.image_yscale = value.Conv<double>();
 
 	public static object get_image_xscale(GamemakerObject instance) => instance.image_xscale;
-	public static void set_image_xscale(GamemakerObject instance, object value) => instance.image_xscale = VMExecutor.Conv<double>(value);
-
-	public static void set_room(GamemakerObject instance, object value)
-	{
-		RoomManager.ChangeRoomAfterEvent(VMExecutor.Conv<int>(value));
-	}
+	public static void set_image_xscale(GamemakerObject instance, object? value) => instance.image_xscale = value.Conv<double>();
 
 	public static object get_image_speed(GamemakerObject instance) => instance.image_speed;
-	public static void set_image_speed(GamemakerObject instance, object value) => instance.image_speed = VMExecutor.Conv<double>(value);
+	public static void set_image_speed(GamemakerObject instance, object? value) => instance.image_speed = value.Conv<double>();
 
 	public static object get_visible(GamemakerObject instance) => instance.visible;
 
-	public static void set_visible(GamemakerObject instance, object value)
+	public static void set_visible(GamemakerObject instance, object? value)
 	{
-		instance.visible = VMExecutor.Conv<bool>(value);
+		instance.visible = value.Conv<bool>();
 	}
 
 	public static object get_image_alpha(GamemakerObject instance) => instance.image_alpha;
-	public static void set_image_alpha(GamemakerObject instance, object value) => instance.image_alpha = VMExecutor.Conv<double>(value);
+	public static void set_image_alpha(GamemakerObject instance, object? value) => instance.image_alpha = value.Conv<double>();
 
 	public static object get_image_angle(GamemakerObject instance) => instance.image_angle;
-	public static void set_image_angle(GamemakerObject instance, object value) => instance.image_angle = VMExecutor.Conv<double>(value);
+	public static void set_image_angle(GamemakerObject instance, object? value) => instance.image_angle = value.Conv<double>();
 
 	public static object get_speed(GamemakerObject instance) => instance.speed;
-	public static void set_speed(GamemakerObject instance, object value) => instance.speed = VMExecutor.Conv<double>(value);
+	public static void set_speed(GamemakerObject instance, object? value) => instance.speed = value.Conv<double>();
 
 	public static object get_hspeed(GamemakerObject instance) => instance.hspeed;
-	public static void set_hspeed(GamemakerObject instance, object value) => instance.hspeed = VMExecutor.Conv<double>(value);
+	public static void set_hspeed(GamemakerObject instance, object? value) => instance.hspeed = value.Conv<double>();
 
 	public static object get_vspeed(GamemakerObject instance) => instance.vspeed;
-	public static void set_vspeed(GamemakerObject instance, object value) => instance.vspeed = VMExecutor.Conv<double>(value);
+	public static void set_vspeed(GamemakerObject instance, object? value) => instance.vspeed = value.Conv<double>();
 
 	public static object get_direction(GamemakerObject instance) => instance.direction;
-	public static void set_direction(GamemakerObject instance, object value) => instance.direction = VMExecutor.Conv<double>(value);
+	public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<double>();
 
 	public static object get_view_current(GamemakerObject instance) => 0; // TODO : aghhhhh viewports aghhh
 
 	public static object get_persistent(GamemakerObject instance) => instance.persistent;
-	public static void set_persistent(GamemakerObject instance, object value) => instance.persistent = VMExecutor.Conv<bool>(value);
+	public static void set_persistent(GamemakerObject instance, object? value) => instance.persistent = value.Conv<bool>();
 
 	public static object get_id(GamemakerObject instance) => instance.instanceId;
 
 	public static object get_gravity(GamemakerObject instance) => instance.gravity;
-	public static void set_gravity(GamemakerObject instance, object value) => instance.gravity = VMExecutor.Conv<double>(value);
+	public static void set_gravity(GamemakerObject instance, object? value) => instance.gravity = value.Conv<double>();
 
 	public static object get_friction(GamemakerObject instance) => instance.friction;
-	public static void set_friction(GamemakerObject instance, object value) => instance.friction = VMExecutor.Conv<double>(value);
+	public static void set_friction(GamemakerObject instance, object? value) => instance.friction = value.Conv<double>();
 
 	public static object get_gravity_direction(GamemakerObject instance) => instance.gravity_direction;
-	public static void set_gravity_direction(GamemakerObject instance, object value) => instance.gravity_direction = VMExecutor.Conv<double>(value);
+	public static void set_gravity_direction(GamemakerObject instance, object? value) => instance.gravity_direction = value.Conv<double>();
 
 	public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
 
 	//public static object get_room_persistent(GamemakerObject instance) => RoomManager.CurrentRoom.Persistent;
-	//public static void set_room_persistent(GamemakerObject instance, object value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
+	//public static void set_room_persistent(GamemakerObject instance, object? value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
 
 	public static object get_room_speed(GamemakerObject instance) => Entry.GameSpeed;
-	public static void set_room_speed(GamemakerObject instance, object value) => Entry.SetGameSpeed(VMExecutor.Conv<int>(value));
+	public static void set_room_speed(GamemakerObject instance, object? value) => Entry.SetGameSpeed(value.Conv<int>());
 
 	public static object get_os_type(GamemakerObject instance) => 0; // TODO : Check if this is actually os_windows
 
 	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
 
 	public static object get_alarm(GamemakerObject instance) => instance.alarm;
-	// TODO: use conv here
-	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = ((IEnumerable)value).Cast<int>().ToArray();
+	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IEnumerable>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
 
 	public static object get_argument_count(GamemakerObject instance) => ((ICollection)VMExecutor.Ctx.Locals["arguments"]).Count;
 	
-	public static object get_undefined(GamemakerObject instance) => null!; // we want to nre unexpectedly with undefined
+	public static object? get_undefined(GamemakerObject instance) => null;
 }

@@ -371,7 +371,7 @@ public class GamemakerObject : DrawWithDepth
 		}
 	}
 
-	public static bool ExecuteScript(GamemakerObject obj, ObjectDefinition definition, EventType type, int otherData = 0)
+	public static bool ExecuteScript(GamemakerObject obj, ObjectDefinition? definition, EventType type, int otherData = 0)
 	{
 		if (definition == null)
 		{
@@ -398,7 +398,7 @@ public class GamemakerObject : DrawWithDepth
 			return false;
 		}
 
-		bool TryExecuteDict<T>(Dictionary<T, VMScript> dict, T index)
+		bool TryExecuteDict<T>(Dictionary<T, VMScript> dict, T index) where T : notnull
 		{
 			if (dict.TryGetValue(index, out var script))
 			{

@@ -3,12 +3,12 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 /// <summary>
 /// stack that also stores the type
 /// </summary>
-public class DataStack : Stack<(object value, VMType type)>
+public class DataStack : Stack<(object? value, VMType type)>
 {
 	public DataStack() : base() { }
 	public DataStack(DataStack stack) : base(stack) { } // maybe cloning isnt needed
 
-	public void Push(object value, VMType type)
+	public void Push(object? value, VMType type)
 	{
 		base.Push((value, type));
 	}
@@ -34,11 +34,11 @@ public class DataStack : Stack<(object value, VMType type)>
 	/// <summary>
 	/// checks size before popping
 	/// </summary>
-	public object Pop(VMType typeToPop) => Pop<object>(typeToPop);
+	public object? Pop(VMType typeToPop) => Pop<object?>(typeToPop);
 
 	[Obsolete("dont use this version")]
-	public new void Push((object value, VMType type) x) => base.Push(x);
+	public new void Push((object? value, VMType type) x) => base.Push(x);
 
 	[Obsolete("dont use this version")]
-	public new (object value, VMType type) Pop() => base.Pop();
+	public new (object? value, VMType type) Pop() => base.Pop();
 }

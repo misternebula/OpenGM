@@ -9,17 +9,17 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class VMExecutor
 {
-	public static void PopToGlobal(string varName, object value)
+	public static void PopToGlobal(string varName, object? value)
 	{
 		VariableResolver.GlobalVariables[varName] = value;
 	}
 
-	public static void PopToLocal(string varName, object value)
+	public static void PopToLocal(string varName, object? value)
 	{
 		Ctx.Locals[varName] = value;
 	}
 
-	public static void PopToGlobalArray(string varName, int index, object value)
+	public static void PopToGlobalArray(string varName, int index, object? value)
 	{
 		VariableResolver.ArraySet(
 			index,
@@ -28,12 +28,12 @@ public static partial class VMExecutor
 			array => VariableResolver.GlobalVariables[varName] = array);
 	}
 
-	public static void PopToSelf(GamemakerObject self, string varName, object value)
+	public static void PopToSelf(GamemakerObject self, string varName, object? value)
 	{
 		self.SelfVariables[varName] = value;
 	}
 
-	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object value)
+	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object? value)
 	{
 		VariableResolver.ArraySet(
 			index,
@@ -42,7 +42,7 @@ public static partial class VMExecutor
 			array => self.SelfVariables[varName] = array);
 	}
 
-	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object value)
+	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object? value)
 	{
 		VariableResolver.ArraySet(
 			index,
