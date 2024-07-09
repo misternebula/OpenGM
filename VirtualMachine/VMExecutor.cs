@@ -53,7 +53,7 @@ public static partial class VMExecutor
 
 		//if (!script.IsGlobalInit)
 		//{
-			DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
+			// DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
 		//}
 
 		var newCtx = new VMScriptExecutionContext
@@ -95,6 +95,7 @@ public static partial class VMExecutor
 			{
 				(executionResult, data) = ExecuteInstruction(script.Instructions[instructionIndex]);
 
+				/*
 				if (Ctx != null)
 				{
 					var stackStr = "{ ";
@@ -106,6 +107,7 @@ public static partial class VMExecutor
 					stackStr += "}";
 					DebugLog.LogInfo($"STACK: {stackStr}");
 				}
+				*/
 			}
 			catch (Exception e)
 			{
@@ -171,7 +173,7 @@ public static partial class VMExecutor
 	// BUG: throws sometimes instead of returning ExecutionResult.Failure
 	public static (ExecutionResult result, object? data) ExecuteInstruction(VMScriptInstruction instruction)
 	{
-		DebugLog.LogInfo($" - {instruction.Raw}");
+		// DebugLog.LogInfo($" - {instruction.Raw}");
 
 		switch (instruction.Opcode)
 		{
@@ -366,7 +368,6 @@ public static partial class VMExecutor
 				return XOR(instruction);
 			case VMOpcode.NOT:
 				return NOT(instruction);
-			// TODO: move to MathOpcodes.cs
 			case VMOpcode.SHL:
 				return SHL(instruction);
 			case VMOpcode.SHR:
