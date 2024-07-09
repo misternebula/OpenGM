@@ -12,7 +12,7 @@ public class ObjectDefinition
 {
 	public int AssetId;
 
-	public string Name;
+	public string Name = null!;
 	public int sprite = -1;
 	public bool visible = true;
 	public bool solid;
@@ -22,18 +22,18 @@ public class ObjectDefinition
 	/// <summary>
 	/// Stores index data that is used to populate the rest of this class
 	/// </summary>
-	public ObjectDefinitionStorage FileStorage;
+	public ObjectDefinitionStorage FileStorage = null!;
 
 	/// <summary>
 	/// analogous to a superclass
 	/// </summary>
 	[JsonIgnore]
-	public ObjectDefinition parent;
+	public ObjectDefinition? parent;
 
 	[JsonIgnore]
-	public VMScript CreateScript;
+	public VMScript? CreateScript;
 	[JsonIgnore]
-	public VMScript DestroyScript;
+	public VMScript? DestroyScript;
 
 	[JsonIgnore]
 	public Dictionary<int, VMScript> AlarmScript = new();
@@ -51,10 +51,10 @@ public class ObjectDefinition
 	//keyrelease
 	//trigger
 	[JsonIgnore]
-	public VMScript CleanUpScript;
+	public VMScript? CleanUpScript;
 	//gesture
 	[JsonIgnore]
-	public VMScript PreCreateScript;
+	public VMScript? PreCreateScript;
 }
 
 [Serializable]

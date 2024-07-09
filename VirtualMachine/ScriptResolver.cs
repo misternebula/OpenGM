@@ -23,7 +23,7 @@ public static partial class ScriptResolver
 
 	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
 
-	public static Dictionary<string, Func<object?[], object>> BuiltInFunctions = new()
+	public static Dictionary<string, Func<object?[], object?>> BuiltInFunctions = new()
 	{
 		#region Game
 		{ "place_meeting", place_meeting },
@@ -267,7 +267,7 @@ public static partial class ScriptResolver
 		{ "buffer_delete", buffer_delete}
 	};
 
-	private static object layer_force_draw_depth(object[] args)
+	private static object? layer_force_draw_depth(object?[] args)
 	{
 		var force = args[0].Conv<bool>();
 		var depth = args[1].Conv<int>();
@@ -278,19 +278,19 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_set_colour(object[] args)
+	public static object? draw_set_colour(object?[] args)
 	{
 		var color = args[0].Conv<int>();
 		SpriteManager.DrawColor = color;
 		return null;
 	}
 
-	public static object draw_get_colour(object[] args)
+	public static object? draw_get_colour(object?[] args)
 	{
 		return SpriteManager.DrawColor;
 	}
 
-	public static object draw_set_alpha(object[] args)
+	public static object? draw_set_alpha(object?[] args)
 	{
 		var alpha = args[0].Conv<double>();
 		SpriteManager.DrawAlpha = alpha;
@@ -299,33 +299,33 @@ public static partial class ScriptResolver
 
 	
 
-	public static object newgmlarray(object[] args)
+	public static object? newgmlarray(object?[] args)
 	{
 		return new List<object>();
 	}
 
-	public static object asset_get_index(object[] args)
+	public static object? asset_get_index(object?[] args)
 	{
 		var name = args[0].Conv<string>();
 		return AssetIndexManager.GetIndex(name);
 	}
 
-	public static object event_inherited(object[] args)
+	public static object? event_inherited(object?[] args)
 	{
-		if (VMExecutor.Ctx.ObjectDefinition.parent == null)
+		if (VMExecutor.Ctx.ObjectDefinition?.parent == null)
 		{
 			return null;
 		}
 
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
+		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self!, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
 		return null;
 	}
 
-	private static IniFile _iniFile;
+	private static IniFile? _iniFile;
 
-	public static object ini_open(object[] args)
+	public static object? ini_open(object?[] args)
 	{
-		var name = (string)args[0];
+		var name = args[0].Conv<string>();
 
 		DebugLog.Log($"ini_open {name}");
 
@@ -354,7 +354,7 @@ public static partial class ScriptResolver
 		}
 
 		_iniFile = new IniFile { Name = name };
-		IniSection currentSection = null;
+		IniSection? currentSection = null;
 
 		for (var i = 0; i < lines.Length; i++)
 		{
@@ -372,19 +372,19 @@ public static partial class ScriptResolver
 			}
 
 			var keyvalue = ParseKeyValue(currentLine);
-			currentSection.Dict.Add(keyvalue.Key, keyvalue.Value);
+			currentSection?.Dict.Add(keyvalue.Key, keyvalue.Value);
 		}
 
 		return null;
 	}
 
-	public static object ini_read_string(object[] args)
+	public static object? ini_read_string(object?[] args)
 	{
-		var section = (string)args[0];
-		var key = (string)args[1];
-		var value = (string)args[2];
+		var section = args[0].Conv<string>();
+		var key = args[1].Conv<string>();
+		var value = args[2].Conv<string>();
 
-		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
+		var sectionClass = _iniFile!.Sections.FirstOrDefault(x => x.Name == section);
 
 		if (sectionClass == null)
 		{
@@ -399,13 +399,13 @@ public static partial class ScriptResolver
 		return sectionClass.Dict[key];
 	}
 
-	public static object ini_write_string(object[] args)
+	public static object? ini_write_string(object?[] args)
 	{
-		var section = (string)args[0];
-		var key = (string)args[1];
-		var value = (string)args[2];
+		var section = args[0].Conv<string>();
+		var key = args[1].Conv<string>();
+		var value = args[2].Conv<string>();
 
-		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
+		var sectionClass = _iniFile!.Sections.FirstOrDefault(x => x.Name == section);
 
 		if (sectionClass == null)
 		{
@@ -418,13 +418,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object ini_read_real(object[] args)
+	public static object? ini_read_real(object?[] args)
 	{
-		var section = (string)args[0];
-		var key = (string)args[1];
+		var section = args[0].Conv<string>();
+		var key = args[1].Conv<string>();
 		var value = args[2].Conv<double>();
 
-		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
+		var sectionClass = _iniFile!.Sections.FirstOrDefault(x => x.Name == section);
 
 		if (sectionClass == null)
 		{
@@ -445,13 +445,13 @@ public static partial class ScriptResolver
 		return _res;
 	}
 
-	public static object ini_write_real(object[] args)
+	public static object? ini_write_real(object?[] args)
 	{
-		var section = (string)args[0];
-		var key = (string)args[1];
+		var section = args[0].Conv<string>();
+		var key = args[1].Conv<string>();
 		var value = args[2].Conv<double>();
 
-		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
+		var sectionClass = _iniFile!.Sections.FirstOrDefault(x => x.Name == section);
 
 		if (sectionClass == null)
 		{
@@ -464,9 +464,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object ini_close(object[] args)
+	public static object? ini_close(object?[] args)
 	{
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), _iniFile.Name);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), _iniFile!.Name);
 		File.Delete(filepath);
 		var fileStream = new FileStream(filepath, FileMode.Append, FileAccess.Write);
 		var streamWriter = new StreamWriter(fileStream);
@@ -489,7 +489,7 @@ public static partial class ScriptResolver
 		return text; // BUG: this does NOT return the written text
 	}
 
-	public static object audio_group_is_loaded(object[] args)
+	public static object? audio_group_is_loaded(object?[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
 		return true;
@@ -497,9 +497,9 @@ public static partial class ScriptResolver
 
 	private static readonly Dictionary<int, FileHandle> _fileHandles = new(32);
 
-	public static object file_text_open_read(object[] args)
+	public static object? file_text_open_read(object?[] args)
 	{
-		var fname = (string)args[0];
+		var fname = args[0].Conv<string>();
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 
 		DebugLog.Log($"file_text_open_read {filepath}");
@@ -532,14 +532,14 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object file_text_open_write(object[] args)
+	public static object? file_text_open_write(object?[] args)
 	{
 		if (_fileHandles.Count == 32)
 		{
 			return -1;
 		}
 
-		var fname = (string)args[0];
+		var fname = args[0].Conv<string>();
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 
 		File.Delete(filepath);
@@ -560,9 +560,9 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object file_text_close(object[] args)
+	public static object? file_text_close(object?[] args)
 	{
-		var index = (int)args[0];
+		var index = args[0].Conv<int>();
 
 		if (_fileHandles.ContainsKey(index))
 		{
@@ -584,28 +584,28 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object file_text_eof(object[] args)
+	public static object? file_text_eof(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
 		return reader.EndOfStream;
 	}
 
-	public static object file_exists(object[] args)
+	public static object? file_exists(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		return File.Exists(filepath);
 	}
 
-	public static object file_text_readln(object[] args)
+	public static object? file_text_readln(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
 		return reader.ReadLine(); // BUG: returns null if eof
 	}
 
-	public static object file_text_writeln(object[] args)
+	public static object? file_text_writeln(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var writer = _fileHandles[fileid].Writer;
@@ -613,7 +613,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object file_text_read_string(object[] args)
+	public static object? file_text_read_string(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
@@ -627,7 +627,7 @@ public static partial class ScriptResolver
 		return result;
 	}
 
-	public static object file_text_write_string(object[] args)
+	public static object? file_text_write_string(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var str = args[1].Conv<string>();
@@ -636,7 +636,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object file_text_read_real(object[] args)
+	public static object? file_text_read_real(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
@@ -650,7 +650,7 @@ public static partial class ScriptResolver
 		return double.Parse(result);
 	}
 
-	public static object file_text_write_real(object[] args)
+	public static object? file_text_write_real(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
 		var val = args[1];
@@ -667,7 +667,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object file_delete(object[] args)
+	public static object? file_delete(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
@@ -675,7 +675,7 @@ public static partial class ScriptResolver
 		return true; // TODO : this should return false if this fails.
 	}
 
-	public static object file_copy(object[] args)
+	public static object? file_copy(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
 		var newname = args[1].Conv<string>();
@@ -693,7 +693,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object variable_global_exists(object[] args)
+	public static object? variable_global_exists(object?[] args)
 	{
 		var name = args[0].Conv<string>();
 		return VariableResolver.GlobalVariables.ContainsKey(name);
@@ -701,7 +701,7 @@ public static partial class ScriptResolver
 
 	private static Dictionary<int, Dictionary<object, object>> _dsMapDict = new();
 
-	public static object ds_map_create(params object[] args)
+	public static object ds_map_create(params object?[] args)
 	{
 		var highestIndex = -1;
 		if (_dsMapDict.Count > 0)
@@ -713,18 +713,18 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object ds_map_destroy(object[] args)
+	public static object? ds_map_destroy(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		_dsMapDict.Remove(index);
 		return null;
 	}
 
-	public static object ds_map_add(params object[] args)
+	public static object? ds_map_add(params object?[] args)
 	{
 		var id = args[0].Conv<int>();
-		var key = args[1];
-		var value = args[2];
+		var key = args[1]!;
+		var value = args[2]!;
 
 		if (!_dsMapDict.ContainsKey(id))
 		{
@@ -741,7 +741,7 @@ public static partial class ScriptResolver
 		return true;
 	}
 
-	public static object ds_map_size(object[] args)
+	public static object? ds_map_size(object?[] args)
 	{
 		var id = args[0].Conv<int>();
 		return _dsMapDict[id].Count;
@@ -749,7 +749,7 @@ public static partial class ScriptResolver
 
 	private static Dictionary<int, List<object>> _dsListDict = new();
 
-	public static object ds_list_create(params object[] args)
+	public static object ds_list_create(params object?[] args)
 	{
 		var highestIndex = -1;
 		if (_dsListDict.Count > 0)
@@ -761,14 +761,14 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object ds_list_destroy(object[] args)
+	public static object? ds_list_destroy(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		_dsListDict.Remove(index);
 		return null;
 	}
 
-	public static object ds_list_add(params object[] args)
+	public static object? ds_list_add(params object?[] args)
 	{
 		var id = args[0].Conv<int>();
 		var values = args[1..];
@@ -779,14 +779,14 @@ public static partial class ScriptResolver
 		}
 
 		var list = _dsListDict[id];
-		list.AddRange(values);
+		list.AddRange(values!);
 		return null;
 	}
 
-	public static object ds_map_find_value(object[] args)
+	public static object? ds_map_find_value(object?[] args)
 	{
 		var id = args[0].Conv<int>();
-		var key = args[1];
+		var key = args[1]!;
 
 		if (!_dsMapDict.ContainsKey(id))
 		{
@@ -802,13 +802,13 @@ public static partial class ScriptResolver
 		return dict[key];
 	}
 
-	public static object show_debug_message(object[] args)
+	public static object? show_debug_message(object?[] args)
 	{
-		DebugLog.Log(args[0].ToString());
+		DebugLog.Log(args[0]?.ToString() ?? "undefined");
 		return null;
 	}
 
-	public static object json_decode(object[] args)
+	public static object? json_decode(object?[] args)
 	{
 		// is recursive weeeeeeeeeeee
 		static object Parse(JToken jToken)
@@ -816,7 +816,7 @@ public static partial class ScriptResolver
 			switch (jToken)
 			{
 				case JValue jValue:
-					return jValue.Value;
+					return jValue.Value!;
 				case JArray jArray:
 				{
 					var dsList = (int)ds_list_create();
@@ -833,7 +833,7 @@ public static partial class ScriptResolver
 					foreach (var (name, value) in jObject)
 					{
 						// TODO: make and call the proper function for maps and lists
-						ds_map_add(dsMap, name, Parse(value));
+						ds_map_add(dsMap, name, Parse(value!));
 					}
 					return dsMap;
 				}
@@ -868,14 +868,14 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object font_add_sprite_ext(object[] args)
+	public static object? font_add_sprite_ext(object?[] args)
 	{
 		var spriteAssetIndex = args[0].Conv<int>();
 		var string_map = args[1].Conv<string>();
 		var prop = args[2].Conv<bool>();
 		var sep = args[3].Conv<int>();
 
-		var spriteAsset = SpriteManager.GetSpriteAsset(spriteAssetIndex);
+		var spriteAsset = SpriteManager.GetSpriteAsset(spriteAssetIndex)!;
 
 		var index = AssetIndexManager.Register(AssetType.fonts, $"fnt_{spriteAsset.Name}");
 
@@ -902,7 +902,7 @@ public static partial class ScriptResolver
 		return newFont.AssetIndex;
 	}
 
-	public static object draw_rectangle(object[] args)
+	public static object? draw_rectangle(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();
@@ -939,7 +939,7 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object draw_set_font(object[] args)
+	public static object? draw_set_font(object?[] args)
 	{
 		var font = args[0].Conv<int>();
 
@@ -949,7 +949,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_text(object[] args)
+	public static object? draw_text(object?[] args)
 	{
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
@@ -958,7 +958,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object merge_colour(object[] args)
+	public static object? merge_colour(object?[] args)
 	{
 		var col1 = args[0].Conv<int>();
 		var col2 = args[1].Conv<int>();
@@ -981,21 +981,21 @@ public static partial class ScriptResolver
 		return BitConverter.ToInt32(new[] { (byte)mr, (byte)mg, (byte)mb, (byte)255 }, 0);
 	}
 
-	public static object draw_set_halign(object[] args)
+	public static object? draw_set_halign(object?[] args)
 	{
 		var halign = args[0].Conv<int>();
 		TextManager.halign = (HAlign)halign;
 		return null;
 	}
 
-	public static object draw_set_valign(object[] args)
+	public static object? draw_set_valign(object?[] args)
 	{
 		var valign = args[0].Conv<int>();
 		TextManager.valign = (VAlign)valign;
 		return null;
 	}
 
-	public static object draw_sprite(object[] args)
+	public static object? draw_sprite(object?[] args)
 	{
 		var sprite = args[0].Conv<int>();
 		var subimg = args[1].Conv<int>();
@@ -1006,7 +1006,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object window_set_caption(object[] args)
+	public static object? window_set_caption(object?[] args)
 	{
 		var caption = args[0].Conv<string>();
 
@@ -1014,18 +1014,18 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object window_get_caption(object[] args)
+	public static object? window_get_caption(object?[] args)
 	{
 		return CustomWindow.Instance.Title;
 	}
 
-	public static object audio_group_load(object[] args)
+	public static object? audio_group_load(object?[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
 		return true;
 	}
 
-	public static object keyboard_check(object[] args)
+	public static object? keyboard_check(object?[] args)
 	{
 		var key = args[0].Conv<int>();
 
@@ -1057,7 +1057,7 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object keyboard_check_pressed(object[] args)
+	public static object? keyboard_check_pressed(object?[] args)
 	{
 		var key = args[0].Conv<int>();
 
@@ -1089,17 +1089,17 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object display_get_width(object[] args)
+	public static object? display_get_width(object?[] args)
 	{
 		return Monitors.GetPrimaryMonitor().HorizontalResolution;
 	}
 
-	public static object display_get_height(object[] args)
+	public static object? display_get_height(object?[] args)
 	{
 		return Monitors.GetPrimaryMonitor().VerticalResolution;
 	}
 
-	public static object window_set_size(object[] args)
+	public static object? window_set_size(object?[] args)
 	{
 		var w = args[0].Conv<int>();
 		var h = args[1].Conv<int>();
@@ -1111,19 +1111,19 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object window_center(object[] args)
+	public static object? window_center(object?[] args)
 	{
 		CustomWindow.Instance.CenterWindow();
 
 		return null;
 	}
 
-	public static object window_get_fullscreen(object[] args)
+	public static object? window_get_fullscreen(object?[] args)
 	{
 		return CustomWindow.Instance.IsFullscreen;
 	}
 
-	public static object window_set_fullscreen(object[] args)
+	public static object? window_set_fullscreen(object?[] args)
 	{
 		var full = args[0].Conv<bool>();
 		CustomWindow.Instance.WindowState = full ? WindowState.Fullscreen : WindowState.Normal;
@@ -1131,25 +1131,25 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object gamepad_button_check(object[] args)
+	public static object? gamepad_button_check(object?[] args)
 	{
 		// TODO : implement?
 		return false;
 	}
 
-	public static object gamepad_axis_value(object[] args)
+	public static object? gamepad_axis_value(object?[] args)
 	{
 		// TODO : implement?
 		return 0;
 	}
 
-	public static object gamepad_is_connected(object[] args)
+	public static object? gamepad_is_connected(object?[] args)
 	{
 		var device = args[0].Conv<int>();
 		return false; // TODO : implement
 	}
 
-	public static object draw_sprite_ext(object[] args)
+	public static object? draw_sprite_ext(object?[] args)
 	{
 		var sprite = args[0].Conv<int>();
 		var subimg = args[1].Conv<int>();
@@ -1165,7 +1165,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_text_transformed(object[] args)
+	public static object? draw_text_transformed(object?[] args)
 	{
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
@@ -1177,7 +1177,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_sprite_part_ext(object[] args)
+	public static object? draw_sprite_part_ext(object?[] args)
 	{
 		var sprite = args[0].Conv<int>();
 		var subimg = args[1].Conv<int>();
@@ -1197,7 +1197,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_sprite_part(object[] args)
+	public static object? draw_sprite_part(object?[] args)
 	{
 		var sprite = args[0].Conv<int>();
 		var subimg = args[1].Conv<int>();
@@ -1213,13 +1213,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_self(object[] args)
+	public static object? draw_self(object?[] args)
 	{
 		SpriteManager.DrawSelf(VMExecutor.Ctx.Self);
 		return null;
 	}
 
-	public static object draw_sprite_stretched(object[] args)
+	public static object? draw_sprite_stretched(object?[] args)
 	{
 		var sprite = args[0].Conv<int>();
 		var subimg = args[1].Conv<int>();
@@ -1232,7 +1232,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_text_colour(object[] args)
+	public static object? draw_text_colour(object?[] args)
 	{
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
@@ -1248,7 +1248,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_sprite_tiled_ext(object[] args)
+	public static object? draw_sprite_tiled_ext(object?[] args)
 	{
 		var sprite = args[0].Conv<int>();
 		var subimg = args[1].Conv<int>();
@@ -1299,13 +1299,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_group_set_gain(object[] args)
+	public static object? audio_group_set_gain(object?[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
 		return null;
 	}
 
-	public static object audio_play_sound(object[] args)
+	public static object? audio_play_sound(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		var priority = args[1].Conv<double>();
@@ -1339,7 +1339,7 @@ public static partial class ScriptResolver
 		return ret;
 	}
 
-	public static object audio_set_master_gain(object[] args)
+	public static object? audio_set_master_gain(object?[] args)
 	{
 		var listenerIndex = args[0].Conv<double>(); // deltarune doesnt use other listeners rn so i dont care
 		var gain = args[1].Conv<double>();
@@ -1347,13 +1347,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object view_get_camera(object[] args)
+	public static object? view_get_camera(object?[] args)
 	{
 		// TODO : ughhh implement multiple cameras
 		return 0;
 	}
 
-	public static object camera_get_view_x(object[] args)
+	public static object? camera_get_view_x(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1366,7 +1366,7 @@ public static partial class ScriptResolver
 		return CustomWindow.Instance.X;
 	}
 
-	public static object camera_get_view_y(object[] args)
+	public static object? camera_get_view_y(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1379,7 +1379,7 @@ public static partial class ScriptResolver
 		return CustomWindow.Instance.Y;
 	}
 
-	public static object camera_get_view_width(object[] args)
+	public static object? camera_get_view_width(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1392,7 +1392,7 @@ public static partial class ScriptResolver
 		return RoomManager.CurrentRoom.CameraWidth;
 	}
 
-	public static object camera_get_view_height(object[] args)
+	public static object? camera_get_view_height(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1405,7 +1405,7 @@ public static partial class ScriptResolver
 		return RoomManager.CurrentRoom.CameraHeight;
 	}
 
-	public static object camera_set_view_target(object[] args)
+	public static object? camera_set_view_target(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1435,7 +1435,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	/*public static object camera_get_view_target(object[] args)
+	/*public static object? camera_get_view_target(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1449,7 +1449,7 @@ public static partial class ScriptResolver
 		return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
 	}*/
 
-	public static object camera_set_view_pos(object[] args)
+	public static object? camera_set_view_pos(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1467,7 +1467,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_create_stream(object[] args)
+	public static object? audio_create_stream(object?[] args)
 	{
 		var filename = args[0].Conv<string>();
 
@@ -1503,14 +1503,14 @@ public static partial class ScriptResolver
 		});
 	}
 
-	public static object audio_destroy_stream(object[] args)
+	public static object? audio_destroy_stream(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		AudioManager.UnregisterAudio(index);
 		return null;
 	}
 
-	public static object audio_sound_gain(object[] args)
+	public static object? audio_sound_gain(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		var volume = args[1].Conv<double>();
@@ -1541,7 +1541,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_sound_pitch(object[] args)
+	public static object? audio_sound_pitch(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		var pitch = args[1].Conv<double>();
@@ -1570,14 +1570,14 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_stop_all(object[] args)
+	public static object? audio_stop_all(object?[] args)
 	{
 		DebugLog.Log($"audio_stop_all");
 		AudioManager.StopAllAudio();
 		return null;
 	}
 
-	public static object audio_stop_sound(object[] args)
+	public static object? audio_stop_sound(object?[] args)
 	{
 		var id = args[0].Conv<int>();
 		DebugLog.Log($"audio_stop_sound id:{id}");
@@ -1601,7 +1601,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_pause_sound(object[] args)
+	public static object? audio_pause_sound(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 
@@ -1627,7 +1627,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_resume_sound(object[] args)
+	public static object? audio_resume_sound(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 
@@ -1648,7 +1648,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_sound_set_track_position(object[] args)
+	public static object? audio_sound_set_track_position(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		var time = args[1].Conv<double>();
@@ -1667,7 +1667,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object audio_is_playing(object[] args)
+	public static object? audio_is_playing(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 
@@ -1690,21 +1690,21 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object string_width(object[] args)
+	public static object? string_width(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 
 		return TextManager.StringWidth(str);
 	}
 
-	public static object event_user(object[] args)
+	public static object? event_user(object?[] args)
 	{
 		var numb = args[0].Conv<int>();
 		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null;
 	}
 
-	public static object script_execute(object[] args)
+	public static object? script_execute(object?[] args)
 	{
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
@@ -1713,7 +1713,7 @@ public static partial class ScriptResolver
 		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
 	}
 
-	public static object draw_line_width(object[] args)
+	public static object? draw_line_width(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();
@@ -1733,7 +1733,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object gpu_set_fog(object[] args)
+	public static object? gpu_set_fog(object?[] args)
 	{
 		var enable = args[0].Conv<bool>();
 		var colour = args[1].Conv<int>();
@@ -1751,13 +1751,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object sprite_get_number(object[] args)
+	public static object? sprite_get_number(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 		return SpriteManager.GetNumberOfFrames(index);
 	}
 
-	public static object lengthdir_x(object[] args)
+	public static object? lengthdir_x(object?[] args)
 	{
 		var len = args[0].Conv<double>();
 		var dir = args[1].Conv<double>();
@@ -1765,7 +1765,7 @@ public static partial class ScriptResolver
 		return len * Math.Cos(dir * CustomMath.Deg2Rad);
 	}
 
-	public static object lengthdir_y(object[] args)
+	public static object? lengthdir_y(object?[] args)
 	{
 		var len = args[0].Conv<double>();
 		var dir = args[1].Conv<double>();
@@ -1773,37 +1773,37 @@ public static partial class ScriptResolver
 		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
 	}
 
-	public static object object_get_sprite(object[] args)
+	public static object? object_get_sprite(object?[] args)
 	{
 		var obj = args[0].Conv<int>();
 		return InstanceManager.ObjectDefinitions[obj].sprite;
 	}
 
-	public static object layer_get_all(object[] args)
+	public static object? layer_get_all(object?[] args)
 	{
 		return RoomManager.CurrentRoom.Layers.Values.Select(x => (object)x.ID).ToList();
 	}
 
-	public static object layer_get_name(object[] args)
+	public static object? layer_get_name(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		return RoomManager.CurrentRoom.Layers[layer_id].Name;
 	}
 
-	public static object real(object[] args)
+	public static object? real(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		return str.Conv<double>();
 	}
 
-	private static object layer_get_depth(object[] args)
+	private static object? layer_get_depth(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.Depth;
 	}
 
-	private static object layer_x(object[] args)
+	private static object? layer_x(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var x = args[1].Conv<double>();
@@ -1813,7 +1813,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static object layer_y(object[] args)
+	private static object? layer_y(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var y = args[1].Conv<double>();
@@ -1823,7 +1823,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static object layer_get_x(object[] args)
+	private static object? layer_get_x(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 
@@ -1831,7 +1831,7 @@ public static partial class ScriptResolver
 		return layer.X;
 	}
 
-	private static object layer_get_y(object[] args)
+	private static object? layer_get_y(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 
@@ -1839,7 +1839,7 @@ public static partial class ScriptResolver
 		return layer.Y;
 	}
 
-	private static object layer_hspeed(object[] args)
+	private static object? layer_hspeed(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var hspd = args[1].Conv<double>();
@@ -1849,7 +1849,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static object layer_vspeed(object[] args)
+	private static object? layer_vspeed(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var vspd = args[1].Conv<double>();
@@ -1859,7 +1859,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static object layer_get_vspeed(object[] args)
+	private static object? layer_get_vspeed(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 
@@ -1867,7 +1867,7 @@ public static partial class ScriptResolver
 		return layer.VSpeed;
 	}
 
-	private static object layer_get_hspeed(object[] args)
+	private static object? layer_get_hspeed(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 
@@ -1875,7 +1875,7 @@ public static partial class ScriptResolver
 		return layer.HSpeed;
 	}
 
-	private static object layer_depth(object[] args)
+	private static object? layer_depth(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var depth = args[1].Conv<int>();
@@ -1885,14 +1885,14 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static object layer_get_all_elements(object[] args)
+	private static object? layer_get_all_elements(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.Elements.Select(x => (object)x.instanceId).ToList();
 	}
 
-	private static object layer_get_element_type(object[] args)
+	private static object? layer_get_element_type(object?[] args)
 	{
 		var element_id = args[0].Conv<int>();
 		var element = TileManager.Tiles.First(x => x.instanceId == element_id);
@@ -1907,7 +1907,7 @@ public static partial class ScriptResolver
 		}
 	}
 
-	private static object layer_tile_alpha(object[] args)
+	private static object? layer_tile_alpha(object?[] args)
 	{
 		var __index = args[0].Conv<int>();
 		var __alpha = args[1].Conv<double>();
@@ -1916,7 +1916,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static object layer_create(object[] args)
+	private static object? layer_create(object?[] args)
 	{
 		var depth = args[0].Conv<int>();
 		var name = "";
@@ -1939,7 +1939,7 @@ public static partial class ScriptResolver
 		return newLayerId;
 	}
 
-	private static object instance_find(object[] args)
+	private static object? instance_find(object?[] args)
 	{
 		var obj = args[0].Conv<int>();
 		var n = args[1].Conv<int>();
@@ -1973,7 +1973,7 @@ public static partial class ScriptResolver
 		return GMConstants.noone;
 	}
 
-	private static object draw_arrow(object[] args)
+	private static object? draw_arrow(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();
@@ -2029,7 +2029,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object make_color_hsv(object[] args)
+	public static object? make_color_hsv(object?[] args)
 	{
 		var hue = args[0].Conv<double>();
 		var sat = args[1].Conv<double>() / 255;
@@ -2093,7 +2093,7 @@ public static partial class ScriptResolver
 		return (bByte << 16) + (byte)(gByte << 8) + rByte;
 	}
 
-	public static object gpu_set_blendmode(object[] args)
+	public static object? gpu_set_blendmode(object?[] args)
 	{
 		var mode = args[0].Conv<int>();
 
@@ -2134,7 +2134,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_circle(object[] args)
+	public static object? draw_circle(object?[] args)
 	{
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
@@ -2160,7 +2160,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object draw_triangle(object[] args)
+	public static object? draw_triangle(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();
@@ -2186,14 +2186,14 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object angle_difference(object[] args)
+	public static object? angle_difference(object?[] args)
 	{
 		var dest = args[0].Conv<double>();
 		var src = args[1].Conv<double>();
 		return CustomMath.Mod(dest - src + 180, 360) - 180;
 	}
 
-	public static object distance_to_object(object[] args)
+	public static object? distance_to_object(object?[] args)
 	{
 		var obj = args[0].Conv<int>();
 
@@ -2217,7 +2217,7 @@ public static partial class ScriptResolver
 		return CollisionManager.DistanceToObject(VMExecutor.Ctx.Self, objToCheck);
 	}
 
-	public static object texturegroup_get_textures(object[] args)
+	public static object? texturegroup_get_textures(object?[] args)
 	{
 		var tex_id = args[0].Conv<string>();
 
@@ -2226,48 +2226,48 @@ public static partial class ScriptResolver
 		return asset.TexturePages;
 	}
 
-	public static object texture_prefetch(object[] args)
+	public static object? texture_prefetch(object?[] args)
 	{
 		var tex_id = args[0].Conv<string>();
 		// TODO : Implement? Or not?
 		return null;
 	}
 
-	public static object texture_flush(object[] args)
+	public static object? texture_flush(object?[] args)
 	{
 		var tex_id = args[0].Conv<string>();
 		// TODO : Implement? Or not?
 		return null;
 	}
 
-	public static object window_get_width(object[] args)
+	public static object? window_get_width(object?[] args)
 	{
 		return CustomWindow.Instance.ClientSize.X;
 	}
 
-	public static object window_get_height(object[] args)
+	public static object? window_get_height(object?[] args)
 	{
 		return CustomWindow.Instance.ClientSize.Y;
 	}
 
-	public static object surface_get_width(object[] args)
+	public static object? surface_get_width(object?[] args)
 	{
 		var surface_id = args[0].Conv<int>();
 		return SurfaceManager.GetSurfaceWidth(surface_id);
 	}
 
-	public static object surface_get_height(object[] args)
+	public static object? surface_get_height(object?[] args)
 	{
 		var surface_id = args[0].Conv<int>();
 		return SurfaceManager.GetSurfaceHeight(surface_id);
 	}
 
-	public static object os_get_language(object[] args)
+	public static object? os_get_language(object?[] args)
 	{
 		return "en"; // TODO : actually implement
 	}
 
-	public static object surface_resize(object[] args)
+	public static object? surface_resize(object?[] args)
 	{
 		var surface_id = args[0].Conv<int>();
 		var w = args[1].Conv<int>();
@@ -2276,7 +2276,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object lerp(object[] args)
+	public static object? lerp(object?[] args)
 	{
 		var a = args[0].Conv<double>();
 		var b = args[1].Conv<double>();
@@ -2285,7 +2285,7 @@ public static partial class ScriptResolver
 		return a + ((b - a) * amt);
 	}
 
-	public static object clamp(object[] args)
+	public static object? clamp(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		var min = args[1].Conv<double>();
@@ -2304,19 +2304,19 @@ public static partial class ScriptResolver
 		return val;
 	}
 
-	public static object gamepad_button_check_pressed(object[] args)
+	public static object? gamepad_button_check_pressed(object?[] args)
 	{
 		// TODO : implement
 		return false;
 	}
 
-	public static object sprite_create_from_surface(object[] args)
+	public static object? sprite_create_from_surface(object?[] args)
 	{
 		// TODO : implement
 		return 1;
 	}
 
-	public static object sprite_set_offset(object[] args)
+	public static object? sprite_set_offset(object?[] args)
 	{
 		var ind = args[0].Conv<int>();
 		var xoff = args[1].Conv<int>();
@@ -2328,13 +2328,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object gamepad_get_device_count(object[] args)
+	public static object? gamepad_get_device_count(object?[] args)
 	{
 		// TODO : implement
 		return 0;
 	}
 
-	public static object draw_text_ext(object[] args)
+	public static object? draw_text_ext(object?[] args)
 	{
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
@@ -2358,34 +2358,34 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object ord(object[] args)
+	public static object? ord(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 
 		return (int)Encoding.UTF8.GetBytes(str)[0];
 	}
 
-	public static object room_get_name(object[] args)
+	public static object? room_get_name(object?[] args)
 	{
 		var index = args[0].Conv<int>();
 
 		return RoomManager.RoomList[index].Name;
 	}
 
-	public static object buffer_load(object[] args)
+	public static object? buffer_load(object?[] args)
 	{
 		var filename = args[0].Conv<string>();
 		return BufferManager.LoadBuffer(filename);
 	}
 
-	public static object buffer_read(object[] args)
+	public static object? buffer_read(object?[] args)
 	{
 		var bufferIndex = args[0].Conv<int>();
 		var type = args[1].Conv<int>();
 		return BufferManager.ReadBuffer(bufferIndex, (BufferDataType)type);
 	}
 
-	public static object buffer_delete(object[] args)
+	public static object? buffer_delete(object?[] args)
 	{
 		var bufferIndex = args[0].Conv<int>();
 

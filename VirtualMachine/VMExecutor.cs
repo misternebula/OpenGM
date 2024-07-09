@@ -9,7 +9,7 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 /// </summary>
 public class VMScriptExecutionContext
 {
-	public GamemakerObject Self = null!;
+	public GamemakerObject? Self; // may mark this not null later since in almost all cases its not null
 	public ObjectDefinition? ObjectDefinition;
 	public DataStack Stack = null!;
 	public Dictionary<string, object?> Locals = null!;
@@ -44,7 +44,7 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static object? ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
+	public static object? ExecuteScript(VMScript script, GamemakerObject? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
@@ -461,7 +461,7 @@ public static partial class VMExecutor
 		}
 		else
 		{
-			return (T)Conv(@this, Activator.CreateInstance(typeof(T), null).GetType());
+			return (T)Conv(@this, Activator.CreateInstance(typeof(T), null)!.GetType());
 		}
 	}
 

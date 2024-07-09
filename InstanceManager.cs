@@ -89,7 +89,7 @@ public static class InstanceManager
 		return result;
 	}
 
-	public static GamemakerObject FindByInstanceId(int instanceId)
+	public static GamemakerObject? FindByInstanceId(int instanceId)
 	{
 		if (instanceId < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -136,7 +136,7 @@ public static class InstanceManager
 			obj.Destroy();
 		}
 
-		instances.Remove(obj);
+		instances.Remove(obj!);
 	}
 
 	public static void RoomChange()

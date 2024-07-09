@@ -4,9 +4,9 @@
 public class VMScript
 {
 	public int AssetId;
-	public string Name;
+	public string Name = null!;
 	public bool IsGlobalInit;
-	public List<string> LocalVariables;
+	public List<string> LocalVariables = null!;
 	public Dictionary<int, Label> Labels = new();
 	public List<VMScriptInstruction> Instructions = new();
 }
@@ -15,5 +15,5 @@ public class VMScript
 public class Label
 {
 	public int InstructionIndex;
-	public string FunctionName = null;
+	public string FunctionName = null!;
 }

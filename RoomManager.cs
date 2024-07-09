@@ -13,15 +13,15 @@ public static class RoomManager
 	/// <summary>
 	/// The room to change to.
 	/// </summary>
-	public static Room RoomToChangeTo = null;
-	public static RoomContainer CurrentRoom;
+	public static Room? RoomToChangeTo = null;
+	public static RoomContainer CurrentRoom = null!; // its set to room on start
 
 	public static Dictionary<int, Room> RoomList = new();
 	public static bool RoomLoaded = false;
 
 	public static void ChangeToWaitingRoom()
 	{
-		DebugLog.LogInfo($"Changing to {RoomToChangeTo.Name}");
+		DebugLog.LogInfo($"Changing to {RoomToChangeTo!.Name}");
 		ChangeRoomAfterEventExecution = false;
 
 		// events could destroy other objects, cant modify during iteration
@@ -50,7 +50,7 @@ public static class RoomManager
 
 		RoomLoaded = false;
 
-		CurrentRoom = new RoomContainer(RoomToChangeTo);
+		CurrentRoom = new RoomContainer(RoomToChangeTo!);
 
 		RoomToChangeTo = null;
 
@@ -59,7 +59,7 @@ public static class RoomManager
 
 	private static void OnRoomChanged()
 	{
-		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
+		CustomWindow.Instance.SetResolution(CurrentRoom!.CameraWidth, CurrentRoom.CameraHeight);
 		CustomWindow.Instance.SetPosition(0, 0);
 
 		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
@@ -182,12 +182,12 @@ public static class RoomManager
 
 	public static void room_goto_next()
 	{
-		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId + 1]);
+		ChangeRoomAfterEvent(RoomList[CurrentRoom!.AssetId + 1]);
 	}
 
 	public static void room_goto_previous()
 	{
-		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId -1]);
+		ChangeRoomAfterEvent(RoomList[CurrentRoom!.AssetId -1]);
 	}
 
 	public static int room_next(int numb)

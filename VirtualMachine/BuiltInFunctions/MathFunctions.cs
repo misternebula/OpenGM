@@ -11,38 +11,38 @@ public static partial class ScriptResolver
 {
 	static Random rnd = new Random();
 
-	public static object array_length_1d(object[] args)
+	public static object array_length_1d(object?[] args)
 	{
 		var array = args[0].Conv<ICollection>();
 		return array.Count;
 	}
 
-	public static object array_length(object[] args)
+	public static object array_length(object?[] args)
 	{
 		var array = args[0].Conv<ICollection>();
 		return array.Count;
 	}
 
-	public static object random(object[] args)
+	public static object random(object?[] args)
 	{
 		var upper = args[0].Conv<double>();
 		return rnd.NextDouble() * upper;
 	}
 
-	public static object random_range(object[] args)
+	public static object random_range(object?[] args)
 	{
 		var n1 = args[0].Conv<double>();
 		var n2 = args[1].Conv<double>();
 		return rnd.NextDouble() * (n2 - n1) + n1;
 	}
 
-	public static object irandom(object[] args)
+	public static object irandom(object?[] args)
 	{
 		var n = realToInt(args[0].Conv<double>());
 		return rnd.Next(0, n + 1);
 	}
 
-	public static object irandom_range(object[] args)
+	public static object irandom_range(object?[] args)
 	{
 		var n1 = realToInt(args[0].Conv<double>());
 		var n2 = realToInt(args[1].Conv<double>());
@@ -50,37 +50,37 @@ public static partial class ScriptResolver
 		return rnd.Next(n1, n2 + 1);
 	}
 
-	public static object abs(object[] args)
+	public static object abs(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		return Math.Abs(val);
 	}
 
-	public static object round(object[] args)
+	public static object round(object?[] args)
 	{
 		var num = args[0].Conv<double>();
 		return CustomMath.RoundToInt((float)num); // BUG: shouldnt this just do Math.Round?
 	}
 
-	public static object floor(object[] args)
+	public static object floor(object?[] args)
 	{
 		var n = args[0].Conv<double>();
 		return Math.Floor(n);
 	}
 
-	public static object ceil(object[] args)
+	public static object ceil(object?[] args)
 	{
 		var n = args[0].Conv<double>();
 		return Math.Ceiling(n);
 	}
 
-	public static object sin(object[] args)
+	public static object sin(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		return Math.Sin(val);
 	}
 
-	public static object cos(object[] args)
+	public static object cos(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		return Math.Cos(val);
@@ -91,7 +91,7 @@ public static partial class ScriptResolver
 		return value < 0 ? CustomMath.CeilToInt((float)value) : CustomMath.FloorToInt((float)value);
 	}
 
-	public static object min(object[] args)
+	public static object min(object?[] args)
 	{
 		var arguments = new double[args.Length];
 		for (var i = 0; i < args.Length; i++)
@@ -102,7 +102,7 @@ public static partial class ScriptResolver
 		return arguments.Min();
 	}
 
-	public static object max(object[] args)
+	public static object max(object?[] args)
 	{
 		var arguments = new double[args.Length];
 		for (var i = 0; i < args.Length; i++)
@@ -113,16 +113,16 @@ public static partial class ScriptResolver
 		return arguments.Max();
 	}
 
-	public static object choose(object[] args)
+	public static object? choose(object?[] args)
 	{
 		return args[rnd.Next(0, args.Length)];
 	}
 
-	public static object @string(params object[] args)
+	public static object @string(params object?[] args)
 	{
 		var valueOrFormat = args[0];
 
-		var values = new object[] { };
+		var values = new object?[] { };
 		if (args.Length > 1)
 		{
 			values = args[1..];
@@ -224,7 +224,7 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object string_length(object[] args)
+	public static object string_length(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 
@@ -236,7 +236,7 @@ public static partial class ScriptResolver
 		return str.Length;
 	}
 
-	public static object string_char_at(object[] args)
+	public static object string_char_at(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		var index = args[1].Conv<int>();
@@ -255,7 +255,7 @@ public static partial class ScriptResolver
 		return str[index - 1].ToString();
 	}
 
-	public static object string_copy(object[] args)
+	public static object string_copy(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		var index = args[1].Conv<int>();
@@ -264,7 +264,7 @@ public static partial class ScriptResolver
 		return str.Substring(index - 1, count);
 	}
 
-	public static object string_insert(object[] args)
+	public static object string_insert(object?[] args)
 	{
 		var substr = args[0].Conv<string>();
 		var str = args[1].Conv<string>();
@@ -273,7 +273,7 @@ public static partial class ScriptResolver
 		return str.Insert(index - 1, substr);
 	}
 
-	public static object string_delete(object[] args)
+	public static object string_delete(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		var index = args[1].Conv<int>();
@@ -282,7 +282,7 @@ public static partial class ScriptResolver
 		return str.Remove(index - 1, count);
 	}
 
-	public static object string_replace_all(object[] args)
+	public static object string_replace_all(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		var substr = args[1].Conv<string>();
@@ -291,7 +291,7 @@ public static partial class ScriptResolver
 		return str.Replace(substr, newstr);
 	}
 
-	public static object string_hash_to_newline(object[] args)
+	public static object string_hash_to_newline(object?[] args)
 	{
 		var text = args[0].Conv<string>();
 
@@ -303,7 +303,7 @@ public static partial class ScriptResolver
 		return text.Replace("#", Environment.NewLine);
 	}
 
-	public static object string_pos(object[] args)
+	public static object string_pos(object?[] args)
 	{
 		var substr = args[0].Conv<string>();
 		var str = args[1].Conv<string>();
@@ -311,7 +311,7 @@ public static partial class ScriptResolver
 		return str.IndexOf(substr) + 1;
 	}
 
-	public static object point_distance(object[] args)
+	public static object point_distance(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();
@@ -324,7 +324,7 @@ public static partial class ScriptResolver
 		return Math.Sqrt((horizDistance * horizDistance) + (vertDistance * vertDistance));
 	}
 
-	public static object point_direction(params object[] args)
+	public static object point_direction(params object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();

@@ -11,7 +11,7 @@ namespace DELTARUNITYStandalone;
 /// </summary>
 public class GamemakerObject : DrawWithDepth
 {
-	public Dictionary<string, object> SelfVariables = new();
+	public Dictionary<string, object?> SelfVariables = new();
 
 	public ObjectDefinition Definition;
 
@@ -128,7 +128,7 @@ public class GamemakerObject : DrawWithDepth
 			}
 
 			var sprite = SpriteManager.GetSpriteAsset(_sprite_index);
-			_cachedSpriteWidth = sprite.Textures[0].TargetSizeX;
+			_cachedSpriteWidth = sprite!.Textures[0].TargetSizeX;
 			_cachedSpriteHeight = sprite.Textures[0].TargetSizeY;
 			_cached_sprite_xoffset = sprite.Origin.X;
 			_cached_sprite_yoffset = sprite.Origin.Y;
@@ -382,7 +382,7 @@ public class GamemakerObject : DrawWithDepth
 
 		//Debug.Log($"Trying to execute {type} {otherData} on {obj.object_index} with definition {definition.name}");
 
-		bool TryExecute(VMScript script)
+		bool TryExecute(VMScript? script)
 		{
 			if (script != null)
 			{

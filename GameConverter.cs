@@ -106,7 +106,7 @@ public static class GameConverter
 			asmFileLines = asmFileLines.Skip(startLine).ToArray();
 			asmFileLines = asmFileLines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
-			string functionLabelAtNextLine = null;
+			string? functionLabelAtNextLine = null;
 
 			foreach (var line in asmFileLines)
 			{

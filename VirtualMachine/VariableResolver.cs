@@ -9,14 +9,14 @@ public static class VariableResolver
 	/// general form of the array index setting logic.
 	/// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
 	/// </summary>
-	public static void ArraySet(int index, object value,
+	public static void ArraySet(int index, object? value,
 		Func<IList?> getter,
 		Action<IList> setter)
 	{
 		var array = getter();
 		if (array == null)
 		{
-			array = new List<object>();
+			array = new List<object?>();
 			setter(array);
 		}
 
@@ -33,7 +33,7 @@ public static class VariableResolver
 		setter(array); // getter can make a copy so have to set again
 	}
 
-	public static readonly Dictionary<string, object> GlobalVariables = new();
+	public static readonly Dictionary<string, object?> GlobalVariables = new();
 
 	public static Dictionary<string, (Func<GamemakerObject, object?> getter, Action<GamemakerObject, object>? setter)> BuiltInVariables = new()
 	{
@@ -99,8 +99,8 @@ public static class VariableResolver
 	public static object get_y(GamemakerObject instance) => instance.y;
 	public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<double>();
 
-	public static object get_room_width(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeX;
-	public static object get_room_height(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeY;
+	public static object get_room_width(GamemakerObject instance) => (double)RoomManager.CurrentRoom!.SizeX;
+	public static object get_room_height(GamemakerObject instance) => (double)RoomManager.CurrentRoom!.SizeY;
 
 	public static object get_image_index(GamemakerObject instance) => instance.image_index;
 	public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
@@ -124,7 +124,7 @@ public static class VariableResolver
 	public static object get_depth(GamemakerObject instance) => instance.depth;
 	public static void set_depth(GamemakerObject instance, object? value) => instance.depth = value.Conv<double>();
 
-	public static object get_room(GamemakerObject instance) => RoomManager.CurrentRoom.AssetId;
+	public static object get_room(GamemakerObject instance) => RoomManager.CurrentRoom!.AssetId;
 	public static void set_room(GamemakerObject instance, object? value) => RoomManager.ChangeRoomAfterEvent(value.Conv<int>());
 
 	public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_bottom;
@@ -197,7 +197,7 @@ public static class VariableResolver
 	public static object get_alarm(GamemakerObject instance) => instance.alarm;
 	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IEnumerable>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
 
-	public static object get_argument_count(GamemakerObject instance) => ((ICollection)VMExecutor.Ctx.Locals["arguments"]).Count;
+	public static object get_argument_count(GamemakerObject instance) => VMExecutor.Ctx.Locals["arguments"].Conv<ICollection>().Count;
 	
 	public static object? get_undefined(GamemakerObject instance) => null;
 }

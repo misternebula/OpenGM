@@ -29,7 +29,7 @@ public static class GameLoader
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<VMScript>(text);
+			var asset = JsonConvert.DeserializeObject<VMScript>(text)!;
 
 			if (asset.IsGlobalInit)
 			{
@@ -63,10 +63,10 @@ public static class GameLoader
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<ObjectDefinition>(text);
+			var asset = JsonConvert.DeserializeObject<ObjectDefinition>(text)!;
 			var storage = asset.FileStorage;
 
-			VMScript GetVMScriptFromCodeIndex(int codeIndex)
+			VMScript? GetVMScriptFromCodeIndex(int codeIndex)
 			{
 				if (codeIndex == -1)
 				{
@@ -81,17 +81,17 @@ public static class GameLoader
 
 			foreach (var (subtype, codeId) in storage.AlarmScriptIDs)
 			{
-				asset.AlarmScript[subtype] = GetVMScriptFromCodeIndex(codeId);
+				asset.AlarmScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
 			}
 
 			foreach (var (subtype, codeId) in storage.StepScriptIDs)
 			{
-				asset.StepScript[subtype] = GetVMScriptFromCodeIndex(codeId);
+				asset.StepScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
 			}
 
 			foreach (var (subtype, codeId) in storage.CollisionScriptIDs)
 			{
-				asset.CollisionScript[subtype] = GetVMScriptFromCodeIndex(codeId);
+				asset.CollisionScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
 			}
 
 			// Keyboard
@@ -99,12 +99,12 @@ public static class GameLoader
 
 			foreach (var (subtype, codeId) in storage.OtherScriptIDs)
 			{
-				asset.OtherScript[subtype] = GetVMScriptFromCodeIndex(codeId);
+				asset.OtherScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
 			}
 
 			foreach (var (subtype, codeId) in storage.DrawScriptIDs)
 			{
-				asset.DrawScript[subtype] = GetVMScriptFromCodeIndex(codeId);
+				asset.DrawScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
 			}
 
 			// KeyPress
@@ -141,7 +141,7 @@ public static class GameLoader
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<Room>(text);
+			var asset = JsonConvert.DeserializeObject<Room>(text)!;
 
 			RoomManager.RoomList.Add(asset.AssetId, asset);
 		}
@@ -158,7 +158,7 @@ public static class GameLoader
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<SpriteData>(text);
+			var asset = JsonConvert.DeserializeObject<SpriteData>(text)!;
 
 			SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
 		}
@@ -174,7 +174,7 @@ public static class GameLoader
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<FontAsset>(text);
+			var asset = JsonConvert.DeserializeObject<FontAsset>(text)!;
 
 			TextManager.FontAssets.Add(asset);
 		}
@@ -209,7 +209,7 @@ public static class GameLoader
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<TextureGroup>(text);
+			var asset = JsonConvert.DeserializeObject<TextureGroup>(text)!;
 
 			TexGroups.Add(asset.GroupName, asset);
 		}

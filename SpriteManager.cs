@@ -13,7 +13,7 @@ public static class SpriteManager
 
 	public static Dictionary<int, SpriteData> _spriteDict = new();
 
-	public static SpriteData GetSpriteAsset(int name)
+	public static SpriteData? GetSpriteAsset(int name)
 	{
 		if (name == -1)
 		{

@@ -7,7 +7,7 @@ public static class TextManager
 {
 	public static List<FontAsset> FontAssets = new();
 
-	public static FontAsset fontAsset;
+	public static FontAsset fontAsset = null!;
 
 	public static HAlign halign;
 	public static VAlign valign;

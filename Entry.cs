@@ -10,7 +10,7 @@ internal class Entry
 {
 	public static int GameSpeed { get; private set; } = 30; // TODO : load this from data.win
 
-	private static CustomWindow window;
+	private static CustomWindow window = null!;
 
 	static void Main(string[] args)
 	{

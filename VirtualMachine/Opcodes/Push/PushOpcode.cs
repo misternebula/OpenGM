@@ -91,13 +91,13 @@ public static partial class VMExecutor
 
 	public static void PushGlobalArrayIndex(string varName, int index)
 	{
-		var array = (IList)VariableResolver.GlobalVariables[varName];
+		var array = VariableResolver.GlobalVariables[varName].Conv<IList>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = (IList)Ctx.Locals[varName];
+		var array = Ctx.Locals[varName].Conv<IList>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
@@ -119,13 +119,13 @@ public static partial class VMExecutor
 
 	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
 	{
-		var array = (IList)self.SelfVariables[varName];
+		var array = self.SelfVariables[varName].Conv<IList>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushArgument(int index)
 	{
-		var arguments = (IList)Ctx.Locals["arguments"];
+		var arguments = Ctx.Locals["arguments"].Conv<IList>();
 		Ctx.Stack.Push(arguments[index], VMType.v);
 	}
 
@@ -141,7 +141,7 @@ public static partial class VMExecutor
 		else
 		{
 			// Instance Id
-			var asset = InstanceManager.FindByInstanceId(assetId);
+			var asset = InstanceManager.FindByInstanceId(assetId)!; // lets hope its not null
 			PushSelf(asset, varName);
 		}
 	}
@@ -198,7 +198,7 @@ public static partial class VMExecutor
 			}
 			else if (variableType == VariableType.Self)
 			{
-				PushSelf(Ctx.Self, variableName);
+				PushSelf(Ctx.Self!, variableName);
 				return (ExecutionResult.Success, null);
 			}
 			else if (variableType == VariableType.Argument)
@@ -240,7 +240,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.self)
 					{
-						PushSelfArrayIndex(Ctx.Self, variableName, index);
+						PushSelfArrayIndex(Ctx.Self!, variableName, index);
 						return (ExecutionResult.Success, null);
 					}
 

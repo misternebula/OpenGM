@@ -32,7 +32,7 @@ public class ColliderClass
 {
 	public GamemakerObject GMObject;
 
-	public string spriteAssetName;
+	public string spriteAssetName = null!;
 	public int collisionMaskIndex;
 
 	public Vector2i Origin;
@@ -51,9 +51,9 @@ public class ColliderClass
 
 	public UndertaleSprite.SepMaskType SepMasks;
 	public int BoundingBoxMode;
-	public bool[,] CollisionMask;
+	public bool[,] CollisionMask = null!;
 
-	public bool[,] CachedRotatedMask;
+	public bool[,] CachedRotatedMask = null!;
 	public Vector2i CachedRotatedMaskOffset;
 }
 
@@ -759,7 +759,7 @@ public static class CollisionManager
 		return instance_place_instanceid(x, y, instanceId, current) != null;
 	}
 
-	public static GamemakerObject instance_place_assetid(double x, double y, int assetId, GamemakerObject current)
+	public static GamemakerObject? instance_place_assetid(double x, double y, int assetId, GamemakerObject current)
 	{
 		// gamemaker floors the x/y coords
 		x = Math.Floor(x);
@@ -814,7 +814,7 @@ public static class CollisionManager
 		return null;
 	}
 
-	public static GamemakerObject instance_place_instanceid(double x, double y, int instanceId, GamemakerObject current)
+	public static GamemakerObject? instance_place_instanceid(double x, double y, int instanceId, GamemakerObject current)
 	{
 		// gamemaker floors the x/y coords
 		x = Math.Floor(x);
