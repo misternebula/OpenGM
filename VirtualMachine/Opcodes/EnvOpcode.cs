@@ -4,11 +4,11 @@ public static partial class VMExecutor
 {
 	public static (ExecutionResult, object?) PUSHENV(VMScriptInstruction instruction)
 	{
-		var id = Ctx.Stack.Pop<int>(VMType.i);
+		var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
 		if (id == GMConstants.stacktop)
 		{
-			id = Ctx.Stack.Pop<int>(VMType.i);
+			id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 		}
 
 		var currentContext = Ctx;

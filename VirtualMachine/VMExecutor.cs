@@ -186,7 +186,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BT:
 				{
-					var boolValue = Ctx.Stack.Pop<bool>(VMType.b);
+					var boolValue = Ctx.Stack.Pop(VMType.b).Conv<bool>();
 					if (!boolValue)
 					{
 						break;
@@ -201,7 +201,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BF:
 				{
-					var boolValue = Ctx.Stack.Pop<bool>(VMType.b);
+					var boolValue = Ctx.Stack.Pop(VMType.b).Conv<bool>();
 					if (boolValue)
 					{
 						break;

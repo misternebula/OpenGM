@@ -167,7 +167,7 @@ public static partial class VMExecutor
 		switch (instruction.TypeOne)
 		{
 			case VMType.b:
-				Ctx.Stack.Push(!Ctx.Stack.Pop<bool>(VMType.b), VMType.b);
+				Ctx.Stack.Push(!Ctx.Stack.Pop(VMType.b).Conv<bool>(), VMType.b);
 				return (ExecutionResult.Success, null);
 			default:
 				Ctx.Stack.Push(~Ctx.Stack.Pop(instruction.TypeOne).Conv<long>(), instruction.TypeOne);

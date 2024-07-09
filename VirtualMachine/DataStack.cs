@@ -16,7 +16,7 @@ public class DataStack : Stack<(object? value, VMType type)>
 	/// <summary>
 	/// checks size before popping
 	/// </summary>
-	public T Pop<T>(VMType typeToPop)
+	public object? Pop(VMType typeToPop)
 	{
 		var (poppedValue, typeOfPopped) = base.Pop();
 
@@ -26,15 +26,8 @@ public class DataStack : Stack<(object? value, VMType type)>
 			throw new NotImplementedException($"Popped value {poppedValue} is type {typeOfPopped}, which can't be converted to {typeToPop}!");
 		}
 
-		// then do loose conv to cover b to i etc
-		// technically wrong if doing s to i (parses string as int) but whatever
-		return poppedValue.Conv<T>();
+		return poppedValue;
 	}
-
-	/// <summary>
-	/// checks size before popping
-	/// </summary>
-	public object? Pop(VMType typeToPop) => Pop<object?>(typeToPop);
 
 	[Obsolete("dont use this version")]
 	public new void Push((object? value, VMType type) x) => base.Push(x);

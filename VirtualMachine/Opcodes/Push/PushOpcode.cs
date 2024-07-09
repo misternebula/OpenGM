@@ -220,8 +220,8 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Ctx.Stack.Pop<int>(VMType.i);
-					var instanceId = Ctx.Stack.Pop<int>(VMType.i);
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.global)
 					{

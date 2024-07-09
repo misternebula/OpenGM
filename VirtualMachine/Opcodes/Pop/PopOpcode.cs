@@ -90,15 +90,15 @@ public static partial class VMExecutor
 			object? value;
 			if (instruction.TypeOne == VMType.v)
 			{
-				index = Ctx.Stack.Pop<int>(VMType.i);
-				instanceId = Ctx.Stack.Pop<int>(VMType.i);
+				index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+				instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 				value = Ctx.Stack.Pop(instruction.TypeTwo);
 			}
 			else
 			{
 				value = Ctx.Stack.Pop(instruction.TypeTwo);
-				index = Ctx.Stack.Pop<int>(VMType.i);
-				instanceId = Ctx.Stack.Pop<int>(VMType.i);
+				index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+				instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 			}
 
 			if (instanceId == GMConstants.global)
