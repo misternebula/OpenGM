@@ -10,8 +10,8 @@ public static class VariableResolver
 	/// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
 	/// </summary>
 	public static void ArraySet(int index, object value,
-		Func<List<object>?> getter,
-		Action<List<object>> setter)
+		Func<IList?> getter,
+		Action<IList> setter)
 	{
 		var array = getter();
 		if (array == null)
@@ -22,7 +22,11 @@ public static class VariableResolver
 
 		if (index >= array.Count)
 		{
-			array.AddRange(new object[index - array.Count + 1]);
+			for (var i = 0; i <= index - array.Count; i++)
+			{
+				// BUG: we might pass array into here (which is an IList, but throws on grow)
+				array.Add(new object());
+			}
 		}
 
 		array[index] = value;
@@ -194,7 +198,7 @@ public static class VariableResolver
 
 	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
 
-	public static object get_alarm(GamemakerObject instance) => instance.alarm.ToList();
+	public static object get_alarm(GamemakerObject instance) => instance.alarm;
 	// TODO: use conv here
 	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = ((IEnumerable)value).Cast<int>().ToArray();
 
