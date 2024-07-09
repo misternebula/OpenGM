@@ -266,7 +266,7 @@ public static partial class VMExecutor
 					}
 					else if (instruction.Comparison == VMComparison.NEQ)
 					{
-						Ctx.Stack.Push(first?.Equals(second), VMType.b);
+						Ctx.Stack.Push(!first?.Equals(second), VMType.b);
 					}
 					else
 					{
