@@ -247,6 +247,41 @@ public static partial class VMExecutor
 					return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");
 				}
 			}
+			else if (variablePrefix == VariablePrefix.ArrayPopAF)
+			{
+				if (variableType == VariableType.Self)
+				{
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+
+					if (instanceId == GMConstants.global)
+					{
+						VariableResolver.ArraySet(index, null,
+							() =>
+							{
+								if (VariableResolver.GlobalVariables.TryGetValue(variableName, out var result))
+								{
+									return result.Conv<IList>();
+								}
+
+								return null;
+							},
+							list => VariableResolver.GlobalVariables[variableName] = list);
+
+						var existingArray = VariableResolver.GlobalVariables[variableName].Conv<IList>();
+
+						var newArrReference = new ArrayReference
+						{
+							Array = (List<object>)existingArray,
+							ArrayName = variableName,
+							IsGlobal = true
+						};
+
+						Ctx.Stack.Push(newArrReference, VMType.v);
+						return (ExecutionResult.Success, null);
+					}
+				}
+			}
 		}
 
 		return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");

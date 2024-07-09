@@ -390,17 +390,20 @@ public static partial class VMExecutor
 				// seems to always push.i before
 				var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 				break;
-			// TODO: fix these eventually
-			/*
 			case VMOpcode.POPAF:
 			{
-				var index = Conv<int>(Ctx.Stack.Pop());
-				var array = Conv<ArrayReference>(Ctx.Stack.Pop());
-				var value = Ctx.Stack.Pop();
+				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<ArrayReference>();
+				var value = Ctx.Stack.Pop(VMType.v);
 
-				if (array.Array.Count <= index)
+				if (index >= array.Array.Count)
 				{
-					array.Array.AddRange(new object[array.Array.Count + 1 - index]);
+					var numToAdd = index - array.Array.Count + 1;
+					for (var i = 0; i < numToAdd; i++)
+					{
+						// BUG: we might pass array into here (which is an IList, but throws on grow)
+						array.Array.Add(null);
+					}
 				}
 
 				array.Array[index] = value; // this is definitely wrong and still broke. make it work with rvalue (just make arrayreference be rvalue actually)
@@ -418,8 +421,8 @@ public static partial class VMExecutor
 			}
 			case VMOpcode.PUSHAF: 
 			{
-				var index = Conv<int>(Ctx.Stack.Pop());
-				var array = Conv<ArrayReference>(Ctx.Stack.Pop());
+				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<ArrayReference>();
 
 				var value = array.Array[index];
 
@@ -432,7 +435,6 @@ public static partial class VMExecutor
 
 				break;
 			}
-			*/
 			case VMOpcode.CALLV:
 			case VMOpcode.BREAK:
 			default:
