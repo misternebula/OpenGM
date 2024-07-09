@@ -570,6 +570,10 @@ public static partial class VMExecutor
 					// https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Strings/string.htm
 					return isInt ? d.ToString("0") : (object)d.ToString("0.00");
 				}
+			} 
+			else if (@this is IEnumerable e && type.Is<IEnumerable>())
+			{
+				return e;
 			}
 		}
 		catch
