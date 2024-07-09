@@ -466,11 +466,12 @@ public static partial class VMExecutor
 		// TODO: i want to try removing this and see how Conv<object> reacts
 		if (typeof(T) != typeof(object))
 		{
-			return (T)Conv(@this, typeof(T));
+			return (T)@this.Conv(typeof(T));
 		}
 		else
 		{
-			return (T)Conv(@this, Activator.CreateInstance(typeof(T), null)!.GetType());
+			throw new Exception("trying to conv to object lol");
+			// return (T)@this.Conv(Activator.CreateInstance(typeof(T), null)!.GetType());
 		}
 	}
 
@@ -480,29 +481,27 @@ public static partial class VMExecutor
 		// TODO: check all numeric primitives
 		// TODO: cleanup
 		
-		// TODO: use typeof(guy).IsAssignableFrom(type)
-		
 		if (@this is null)
 		{
-			throw new NullReferenceException("null/undefined passed into conv");
+			// throw new NullReferenceException("null/undefined passed into conv");
 		}
 
-		if (type == typeof(object))
+		if (@this is not null && type == typeof(object)) // gorp. this shouldnt happen
 		{
 			return @this;
 		}
 
-		if (@this is null && type == typeof(bool))
+		if (@this is null && type.Is<bool>())
 		{
 			return false;
 		}
 
-		if (@this is null && (type == typeof(int) || type == typeof(double) || type == typeof(long)))
+		if (@this is null && (type.Is<int>() || type.Is<double>() || type.Is<float>() || type.Is<long>() || type.Is<short>()))
 		{
 			return 0;
 		}
 
-		if (@this is null && type == typeof(List<object>))
+		if (@this is null && type.Is<IEnumerable>())
 		{
 			return new List<object>();
 		}
@@ -526,87 +525,46 @@ public static partial class VMExecutor
 				// "numbers, minus signs, decimal points and exponential parts in the string are taken into account,
 				// while other characters (such as letters) will cause an error to be thrown."
 
-				if (type == typeof(int))
-				{
-					return int.Parse(s);
-				}
-
-				if (type == typeof(double))
-				{
-					return double.Parse(s);
-				}
-
-				if (type == typeof(bool))
-				{
-					return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
-				}
+				if (type.Is<int>()) return int.Parse(s);
+				if (type.Is<short>()) return short.Parse(s);
+				if (type.Is<double>()) return double.Parse(s);
+				if (type.Is<float>()) return float.Parse(s);
+				if (type.Is<bool>()) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 			}
-			else if (@this is int or long)
+			else if (@this is int or long or short)
 			{
-				var i = System.Convert.ToInt64(@this);
+				var l = Convert.ToInt64(@this); // can we cast instead?
 
-				if (type == typeof(int))
-				{
-					return (int)i;
-				}
-
-				if (type == typeof(long))
-				{
-					return i;
-				}
-
-				if (type == typeof(bool))
-				{
-					return i > 0;
-				}
-
-				if (type == typeof(double))
-				{
-					return (double)i;
-				}
-
-				if (type == typeof(string))
-				{
-					return i.ToString(); // not sure if positive numbers need to have a "+" in front?
-				}
+				if (type.Is<int>()) return (int)l;
+				if (type.Is<short>()) return (short)l;
+				if (type.Is<long>()) return l;
+				if (type.Is<bool>()) return l > 0;
+				if (type.Is<double>()) return (double)l;
+				if (type.Is<string>()) return l.ToString(); // not sure if positive numbers need to have a "+" in front?
 			}
 			else if (@this is bool b)
 			{
-				if (type == typeof(int))
-				{
-					return (int)(b ? 1 : 0);
-				}
-
-				if (type == typeof(double))
-				{
-					return (double)(b ? 1 : 0);
-				}
-
-				if (type == typeof(string))
-				{
-					return b ? "1" : "0"; // GM represents bools as integers
-				}
+				if (type.Is<int>()) return (int)(b ? 1 : 0);
+				if (type.Is<long>()) return (long)(b ? 1 : 0);
+				if (type.Is<short>()) return (short)(b ? 1 : 0);
+				if (type.Is<double>()) return (double)(b ? 1 : 0);
+				if (type.Is<float>()) return (double)(b ? 1 : 0);
+				if (type.Is<string>()) return b ? "1" : "0"; // GM represents bools as integers
 			}
 			else if (@this is double or float)
 			{
-				var d = System.Convert.ToDouble(@this);
+				var d = Convert.ToDouble(@this);
 
-				if (type == typeof(double) || type == typeof(float))
-				{
-					return d;
-				}
+				if (type.Is<double>()) return (double)d;
+				if (type.Is<float>()) return (float)d;
 
-				if (type == typeof(bool))
-				{
-					return d > 0.5; // https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm
-				}
+				if (type.Is<bool>()) return d > 0.5; // https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm
 
-				if (type == typeof(int))
-				{
-					return (int)d;
-				}
+				if (type.Is<int>()) return (int)d;
+				if (type.Is<long>()) return (long)d;
+				if (type.Is<short>()) return (short)d;
 
-				if (type == typeof(string))
+				if (type.Is<string>())
 				{
 					var isInt = Math.Abs(d % 1) <= (double.Epsilon * 100);
 					// https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Strings/string.htm

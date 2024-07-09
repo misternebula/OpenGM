@@ -10,4 +10,6 @@ public static class Extensions
 			? new Color4(bytes[0], bytes[1], bytes[2], 255)
 			: new Color4(bytes[2], bytes[1], bytes[0], 255);
 	}
+
+	public static bool Is<T>(this Type @this) => typeof(T).IsAssignableFrom(@this);
 }
