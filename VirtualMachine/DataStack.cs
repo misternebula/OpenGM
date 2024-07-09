@@ -8,9 +8,6 @@ public class DataStack : Stack<(object value, VMType type)>
 	public DataStack() : base() { }
 	public DataStack(DataStack stack) : base(stack) { } // maybe cloning isnt needed
 
-	/// <summary>
-	/// checks size before popping
-	/// </summary>
 	public void Push(object value, VMType type)
 	{
 		base.Push((value, type));
@@ -34,6 +31,9 @@ public class DataStack : Stack<(object value, VMType type)>
 		return poppedValue.Conv<T>();
 	}
 
+	/// <summary>
+	/// checks size before popping
+	/// </summary>
 	public object Pop(VMType typeToPop) => Pop<object>(typeToPop);
 
 	[Obsolete("dont use this version")]

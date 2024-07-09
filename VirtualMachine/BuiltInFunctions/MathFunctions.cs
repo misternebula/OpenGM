@@ -198,9 +198,9 @@ public static partial class ScriptResolver
 				result.Append("]");
 				return result.ToString();
 			}
-			else if (valueOrFormat is Undefined)
+			else if (valueOrFormat is null) // maybe this should error instead of returning?
 			{
-				return "undefined"; // no clue if this is correct. maybe it errors here instead?
+				return "undefined";
 			}
 			else if (valueOrFormat is bool b)
 			{

@@ -369,30 +369,16 @@ public static partial class VMExecutor
 				return NOT(instruction);
 			// TODO: move to MathOpcodes.cs
 			case VMOpcode.SHL:
-				{
-					// is this the right order?
-					var intTwo = Conv<int>(Ctx.Stack.Pop());
-					var intOne = Conv<int>(Ctx.Stack.Pop());
-
-					Ctx.Stack.Push(intOne << intTwo);
-					break;
-				}
+				return SHL(instruction);
 			case VMOpcode.SHR:
-				{
-					// is this the right order?
-					var intTwo = Conv<int>(Ctx.Stack.Pop());
-					var intOne = Conv<int>(Ctx.Stack.Pop());
-
-					Ctx.Stack.Push(intOne >> intTwo);
-					break;
-				}
+				return SHR(instruction);
 			case VMOpcode.CHKINDEX:
 			{
 				// unused in ch2???? no clue what this does
 				
-				var index = Ctx.Stack.Peek();
+				var (index, type) = Ctx.Stack.Peek();
 
-				if (index is int)
+				if (index is int || type is VMType.i) // do we check type idk
 				{
 					break;
 				}
@@ -495,27 +481,22 @@ public static partial class VMExecutor
 			return @this;
 		}
 
-		if (type == typeof(RValue))
-		{
-			return new RValue(@this);
-		}
-
-		if (@this is Undefined && type == typeof(bool))
+		if (@this is null && type == typeof(bool))
 		{
 			return false;
 		}
 
-		if (@this is Undefined && (type == typeof(int) || type == typeof(double) || type == typeof(long)))
+		if (@this is null && (type == typeof(int) || type == typeof(double) || type == typeof(long)))
 		{
 			return 0;
 		}
 
-		if (@this is Undefined && type == typeof(List<object>))
+		if (@this is null && type == typeof(List<object>))
 		{
 			return new List<object>();
 		}
 
-		if (@this is Undefined)
+		if (@this is null)
 		{
 			DebugLog.LogError($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 			return null!;
@@ -528,12 +509,7 @@ public static partial class VMExecutor
 
 		try
 		{
-			if (@this is RValue r)
-			{
-				//DebugLog.Log($"Converting RValue {r} to {type}");
-				return Conv(r.Value, type);
-			}
-			else if (@this is string s)
+			if (@this is string s)
 			{
 				// not sure how to implement numeric -> string properly
 
