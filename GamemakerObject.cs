@@ -16,7 +16,7 @@ public class GamemakerObject : DrawWithDepth
 	public ObjectDefinition Definition;
 
 	public int object_index => Definition.AssetId;
-	public int[] alarm = new(Enumerable.Repeat(new RValue(-1), 12).ToArray());
+	public int[] alarm = Enumerable.Repeat(-1, 12).ToArray();
 
 	public bool persistent = false;
 	public double x;

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 public static class VariableResolver
@@ -195,8 +196,9 @@ public static class VariableResolver
 
 	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
 
-	public static object get_alarm(GamemakerObject instance) => instance.alarm;
-	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = (List<RValue>)value;
+	public static object get_alarm(GamemakerObject instance) => instance.alarm.ToList();
+	// TODO: use conv here
+	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = ((IEnumerable)value).Cast<int>().ToArray();
 
 	public static object get_argument_count(GamemakerObject instance) => ((List<RValue>)VMExecutor.Ctx.Locals["arguments"].Value).Count;
 	
