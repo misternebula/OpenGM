@@ -24,7 +24,7 @@ public class VMScriptInstruction
 
 	public bool Drop;
 
-	public int? SecondIntData;
+	public int SecondIntData;
 
 	public VMComparison Comparison = VMComparison.None;
 }
