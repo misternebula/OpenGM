@@ -234,7 +234,7 @@ public static partial class VMExecutor
 				
 				// TODO: array and undefined cmp
 
-				// TODO: handle all numerical types
+				// TODO: handle all numeric primitives
 				if (second is bool or int or double or long && first is bool or int or double or long)
 				{
 					var firstNumber = Conv<double>(first);
@@ -494,7 +494,11 @@ public static partial class VMExecutor
 
 	public static object Conv(this object @this, Type type)
 	{
-		if (@this == null)
+		// TODO: collections
+		// TODO: check all numeric primitives
+		// TODO: cleanup
+		
+		if (@this is null)
 		{
 			throw new NullReferenceException("null/undefined passed into conv");
 		}

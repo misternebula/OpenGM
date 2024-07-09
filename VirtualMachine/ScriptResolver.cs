@@ -267,9 +267,6 @@ public static partial class ScriptResolver
 		{ "buffer_delete", buffer_delete}
 	};
 
-	[Obsolete("use direct cast")]
-	private static T Conv<T>(object obj) => VMExecutor.Conv<T>(obj);
-
 	private static object layer_force_draw_depth(Arguments args)
 	{
 		var force = Conv<bool>(args.Args[0]);
@@ -1713,8 +1710,7 @@ public static partial class ScriptResolver
 		var scriptArgs = args.Args[1..];
 
 		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
-		// TODO: dont do .Value once we have functions return RValue
-		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments() { Args = scriptArgs }).Value;
+		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments { Args = scriptArgs });
 	}
 
 	public static object draw_line_width(Arguments args)

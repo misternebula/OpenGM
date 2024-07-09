@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,13 +13,13 @@ public static partial class ScriptResolver
 
 	public static object array_length_1d(Arguments args)
 	{
-		var array = Conv<List<RValue>>(args.Args[0]);
+		var array = args.Args[0].Conv<ICollection>();
 		return array.Count;
 	}
 
 	public static object array_length(Arguments args)
 	{
-		var array = Conv<List<RValue>>(args.Args[0]);
+		var array = args.Args[0].Conv<ICollection>();
 		return array.Count;
 	}
 
