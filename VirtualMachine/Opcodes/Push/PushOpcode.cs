@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -85,47 +86,47 @@ public static partial class VMExecutor
 
 	public static void PushGlobal(string varName)
 	{
-		Ctx.Stack.Push(VariableResolver.GlobalVariables[varName]);
+		Ctx.Stack.Push(VariableResolver.GlobalVariables[varName], VMType.v);
 	}
 
 	public static void PushGlobalArrayIndex(string varName, int index)
 	{
-		var array = (List<RValue>)VariableResolver.GlobalVariables[varName].Value!;
-		Ctx.Stack.Push(array[index]);
+		var array = (IList)VariableResolver.GlobalVariables[varName];
+		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = (List<RValue>)Ctx.Locals[varName].Value!;
-		Ctx.Stack.Push(array[index]);
+		var array = (IList)Ctx.Locals[varName];
+		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocal(string varName)
 	{
-		Ctx.Stack.Push(Ctx.Locals[varName]);
+		Ctx.Stack.Push(Ctx.Locals[varName], VMType.v);
 	}
 
 	public static void PushBuiltin(string varName)
 	{
-		var value = VariableResolver.BuiltInVariables[varName].getter(null);
-		Ctx.Stack.Push(new RValue(value));
+		var value = VariableResolver.BuiltInVariables[varName].getter(null!);
+		Ctx.Stack.Push(value, VMType.v);
 	}
 
 	public static void PushSelf(GamemakerObject self, string varName)
 	{
-		Ctx.Stack.Push(self.SelfVariables[varName]);
+		Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
 	}
 
 	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
 	{
-		var array = (List<RValue>)self.SelfVariables[varName].Value!;
-		Ctx.Stack.Push(array[index]);
+		var array = (IList)self.SelfVariables[varName];
+		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushArgument(int index)
 	{
-		var arguments = (List<RValue>)Ctx.Locals["arguments"].Value!;
-		Ctx.Stack.Push(arguments[index]);
+		var arguments = (IList)Ctx.Locals["arguments"];
+		Ctx.Stack.Push(arguments[index], VMType.v);
 	}
 
 	public static void PushIndex(int assetId, string varName)
@@ -150,22 +151,22 @@ public static partial class VMExecutor
 		switch (instruction.TypeOne)
 		{
 			case VMType.i:
-				Ctx.Stack.Push(instruction.IntData);
+				Ctx.Stack.Push(instruction.IntData, VMType.i);
 				return (ExecutionResult.Success, null);
 			case VMType.e:
-				Ctx.Stack.Push(instruction.ShortData);
+				Ctx.Stack.Push(instruction.ShortData, VMType.e);
 				return (ExecutionResult.Success, null);
 			case VMType.l:
-				Ctx.Stack.Push(instruction.LongData);
+				Ctx.Stack.Push(instruction.LongData, VMType.l);
 				return (ExecutionResult.Success, null);
 			case VMType.b:
-				Ctx.Stack.Push(instruction.BoolData);
+				Ctx.Stack.Push(instruction.BoolData, VMType.b);
 				return (ExecutionResult.Success, null);
 			case VMType.d:
-				Ctx.Stack.Push(instruction.DoubleData);
+				Ctx.Stack.Push(instruction.DoubleData, VMType.d);
 				return (ExecutionResult.Success, null);
 			case VMType.s:
-				Ctx.Stack.Push(instruction.StringData);
+				Ctx.Stack.Push(instruction.StringData, VMType.s);
 				return (ExecutionResult.Success, null);
 			case VMType.v:
 				return DoPushV(instruction);

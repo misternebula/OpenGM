@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,97 +9,46 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class VMExecutor
 {
-	public static void PopToGlobal(string varName, object obj)
+	public static void PopToGlobal(string varName, object value)
 	{
-		if (obj is RValue r)
-		{
-			VariableResolver.GlobalVariables[varName] = r;
-		}
-		else
-		{
-			VariableResolver.GlobalVariables[varName] = new RValue(obj);
-		}
+		VariableResolver.GlobalVariables[varName] = value;
 	}
 
-	public static void PopToLocal(string varName, object obj)
+	public static void PopToLocal(string varName, object value)
 	{
-		if (obj is RValue r)
-		{
-			Ctx.Locals[varName] = r;
-		}
-		else
-		{
-			Ctx.Locals[varName] = new RValue(obj);
-		}
+		Ctx.Locals[varName] = value;
 	}
 
-	public static void PopToGlobalArray(string varName, int index, object obj)
+	public static void PopToGlobalArray(string varName, int index, object value)
 	{
-		RValue valueToSet;
-		if (obj is RValue r)
-		{
-			valueToSet = r;
-		}
-		else
-		{
-			valueToSet = new RValue(obj);
-		}
-
-		VariableResolver.ArraySet(
-			index, 
-			valueToSet, 
-			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var val) ? val.Value as List<RValue> : null,
-			list => VariableResolver.GlobalVariables[varName] = new RValue(list));
-	}
-
-	public static void PopToSelf(GamemakerObject self, string varName, object obj)
-	{
-		if (obj is RValue r)
-		{
-			self.SelfVariables[varName] = r;
-		}
-		else
-		{
-			self.SelfVariables[varName] = new RValue(obj);
-		}
-	}
-
-	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object obj)
-	{
-		RValue valueToSet;
-		if (obj is RValue r)
-		{
-			valueToSet = r;
-		}
-		else
-		{
-			valueToSet = new RValue(obj);
-		}
-
 		VariableResolver.ArraySet(
 			index,
-			valueToSet,
-			() => self.SelfVariables.TryGetValue(varName, out var val) ? val.Value as List<RValue> : null,
-			list => self.SelfVariables[varName] = new RValue(list));
+			value,
+			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var value) ? value as IList : null,
+			array => VariableResolver.GlobalVariables[varName] = array);
 	}
 
-	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object obj)
+	public static void PopToSelf(GamemakerObject self, string varName, object value)
 	{
-		RValue valueToSet;
-		if (obj is RValue r)
-		{
-			valueToSet = r;
-		}
-		else
-		{
-			valueToSet = new RValue(obj);
-		}
+		self.SelfVariables[varName] = value;
+	}
 
+	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object value)
+	{
 		VariableResolver.ArraySet(
 			index,
-			valueToSet,
-			() => VariableResolver.BuiltInVariables.TryGetValue(varName, out var val) ? val.getter(self) as List<RValue> : null,
-			list => VariableResolver.BuiltInVariables[varName].setter!(self, list)
+			value,
+			() => self.SelfVariables.TryGetValue(varName, out var value) ? value as IList : null,
+			array => self.SelfVariables[varName] = array);
+	}
+
+	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object value)
+	{
+		VariableResolver.ArraySet(
+			index,
+			value,
+			() => VariableResolver.BuiltInVariables.TryGetValue(varName, out var value) ? value.getter(self) as IList : null,
+			array => VariableResolver.BuiltInVariables[varName].setter!(self, array)
 		);
 	}
 
@@ -174,7 +124,6 @@ public static partial class VMExecutor
 					return (ExecutionResult.Success, null);
 				}
 			}
-
 		}
 
 		return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw}");

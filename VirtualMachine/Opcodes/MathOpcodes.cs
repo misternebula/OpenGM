@@ -39,26 +39,22 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object?) ADD(VMScriptInstruction instruction)
 	{
-		var valTwo = Ctx.Stack.Pop();
-		var valOne = Ctx.Stack.Pop();
+		var valTwo = Ctx.Stack.Pop(instruction.TypeTwo);
+		var valOne = Ctx.Stack.Pop(instruction.TypeOne);
 
 		var retType = GetMathReturnType(instruction);
 
 		var hasString = instruction.TypeOne == VMType.s || instruction.TypeTwo == VMType.s;
-		var variableIsString = (instruction.TypeOne == VMType.v && valOne is RValue { Value: string }) || (instruction.TypeTwo == VMType.v && valTwo is RValue { Value: string });
+		var variableIsString = valOne is string || valTwo is string;
 
 		if (hasString || variableIsString)
 		{
 			// strings need to concat
-			var stringOne = Conv<string>(valOne);
-			var stringTwo = Conv<string>(valTwo);
-			Ctx.Stack.Push(ConvertTypes(stringOne + stringTwo, VMType.s, retType));
+			Ctx.Stack.Push(valOne.Conv<string>() + valTwo.Conv<string>(), retType);
 		}
 		else
 		{
-			// technically should convert using TypeOne and TypeTwo, but later instructions convert anyway so it's fine
-			// TODO: above statement should be made false. convert early so stack has correct types
-			Ctx.Stack.Push(ConvertTypes(Conv<double>(valOne) + Conv<double>(valTwo), VMType.d, retType));
+			Ctx.Stack.Push(valOne.Conv<double>() + valTwo.Conv<double>(), retType);
 		}
 
 		return (ExecutionResult.Success, null);

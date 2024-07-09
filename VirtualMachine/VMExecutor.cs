@@ -481,7 +481,7 @@ public static partial class VMExecutor
 
 	public static T Conv<T>(this object @this)
 	{
-		// TODO: reomve this bs. we shouldnt ever call Conv<object>
+		// TODO: i want to try removing this and see how Conv<object> reacts
 		if (typeof(T) != typeof(object))
 		{
 			return (T)Conv(@this, typeof(T));
