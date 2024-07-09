@@ -6,25 +6,26 @@ public static class VariableResolver
 {
 	/// <summary>
 	/// general form of the array index setting logic.
-	/// `get` should do trygetvalue and "as" cast to return null instead of throwing.
+	/// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
 	/// </summary>
 	public static void ArraySet(int index, RValue value,
-		Func<List<RValue>?> get,
-		Action<List<RValue>> set)
+		Func<List<RValue>?> getter,
+		Action<List<RValue>> setter)
 	{
-		var list = get();
-		if (list == null)
+		var array = getter();
+		if (array == null)
 		{
-			list = new List<RValue>();
-			set(list);
+			array = new List<RValue>();
+			setter(array);
 		}
 
-		if (index >= list.Count)
+		if (index >= array.Count)
 		{
-			list.AddRange(new RValue[index - list.Count + 1]);
+			array.AddRange(new RValue[index - array.Count + 1]);
 		}
 
-		list[index] = value;
+		array[index] = value;
+		setter(array); // getter can make a copy so have to set again
 	}
 
 	public static readonly Dictionary<string, RValue> GlobalVariables = new();
@@ -32,7 +33,7 @@ public static class VariableResolver
 	/// <summary>
 	/// `object` here is `RValue.Value`
 	/// </summary>
-	public static Dictionary<string, (Func<GamemakerObject?, object> getter, Action<GamemakerObject?, object>? setter)> BuiltInVariables = new()
+	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object>? setter)> BuiltInVariables = new()
 	{
 		{ "working_directory", (get_working_directory, null) },
 		{ "fps", (get_fps, null) },
@@ -198,4 +199,6 @@ public static class VariableResolver
 	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = (List<RValue>)value;
 
 	public static object get_argument_count(GamemakerObject instance) => ((List<RValue>)VMExecutor.Ctx.Locals["arguments"].Value).Count;
+	
+	public static object get_undefined(GamemakerObject instance) => Undefined.Value;
 }

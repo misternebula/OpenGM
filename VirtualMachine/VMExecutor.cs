@@ -244,6 +244,8 @@ public static partial class VMExecutor
 
 				first ??= 0;
 				second ??= 0;
+				
+				// TODO: array and undefined cmp
 
 				if (second is bool or int or double or long && first is bool or int or double or long)
 				{
@@ -408,6 +410,8 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.CHKINDEX:
 			{
+				// unused in ch2???? no clue what this does
+				
 				var index = Ctx.Stack.Peek();
 
 				if (index is int)
@@ -420,6 +424,7 @@ public static partial class VMExecutor
 			case VMOpcode.EXIT:
 				return (ExecutionResult.ReturnedValue, new RValue(Undefined.Value));
 			case VMOpcode.SETOWNER:
+				// seems to always push.i before
 				var id = Conv<int>(Ctx.Stack.Pop());
 				break;
 			case VMOpcode.POPAF:
@@ -506,6 +511,7 @@ public static partial class VMExecutor
 		_ => throw new NotImplementedException($"Can't get type of {obj}")
 	};
 	
+	// TODO: remove this and upgrade
 	public static object ConvertTypes(object obj, VMType from, VMType to)
 	{
 		if (from == to)

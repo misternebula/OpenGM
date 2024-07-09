@@ -58,7 +58,7 @@ public static partial class ScriptResolver
 	public static object round(Arguments args)
 	{
 		var num = Conv<double>(args.Args[0]);
-		return CustomMath.RoundToInt((float)num);
+		return CustomMath.RoundToInt((float)num); // BUG: shouldnt this just do Math.Round?
 	}
 
 	public static object floor(Arguments args)
@@ -196,6 +196,10 @@ public static partial class ScriptResolver
 
 				result.Append("]");
 				return result.ToString();
+			}
+			else if (valueOrFormat is Undefined)
+			{
+				return "undefined"; // no clue if this is correct. maybe it errors here instead?
 			}
 			else if (valueOrFormat is bool b)
 			{

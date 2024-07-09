@@ -11,6 +11,7 @@ public class VMScriptInstruction
 
 	// we could just store StringData and then parse it in opcodes, but this works too 
 	public int IntData;
+	public short ShortData;
 	public double DoubleData;
 	public string StringData;
 	public bool BoolData;

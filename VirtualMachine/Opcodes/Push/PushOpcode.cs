@@ -150,8 +150,10 @@ public static partial class VMExecutor
 		switch (instruction.TypeOne)
 		{
 			case VMType.i:
-			case VMType.e:
 				Ctx.Stack.Push(instruction.IntData);
+				return (ExecutionResult.Success, null);
+			case VMType.e:
+				Ctx.Stack.Push(instruction.ShortData);
 				return (ExecutionResult.Success, null);
 			case VMType.l:
 				Ctx.Stack.Push(instruction.LongData);

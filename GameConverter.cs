@@ -296,7 +296,7 @@ public static class GameConverter
 									instruction.DoubleData = double.Parse(value);
 									break;
 								case VMType.e:
-									instruction.IntData = int.Parse(value);
+									instruction.ShortData = short.Parse(value);
 									break;
 								default:
 									throw new ArgumentOutOfRangeException();

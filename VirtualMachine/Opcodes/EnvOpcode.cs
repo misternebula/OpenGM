@@ -2,7 +2,7 @@
 
 public static partial class VMExecutor
 {
-	public static (ExecutionResult, object) PUSHENV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) PUSHENV(VMScriptInstruction instruction)
 	{
 		var id = Conv<int>(Ctx.Stack.Pop());
 
@@ -90,7 +90,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object) POPENV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) POPENV(VMScriptInstruction instruction)
 	{
 		var currentInstance = EnvironmentStack.Pop();
 		var nextInstance = Ctx;
