@@ -8,11 +8,11 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 
 public static partial class ScriptResolver
 {
-	public static object place_meeting(Arguments args)
+	public static object place_meeting(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var obj = args.Args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
 		if (obj < 0)
 		{
@@ -21,34 +21,34 @@ public static partial class ScriptResolver
 
 		if (obj < GMConstants.FIRST_INSTANCE_ID)
 		{
-			return CollisionManager.place_meeting_assetid(x, y, obj, args.Ctx.Self);
+			return CollisionManager.place_meeting_assetid(x, y, obj, VMExecutor.Ctx.Self);
 		}
 		else
 		{
-			return CollisionManager.place_meeting_instanceid(x, y, obj, args.Ctx.Self);
+			return CollisionManager.place_meeting_instanceid(x, y, obj, VMExecutor.Ctx.Self);
 		}
 	}
 
-	public static object move_towards_point(Arguments args)
+	public static object move_towards_point(object[] args)
 	{
-		var targetx = args.Args[0].Conv<double>();
-		var targety = args.Args[1].Conv<double>();
-		var sp = args.Args[2].Conv<double>();
+		var targetx = args[0].Conv<double>();
+		var targety = args[1].Conv<double>();
+		var sp = args[2].Conv<double>();
 
-		args.Ctx.Self.direction = (double)point_direction(new Arguments() { Args = new object[] { args.Ctx.Self.x, args.Ctx.Self.y, targetx, targety } });
-		args.Ctx.Self.speed = sp;
+		VMExecutor.Ctx.Self.direction = (double)point_direction(VMExecutor.Ctx.Self.x, VMExecutor.Ctx.Self.y, targetx, targety);
+		VMExecutor.Ctx.Self.speed = sp;
 
 		return null!;
 	}
 
-	public static object distance_to_point(Arguments args)
+	public static object distance_to_point(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
 
-		var self = args.Ctx.Self;
+		var self = VMExecutor.Ctx.Self;
 
-		if (args.Ctx.Self.mask_id == -1 && args.Ctx.Self.sprite_index == -1)
+		if (VMExecutor.Ctx.Self.mask_id == -1 && VMExecutor.Ctx.Self.sprite_index == -1)
 		{
 			// TODO : Docs just say this means the result will be "incorrect". Wtf does that mean???
 			// just assuming it does point_distance
@@ -69,15 +69,15 @@ public static partial class ScriptResolver
 		return Math.Sqrt((dx * dx) + (dy * dy));
 	}
 
-	public static object collision_rectangle(Arguments args)
+	public static object collision_rectangle(object[] args)
 	{
-		var x1 = args.Args[0].Conv<double>();
-		var y1 = args.Args[1].Conv<double>();
-		var x2 = args.Args[2].Conv<double>();
-		var y2 = args.Args[3].Conv<double>();
-		var obj = args.Args[4].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
-		var prec = args.Args[5].Conv<bool>();
-		var notme = args.Args[6].Conv<bool>();
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var obj = args[4].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var prec = args[5].Conv<bool>();
+		var notme = args[6].Conv<bool>();
 
 		if (obj < 0)
 		{
@@ -86,17 +86,17 @@ public static partial class ScriptResolver
 
 		if (obj < GMConstants.FIRST_INSTANCE_ID)
 		{
-			return CollisionManager.collision_rectangle_assetid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
+			return CollisionManager.collision_rectangle_assetid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.Self);
 		}
 		else
 		{
-			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, args.Ctx.Self);
+			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.Self);
 		}
 	}
 
-	public static object instance_exists(Arguments args)
+	public static object instance_exists(object[] args)
 	{
-		var obj = args.Args[0].Conv<int>();
+		var obj = args[0].Conv<int>();
 
 		if (obj > GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -110,38 +110,38 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object instance_number(Arguments args)
+	public static object instance_number(object[] args)
 	{
-		var obj = args.Args[0].Conv<int>();
+		var obj = args[0].Conv<int>();
 		return InstanceManager.instance_number(obj);
 	}
 
-	public static object instance_create_depth(Arguments args)
+	public static object instance_create_depth(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var depth = args.Args[2].Conv<int>();
-		var obj = args.Args[3].Conv<int>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var depth = args[2].Conv<int>();
+		var obj = args[3].Conv<int>();
 
 		return InstanceManager.instance_create_depth(x, y, depth, obj);
 	}
 
-	public static object instance_destroy(Arguments args)
+	public static object instance_destroy(object[] args)
 	{
-		if (args.Args.Length == 0)
+		if (args.Length == 0)
 		{
-			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Destroy);
-			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.CleanUp);
-			InstanceManager.instance_destroy(args.Ctx.Self);
+			GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.Destroy);
+			GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.CleanUp);
+			InstanceManager.instance_destroy(VMExecutor.Ctx.Self);
 			return null!;
 		}
 
-		var id = args.Args[0].Conv<int>();
+		var id = args[0].Conv<int>();
 		var execute_event_flag = true;
 
-		if (args.Args.Length == 2)
+		if (args.Length == 2)
 		{
-			execute_event_flag = args.Args[1].Conv<bool>();
+			execute_event_flag = args[1].Conv<bool>();
 		}
 
 		if (id < GMConstants.FIRST_INSTANCE_ID)
@@ -179,34 +179,34 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object room_goto(Arguments args)
+	public static object room_goto(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 		RoomManager.ChangeRoomAfterEvent(index);
 		return null!;
 	}
 
-	public static object room_goto_previous(Arguments args)
+	public static object room_goto_previous(object[] args)
 	{
 		RoomManager.room_goto_previous();
 		return null!;
 	}
 
-	public static object room_goto_next(Arguments args)
+	public static object room_goto_next(object[] args)
 	{
 		RoomManager.room_goto_next();
 		return null!;
 	}
 
-	public static object room_previous(Arguments args)
+	public static object room_previous(object[] args)
 	{
-		var numb = args.Args[0].Conv<int>();
+		var numb = args[0].Conv<int>();
 		return RoomManager.room_previous(numb);
 	}
 
-	public static object room_next(Arguments args)
+	public static object room_next(object[] args)
 	{
-		var numb = args.Args[0].Conv<int>();
+		var numb = args[0].Conv<int>();
 		return RoomManager.room_next(numb);
 	}
 }

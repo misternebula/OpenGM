@@ -34,16 +34,6 @@ public class VMScriptExecutionContext
 	}
 }
 
-/// <summary>
-/// TODO: remove and replace with just using `object[]` and eventually `RValue[]`
-///		  OR revert this if it explodes
-/// </summary>
-public class Arguments
-{
-	public VMScriptExecutionContext Ctx => VMExecutor.Ctx;
-	public object[] Args;
-}
-
 public static partial class VMExecutor
 {
 	public static Stack<VMScriptExecutionContext> EnvironmentStack = new();
@@ -54,7 +44,7 @@ public static partial class VMExecutor
 
 	public static Stack<VMScript> currentExecutingScript = new();
 
-	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, Arguments arguments = null, int startingIndex = 0)
+	public static object ExecuteScript(VMScript script, GamemakerObject obj, ObjectDefinition objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object[] args = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
@@ -82,10 +72,10 @@ public static partial class VMExecutor
 			newCtx.Locals.Add(item, null!);
 		}
 
-		if (arguments != null)
+		if (args != null)
 		{
 			// conv should be able to handle list to array via casting to ICollection
-			newCtx.Locals["arguments"] = arguments.Args;
+			newCtx.Locals["arguments"] = args;
 		}
 
 		// Make the current object the current instance
@@ -306,15 +296,12 @@ public static partial class VMExecutor
 				Ctx.Stack.Pop(instruction.TypeOne);
 				break;
 			case VMOpcode.CALL:
-				var arguments = new Arguments
-				{
-					Args = new object[instruction.FunctionArgumentCount]
-				};
+				var args = new object[instruction.FunctionArgumentCount];
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
 					// args are always pushed as rvalues
-					arguments.Args[i] = Ctx.Stack.Pop(VMType.v);
+					args[i] = Ctx.Stack.Pop(VMType.v);
 				}
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
@@ -334,20 +321,20 @@ public static partial class VMExecutor
 						DebugLog.LogError($"NULL STACK");
 					}
 
-					Ctx.Stack.Push(builtInFunction(arguments), VMType.v);
+					Ctx.Stack.Push(builtInFunction(args), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments), VMType.v);
+					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
-					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, arguments: arguments, startingIndex: instructionIndex), VMType.v);
+					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
 					break;
 				}
 

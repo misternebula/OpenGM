@@ -23,7 +23,7 @@ public static partial class ScriptResolver
 
 	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
 
-	public static Dictionary<string, Func<Arguments, object>> BuiltInFunctions = new()
+	public static Dictionary<string, Func<object[], object>> BuiltInFunctions = new()
 	{
 		#region Game
 		{ "place_meeting", place_meeting },
@@ -267,10 +267,10 @@ public static partial class ScriptResolver
 		{ "buffer_delete", buffer_delete}
 	};
 
-	private static object layer_force_draw_depth(Arguments args)
+	private static object layer_force_draw_depth(object[] args)
 	{
-		var force = args.Args[0].Conv<bool>();
-		var depth = args.Args[1].Conv<int>();
+		var force = args[0].Conv<bool>();
+		var depth = args[1].Conv<int>();
 		//Debug.Log($"layer_force_draw_depth force:{force} depth:{depth}");
 
 		// not implementing yet because uhhhhhhhhhhhhhhhhhhh
@@ -278,54 +278,54 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object draw_set_colour(Arguments args)
+	public static object draw_set_colour(object[] args)
 	{
-		var color = args.Args[0].Conv<int>();
+		var color = args[0].Conv<int>();
 		SpriteManager.DrawColor = color;
 		return null!;
 	}
 
-	public static object draw_get_colour(Arguments args)
+	public static object draw_get_colour(object[] args)
 	{
 		return SpriteManager.DrawColor;
 	}
 
-	public static object draw_set_alpha(Arguments args)
+	public static object draw_set_alpha(object[] args)
 	{
-		var alpha = args.Args[0].Conv<double>();
+		var alpha = args[0].Conv<double>();
 		SpriteManager.DrawAlpha = alpha;
 		return null!;
 	}
 
 	
 
-	public static object newgmlarray(Arguments args)
+	public static object newgmlarray(object[] args)
 	{
 		return new List<object>();
 	}
 
-	public static object asset_get_index(Arguments args)
+	public static object asset_get_index(object[] args)
 	{
-		var name = args.Args[0].Conv<string>();
+		var name = args[0].Conv<string>();
 		return AssetIndexManager.GetIndex(name);
 	}
 
-	public static object event_inherited(Arguments args)
+	public static object event_inherited(object[] args)
 	{
-		if (args.Ctx.ObjectDefinition.parent == null)
+		if (VMExecutor.Ctx.ObjectDefinition.parent == null)
 		{
 			return null!;
 		}
 
-		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition.parent, args.Ctx.EventType, args.Ctx.EventIndex);
+		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
 		return null!;
 	}
 
 	private static IniFile _iniFile;
 
-	public static object ini_open(Arguments args)
+	public static object ini_open(object[] args)
 	{
-		var name = (string)args.Args[0];
+		var name = (string)args[0];
 
 		DebugLog.Log($"ini_open {name}");
 
@@ -378,11 +378,11 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object ini_read_string(Arguments args)
+	public static object ini_read_string(object[] args)
 	{
-		var section = (string)args.Args[0];
-		var key = (string)args.Args[1];
-		var value = (string)args.Args[2];
+		var section = (string)args[0];
+		var key = (string)args[1];
+		var value = (string)args[2];
 
 		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
 
@@ -399,11 +399,11 @@ public static partial class ScriptResolver
 		return sectionClass.Dict[key];
 	}
 
-	public static object ini_write_string(Arguments args)
+	public static object ini_write_string(object[] args)
 	{
-		var section = (string)args.Args[0];
-		var key = (string)args.Args[1];
-		var value = (string)args.Args[2];
+		var section = (string)args[0];
+		var key = (string)args[1];
+		var value = (string)args[2];
 
 		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
 
@@ -418,11 +418,11 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object ini_read_real(Arguments args)
+	public static object ini_read_real(object[] args)
 	{
-		var section = (string)args.Args[0];
-		var key = (string)args.Args[1];
-		var value = args.Args[2].Conv<double>();
+		var section = (string)args[0];
+		var key = (string)args[1];
+		var value = args[2].Conv<double>();
 
 		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
 
@@ -445,11 +445,11 @@ public static partial class ScriptResolver
 		return _res;
 	}
 
-	public static object ini_write_real(Arguments args)
+	public static object ini_write_real(object[] args)
 	{
-		var section = (string)args.Args[0];
-		var key = (string)args.Args[1];
-		var value = args.Args[2].Conv<double>();
+		var section = (string)args[0];
+		var key = (string)args[1];
+		var value = args[2].Conv<double>();
 
 		var sectionClass = _iniFile.Sections.FirstOrDefault(x => x.Name == section);
 
@@ -464,7 +464,7 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object ini_close(Arguments args)
+	public static object ini_close(object[] args)
 	{
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), _iniFile.Name);
 		File.Delete(filepath);
@@ -489,7 +489,7 @@ public static partial class ScriptResolver
 		return text; // BUG: this does NOT return the written text
 	}
 
-	public static object audio_group_is_loaded(Arguments args)
+	public static object audio_group_is_loaded(object[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
 		return true;
@@ -497,9 +497,9 @@ public static partial class ScriptResolver
 
 	private static readonly Dictionary<int, FileHandle> _fileHandles = new(32);
 
-	public static object file_text_open_read(Arguments args)
+	public static object file_text_open_read(object[] args)
 	{
-		var fname = (string)args.Args[0];
+		var fname = (string)args[0];
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 
 		DebugLog.Log($"file_text_open_read {filepath}");
@@ -532,14 +532,14 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object file_text_open_write(Arguments args)
+	public static object file_text_open_write(object[] args)
 	{
 		if (_fileHandles.Count == 32)
 		{
 			return -1;
 		}
 
-		var fname = (string)args.Args[0];
+		var fname = (string)args[0];
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 
 		File.Delete(filepath);
@@ -560,9 +560,9 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object file_text_close(Arguments args)
+	public static object file_text_close(object[] args)
 	{
-		var index = (int)args.Args[0];
+		var index = (int)args[0];
 
 		if (_fileHandles.ContainsKey(index))
 		{
@@ -584,38 +584,38 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object file_text_eof(Arguments args)
+	public static object file_text_eof(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
+		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
 		return reader.EndOfStream;
 	}
 
-	public static object file_exists(Arguments args)
+	public static object file_exists(object[] args)
 	{
-		var fname = args.Args[0].Conv<string>();
+		var fname = args[0].Conv<string>();
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		return File.Exists(filepath);
 	}
 
-	public static object file_text_readln(Arguments args)
+	public static object file_text_readln(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
+		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
 		return reader.ReadLine(); // BUG: returns null if eof
 	}
 
-	public static object file_text_writeln(Arguments args)
+	public static object file_text_writeln(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
+		var fileid = args[0].Conv<int>();
 		var writer = _fileHandles[fileid].Writer;
 		writer.WriteLine();
 		return null!;
 	}
 
-	public static object file_text_read_string(Arguments args)
+	public static object file_text_read_string(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
+		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
 
 		var result = "";
@@ -627,18 +627,18 @@ public static partial class ScriptResolver
 		return result;
 	}
 
-	public static object file_text_write_string(Arguments args)
+	public static object file_text_write_string(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
-		var str = args.Args[1].Conv<string>();
+		var fileid = args[0].Conv<int>();
+		var str = args[1].Conv<string>();
 		var writer = _fileHandles[fileid].Writer;
 		writer.Write(str);
 		return null!;
 	}
 
-	public static object file_text_read_real(Arguments args)
+	public static object file_text_read_real(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
+		var fileid = args[0].Conv<int>();
 		var reader = _fileHandles[fileid].Reader;
 
 		var result = "";
@@ -650,10 +650,10 @@ public static partial class ScriptResolver
 		return double.Parse(result);
 	}
 
-	public static object file_text_write_real(Arguments args)
+	public static object file_text_write_real(object[] args)
 	{
-		var fileid = args.Args[0].Conv<int>();
-		var val = args.Args[1];
+		var fileid = args[0].Conv<int>();
+		var val = args[1];
 		var writer = _fileHandles[fileid].Writer;
 
 		if (val is not int and not double and not float)
@@ -667,18 +667,18 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object file_delete(Arguments args)
+	public static object file_delete(object[] args)
 	{
-		var fname = args.Args[0].Conv<string>();
+		var fname = args[0].Conv<string>();
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		File.Delete(filepath);
 		return true; // TODO : this should return false if this fails.
 	}
 
-	public static object file_copy(Arguments args)
+	public static object file_copy(object[] args)
 	{
-		var fname = args.Args[0].Conv<string>();
-		var newname = args.Args[1].Conv<string>();
+		var fname = args[0].Conv<string>();
+		var newname = args[1].Conv<string>();
 
 		fname = Path.Combine(Directory.GetCurrentDirectory(), fname);
 		newname = Path.Combine(Directory.GetCurrentDirectory(), newname);
@@ -693,15 +693,15 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object variable_global_exists(Arguments args)
+	public static object variable_global_exists(object[] args)
 	{
-		var name = args.Args[0].Conv<string>();
+		var name = args[0].Conv<string>();
 		return VariableResolver.GlobalVariables.ContainsKey(name);
 	}
 
 	private static Dictionary<int, Dictionary<object, object>> _dsMapDict = new();
 
-	public static object ds_map_create(Arguments args)
+	public static object ds_map_create(params object[] args)
 	{
 		var highestIndex = -1;
 		if (_dsMapDict.Count > 0)
@@ -713,18 +713,18 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object ds_map_destroy(Arguments args)
+	public static object ds_map_destroy(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 		_dsMapDict.Remove(index);
 		return null!;
 	}
 
-	public static object ds_map_add(Arguments args)
+	public static object ds_map_add(params object[] args)
 	{
-		var id = args.Args[0].Conv<int>();
-		var key = args.Args[1];
-		var value = args.Args[2];
+		var id = args[0].Conv<int>();
+		var key = args[1];
+		var value = args[2];
 
 		if (!_dsMapDict.ContainsKey(id))
 		{
@@ -741,15 +741,15 @@ public static partial class ScriptResolver
 		return true;
 	}
 
-	public static object ds_map_size(Arguments args)
+	public static object ds_map_size(object[] args)
 	{
-		var id = args.Args[0].Conv<int>();
+		var id = args[0].Conv<int>();
 		return _dsMapDict[id].Count;
 	}
 
 	private static Dictionary<int, List<object>> _dsListDict = new();
 
-	public static object ds_list_create(Arguments args)
+	public static object ds_list_create(params object[] args)
 	{
 		var highestIndex = -1;
 		if (_dsListDict.Count > 0)
@@ -761,17 +761,17 @@ public static partial class ScriptResolver
 		return highestIndex + 1;
 	}
 
-	public static object ds_list_destroy(Arguments args)
+	public static object ds_list_destroy(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 		_dsListDict.Remove(index);
 		return null!;
 	}
 
-	public static object ds_list_add(Arguments args)
+	public static object ds_list_add(params object[] args)
 	{
-		var id = args.Args[0].Conv<int>();
-		var values = args.Args[1..];
+		var id = args[0].Conv<int>();
+		var values = args[1..];
 
 		if (!_dsListDict.ContainsKey(id))
 		{
@@ -783,10 +783,10 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object ds_map_find_value(Arguments args)
+	public static object ds_map_find_value(object[] args)
 	{
-		var id = args.Args[0].Conv<int>();
-		var key = args.Args[1];
+		var id = args[0].Conv<int>();
+		var key = args[1];
 
 		if (!_dsMapDict.ContainsKey(id))
 		{
@@ -802,13 +802,13 @@ public static partial class ScriptResolver
 		return dict[key];
 	}
 
-	public static object show_debug_message(Arguments args)
+	public static object show_debug_message(object[] args)
 	{
-		DebugLog.Log(args.Args[0].ToString());
+		DebugLog.Log(args[0].ToString());
 		return null!;
 	}
 
-	public static object json_decode(Arguments args)
+	public static object json_decode(object[] args)
 	{
 		// is recursive weeeeeeeeeeee
 		static object Parse(JToken jToken)
@@ -819,21 +819,21 @@ public static partial class ScriptResolver
 					return jValue.Value;
 				case JArray jArray:
 				{
-					var dsList = (int)ds_list_create(null);
+					var dsList = (int)ds_list_create();
 					foreach (var item in jArray)
 					{
 						// TODO: make and call the proper function for maps and lists
-						ds_list_add(new Arguments { Args = new object[] { dsList, Parse(item) } });
+						ds_list_add(dsList, Parse(item));
 					}
 					return dsList;
 				}
 				case JObject jObject:
 				{
-					var dsMap = (int)ds_map_create(null);
+					var dsMap = (int)ds_map_create();
 					foreach (var (name, value) in jObject)
 					{
 						// TODO: make and call the proper function for maps and lists
-						ds_map_add(new Arguments { Args = new object[] { dsMap, name, Parse(value) } });
+						ds_map_add(dsMap, name, Parse(value));
 					}
 					return dsMap;
 				}
@@ -842,21 +842,21 @@ public static partial class ScriptResolver
 			}
 		}
 
-		var @string = args.Args[0].Conv<string>();
+		var @string = args[0].Conv<string>();
 		var jToken = JToken.Parse(@string);
 
 		switch (jToken)
 		{
 			case JValue jValue:
 			{
-				var dsMap = (int)ds_map_create(null);
-				ds_map_add(new Arguments { Args = new object[] { dsMap, "default", Parse(jValue) } });
+				var dsMap = (int)ds_map_create();
+				ds_map_add(dsMap, "default", Parse(jValue));
 				return dsMap;
 			}
 			case JArray jArray:
 			{
-				var dsMap = (int)ds_map_create(null);
-				ds_map_add(new Arguments { Args = new object[] { dsMap, "default", Parse(jArray) } });
+				var dsMap = (int)ds_map_create();
+				ds_map_add(dsMap, "default", Parse(jArray));
 				return dsMap;
 			}
 			case JObject jObject:
@@ -868,12 +868,12 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object font_add_sprite_ext(Arguments args)
+	public static object font_add_sprite_ext(object[] args)
 	{
-		var spriteAssetIndex = args.Args[0].Conv<int>();
-		var string_map = args.Args[1].Conv<string>();
-		var prop = args.Args[2].Conv<bool>();
-		var sep = args.Args[3].Conv<int>();
+		var spriteAssetIndex = args[0].Conv<int>();
+		var string_map = args[1].Conv<string>();
+		var prop = args[2].Conv<bool>();
+		var sep = args[3].Conv<int>();
 
 		var spriteAsset = SpriteManager.GetSpriteAsset(spriteAssetIndex);
 
@@ -902,13 +902,13 @@ public static partial class ScriptResolver
 		return newFont.AssetIndex;
 	}
 
-	public static object draw_rectangle(Arguments args)
+	public static object draw_rectangle(object[] args)
 	{
-		var x1 = args.Args[0].Conv<double>();
-		var y1 = args.Args[1].Conv<double>();
-		var x2 = args.Args[2].Conv<double>();
-		var y2 = args.Args[3].Conv<double>();
-		var outline = args.Args[4].Conv<bool>();
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var outline = args[4].Conv<bool>();
 
 		if (outline)
 		{
@@ -939,9 +939,9 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object draw_set_font(Arguments args)
+	public static object draw_set_font(object[] args)
 	{
-		var font = args.Args[0].Conv<int>();
+		var font = args[0].Conv<int>();
 
 		var library = TextManager.FontAssets;
 		var fontAsset = library.FirstOrDefault(x => x.AssetIndex == font);
@@ -949,20 +949,20 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object draw_text(Arguments args)
+	public static object draw_text(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var str = args.Args[2].Conv<string>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var str = args[2].Conv<string>();
 		TextManager.DrawText(x, y, str);
 		return null!;
 	}
 
-	public static object merge_colour(Arguments args)
+	public static object merge_colour(object[] args)
 	{
-		var col1 = args.Args[0].Conv<int>();
-		var col2 = args.Args[1].Conv<int>();
-		var amount = args.Args[2].Conv<double>();
+		var col1 = args[0].Conv<int>();
+		var col2 = args[1].Conv<int>();
+		var amount = args[2].Conv<double>();
 
 		/*
 		 * GameMaker stores colors in 3 bytes - BGR
@@ -981,53 +981,53 @@ public static partial class ScriptResolver
 		return BitConverter.ToInt32(new[] { (byte)mr, (byte)mg, (byte)mb, (byte)255 }, 0);
 	}
 
-	public static object draw_set_halign(Arguments args)
+	public static object draw_set_halign(object[] args)
 	{
-		var halign = args.Args[0].Conv<int>();
+		var halign = args[0].Conv<int>();
 		TextManager.halign = (HAlign)halign;
 		return null!;
 	}
 
-	public static object draw_set_valign(Arguments args)
+	public static object draw_set_valign(object[] args)
 	{
-		var valign = args.Args[0].Conv<int>();
+		var valign = args[0].Conv<int>();
 		TextManager.valign = (VAlign)valign;
 		return null!;
 	}
 
-	public static object draw_sprite(Arguments args)
+	public static object draw_sprite(object[] args)
 	{
-		var sprite = args.Args[0].Conv<int>();
-		var subimg = args.Args[1].Conv<int>();
-		var x = args.Args[2].Conv<double>();
-		var y = args.Args[3].Conv<double>();
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var x = args[2].Conv<double>();
+		var y = args[3].Conv<double>();
 
 		SpriteManager.DrawSprite(sprite, subimg, x, y);
 		return null!;
 	}
 
-	public static object window_set_caption(Arguments args)
+	public static object window_set_caption(object[] args)
 	{
-		var caption = args.Args[0].Conv<string>();
+		var caption = args[0].Conv<string>();
 
 		CustomWindow.Instance.Title = caption;
 		return null!;
 	}
 
-	public static object window_get_caption(Arguments args)
+	public static object window_get_caption(object[] args)
 	{
 		return CustomWindow.Instance.Title;
 	}
 
-	public static object audio_group_load(Arguments args)
+	public static object audio_group_load(object[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
 		return true;
 	}
 
-	public static object keyboard_check(Arguments args)
+	public static object keyboard_check(object[] args)
 	{
-		var key = args.Args[0].Conv<int>();
+		var key = args[0].Conv<int>();
 
 		// from disassembly
 		switch (key)
@@ -1057,9 +1057,9 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object keyboard_check_pressed(Arguments args)
+	public static object keyboard_check_pressed(object[] args)
 	{
-		var key = args.Args[0].Conv<int>();
+		var key = args[0].Conv<int>();
 
 		// from disassembly
 		switch (key)
@@ -1089,20 +1089,20 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object display_get_width(Arguments args)
+	public static object display_get_width(object[] args)
 	{
 		return Monitors.GetPrimaryMonitor().HorizontalResolution;
 	}
 
-	public static object display_get_height(Arguments args)
+	public static object display_get_height(object[] args)
 	{
 		return Monitors.GetPrimaryMonitor().VerticalResolution;
 	}
 
-	public static object window_set_size(Arguments args)
+	public static object window_set_size(object[] args)
 	{
-		var w = args.Args[0].Conv<int>();
-		var h = args.Args[1].Conv<int>();
+		var w = args[0].Conv<int>();
+		var h = args[1].Conv<int>();
 
 		DebugLog.Log($"window_set_size {w} {h}");
 
@@ -1111,153 +1111,153 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object window_center(Arguments args)
+	public static object window_center(object[] args)
 	{
 		CustomWindow.Instance.CenterWindow();
 
 		return null!;
 	}
 
-	public static object window_get_fullscreen(Arguments args)
+	public static object window_get_fullscreen(object[] args)
 	{
 		return CustomWindow.Instance.IsFullscreen;
 	}
 
-	public static object window_set_fullscreen(Arguments args)
+	public static object window_set_fullscreen(object[] args)
 	{
-		var full = args.Args[0].Conv<bool>();
+		var full = args[0].Conv<bool>();
 		CustomWindow.Instance.WindowState = full ? WindowState.Fullscreen : WindowState.Normal;
 		// BUG: this fucks resolution
 		return null!;
 	}
 
-	public static object gamepad_button_check(Arguments args)
+	public static object gamepad_button_check(object[] args)
 	{
 		// TODO : implement?
 		return false;
 	}
 
-	public static object gamepad_axis_value(Arguments args)
+	public static object gamepad_axis_value(object[] args)
 	{
 		// TODO : implement?
 		return 0;
 	}
 
-	public static object gamepad_is_connected(Arguments args)
+	public static object gamepad_is_connected(object[] args)
 	{
-		var device = args.Args[0].Conv<int>();
+		var device = args[0].Conv<int>();
 		return false; // TODO : implement
 	}
 
-	public static object draw_sprite_ext(Arguments args)
+	public static object draw_sprite_ext(object[] args)
 	{
-		var sprite = args.Args[0].Conv<int>();
-		var subimg = args.Args[1].Conv<int>();
-		var x = args.Args[2].Conv<double>();
-		var y = args.Args[3].Conv<double>();
-		var xscale = args.Args[4].Conv<double>();
-		var yscale = args.Args[5].Conv<double>();
-		var rot = args.Args[6].Conv<double>();
-		var colour = args.Args[7].Conv<int>();
-		var alpha = args.Args[8].Conv<double>();
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var x = args[2].Conv<double>();
+		var y = args[3].Conv<double>();
+		var xscale = args[4].Conv<double>();
+		var yscale = args[5].Conv<double>();
+		var rot = args[6].Conv<double>();
+		var colour = args[7].Conv<int>();
+		var alpha = args[8].Conv<double>();
 
 		SpriteManager.DrawSpriteExt(sprite, subimg, x, y, xscale, yscale, rot, colour, alpha);
 		return null!;
 	}
 
-	public static object draw_text_transformed(Arguments args)
+	public static object draw_text_transformed(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var str = args.Args[2].Conv<string>();
-		var xscale = args.Args[3].Conv<double>();
-		var yscale = args.Args[4].Conv<double>();
-		var angle = args.Args[5].Conv<double>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var str = args[2].Conv<string>();
+		var xscale = args[3].Conv<double>();
+		var yscale = args[4].Conv<double>();
+		var angle = args[5].Conv<double>();
 		TextManager.DrawTextTransformed(x, y, str, xscale, yscale, angle);
 		return null!;
 	}
 
-	public static object draw_sprite_part_ext(Arguments args)
+	public static object draw_sprite_part_ext(object[] args)
 	{
-		var sprite = args.Args[0].Conv<int>();
-		var subimg = args.Args[1].Conv<int>();
-		var left = args.Args[2].Conv<int>();
-		var top = args.Args[3].Conv<int>();
-		var width = args.Args[4].Conv<int>();
-		var height = args.Args[5].Conv<int>();
-		var x = args.Args[6].Conv<double>();
-		var y = args.Args[7].Conv<double>();
-		var xscale = args.Args[8].Conv<double>();
-		var yscale = args.Args[9].Conv<double>();
-		var colour = args.Args[10].Conv<int>();
-		var alpha = args.Args[11].Conv<double>();
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var left = args[2].Conv<int>();
+		var top = args[3].Conv<int>();
+		var width = args[4].Conv<int>();
+		var height = args[5].Conv<int>();
+		var x = args[6].Conv<double>();
+		var y = args[7].Conv<double>();
+		var xscale = args[8].Conv<double>();
+		var yscale = args[9].Conv<double>();
+		var colour = args[10].Conv<int>();
+		var alpha = args[11].Conv<double>();
 
 		SpriteManager.DrawSpritePartExt(sprite, subimg, left, top, width, height, x, y, xscale, yscale, colour, alpha);
 
 		return null!;
 	}
 
-	public static object draw_sprite_part(Arguments args)
+	public static object draw_sprite_part(object[] args)
 	{
-		var sprite = args.Args[0].Conv<int>();
-		var subimg = args.Args[1].Conv<int>();
-		var left = args.Args[2].Conv<int>();
-		var top = args.Args[3].Conv<int>();
-		var width = args.Args[4].Conv<int>();
-		var height = args.Args[5].Conv<int>();
-		var x = args.Args[6].Conv<double>();
-		var y = args.Args[7].Conv<double>();
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var left = args[2].Conv<int>();
+		var top = args[3].Conv<int>();
+		var width = args[4].Conv<int>();
+		var height = args[5].Conv<int>();
+		var x = args[6].Conv<double>();
+		var y = args[7].Conv<double>();
 
 		SpriteManager.DrawSpritePart(sprite, subimg, left, top, width, height, x, y);
 
 		return null!;
 	}
 
-	public static object draw_self(Arguments args)
+	public static object draw_self(object[] args)
 	{
-		SpriteManager.DrawSelf(args.Ctx.Self);
+		SpriteManager.DrawSelf(VMExecutor.Ctx.Self);
 		return null!;
 	}
 
-	public static object draw_sprite_stretched(Arguments args)
+	public static object draw_sprite_stretched(object[] args)
 	{
-		var sprite = args.Args[0].Conv<int>();
-		var subimg = args.Args[1].Conv<int>();
-		var x = args.Args[2].Conv<double>();
-		var y = args.Args[3].Conv<double>();
-		var w = args.Args[4].Conv<double>();
-		var h = args.Args[5].Conv<double>();
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var x = args[2].Conv<double>();
+		var y = args[3].Conv<double>();
+		var w = args[4].Conv<double>();
+		var h = args[5].Conv<double>();
 
 		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h);
 		return null!;
 	}
 
-	public static object draw_text_colour(Arguments args)
+	public static object draw_text_colour(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var str = args.Args[2].Conv<string>();
-		var c1 = args.Args[3].Conv<int>();
-		var c2 = args.Args[4].Conv<int>();
-		var c3 = args.Args[5].Conv<int>();
-		var c4 = args.Args[6].Conv<int>();
-		var alpha = args.Args[7].Conv<double>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var str = args[2].Conv<string>();
+		var c1 = args[3].Conv<int>();
+		var c2 = args[4].Conv<int>();
+		var c3 = args[5].Conv<int>();
+		var c4 = args[6].Conv<int>();
+		var alpha = args[7].Conv<double>();
 
 		TextManager.DrawTextColor(x, y, str, c1, c2, c3, c4, alpha);
 		
 		return null!;
 	}
 
-	public static object draw_sprite_tiled_ext(Arguments args)
+	public static object draw_sprite_tiled_ext(object[] args)
 	{
-		var sprite = args.Args[0].Conv<int>();
-		var subimg = args.Args[1].Conv<int>();
-		var x = args.Args[2].Conv<double>();
-		var y = args.Args[3].Conv<double>();
-		var xscale = args.Args[4].Conv<double>();
-		var yscale = args.Args[5].Conv<double>();
-		var colour = args.Args[6].Conv<int>();
-		var alpha = args.Args[7].Conv<double>();
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var x = args[2].Conv<double>();
+		var y = args[3].Conv<double>();
+		var xscale = args[4].Conv<double>();
+		var yscale = args[5].Conv<double>();
+		var colour = args[6].Conv<int>();
+		var alpha = args[7].Conv<double>();
 
 		var spriteTex = SpriteManager.GetSpritePage(sprite, subimg);
 
@@ -1299,63 +1299,63 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_group_set_gain(Arguments args)
+	public static object audio_group_set_gain(object[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
 		return null!;
 	}
 
-	public static object audio_play_sound(Arguments args)
+	public static object audio_play_sound(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
-		var priority = args.Args[1].Conv<double>();
-		var loop = args.Args[2].Conv<bool>();
+		var index = args[0].Conv<int>();
+		var priority = args[1].Conv<double>();
+		var loop = args[2].Conv<bool>();
 		var asset = AudioManager.GetAudioAsset(index);
 		var gain = asset.Gain;
 		var offset = asset.Offset;
 		var pitch = asset.Pitch;
 		var listener_mask = 0; // TODO : work out what the hell this is for
-		if (args.Args.Length > 3)
+		if (args.Length > 3)
 		{
-			gain = args.Args[3].Conv<double>();
+			gain = args[3].Conv<double>();
 		}
 
-		if (args.Args.Length > 4)
+		if (args.Length > 4)
 		{
-			offset = args.Args[4].Conv<double>();
+			offset = args[4].Conv<double>();
 		}
 
-		if (args.Args.Length > 5)
+		if (args.Length > 5)
 		{
-			pitch = args.Args[5].Conv<double>();
+			pitch = args[5].Conv<double>();
 		}
 
-		if (args.Args.Length > 6)
+		if (args.Length > 6)
 		{
-			listener_mask = args.Args[6].Conv<int>();
+			listener_mask = args[6].Conv<int>();
 		}
 
 		var ret = AudioManager.audio_play_sound(index, priority, loop, gain, offset, pitch);
 		return ret;
 	}
 
-	public static object audio_set_master_gain(Arguments args)
+	public static object audio_set_master_gain(object[] args)
 	{
-		var listenerIndex = args.Args[0].Conv<double>(); // deltarune doesnt use other listeners rn so i dont care
-		var gain = args.Args[1].Conv<double>();
+		var listenerIndex = args[0].Conv<double>(); // deltarune doesnt use other listeners rn so i dont care
+		var gain = args[1].Conv<double>();
 		AL.Listener(ALListenerf.Gain, (float)gain);
 		return null!;
 	}
 
-	public static object view_get_camera(Arguments args)
+	public static object view_get_camera(object[] args)
 	{
 		// TODO : ughhh implement multiple cameras
 		return 0;
 	}
 
-	public static object camera_get_view_x(Arguments args)
+	public static object camera_get_view_x(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1366,9 +1366,9 @@ public static partial class ScriptResolver
 		return CustomWindow.Instance.X;
 	}
 
-	public static object camera_get_view_y(Arguments args)
+	public static object camera_get_view_y(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1379,9 +1379,9 @@ public static partial class ScriptResolver
 		return CustomWindow.Instance.Y;
 	}
 
-	public static object camera_get_view_width(Arguments args)
+	public static object camera_get_view_width(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1392,9 +1392,9 @@ public static partial class ScriptResolver
 		return RoomManager.CurrentRoom.CameraWidth;
 	}
 
-	public static object camera_get_view_height(Arguments args)
+	public static object camera_get_view_height(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1405,9 +1405,9 @@ public static partial class ScriptResolver
 		return RoomManager.CurrentRoom.CameraHeight;
 	}
 
-	public static object camera_set_view_target(Arguments args)
+	public static object camera_set_view_target(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1415,7 +1415,7 @@ public static partial class ScriptResolver
 			throw new NotImplementedException();
 		}
 
-		var id = args.Args[1].Conv<int>();
+		var id = args[1].Conv<int>();
 
 		GamemakerObject instance = null;
 
@@ -1435,9 +1435,9 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	/*public static object camera_get_view_target(Arguments args)
+	/*public static object camera_get_view_target(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1449,9 +1449,9 @@ public static partial class ScriptResolver
 		return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
 	}*/
 
-	public static object camera_set_view_pos(Arguments args)
+	public static object camera_set_view_pos(object[] args)
 	{
-		var camera_id = args.Args[0].Conv<int>();
+		var camera_id = args[0].Conv<int>();
 
 		if (camera_id > 0)
 		{
@@ -1459,17 +1459,17 @@ public static partial class ScriptResolver
 			throw new NotImplementedException();
 		}
 
-		var x = args.Args[1].Conv<double>();
-		var y = args.Args[2].Conv<double>();
+		var x = args[1].Conv<double>();
+		var y = args[2].Conv<double>();
 
 		CustomWindow.Instance.SetPosition(x, y);
 
 		return null!;
 	}
 
-	public static object audio_create_stream(Arguments args)
+	public static object audio_create_stream(object[] args)
 	{
-		var filename = args.Args[0].Conv<string>();
+		var filename = args[0].Conv<string>();
 
 		var assetName = Path.GetFileNameWithoutExtension(filename);
 		var existingIndex = AssetIndexManager.GetIndex(assetName);
@@ -1503,18 +1503,18 @@ public static partial class ScriptResolver
 		});
 	}
 
-	public static object audio_destroy_stream(Arguments args)
+	public static object audio_destroy_stream(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 		AudioManager.UnregisterAudio(index);
 		return null!;
 	}
 
-	public static object audio_sound_gain(Arguments args)
+	public static object audio_sound_gain(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
-		var volume = args.Args[1].Conv<double>();
-		var time = args.Args[2].Conv<double>();
+		var index = args[0].Conv<int>();
+		var volume = args[1].Conv<double>();
+		var time = args[2].Conv<double>();
 
 		if (index >= GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1541,10 +1541,10 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_sound_pitch(Arguments args)
+	public static object audio_sound_pitch(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
-		var pitch = args.Args[1].Conv<double>();
+		var index = args[0].Conv<int>();
+		var pitch = args[1].Conv<double>();
 
 		pitch = Math.Clamp(pitch, 1.0 / 256.0, 256.0);
 
@@ -1570,16 +1570,16 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_stop_all(Arguments args)
+	public static object audio_stop_all(object[] args)
 	{
 		DebugLog.Log($"audio_stop_all");
 		AudioManager.StopAllAudio();
 		return null!;
 	}
 
-	public static object audio_stop_sound(Arguments args)
+	public static object audio_stop_sound(object[] args)
 	{
-		var id = args.Args[0].Conv<int>();
+		var id = args[0].Conv<int>();
 		DebugLog.Log($"audio_stop_sound id:{id}");
 
 		if (id < GMConstants.FIRST_INSTANCE_ID)
@@ -1601,9 +1601,9 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_pause_sound(Arguments args)
+	public static object audio_pause_sound(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 
 		if (index < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1627,9 +1627,9 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_resume_sound(Arguments args)
+	public static object audio_resume_sound(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 
 		if (index < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1648,10 +1648,10 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_sound_set_track_position(Arguments args)
+	public static object audio_sound_set_track_position(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
-		var time = args.Args[1].Conv<double>();
+		var index = args[0].Conv<int>();
+		var time = args[1].Conv<double>();
 
 		if (index < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1667,9 +1667,9 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object audio_is_playing(Arguments args)
+	public static object audio_is_playing(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 
 		if (index < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1690,36 +1690,36 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object string_width(Arguments args)
+	public static object string_width(object[] args)
 	{
-		var str = args.Args[0].Conv<string>();
+		var str = args[0].Conv<string>();
 
 		return TextManager.StringWidth(str);
 	}
 
-	public static object event_user(Arguments args)
+	public static object event_user(object[] args)
 	{
-		var numb = args.Args[0].Conv<int>();
-		GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
+		var numb = args[0].Conv<int>();
+		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null!;
 	}
 
-	public static object script_execute(Arguments args)
+	public static object script_execute(object[] args)
 	{
-		var scriptAssetId = args.Args[0].Conv<int>();
-		var scriptArgs = args.Args[1..];
+		var scriptAssetId = args[0].Conv<int>();
+		var scriptArgs = args[1..];
 
 		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
-		return VMExecutor.ExecuteScript(script, args.Ctx.Self, args.Ctx.ObjectDefinition, arguments: new Arguments { Args = scriptArgs });
+		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
 	}
 
-	public static object draw_line_width(Arguments args)
+	public static object draw_line_width(object[] args)
 	{
-		var x1 = args.Args[0].Conv<double>();
-		var y1 = args.Args[1].Conv<double>();
-		var x2 = args.Args[2].Conv<double>();
-		var y2 = args.Args[3].Conv<double>();
-		var w = args.Args[4].Conv<int>();
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var w = args[4].Conv<int>();
 			
 		CustomWindow.RenderJobs.Add(new GMLineJob()
 		{
@@ -1733,12 +1733,12 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object gpu_set_fog(Arguments args)
+	public static object gpu_set_fog(object[] args)
 	{
-		var enable = args.Args[0].Conv<bool>();
-		var colour = args.Args[1].Conv<int>();
-		var start = args.Args[2].Conv<double>();
-		var end = args.Args[3].Conv<double>();
+		var enable = args[0].Conv<bool>();
+		var colour = args[1].Conv<int>();
+		var start = args[2].Conv<double>();
+		var end = args[3].Conv<double>();
 
 		if ((start != 0 && start != 1) || (end != 0 && end != 1))
 		{
@@ -1751,150 +1751,150 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object sprite_get_number(Arguments args)
+	public static object sprite_get_number(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 		return SpriteManager.GetNumberOfFrames(index);
 	}
 
-	public static object lengthdir_x(Arguments args)
+	public static object lengthdir_x(object[] args)
 	{
-		var len = args.Args[0].Conv<double>();
-		var dir = args.Args[1].Conv<double>();
+		var len = args[0].Conv<double>();
+		var dir = args[1].Conv<double>();
 
 		return len * Math.Cos(dir * CustomMath.Deg2Rad);
 	}
 
-	public static object lengthdir_y(Arguments args)
+	public static object lengthdir_y(object[] args)
 	{
-		var len = args.Args[0].Conv<double>();
-		var dir = args.Args[1].Conv<double>();
+		var len = args[0].Conv<double>();
+		var dir = args[1].Conv<double>();
 
 		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
 	}
 
-	public static object object_get_sprite(Arguments args)
+	public static object object_get_sprite(object[] args)
 	{
-		var obj = args.Args[0].Conv<int>();
+		var obj = args[0].Conv<int>();
 		return InstanceManager.ObjectDefinitions[obj].sprite;
 	}
 
-	public static object layer_get_all(Arguments args)
+	public static object layer_get_all(object[] args)
 	{
 		return RoomManager.CurrentRoom.Layers.Values.Select(x => (object)x.ID).ToList();
 	}
 
-	public static object layer_get_name(Arguments args)
+	public static object layer_get_name(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 		return RoomManager.CurrentRoom.Layers[layer_id].Name;
 	}
 
-	public static object real(Arguments args)
+	public static object real(object[] args)
 	{
-		var str = args.Args[0].Conv<string>();
+		var str = args[0].Conv<string>();
 		return str.Conv<double>();
 	}
 
-	private static object layer_get_depth(Arguments args)
+	private static object layer_get_depth(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.Depth;
 	}
 
-	private static object layer_x(Arguments args)
+	private static object layer_x(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
-		var x = args.Args[1].Conv<double>();
+		var layer_id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.X = (float)x;
 		return null!;
 	}
 
-	private static object layer_y(Arguments args)
+	private static object layer_y(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
-		var y = args.Args[1].Conv<double>();
+		var layer_id = args[0].Conv<int>();
+		var y = args[1].Conv<double>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.Y = (float)y;
 		return null!;
 	}
 
-	private static object layer_get_x(Arguments args)
+	private static object layer_get_x(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.X;
 	}
 
-	private static object layer_get_y(Arguments args)
+	private static object layer_get_y(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.Y;
 	}
 
-	private static object layer_hspeed(Arguments args)
+	private static object layer_hspeed(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
-		var hspd = args.Args[1].Conv<double>();
+		var layer_id = args[0].Conv<int>();
+		var hspd = args[1].Conv<double>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.HSpeed = (float)hspd;
 		return null!;
 	}
 
-	private static object layer_vspeed(Arguments args)
+	private static object layer_vspeed(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
-		var vspd = args.Args[1].Conv<double>();
+		var layer_id = args[0].Conv<int>();
+		var vspd = args[1].Conv<double>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.VSpeed = (float)vspd;
 		return null!;
 	}
 
-	private static object layer_get_vspeed(Arguments args)
+	private static object layer_get_vspeed(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.VSpeed;
 	}
 
-	private static object layer_get_hspeed(Arguments args)
+	private static object layer_get_hspeed(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.HSpeed;
 	}
 
-	private static object layer_depth(Arguments args)
+	private static object layer_depth(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
-		var depth = args.Args[1].Conv<int>();
+		var layer_id = args[0].Conv<int>();
+		var depth = args[1].Conv<int>();
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		layer.Depth = depth;
 		return null!;
 	}
 
-	private static object layer_get_all_elements(Arguments args)
+	private static object layer_get_all_elements(object[] args)
 	{
-		var layer_id = args.Args[0].Conv<int>();
+		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 		return layer.Elements.Select(x => (object)x.instanceId).ToList();
 	}
 
-	private static object layer_get_element_type(Arguments args)
+	private static object layer_get_element_type(object[] args)
 	{
-		var element_id = args.Args[0].Conv<int>();
+		var element_id = args[0].Conv<int>();
 		var element = TileManager.Tiles.First(x => x.instanceId == element_id);
 
 		if (element is GMTile)
@@ -1907,22 +1907,22 @@ public static partial class ScriptResolver
 		}
 	}
 
-	private static object layer_tile_alpha(Arguments args)
+	private static object layer_tile_alpha(object[] args)
 	{
-		var __index = args.Args[0].Conv<int>();
-		var __alpha = args.Args[1].Conv<double>();
+		var __index = args[0].Conv<int>();
+		var __alpha = args[1].Conv<double>();
 		// TODO : implement
 		//(TileManager.Tiles.First(x => x.instanceId == __index) as GMTile).Alpha = __alpha;
 		return null!;
 	}
 
-	private static object layer_create(Arguments args)
+	private static object layer_create(object[] args)
 	{
-		var depth = args.Args[0].Conv<int>();
+		var depth = args[0].Conv<int>();
 		var name = "";
-		if (args.Args.Length > 1)
+		if (args.Length > 1)
 		{
-			name = args.Args[1].Conv<string>();
+			name = args[1].Conv<string>();
 		}
 
 		var newLayerId = RoomManager.CurrentRoom.Layers.Keys.Max() + 1;
@@ -1939,10 +1939,10 @@ public static partial class ScriptResolver
 		return newLayerId;
 	}
 
-	private static object instance_find(Arguments args)
+	private static object instance_find(object[] args)
 	{
-		var obj = args.Args[0].Conv<int>();
-		var n = args.Args[1].Conv<int>();
+		var obj = args[0].Conv<int>();
+		var n = args[1].Conv<int>();
 
 		/*
 		 * todo : this is really fucked.
@@ -1973,13 +1973,13 @@ public static partial class ScriptResolver
 		return GMConstants.noone;
 	}
 
-	private static object draw_arrow(Arguments args)
+	private static object draw_arrow(object[] args)
 	{
-		var x1 = args.Args[0].Conv<double>();
-		var y1 = args.Args[1].Conv<double>();
-		var x2 = args.Args[2].Conv<double>();
-		var y2 = args.Args[3].Conv<double>();
-		var size = args.Args[4].Conv<double>();
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var size = args[4].Conv<double>();
 
 		// todo : name all these variables better and refactor this
 
@@ -2029,11 +2029,11 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object make_color_hsv(Arguments args)
+	public static object make_color_hsv(object[] args)
 	{
-		var hue = args.Args[0].Conv<double>();
-		var sat = args.Args[1].Conv<double>() / 255;
-		var val = args.Args[2].Conv<double>() / 255;
+		var hue = args[0].Conv<double>();
+		var sat = args[1].Conv<double>() / 255;
+		var val = args[2].Conv<double>() / 255;
 
 		var hueDegree = (hue / 255) * 360;
 
@@ -2093,9 +2093,9 @@ public static partial class ScriptResolver
 		return (bByte << 16) + (byte)(gByte << 8) + rByte;
 	}
 
-	public static object gpu_set_blendmode(Arguments args)
+	public static object gpu_set_blendmode(object[] args)
 	{
-		var mode = args.Args[0].Conv<int>();
+		var mode = args[0].Conv<int>();
 
 		switch (mode)
 		{
@@ -2134,12 +2134,12 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object draw_circle(Arguments args)
+	public static object draw_circle(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var r = args.Args[2].Conv<double>();
-		var outline = args.Args[3].Conv<bool>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var r = args[2].Conv<double>();
+		var outline = args[3].Conv<bool>();
 
 		var angle = 360 / DrawManager.CirclePrecision;
 
@@ -2160,15 +2160,15 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object draw_triangle(Arguments args)
+	public static object draw_triangle(object[] args)
 	{
-		var x1 = args.Args[0].Conv<double>();
-		var y1 = args.Args[1].Conv<double>();
-		var x2 = args.Args[2].Conv<double>();
-		var y2 = args.Args[3].Conv<double>();
-		var x3 = args.Args[4].Conv<double>();
-		var y3 = args.Args[5].Conv<double>();
-		var outline = args.Args[6].Conv<bool>();
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var x3 = args[4].Conv<double>();
+		var y3 = args[5].Conv<double>();
+		var outline = args[6].Conv<bool>();
 
 		CustomWindow.RenderJobs.Add(new GMPolygonJob()
 		{
@@ -2186,16 +2186,16 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object angle_difference(Arguments args)
+	public static object angle_difference(object[] args)
 	{
-		var dest = args.Args[0].Conv<double>();
-		var src = args.Args[1].Conv<double>();
+		var dest = args[0].Conv<double>();
+		var src = args[1].Conv<double>();
 		return CustomMath.Mod(dest - src + 180, 360) - 180;
 	}
 
-	public static object distance_to_object(Arguments args)
+	public static object distance_to_object(object[] args)
 	{
-		var obj = args.Args[0].Conv<int>();
+		var obj = args[0].Conv<int>();
 
 		GamemakerObject objToCheck = null;
 
@@ -2214,82 +2214,82 @@ public static partial class ScriptResolver
 			objToCheck = InstanceManager.FindByInstanceId(obj);
 		}
 
-		return CollisionManager.DistanceToObject(args.Ctx.Self, objToCheck);
+		return CollisionManager.DistanceToObject(VMExecutor.Ctx.Self, objToCheck);
 	}
 
-	public static object texturegroup_get_textures(Arguments args)
+	public static object texturegroup_get_textures(object[] args)
 	{
-		var tex_id = args.Args[0].Conv<string>();
+		var tex_id = args[0].Conv<string>();
 
 		var asset = GameLoader.TexGroups[tex_id];
 
-		return asset.TexturePages.Select(x => new RValue(x)).ToList();
+		return asset.TexturePages;
 	}
 
-	public static object texture_prefetch(Arguments args)
+	public static object texture_prefetch(object[] args)
 	{
-		var tex_id = args.Args[0].Conv<string>();
+		var tex_id = args[0].Conv<string>();
 		// TODO : Implement? Or not?
 		return null!;
 	}
 
-	public static object texture_flush(Arguments args)
+	public static object texture_flush(object[] args)
 	{
-		var tex_id = args.Args[0].Conv<string>();
+		var tex_id = args[0].Conv<string>();
 		// TODO : Implement? Or not?
 		return null!;
 	}
 
-	public static object window_get_width(Arguments args)
+	public static object window_get_width(object[] args)
 	{
 		return CustomWindow.Instance.ClientSize.X;
 	}
 
-	public static object window_get_height(Arguments args)
+	public static object window_get_height(object[] args)
 	{
 		return CustomWindow.Instance.ClientSize.Y;
 	}
 
-	public static object surface_get_width(Arguments args)
+	public static object surface_get_width(object[] args)
 	{
-		var surface_id = args.Args[0].Conv<int>();
+		var surface_id = args[0].Conv<int>();
 		return SurfaceManager.GetSurfaceWidth(surface_id);
 	}
 
-	public static object surface_get_height(Arguments args)
+	public static object surface_get_height(object[] args)
 	{
-		var surface_id = args.Args[0].Conv<int>();
+		var surface_id = args[0].Conv<int>();
 		return SurfaceManager.GetSurfaceHeight(surface_id);
 	}
 
-	public static object os_get_language(Arguments args)
+	public static object os_get_language(object[] args)
 	{
 		return "en"; // TODO : actually implement
 	}
 
-	public static object surface_resize(Arguments args)
+	public static object surface_resize(object[] args)
 	{
-		var surface_id = args.Args[0].Conv<int>();
-		var w = args.Args[1].Conv<int>();
-		var h = args.Args[2].Conv<int>();
+		var surface_id = args[0].Conv<int>();
+		var w = args[1].Conv<int>();
+		var h = args[2].Conv<int>();
 		SurfaceManager.ResizeSurface(surface_id, w, h);
 		return null!;
 	}
 
-	public static object lerp(Arguments args)
+	public static object lerp(object[] args)
 	{
-		var a = args.Args[0].Conv<double>();
-		var b = args.Args[1].Conv<double>();
-		var amt = args.Args[2].Conv<double>();
+		var a = args[0].Conv<double>();
+		var b = args[1].Conv<double>();
+		var amt = args[2].Conv<double>();
 
 		return a + ((b - a) * amt);
 	}
 
-	public static object clamp(Arguments args)
+	public static object clamp(object[] args)
 	{
-		var val = args.Args[0].Conv<double>();
-		var min = args.Args[1].Conv<double>();
-		var max = args.Args[2].Conv<double>();
+		var val = args[0].Conv<double>();
+		var min = args[1].Conv<double>();
+		var max = args[2].Conv<double>();
 
 		if (val <= min)
 		{
@@ -2304,23 +2304,23 @@ public static partial class ScriptResolver
 		return val;
 	}
 
-	public static object gamepad_button_check_pressed(Arguments args)
+	public static object gamepad_button_check_pressed(object[] args)
 	{
 		// TODO : implement
 		return false;
 	}
 
-	public static object sprite_create_from_surface(Arguments args)
+	public static object sprite_create_from_surface(object[] args)
 	{
 		// TODO : implement
 		return 1;
 	}
 
-	public static object sprite_set_offset(Arguments args)
+	public static object sprite_set_offset(object[] args)
 	{
-		var ind = args.Args[0].Conv<int>();
-		var xoff = args.Args[1].Conv<int>();
-		var yoff = args.Args[2].Conv<int>();
+		var ind = args[0].Conv<int>();
+		var xoff = args[1].Conv<int>();
+		var yoff = args[2].Conv<int>();
 
 		var data = SpriteManager._spriteDict[ind];
 		data.OriginX = xoff;
@@ -2328,19 +2328,19 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object gamepad_get_device_count(Arguments args)
+	public static object gamepad_get_device_count(object[] args)
 	{
 		// TODO : implement
 		return 0;
 	}
 
-	public static object draw_text_ext(Arguments args)
+	public static object draw_text_ext(object[] args)
 	{
-		var x = args.Args[0].Conv<double>();
-		var y = args.Args[1].Conv<double>();
-		var str = args.Args[2].Conv<string>();
-		var sep = args.Args[3].Conv<int>();
-		var w = args.Args[4].Conv<double>();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var str = args[2].Conv<string>();
+		var sep = args[3].Conv<int>();
+		var w = args[4].Conv<double>();
 
 		CustomWindow.RenderJobs.Add(new GMTextJob()
 		{
@@ -2358,36 +2358,36 @@ public static partial class ScriptResolver
 		return null!;
 	}
 
-	public static object ord(Arguments args)
+	public static object ord(object[] args)
 	{
-		var str = args.Args[0].Conv<string>();
+		var str = args[0].Conv<string>();
 
 		return (int)Encoding.UTF8.GetBytes(str)[0];
 	}
 
-	public static object room_get_name(Arguments args)
+	public static object room_get_name(object[] args)
 	{
-		var index = args.Args[0].Conv<int>();
+		var index = args[0].Conv<int>();
 
 		return RoomManager.RoomList[index].Name;
 	}
 
-	public static object buffer_load(Arguments args)
+	public static object buffer_load(object[] args)
 	{
-		var filename = args.Args[0].Conv<string>();
+		var filename = args[0].Conv<string>();
 		return BufferManager.LoadBuffer(filename);
 	}
 
-	public static object buffer_read(Arguments args)
+	public static object buffer_read(object[] args)
 	{
-		var bufferIndex = args.Args[0].Conv<int>();
-		var type = args.Args[1].Conv<int>();
+		var bufferIndex = args[0].Conv<int>();
+		var type = args[1].Conv<int>();
 		return BufferManager.ReadBuffer(bufferIndex, (BufferDataType)type);
 	}
 
-	public static object buffer_delete(Arguments args)
+	public static object buffer_delete(object[] args)
 	{
-		var bufferIndex = args.Args[0].Conv<int>();
+		var bufferIndex = args[0].Conv<int>();
 
 		var buffer = BufferManager.Buffers[bufferIndex];
 		buffer.Data = null;
