@@ -527,6 +527,7 @@ public static partial class VMExecutor
 
 				if (type.Is<int>()) return int.Parse(s);
 				if (type.Is<short>()) return short.Parse(s);
+				if (type.Is<long>()) return long.Parse(s);
 				if (type.Is<double>()) return double.Parse(s);
 				if (type.Is<float>()) return float.Parse(s);
 				if (type.Is<bool>()) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
@@ -537,7 +538,7 @@ public static partial class VMExecutor
 
 				if (type.Is<int>()) return (int)l;
 				if (type.Is<short>()) return (short)l;
-				if (type.Is<long>()) return l;
+				if (type.Is<long>()) return (long)l;
 				if (type.Is<bool>()) return l > 0;
 				if (type.Is<double>()) return (double)l;
 				if (type.Is<string>()) return l.ToString(); // not sure if positive numbers need to have a "+" in front?
