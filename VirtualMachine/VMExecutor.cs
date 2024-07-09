@@ -306,6 +306,7 @@ public static partial class VMExecutor
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName!, out var builtInFunction))
 				{
+					// goofy null checks
 					if (builtInFunction == null)
 					{
 						DebugLog.LogError($"NULL FUNC");
