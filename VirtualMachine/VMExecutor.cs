@@ -509,8 +509,7 @@ public static partial class VMExecutor
 
 		if (@this is null)
 		{
-			DebugLog.LogError($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
-			return null!; // ruh roh
+			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
 
 		if (@this.GetType() == type)
@@ -620,7 +619,6 @@ public static partial class VMExecutor
 			throw new Exception($"Exception while converting {@this} ({@this.GetType().FullName}) to {type}");
 		}
 
-		DebugLog.LogError($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
-		return null!;
+		throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
 	}
 }
