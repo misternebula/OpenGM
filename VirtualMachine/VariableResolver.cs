@@ -22,10 +22,11 @@ public static class VariableResolver
 
 		if (index >= array.Count)
 		{
-			for (var i = 0; i <= index - array.Count; i++)
+			var numToAdd = index - array.Count + 1;
+			for (var i = 0; i < numToAdd; i++)
 			{
 				// BUG: we might pass array into here (which is an IList, but throws on grow)
-				array.Add(new object());
+				array.Add(null);
 			}
 		}
 
