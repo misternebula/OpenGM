@@ -9,31 +9,28 @@ public static class VariableResolver
 	/// general form of the array index setting logic.
 	/// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
 	/// </summary>
-	public static void ArraySet(int index, RValue value,
-		Func<List<RValue>?> getter,
-		Action<List<RValue>> setter)
+	public static void ArraySet(int index, object value,
+		Func<List<object>?> getter,
+		Action<List<object>> setter)
 	{
 		var array = getter();
 		if (array == null)
 		{
-			array = new List<RValue>();
+			array = new List<object>();
 			setter(array);
 		}
 
 		if (index >= array.Count)
 		{
-			array.AddRange(new RValue[index - array.Count + 1]);
+			array.AddRange(new object[index - array.Count + 1]);
 		}
 
 		array[index] = value;
 		setter(array); // getter can make a copy so have to set again
 	}
 
-	public static readonly Dictionary<string, RValue> GlobalVariables = new();
+	public static readonly Dictionary<string, object> GlobalVariables = new();
 
-	/// <summary>
-	/// `object` here is `RValue.Value`
-	/// </summary>
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object>? setter)> BuiltInVariables = new()
 	{
 		{ "working_directory", (get_working_directory, null) },
@@ -77,8 +74,9 @@ public static class VariableResolver
 		{ "os_type", (get_os_type, null)},
 		{ "application_surface", (get_application_surface, null)},
 		{ "alarm", (get_alarm, set_alarm)},
-		{ "argument_count", (get_argument_count, null)}
+		{ "argument_count", (get_argument_count, null)},
 		//{ "room_persistent", (get_room_persistent, set_room_persistent)}
+		{ "undefined", (get_undefined, null)}
 	};
 
 	public static object get_working_directory(GamemakerObject instance)
@@ -200,7 +198,7 @@ public static class VariableResolver
 	// TODO: use conv here
 	public static void set_alarm(GamemakerObject instance, object value) => instance.alarm = ((IEnumerable)value).Cast<int>().ToArray();
 
-	public static object get_argument_count(GamemakerObject instance) => ((List<RValue>)VMExecutor.Ctx.Locals["arguments"].Value).Count;
+	public static object get_argument_count(GamemakerObject instance) => ((ICollection)VMExecutor.Ctx.Locals["arguments"]).Count;
 	
-	public static object get_undefined(GamemakerObject instance) => Undefined.Value;
+	public static object get_undefined(GamemakerObject instance) => null!; // we want to nre unexpectedly with undefined
 }

@@ -23,9 +23,6 @@ public static partial class ScriptResolver
 
 	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
 
-	/// <summary>
-	/// `object` here is `RValue.Value`
-	/// </summary>
 	public static Dictionary<string, Func<Arguments, object>> BuiltInFunctions = new()
 	{
 		#region Game

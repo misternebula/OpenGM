@@ -11,8 +11,8 @@ public class VMScriptExecutionContext
 	public GamemakerObject Self;
 	public ObjectDefinition ObjectDefinition;
 	public DataStack Stack;
-	public Dictionary<string, RValue> Locals;
-	public RValue ReturnValue;
+	public Dictionary<string, object> Locals;
+	public object ReturnValue;
 	public EventType EventType;
 	public int EventIndex;
 
@@ -40,9 +40,6 @@ public class VMScriptExecutionContext
 public class Arguments
 {
 	public VMScriptExecutionContext Ctx => VMExecutor.Ctx;
-	/// <summary>
-	/// `object` here is `RValue.Value`
-	/// </summary>
 	public object[] Args;
 }
 
@@ -306,11 +303,11 @@ public static partial class VMExecutor
 				return DoPop(instruction);
 			case VMOpcode.RET:
 				// ret value is always stored as rvalue
-				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop<RValue>(VMType.v));
+				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop(VMType.v));
 			case VMOpcode.CONV:
-				// Ctx.Stack.Push(ConvertTypes(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeOne, instruction.TypeTwo));
-				var toType = GetType(instruction.TypeTwo);
-				Ctx.Stack.Push(Convert(Ctx.Stack.Pop(), toType));
+				// dont actually convert, just tell the stack we're a different type
+				// since we have to conv everywhere else later anyway with rvalue
+				Ctx.Stack.Push(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeTwo);
 				break;
 			case VMOpcode.POPZ:
 				Ctx.Stack.Pop(instruction.TypeOne);
@@ -324,7 +321,7 @@ public static partial class VMExecutor
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
 					// args are always pushed as rvalues
-					arguments.Args[i] = Ctx.Stack.Pop<RValue>(VMType.v).Value;
+					arguments.Args[i] = Ctx.Stack.Pop(VMType.v);
 				}
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
@@ -476,18 +473,6 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	private static Type GetType(VMType type) => type switch
-	{
-		VMType.s => typeof(string),
-		VMType.i => typeof(int),
-		VMType.e => typeof(int),
-		VMType.b => typeof(bool),
-		VMType.d => typeof(double),
-		VMType.l => typeof(long),
-		VMType.v => typeof(RValue),
-		_ => throw new NotImplementedException("what")
-	};
-	
 	public static int VMTypeToSize(VMType type) => type switch
 	{
 		VMType.v => 16,
@@ -499,129 +484,70 @@ public static partial class VMExecutor
 		VMType.e => 4
 	};
 
-	public static VMType GetTypeOfObject(object obj) => obj switch
+	public static T Conv<T>(this object @this)
 	{
-		int => VMType.i,
-		short => VMType.e, // no idea????? int16s are stored in 4 bytes on the stack.
-		string => VMType.s,
-		bool => VMType.b,
-		double => VMType.d,
-		long => VMType.l,
-		RValue => VMType.v,
-		_ => throw new NotImplementedException($"Can't get type of {obj}")
-	};
-	
-	// TODO: remove this and upgrade
-	public static object ConvertTypes(object obj, VMType from, VMType to)
-	{
-		if (from == to)
-		{
-			return obj;
-		}
-
-		if (from == VMType.i)
-		{
-			if (to == VMType.b)
-			{
-				return (int)obj != 0;
-			}
-			else if (to == VMType.e)
-			{
-				// todo : cap to int16?
-				return (int)obj;
-			}
-		}
-		else if (from == VMType.d)
-		{
-			if (to == VMType.v)
-			{
-				return new RValue((double)obj);
-			}
-		}
-		else if (from == VMType.s)
-		{
-			if (to == VMType.v)
-			{
-				return new RValue((string)obj);
-			}
-		}
-
-		throw new NotImplementedException($"Don't know how to convert from {from} to {to}");
-	}
-	
-	/*
-	* old conv functions are below here. we should move away from these,
-	* bitcasting/poptyping most of the time and conving only when we should
-	*/
-	
-	// TODO: make this more strict, only work with the actual VMTypes (int, long, double, bool, string, RValue)
-	// TODO: move Conv into opcodes so the proper types go onto the stack, rather than deferring conversion until the value is needed
-	[Obsolete("use direct cast")]
-	public static T Conv<T>(object obj)
-	{
+		// TODO: reomve this bs. we shouldnt ever call Conv<object>
 		if (typeof(T) != typeof(object))
 		{
-			return (T)Convert(obj, typeof(T));
+			return (T)Conv(@this, typeof(T));
 		}
 		else
 		{
-			return (T)Convert(obj, Activator.CreateInstance(typeof(T), null).GetType());
+			return (T)Conv(@this, Activator.CreateInstance(typeof(T), null).GetType());
 		}
 	}
 
-	[Obsolete("use direct cast")]
-	public static object Convert(object obj, Type type)
+	public static object Conv(this object @this, Type type)
 	{
-		if (obj is null)
+		if (@this is null)
 		{
-			DebugLog.LogError("null value passed into convert, should be Undefined!");
-			obj = Undefined.Value;
+			throw new NullReferenceException("null/undefined passed into conv");
 		}
 
 		if (type == typeof(object))
 		{
-			return obj;
+			return @this;
 		}
 
 		if (type == typeof(RValue))
 		{
-			return new RValue(obj);
+			return new RValue(@this);
 		}
 
-		if (obj is Undefined && type == typeof(bool))
+		if (@this is Undefined && type == typeof(bool))
 		{
 			return false;
 		}
 
-		if (obj is Undefined && (type == typeof(int) || type == typeof(double) || type == typeof(long)))
+		if (@this is Undefined && (type == typeof(int) || type == typeof(double) || type == typeof(long)))
 		{
 			return 0;
 		}
 
-		if (obj is Undefined && type == typeof(List<object>))
+		if (@this is Undefined && type == typeof(List<object>))
 		{
 			return new List<object>();
 		}
 
-		if (obj is Undefined)
+		if (@this is Undefined)
 		{
 			DebugLog.LogError($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 			return Undefined.Value;
 		}
 
-		if (obj.GetType() == type)
+		if (@this.GetType() == type)
 		{
-			return obj;
+			return @this;
 		}
 
 		try
 		{
-			if (obj is RValue r)
+			if (@this is RValue r)
 			{
 				//DebugLog.Log($"Converting RValue {r} to {type}");
-				return Convert(r.Value, type);
+				return Conv(r.Value, type);
 			}
-			else if (obj is string s)
+			else if (@this is string s)
 			{
 				// not sure how to implement numeric -> string properly
 
@@ -643,9 +569,9 @@ public static partial class VMExecutor
 					return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 				}
 			}
-			else if (obj is int or long)
+			else if (@this is int or long)
 			{
-				var i = System.Convert.ToInt64(obj);
+				var i = System.Convert.ToInt64(@this);
 
 				if (type == typeof(int))
 				{
@@ -672,7 +598,7 @@ public static partial class VMExecutor
 					return i.ToString(); // not sure if positive numbers need to have a "+" in front?
 				}
 			}
-			else if (obj is bool b)
+			else if (@this is bool b)
 			{
 				if (type == typeof(int))
 				{
@@ -689,9 +615,9 @@ public static partial class VMExecutor
 					return b ? "1" : "0"; // GM represents bools as integers
 				}
 			}
-			else if (obj is double or float)
+			else if (@this is double or float)
 			{
-				var d = System.Convert.ToDouble(obj);
+				var d = System.Convert.ToDouble(@this);
 
 				if (type == typeof(double) || type == typeof(float))
 				{
@@ -718,10 +644,10 @@ public static partial class VMExecutor
 		}
 		catch
 		{
-			throw new Exception($"Exception while converting {obj} ({obj.GetType().FullName}) to {type}");
+			throw new Exception($"Exception while converting {@this} ({@this.GetType().FullName}) to {type}");
 		}
 
-		DebugLog.LogError($"Don't know how to convert {obj} ({obj.GetType().FullName}) to {type}");
-		return Undefined.Value;
+		DebugLog.LogError($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
+		return null!;
 	}
 }

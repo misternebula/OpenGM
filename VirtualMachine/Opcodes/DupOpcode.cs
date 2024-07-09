@@ -19,7 +19,7 @@ public static partial class VMExecutor
 		DebugLog.Log($"DoDup dupType:{dupType} dupTypeSize:{dupTypeSize} STACK : ");
 		foreach (var item in Ctx.Stack)
 		{
-			Console.WriteLine($" - {item} (VMType.{GetTypeOfObject(item)}, {VMTypeToSize(GetTypeOfObject(item))} bytes)");
+			Console.WriteLine($" - {item.value} (VMType.{item.type}, {VMTypeToSize(item.type)} bytes)");
 		}
 
 		if (dupSwapSize != 0)
@@ -30,13 +30,13 @@ public static partial class VMExecutor
 		{
 			// Normal duplication mode
 			var size = (dupSize + 1) * dupTypeSize;
-			List<object> toDuplicate = new();
+			List<(object value, VMType type)> toDuplicate = new();
 
 			while (size > 0)
 			{
 				var curr = Ctx.Stack.Pop(); // i think this is the only time its okay to use untyped pop
 				toDuplicate.Add(curr);
-				size -= VMTypeToSize(GetTypeOfObject(curr));
+				size -= VMTypeToSize(curr.type);
 			}
 
 			// Ensure we didn't read too much data accidentally

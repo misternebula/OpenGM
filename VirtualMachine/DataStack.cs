@@ -1,9 +1,9 @@
 namespace DELTARUNITYStandalone.VirtualMachine;
 
 /// <summary>
-/// stack that does extra sanity checks
+/// stack that also stores the type
 /// </summary>
-public class DataStack : Stack<object>
+public class DataStack : Stack<(object value, VMType type)>
 {
 	public DataStack() : base() { }
 	public DataStack(DataStack stack) : base(stack) { } // maybe cloning isnt needed
@@ -11,13 +11,9 @@ public class DataStack : Stack<object>
 	/// <summary>
 	/// checks size before popping
 	/// </summary>
-	public new void Push(object value)
+	public void Push(object value, VMType type)
 	{
-		// sanity check
-		if (value is not (int or long or double or bool or string or RValue))
-			throw new ArgumentException($"bad value {value.GetType()} {value} pushed to data stack");
-
-		base.Push(value);
+		base.Push((value, type));
 	}
 
 	/// <summary>
@@ -25,8 +21,7 @@ public class DataStack : Stack<object>
 	/// </summary>
 	public T Pop<T>(VMType typeToPop)
 	{
-		var poppedValue = base.Pop();
-		var typeOfPopped = VMExecutor.GetTypeOfObject(poppedValue);
+		var (poppedValue, typeOfPopped) = base.Pop();
 
 		// do strict size checking
 		if (VMExecutor.VMTypeToSize(typeOfPopped) != VMExecutor.VMTypeToSize(typeToPop))
@@ -36,12 +31,14 @@ public class DataStack : Stack<object>
 
 		// then do loose conv to cover b to i etc
 		// technically wrong if doing s to i (parses string as int) but whatever
-		// TODO: make it use Conv<T> since we already did the strict type check above LOL
-		return (T)VMExecutor.ConvertTypes(poppedValue, typeOfPopped, typeToPop);
+		return poppedValue.Conv<T>();
 	}
 
 	public object Pop(VMType typeToPop) => Pop<object>(typeToPop);
 
-	[Obsolete("use Pop(VMType) or Pop<T>(VMType)")]
-	public new object Pop() => base.Pop();
+	[Obsolete("dont use this version")]
+	public new void Push((object value, VMType type) x) => base.Push(x);
+
+	[Obsolete("dont use this version")]
+	public new (object value, VMType type) Pop() => base.Pop();
 }
