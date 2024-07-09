@@ -216,8 +216,8 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.CMP:
 
-				var second = Ctx.Stack.Pop(instruction.TypeTwo);
-				var first = Ctx.Stack.Pop(instruction.TypeOne);
+				var second = Ctx.Stack.Pop(instruction.TypeOne);
+				var first = Ctx.Stack.Pop(instruction.TypeTwo);
 
 				// first ??= 0;
 				// second ??= 0;

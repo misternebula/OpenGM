@@ -39,8 +39,8 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object?) ADD(VMScriptInstruction instruction)
 	{
-		var valTwo = Ctx.Stack.Pop(instruction.TypeTwo);
-		var valOne = Ctx.Stack.Pop(instruction.TypeOne);
+		var valTwo = Ctx.Stack.Pop(instruction.TypeOne);
+		var valOne = Ctx.Stack.Pop(instruction.TypeTwo);
 
 		var retType = GetMathReturnType(instruction);
 
@@ -63,8 +63,8 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) SUB(VMScriptInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
 		Ctx.Stack.Push(numOne - numTwo, retType);
 		return (ExecutionResult.Success, null);
@@ -73,8 +73,8 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) MUL(VMScriptInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
 		Ctx.Stack.Push(numOne * numTwo, retType);
 		return (ExecutionResult.Success, null);
@@ -83,8 +83,8 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) DIV(VMScriptInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
 		Ctx.Stack.Push(numOne / numTwo, retType);
 		return (ExecutionResult.Success, null);
@@ -93,8 +93,8 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) REM(VMScriptInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
 		Ctx.Stack.Push(numOne % numTwo, retType);
 		return (ExecutionResult.Success, null);
