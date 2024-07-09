@@ -527,7 +527,7 @@ public static partial class VMExecutor
 		if (@this is Undefined)
 		{
 			DebugLog.LogError($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
-			return Undefined.Value;
+			return null!;
 		}
 
 		if (@this.GetType() == type)

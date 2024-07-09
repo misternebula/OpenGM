@@ -38,7 +38,7 @@ public static partial class ScriptResolver
 		args.Ctx.Self.direction = (double)point_direction(new Arguments() { Args = new object[] { args.Ctx.Self.x, args.Ctx.Self.y, targetx, targety } });
 		args.Ctx.Self.speed = sp;
 
-		return Undefined.Value;
+		return null!;
 	}
 
 	public static object distance_to_point(Arguments args)
@@ -133,7 +133,7 @@ public static partial class ScriptResolver
 			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.Destroy);
 			GamemakerObject.ExecuteScript(args.Ctx.Self, args.Ctx.ObjectDefinition, EventType.CleanUp);
 			InstanceManager.instance_destroy(args.Ctx.Self);
-			return Undefined.Value;
+			return null!;
 		}
 
 		var id = Conv<int>(args.Args[0]);
@@ -176,26 +176,26 @@ public static partial class ScriptResolver
 			InstanceManager.instance_destroy(instance);
 		}
 
-		return Undefined.Value;
+		return null!;
 	}
 
 	public static object room_goto(Arguments args)
 	{
 		var index = Conv<int>(args.Args[0]);
 		RoomManager.ChangeRoomAfterEvent(index);
-		return Undefined.Value;
+		return null!;
 	}
 
 	public static object room_goto_previous(Arguments args)
 	{
 		RoomManager.room_goto_previous();
-		return Undefined.Value;
+		return null!;
 	}
 
 	public static object room_goto_next(Arguments args)
 	{
 		RoomManager.room_goto_next();
-		return Undefined.Value;
+		return null!;
 	}
 
 	public static object room_previous(Arguments args)
