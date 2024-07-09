@@ -10,9 +10,9 @@ public static partial class ScriptResolver
 {
 	public static object place_meeting(Arguments args)
 	{
-		var x = Conv<double>(args.Args[0]);
-		var y = Conv<double>(args.Args[1]);
-		var obj = Conv<int>(args.Args[2]); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var x = args.Args[0].Conv<double>();
+		var y = args.Args[1].Conv<double>();
+		var obj = args.Args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
 		if (obj < 0)
 		{
@@ -31,9 +31,9 @@ public static partial class ScriptResolver
 
 	public static object move_towards_point(Arguments args)
 	{
-		var targetx = Conv<double>(args.Args[0]);
-		var targety = Conv<double>(args.Args[1]);
-		var sp = Conv<double>(args.Args[2]);
+		var targetx = args.Args[0].Conv<double>();
+		var targety = args.Args[1].Conv<double>();
+		var sp = args.Args[2].Conv<double>();
 
 		args.Ctx.Self.direction = (double)point_direction(new Arguments() { Args = new object[] { args.Ctx.Self.x, args.Ctx.Self.y, targetx, targety } });
 		args.Ctx.Self.speed = sp;
@@ -43,8 +43,8 @@ public static partial class ScriptResolver
 
 	public static object distance_to_point(Arguments args)
 	{
-		var x = Conv<double>(args.Args[0]);
-		var y = Conv<double>(args.Args[1]);
+		var x = args.Args[0].Conv<double>();
+		var y = args.Args[1].Conv<double>();
 
 		var self = args.Ctx.Self;
 
@@ -71,13 +71,13 @@ public static partial class ScriptResolver
 
 	public static object collision_rectangle(Arguments args)
 	{
-		var x1 = Conv<double>(args.Args[0]);
-		var y1 = Conv<double>(args.Args[1]);
-		var x2 = Conv<double>(args.Args[2]);
-		var y2 = Conv<double>(args.Args[3]);
-		var obj = Conv<int>(args.Args[4]); // TODO : this can be an array, or "all" or "other", or tile map stuff
-		var prec = Conv<bool>(args.Args[5]);
-		var notme = Conv<bool>(args.Args[6]);
+		var x1 = args.Args[0].Conv<double>();
+		var y1 = args.Args[1].Conv<double>();
+		var x2 = args.Args[2].Conv<double>();
+		var y2 = args.Args[3].Conv<double>();
+		var obj = args.Args[4].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var prec = args.Args[5].Conv<bool>();
+		var notme = args.Args[6].Conv<bool>();
 
 		if (obj < 0)
 		{
@@ -96,7 +96,7 @@ public static partial class ScriptResolver
 
 	public static object instance_exists(Arguments args)
 	{
-		var obj = Conv<int>(args.Args[0]);
+		var obj = args.Args[0].Conv<int>();
 
 		if (obj > GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -112,16 +112,16 @@ public static partial class ScriptResolver
 
 	public static object instance_number(Arguments args)
 	{
-		var obj = Conv<int>(args.Args[0]);
+		var obj = args.Args[0].Conv<int>();
 		return InstanceManager.instance_number(obj);
 	}
 
 	public static object instance_create_depth(Arguments args)
 	{
-		var x = Conv<double>(args.Args[0]);
-		var y = Conv<double>(args.Args[1]);
-		var depth = Conv<int>(args.Args[2]);
-		var obj = Conv<int>(args.Args[3]);
+		var x = args.Args[0].Conv<double>();
+		var y = args.Args[1].Conv<double>();
+		var depth = args.Args[2].Conv<int>();
+		var obj = args.Args[3].Conv<int>();
 
 		return InstanceManager.instance_create_depth(x, y, depth, obj);
 	}
@@ -136,12 +136,12 @@ public static partial class ScriptResolver
 			return null!;
 		}
 
-		var id = Conv<int>(args.Args[0]);
+		var id = args.Args[0].Conv<int>();
 		var execute_event_flag = true;
 
 		if (args.Args.Length == 2)
 		{
-			execute_event_flag = Conv<bool>(args.Args[1]);
+			execute_event_flag = args.Args[1].Conv<bool>();
 		}
 
 		if (id < GMConstants.FIRST_INSTANCE_ID)
@@ -181,7 +181,7 @@ public static partial class ScriptResolver
 
 	public static object room_goto(Arguments args)
 	{
-		var index = Conv<int>(args.Args[0]);
+		var index = args.Args[0].Conv<int>();
 		RoomManager.ChangeRoomAfterEvent(index);
 		return null!;
 	}
@@ -200,13 +200,13 @@ public static partial class ScriptResolver
 
 	public static object room_previous(Arguments args)
 	{
-		var numb = Conv<int>(args.Args[0]);
+		var numb = args.Args[0].Conv<int>();
 		return RoomManager.room_previous(numb);
 	}
 
 	public static object room_next(Arguments args)
 	{
-		var numb = Conv<int>(args.Args[0]);
+		var numb = args.Args[0].Conv<int>();
 		return RoomManager.room_next(numb);
 	}
 }

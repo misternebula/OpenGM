@@ -25,64 +25,64 @@ public static partial class ScriptResolver
 
 	public static object random(Arguments args)
 	{
-		var upper = Conv<double>(args.Args[0]);
+		var upper = args.Args[0].Conv<double>();
 		return rnd.NextDouble() * upper;
 	}
 
 	public static object random_range(Arguments args)
 	{
-		var n1 = Conv<double>(args.Args[0]);
-		var n2 = Conv<double>(args.Args[1]);
+		var n1 = args.Args[0].Conv<double>();
+		var n2 = args.Args[1].Conv<double>();
 		return rnd.NextDouble() * (n2 - n1) + n1;
 	}
 
 	public static object irandom(Arguments args)
 	{
-		var n = realToInt(Conv<double>(args.Args[0]));
+		var n = realToInt(args.Args[0].Conv<double>());
 		return rnd.Next(0, n + 1);
 	}
 
 	public static object irandom_range(Arguments args)
 	{
-		var n1 = realToInt(Conv<double>(args.Args[0]));
-		var n2 = realToInt(Conv<double>(args.Args[1]));
+		var n1 = realToInt(args.Args[0].Conv<double>());
+		var n2 = realToInt(args.Args[1].Conv<double>());
 
 		return rnd.Next(n1, n2 + 1);
 	}
 
 	public static object abs(Arguments args)
 	{
-		var val = Conv<double>(args.Args[0]);
+		var val = args.Args[0].Conv<double>();
 		return Math.Abs(val);
 	}
 
 	public static object round(Arguments args)
 	{
-		var num = Conv<double>(args.Args[0]);
+		var num = args.Args[0].Conv<double>();
 		return CustomMath.RoundToInt((float)num); // BUG: shouldnt this just do Math.Round?
 	}
 
 	public static object floor(Arguments args)
 	{
-		var n = Conv<double>(args.Args[0]);
+		var n = args.Args[0].Conv<double>();
 		return Math.Floor(n);
 	}
 
 	public static object ceil(Arguments args)
 	{
-		var n = Conv<double>(args.Args[0]);
+		var n = args.Args[0].Conv<double>();
 		return Math.Ceiling(n);
 	}
 
 	public static object sin(Arguments args)
 	{
-		var val = Conv<double>(args.Args[0]);
+		var val = args.Args[0].Conv<double>();
 		return Math.Sin(val);
 	}
 
 	public static object cos(Arguments args)
 	{
-		var val = Conv<double>(args.Args[0]);
+		var val = args.Args[0].Conv<double>();
 		return Math.Cos(val);
 	}
 
@@ -96,7 +96,7 @@ public static partial class ScriptResolver
 		var arguments = new double[args.Args.Length];
 		for (var i = 0; i < args.Args.Length; i++)
 		{
-			arguments[i] = Conv<double>(args.Args[i]);
+			arguments[i] = args.Args[i].Conv<double>();
 		}
 
 		return arguments.Min();
@@ -107,7 +107,7 @@ public static partial class ScriptResolver
 		var arguments = new double[args.Args.Length];
 		for (var i = 0; i < args.Args.Length; i++)
 		{
-			arguments[i] = Conv<double>(args.Args[i]);
+			arguments[i] = args.Args[i].Conv<double>();
 		}
 
 		return arguments.Max();
@@ -204,7 +204,7 @@ public static partial class ScriptResolver
 			}
 			else if (valueOrFormat is bool b)
 			{
-				return Conv<string>(b);
+				return b.Conv<string>();
 			}
 			else if (valueOrFormat is string s)
 			{
@@ -213,7 +213,7 @@ public static partial class ScriptResolver
 			else
 			{
 				// real
-				var num = Conv<double>(valueOrFormat);
+				var num = valueOrFormat.Conv<double>();
 				var afterTwoDigits = num % 0.01f;
 				var truncated = num - afterTwoDigits;
 
@@ -226,7 +226,7 @@ public static partial class ScriptResolver
 
 	public static object string_length(Arguments args)
 	{
-		var str = Conv<string>(args.Args[0]);
+		var str = args.Args[0].Conv<string>();
 
 		if (string.IsNullOrEmpty(str))
 		{
@@ -238,8 +238,8 @@ public static partial class ScriptResolver
 
 	public static object string_char_at(Arguments args)
 	{
-		var str = Conv<string>(args.Args[0]);
-		var index = Conv<int>(args.Args[1]);
+		var str = args.Args[0].Conv<string>();
+		var index = args.Args[1].Conv<int>();
 
 		if (string.IsNullOrEmpty(str) || index > str.Length)
 		{
@@ -257,43 +257,43 @@ public static partial class ScriptResolver
 
 	public static object string_copy(Arguments args)
 	{
-		var str = Conv<string>(args.Args[0]);
-		var index = Conv<int>(args.Args[1]);
-		var count = Conv<int>(args.Args[2]);
+		var str = args.Args[0].Conv<string>();
+		var index = args.Args[1].Conv<int>();
+		var count = args.Args[2].Conv<int>();
 
 		return str.Substring(index - 1, count);
 	}
 
 	public static object string_insert(Arguments args)
 	{
-		var substr = Conv<string>(args.Args[0]);
-		var str = Conv<string>(args.Args[1]);
-		var index = Conv<int>(args.Args[2]);
+		var substr = args.Args[0].Conv<string>();
+		var str = args.Args[1].Conv<string>();
+		var index = args.Args[2].Conv<int>();
 
 		return str.Insert(index - 1, substr);
 	}
 
 	public static object string_delete(Arguments args)
 	{
-		var str = Conv<string>(args.Args[0]);
-		var index = Conv<int>(args.Args[1]);
-		var count = Conv<int>(args.Args[2]);
+		var str = args.Args[0].Conv<string>();
+		var index = args.Args[1].Conv<int>();
+		var count = args.Args[2].Conv<int>();
 
 		return str.Remove(index - 1, count);
 	}
 
 	public static object string_replace_all(Arguments args)
 	{
-		var str = Conv<string>(args.Args[0]);
-		var substr = Conv<string>(args.Args[1]);
-		var newstr = Conv<string>(args.Args[2]);
+		var str = args.Args[0].Conv<string>();
+		var substr = args.Args[1].Conv<string>();
+		var newstr = args.Args[2].Conv<string>();
 
 		return str.Replace(substr, newstr);
 	}
 
 	public static object string_hash_to_newline(Arguments args)
 	{
-		var text = Conv<string>(args.Args[0]);
+		var text = args.Args[0].Conv<string>();
 
 		if (string.IsNullOrEmpty(text))
 		{
@@ -305,18 +305,18 @@ public static partial class ScriptResolver
 
 	public static object string_pos(Arguments args)
 	{
-		var substr = Conv<string>(args.Args[0]);
-		var str = Conv<string>(args.Args[1]);
+		var substr = args.Args[0].Conv<string>();
+		var str = args.Args[1].Conv<string>();
 
 		return str.IndexOf(substr) + 1;
 	}
 
 	public static object point_distance(Arguments args)
 	{
-		var x1 = Conv<double>(args.Args[0]);
-		var y1 = Conv<double>(args.Args[1]);
-		var x2 = Conv<double>(args.Args[2]);
-		var y2 = Conv<double>(args.Args[3]);
+		var x1 = args.Args[0].Conv<double>();
+		var y1 = args.Args[1].Conv<double>();
+		var x2 = args.Args[2].Conv<double>();
+		var y2 = args.Args[3].Conv<double>();
 
 		var horizDistance = Math.Abs(x2 - x1);
 		var vertDistance = Math.Abs(y2 - y1);
@@ -326,10 +326,10 @@ public static partial class ScriptResolver
 
 	public static object point_direction(Arguments args)
 	{
-		var x1 = Conv<double>(args.Args[0]);
-		var y1 = Conv<double>(args.Args[1]);
-		var x2 = Conv<double>(args.Args[2]);
-		var y2 = Conv<double>(args.Args[3]);
+		var x1 = args.Args[0].Conv<double>();
+		var y1 = args.Args[1].Conv<double>();
+		var x2 = args.Args[2].Conv<double>();
+		var y2 = args.Args[3].Conv<double>();
 
 		// TODO : simplify this mess lol
 
