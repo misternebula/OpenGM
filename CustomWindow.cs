@@ -9,7 +9,7 @@ using Vector2 = OpenTK.Mathematics.Vector2;
 namespace DELTARUNITYStandalone;
 public class CustomWindow : GameWindow
 {
-	public static CustomWindow Instance { get; private set; }
+	public static CustomWindow Instance { get; private set; } = null!;
 
 	public uint Width;
 	public uint Height;
@@ -231,7 +231,7 @@ public class CustomWindow : GameWindow
 						continue;
 					}
 
-					var (texturePage, pageId) = PageManager.TexturePages[textJob.asset.texture.Page];
+					var (texturePage, pageId) = PageManager.TexturePages[textJob.asset.texture!.Page];
 
 					var pageItem = textJob.asset.texture;
 					var pageX = pageItem.SourcePosX;
@@ -684,7 +684,7 @@ public class GMLineJob : GMBaseJob
 public class GMSpriteJob : GMBaseJob
 {
 	public Vector2d screenPos;
-	public SpritePageItem texture;
+	public SpritePageItem texture = null!;
 	public Vector2d scale;
 	public double angle;
 	public Vector2 origin;
@@ -701,7 +701,7 @@ public class GMSpritePartJob : GMSpriteJob
 public class GMTextJob : GMBaseJob
 {
 	public Vector2d screenPos;
-	public string text;
+	public string text = null!;
 	public Vector2d scale;
 	public HAlign halign;
 	public VAlign valign;
@@ -711,13 +711,13 @@ public class GMTextJob : GMBaseJob
 	public Color4 c2 = Color4.White;
 	public Color4 c3 = Color4.White;
 	public Color4 c4 = Color4.White;
-	public FontAsset asset;
+	public FontAsset asset = null!;
 	public int sep;
 }
 
 public class GMPolygonJob : GMBaseJob
 {
-	public Vector2d[] Vertices;
+	public Vector2d[] Vertices = null!;
 	public bool Outline;
 }
 

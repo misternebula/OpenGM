@@ -8,7 +8,7 @@ namespace DELTARUNITYStandalone.SerializedFiles;
 public class SpriteData
 {
 	public int AssetIndex;
-	public string Name;
+	public string Name = null!;
 	public int Width;
 	public int Height;
 	public int MarginLeft;
@@ -19,7 +19,7 @@ public class SpriteData
 	public UndertaleSprite.SepMaskType SepMasks;
 	public int OriginX;
 	public int OriginY;
-	public List<SpritePageItem> Textures;
+	public List<SpritePageItem> Textures = null!;
 	public List<byte[]> CollisionMasks = new();
 	public float PlaybackSpeed;
 	public AnimSpeedType PlaybackSpeedType;
@@ -42,5 +42,5 @@ public class SpritePageItem
 	public int TargetSizeY;
 	public int BSizeX;
 	public int BSizeY;
-	public string Page;
+	public string Page = null!;
 }

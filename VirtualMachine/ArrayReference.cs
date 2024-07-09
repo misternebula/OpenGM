@@ -9,8 +9,8 @@ namespace DELTARUNITYStandalone.VirtualMachine;
 // TODO: merge this into RValue and delete it here
 public class ArrayReference
 {
-	public List<object> Array;
-	public string ArrayName;
+	public List<object> Array = null!;
+	public string ArrayName = null!;
 	public bool IsGlobal;
-	public GamemakerObject Instance;
+	public GamemakerObject Instance = null!;
 }

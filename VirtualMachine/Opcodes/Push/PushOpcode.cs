@@ -177,7 +177,7 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object?) DoPushV(VMScriptInstruction instruction)
 	{
-		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
+		GetVariableInfo(instruction.StringData!, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
 
 		if (variablePrefix == VariablePrefix.None)
 		{

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DELTARUNITYStandalone;
 public class Buffer
 {
-	public byte[] Data;
+	public byte[] Data = null!;
 	public BufferType Type;
 	public int Alignment;
 	public int AlignmentOffset;

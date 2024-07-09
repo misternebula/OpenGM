@@ -27,7 +27,7 @@ namespace DELTARUNITYStandalone;
 
 public class AudioInstance
 {
-	public AudioAsset Asset;
+	public AudioAsset Asset = null!;
 	public int SoundInstanceId;
 	public int Source;
 	public double Priority;
@@ -37,7 +37,7 @@ public class AudioInstance
 public class AudioAsset
 {
 	public int AssetIndex;
-	public string Name;
+	public string Name = null!;
 	public int Clip;
 	public double Gain;
 	public double Pitch;
@@ -143,7 +143,7 @@ public static class AudioManager
 		foreach (var file in files)
 		{
 			var text = File.ReadAllText(file);
-			var asset = JsonConvert.DeserializeObject<SoundAsset>(text);
+			var asset = JsonConvert.DeserializeObject<SoundAsset>(text)!;
 
 			float[] data;
 			bool stereo;
@@ -313,7 +313,7 @@ public static class AudioManager
 		AssetIndexManager.Unregister(AssetType.sounds, asset.Name);
 	}
 
-	public static AudioInstance GetAudioInstance(int instanceId)
+	public static AudioInstance? GetAudioInstance(int instanceId)
 	{
 		return _audioSources.FirstOrDefault(x => x.SoundInstanceId == instanceId);
 	}
@@ -362,7 +362,7 @@ public static class AudioManager
 
 		if (_audioSources.Count == AudioChannelNum)
 		{
-			var oldSourceInstance = _audioSources.MinBy(x => x.Priority);
+			var oldSourceInstance = _audioSources.MinBy(x => x.Priority)!;
 			var oldSource = oldSourceInstance.Source;
 
 			DebugLog.LogWarning($"Went over audio source limit - re-using source playing {oldSourceInstance.Asset.Name}");

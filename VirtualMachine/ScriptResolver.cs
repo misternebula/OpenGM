@@ -568,14 +568,14 @@ public static partial class ScriptResolver
 		{
 			if (_fileHandles[index].Reader != null)
 			{
-				_fileHandles[index].Reader.Close();
-				_fileHandles[index].Reader.Dispose();
+				_fileHandles[index].Reader!.Close();
+				_fileHandles[index].Reader!.Dispose();
 			}
 
 			if (_fileHandles[index].Writer != null)
 			{
-				_fileHandles[index].Writer.Close();
-				_fileHandles[index].Writer.Dispose();
+				_fileHandles[index].Writer!.Close();
+				_fileHandles[index].Writer!.Dispose();
 			}
 
 			_fileHandles.Remove(index);
@@ -587,7 +587,7 @@ public static partial class ScriptResolver
 	public static object? file_text_eof(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
-		var reader = _fileHandles[fileid].Reader;
+		var reader = _fileHandles[fileid].Reader!;
 		return reader.EndOfStream;
 	}
 
@@ -601,14 +601,14 @@ public static partial class ScriptResolver
 	public static object? file_text_readln(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
-		var reader = _fileHandles[fileid].Reader;
+		var reader = _fileHandles[fileid].Reader!;
 		return reader.ReadLine(); // BUG: returns null if eof
 	}
 
 	public static object? file_text_writeln(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
-		var writer = _fileHandles[fileid].Writer;
+		var writer = _fileHandles[fileid].Writer!;
 		writer.WriteLine();
 		return null;
 	}
@@ -616,7 +616,7 @@ public static partial class ScriptResolver
 	public static object? file_text_read_string(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
-		var reader = _fileHandles[fileid].Reader;
+		var reader = _fileHandles[fileid].Reader!;
 
 		var result = "";
 		while (reader.Peek() != 0x0D && reader.Peek() >= 0)
@@ -631,7 +631,7 @@ public static partial class ScriptResolver
 	{
 		var fileid = args[0].Conv<int>();
 		var str = args[1].Conv<string>();
-		var writer = _fileHandles[fileid].Writer;
+		var writer = _fileHandles[fileid].Writer!;
 		writer.Write(str);
 		return null;
 	}
@@ -639,7 +639,7 @@ public static partial class ScriptResolver
 	public static object? file_text_read_real(object?[] args)
 	{
 		var fileid = args[0].Conv<int>();
-		var reader = _fileHandles[fileid].Reader;
+		var reader = _fileHandles[fileid].Reader!;
 
 		var result = "";
 		while (reader.Peek() != 0x0D && reader.Peek() >= 0)
@@ -654,7 +654,7 @@ public static partial class ScriptResolver
 	{
 		var fileid = args[0].Conv<int>();
 		var val = args[1];
-		var writer = _fileHandles[fileid].Writer;
+		var writer = _fileHandles[fileid].Writer!;
 
 		if (val is not int and not double and not float)
 		{
@@ -944,7 +944,7 @@ public static partial class ScriptResolver
 		var font = args[0].Conv<int>();
 
 		var library = TextManager.FontAssets;
-		var fontAsset = library.FirstOrDefault(x => x.AssetIndex == font);
+		var fontAsset = library.First(x => x.AssetIndex == font);
 		TextManager.fontAsset = fontAsset;
 		return null;
 	}
@@ -1417,7 +1417,7 @@ public static partial class ScriptResolver
 
 		var id = args[1].Conv<int>();
 
-		GamemakerObject instance = null;
+		GamemakerObject? instance = null;
 
 		if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1551,7 +1551,7 @@ public static partial class ScriptResolver
 		if (index >= GMConstants.FIRST_INSTANCE_ID)
 		{
 			// instance id
-			var soundAsset = AudioManager.GetAudioInstance(index);
+			var soundAsset = AudioManager.GetAudioInstance(index)!;
 			AL.Source(soundAsset.Source, ALSourcef.Pitch, (float)pitch);
 			AudioManager.CheckALError();
 		}
@@ -1592,7 +1592,7 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			var soundAsset = AudioManager.GetAudioInstance(id);
+			var soundAsset = AudioManager.GetAudioInstance(id)!;
 			AL.SourceStop(soundAsset.Source);
 			AudioManager.CheckALError();
 		}
@@ -1641,7 +1641,7 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			AL.SourcePlay(AudioManager.GetAudioInstance(index).Source);
+			AL.SourcePlay(AudioManager.GetAudioInstance(index)!.Source);
 			AudioManager.CheckALError();
 		}
 
@@ -1661,7 +1661,7 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			AL.Source(AudioManager.GetAudioInstance(index).Source, ALSourcef.SecOffset, (float)time);
+			AL.Source(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset, (float)time);
 		}
 		
 		return null;
@@ -2197,7 +2197,7 @@ public static partial class ScriptResolver
 	{
 		var obj = args[0].Conv<int>();
 
-		GamemakerObject objToCheck = null;
+		GamemakerObject objToCheck = null!;
 
 		if (obj == GMConstants.other)
 		{
@@ -2211,7 +2211,7 @@ public static partial class ScriptResolver
 		else
 		{
 			// instance id
-			objToCheck = InstanceManager.FindByInstanceId(obj);
+			objToCheck = InstanceManager.FindByInstanceId(obj)!;
 		}
 
 		return CollisionManager.DistanceToObject(VMExecutor.Ctx.Self, objToCheck);
@@ -2390,7 +2390,7 @@ public static partial class ScriptResolver
 		var bufferIndex = args[0].Conv<int>();
 
 		var buffer = BufferManager.Buffers[bufferIndex];
-		buffer.Data = null;
+		buffer.Data = null!; // why
 
 		BufferManager.Buffers.Remove(bufferIndex);
 
@@ -2400,6 +2400,6 @@ public static partial class ScriptResolver
 
 public class FileHandle
 {
-	public StreamReader Reader;
-	public StreamWriter Writer;
+	public StreamReader? Reader;
+	public StreamWriter? Writer;
 }

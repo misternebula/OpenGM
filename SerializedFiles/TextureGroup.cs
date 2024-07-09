@@ -3,8 +3,8 @@
 [Serializable]
 public class TextureGroup
 {
-	public string GroupName;
-	public string[] TexturePages;
-	public int[] Sprites;
-	public int[] Fonts;
+	public string GroupName = null!;
+	public string[] TexturePages = null!;
+	public int[] Sprites = null!;
+	public int[] Fonts = null!;
 }

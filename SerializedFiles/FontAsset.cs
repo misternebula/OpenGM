@@ -4,7 +4,7 @@
 public class FontAsset
 {
 	public int AssetIndex;
-	public string name;
+	public string name = null!;
 
 	/// <summary>
 	/// only used for sprite-based fonts
@@ -19,7 +19,7 @@ public class FontAsset
 	/// <summary>
 	/// null if the font was created from a sprite, otherwise the texture asset of the font
 	/// </summary>
-	public SpritePageItem texture;
+	public SpritePageItem? texture;
 
 	public List<Glyph> entries = new();
 	public Dictionary<int, Glyph> entriesDict = new();

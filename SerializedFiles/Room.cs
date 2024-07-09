@@ -6,7 +6,7 @@ namespace DELTARUNITYStandalone.SerializedFiles;
 public class Room
 {
 	public int AssetId;
-	public string Name;
+	public string Name = null!;
 	public int SizeX;
 	public int SizeY;
 	public bool Persistent;
@@ -24,7 +24,7 @@ public class Room
 [Serializable]
 public class Layer
 {
-	public string LayerName;
+	public string LayerName = null!;
 	public int LayerID;
 	public int LayerDepth;
 	public UndertaleRoom.LayerType LayerType;

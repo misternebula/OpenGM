@@ -6,7 +6,7 @@ public static class BufferManager
 	private static int _nextId;
 	public static Dictionary<int, Buffer> Buffers = new();
 
-	public static int CreateBuffer(int size, BufferType type, int alignment, byte[] srcBuffer = null)
+	public static int CreateBuffer(int size, BufferType type, int alignment, byte[]? srcBuffer = null)
 	{
 		var buffer = new Buffer
 		{
@@ -79,7 +79,7 @@ public static class BufferManager
 			return type == BufferDataType.buffer_string ? "" : -3;
 		}
 
-		object res = null;
+		object res = null!;
 
 		// TODO : endianness might be fucked here. double check this, or make it endian agnostic
 
@@ -102,7 +102,7 @@ public static class BufferManager
 			case BufferDataType.buffer_string:
 			case BufferDataType.buffer_text:
 				var strbuilder = new StringBuilder();
-				string chr;
+				string? chr;
 				byte chrCode = 0;
 
 				while (buffer.SeekPosition < buffer.UsedSize)

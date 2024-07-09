@@ -2,7 +2,7 @@
 
 public class IniFile
 {
-	public string Name;
+	public string Name = null!;
 	public List<IniSection> Sections = new();
 }
 

@@ -3,7 +3,7 @@
 [Serializable]
 public class VMScriptInstruction
 {
-	public string Raw;
+	public string Raw = null!;
 
 	public VMOpcode Opcode;
 	public VMType TypeOne = VMType.None;
@@ -13,18 +13,18 @@ public class VMScriptInstruction
 	public int IntData;
 	public short ShortData;
 	public double DoubleData;
-	public string StringData;
+	public string StringData = null!;
 	public bool BoolData;
 	public long LongData;
 
-	public string FunctionName;
+	public string FunctionName = null!;
 	public int FunctionArgumentCount;
 
 	public bool JumpToEnd;
 
 	public bool Drop;
 
-	public int SecondIntData;
+	public int? SecondIntData;
 
 	public VMComparison Comparison = VMComparison.None;
 }

@@ -7,11 +7,6 @@ public static class DebugLog
 		Console.WriteLine(message);
 	}
 
-	public static void Log(object item)
-	{
-		Log(item.ToString());
-	}
-
 	public static void LogWarning(string message)
 	{
 		Console.ForegroundColor = ConsoleColor.Yellow;
