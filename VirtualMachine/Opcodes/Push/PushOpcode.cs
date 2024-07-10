@@ -254,6 +254,7 @@ public static partial class VMExecutor
 					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
+					// TODO: make into methods and move out duplicated code
 					if (instanceId == GMConstants.global)
 					{
 						VariableResolver.ArraySet(index, null,
@@ -264,8 +265,8 @@ public static partial class VMExecutor
 
 						var newArrReference = new ArrayReference
 						{
-							Value = existingArray,
 							Name = variableName,
+							Value = existingArray,
 							IsGlobal = true
 						};
 
@@ -274,11 +275,39 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						throw new NotImplementedException();
+						VariableResolver.ArraySet(index, null,
+							() => Ctx.Locals.TryGetValue(variableName, out var value) ? value as IList : null,
+							array => Ctx.Locals[variableName] = array);
+
+						var existingArray = Ctx.Locals[variableName].Conv<IList>();
+
+						var newArrReference = new ArrayReference
+						{
+							Name = variableName,
+							Value = existingArray,
+							IsLocal = true
+						};
+
+						Ctx.Stack.Push(newArrReference, VMType.v);
+						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
 					{
-						throw new NotImplementedException();
+						VariableResolver.ArraySet(index, null,
+							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
+							array => Ctx.Self.SelfVariables[variableName] = array);
+
+						var existingArray = Ctx.Self.SelfVariables[variableName].Conv<IList>();
+
+						var newArrReference = new ArrayReference
+						{
+							Name = variableName,
+							Value = existingArray,
+							Instance = Ctx.Self
+						};
+
+						Ctx.Stack.Push(newArrReference, VMType.v);
+						return (ExecutionResult.Success, null);
 					}
 				}
 			}
