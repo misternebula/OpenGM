@@ -413,7 +413,7 @@ public static partial class VMExecutor
 				{
 					VariableResolver.GlobalVariables[array.Name] = array.Value;
 				}
-				if (array.IsLocal)
+				else if (array.IsLocal)
 				{
 					Ctx.Locals[array.Name] = array.Value;
 				}

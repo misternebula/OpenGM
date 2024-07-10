@@ -110,7 +110,11 @@ public static partial class VMExecutor
 						PopToGlobalArray(variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
-					else if (variablePrefix == VariablePrefix.Array)
+					else if (instanceId == GMConstants.local)
+					{
+						throw new NotImplementedException();
+					}
+					else if (instanceId == GMConstants.self)
 					{
 						// Built-in instance variables are "self".
 						if (VariableResolver.BuiltInVariables.ContainsKey(variableName))

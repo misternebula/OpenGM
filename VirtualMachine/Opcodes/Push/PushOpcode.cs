@@ -261,16 +261,16 @@ public static partial class VMExecutor
 							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => VariableResolver.GlobalVariables[variableName] = array);
 
-						var existingArray = VariableResolver.GlobalVariables[variableName].Conv<IList>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
 
-						var newArrReference = new ArrayReference
+						var arrayReference = new ArrayReference
 						{
 							Name = variableName,
-							Value = existingArray,
+							Value = array,
 							IsGlobal = true
 						};
 
-						Ctx.Stack.Push(newArrReference, VMType.v);
+						Ctx.Stack.Push(arrayReference, VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
@@ -279,16 +279,16 @@ public static partial class VMExecutor
 							() => Ctx.Locals.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => Ctx.Locals[variableName] = array);
 
-						var existingArray = Ctx.Locals[variableName].Conv<IList>();
+						var array = Ctx.Locals[variableName].Conv<IList>();
 
-						var newArrReference = new ArrayReference
+						var arrayReference = new ArrayReference
 						{
 							Name = variableName,
-							Value = existingArray,
+							Value = array,
 							IsLocal = true
 						};
 
-						Ctx.Stack.Push(newArrReference, VMType.v);
+						Ctx.Stack.Push(arrayReference, VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
@@ -297,16 +297,16 @@ public static partial class VMExecutor
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
-						var existingArray = Ctx.Self.SelfVariables[variableName].Conv<IList>();
+						var array = Ctx.Locals[variableName].Conv<IList>();
 
-						var newArrReference = new ArrayReference
+						var arrayReference = new ArrayReference
 						{
 							Name = variableName,
-							Value = existingArray,
+							Value = array,
 							Instance = Ctx.Self
 						};
 
-						Ctx.Stack.Push(newArrReference, VMType.v);
+						Ctx.Stack.Push(arrayReference, VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 				}

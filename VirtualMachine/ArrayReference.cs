@@ -16,10 +16,12 @@ public class ArrayReference
 	public IList Value = null!;
 	public bool IsGlobal;
 	public bool IsLocal;
+	// idk if we need to store this instead of just using Ctx.Self
+	// can the array reference escape to execution of another object???
 	public GamemakerObject Instance = null!;
 
 	public override string ToString()
 	{
-		return $"ArrayReference(Name:{Name}, IsGlobal:{IsGlobal}, IsLocal:{IsLocal}, Instance:{(Instance == null ? "NULL" : $"{Instance.Definition.Name} ({Instance.instanceId})")}";
+		return $"ArrayReference(Name:{Name}, IsGlobal:{IsGlobal}, IsLocal:{IsLocal}, Instance:{(Instance == null ? "NULL" : $"{Instance.Definition.Name} ({Instance.instanceId})")})";
 	}
 }
