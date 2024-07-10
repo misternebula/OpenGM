@@ -264,15 +264,27 @@ public static partial class VMExecutor
 
 						var newArrReference = new ArrayReference
 						{
-							Array = existingArray,
-							ArrayName = variableName,
+							Value = existingArray,
+							Name = variableName,
 							IsGlobal = true
 						};
 
 						Ctx.Stack.Push(newArrReference, VMType.v);
 						return (ExecutionResult.Success, null);
 					}
+					else if (instanceId == GMConstants.local)
+					{
+						throw new NotImplementedException();
+					}
+					else if (instanceId == GMConstants.self)
+					{
+						throw new NotImplementedException();
+					}
 				}
+			}
+			else if (variablePrefix == VariablePrefix.ArrayPushAF)
+			{
+				throw new NotImplementedException();
 			}
 		}
 

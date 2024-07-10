@@ -7,16 +7,19 @@ using System.Threading.Tasks;
 
 namespace DELTARUNITYStandalone.VirtualMachine;
 
-// TODO: merge this into RValue and delete it here
+/// <summary>
+/// used for for "af" operations
+/// </summary>
 public class ArrayReference
 {
-	public IList Array = null!;
-	public string ArrayName = null!;
+	public string Name = null!;
+	public IList Value = null!;
 	public bool IsGlobal;
+	public bool IsLocal;
 	public GamemakerObject Instance = null!;
 
 	public override string ToString()
 	{
-		return $"ArrayReference(ArrayName:{ArrayName}, IsGlobal:{IsGlobal}, Instance:{(Instance == null ? "NULL" : $"{Instance.Definition.Name} ({Instance.instanceId})")}";
+		return $"ArrayReference(Name:{Name}, IsGlobal:{IsGlobal}, IsLocal:{IsLocal}, Instance:{(Instance == null ? "NULL" : $"{Instance.Definition.Name} ({Instance.instanceId})")}";
 	}
 }

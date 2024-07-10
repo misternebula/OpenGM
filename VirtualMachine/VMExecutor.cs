@@ -397,25 +397,29 @@ public static partial class VMExecutor
 				var array = Ctx.Stack.Pop(VMType.v).Conv<ArrayReference>();
 				var value = Ctx.Stack.Pop(VMType.v);
 
-				if (index >= array.Array.Count)
+				if (index >= array.Value.Count)
 				{
-					var numToAdd = index - array.Array.Count + 1;
+					var numToAdd = index - array.Value.Count + 1;
 					for (var i = 0; i < numToAdd; i++)
 					{
 						// BUG: we might pass array into here (which is an IList, but throws on grow)
-						array.Array.Add(null);
+						array.Value.Add(null);
 					}
 				}
 
-				array.Array[index] = value;
+				array.Value[index] = value;
 
 				if (array.IsGlobal)
 				{
-					VariableResolver.GlobalVariables[array.ArrayName] = array.Array;
+					VariableResolver.GlobalVariables[array.Name] = array.Value;
+				}
+				if (array.IsLocal)
+				{
+					Ctx.Locals[array.Name] = array.Value;
 				}
 				else
 				{
-					array.Instance.SelfVariables[array.ArrayName] = array.Array;
+					array.Instance.SelfVariables[array.Name] = array.Value;
 				}
 
 				break;
@@ -425,7 +429,7 @@ public static partial class VMExecutor
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 				var array = Ctx.Stack.Pop(VMType.v).Conv<ArrayReference>();
 
-				var value = array.Array[index];
+				var value = array.Value[index];
 
 				if (value is IEnumerable)
 				{

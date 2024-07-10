@@ -85,43 +85,43 @@ public static partial class VMExecutor
 		}
 		else if (variablePrefix == VariablePrefix.Array || variablePrefix == VariablePrefix.ArrayPopAF || variablePrefix == VariablePrefix.ArrayPushAF)
 		{
-			int index;
-			int instanceId;
-			object? value;
-			if (instruction.TypeOne == VMType.v)
+			if (variablePrefix == VariablePrefix.Array)
 			{
-				index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				value = Ctx.Stack.Pop(instruction.TypeTwo);
-			}
-			else
-			{
-				value = Ctx.Stack.Pop(instruction.TypeTwo);
-				index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
-			}
-
-			if (instanceId == GMConstants.global)
-			{
-				if (variablePrefix == VariablePrefix.Array)
+				if (variableType == VariableType.Self)
 				{
-					PopToGlobalArray(variableName, index, value);
-					return (ExecutionResult.Success, null);
-				}
-			}
-			else if (instanceId == GMConstants.self)
-			{
-				if (variablePrefix == VariablePrefix.Array)
-				{
-					// Built-in instance variables are "self".
-					if (VariableResolver.BuiltInVariables.ContainsKey(variableName))
+					int index;
+					int instanceId;
+					object? value;
+					if (instruction.TypeOne == VMType.v)
 					{
-						PopToBuiltInArray(Ctx.Self, variableName, index, value);
+						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+						value = Ctx.Stack.Pop(instruction.TypeTwo);
+					}
+					else
+					{
+						value = Ctx.Stack.Pop(instruction.TypeTwo);
+						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					}
+					
+					if (instanceId == GMConstants.global)
+					{
+						PopToGlobalArray(variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
+					else if (variablePrefix == VariablePrefix.Array)
+					{
+						// Built-in instance variables are "self".
+						if (VariableResolver.BuiltInVariables.ContainsKey(variableName))
+						{
+							PopToBuiltInArray(Ctx.Self, variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
 
-					PopToSelfArray(Ctx.Self, variableName, index, value);
-					return (ExecutionResult.Success, null);
+						PopToSelfArray(Ctx.Self, variableName, index, value);
+						return (ExecutionResult.Success, null);
+					}
 				}
 			}
 		}
