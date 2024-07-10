@@ -114,13 +114,28 @@ public static partial class VMExecutor
 
 	public static void PushSelf(GamemakerObject self, string varName)
 	{
-		Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
+		if (self.SelfVariables.TryGetValue(varName, out var variable))
+		{
+			Ctx.Stack.Push(variable, VMType.v);
+		}
+		else
+		{
+			Ctx.Stack.Push(VariableResolver.BuiltInVariables[varName].getter(self), VMType.v);
+		}
 	}
 
 	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
 	{
-		var array = self.SelfVariables[varName].Conv<IList>();
-		Ctx.Stack.Push(array[index], VMType.v);
+		if (self.SelfVariables.TryGetValue(varName, out var variable))
+		{
+			var array = variable.Conv<IList>();
+			Ctx.Stack.Push(array[index], VMType.v);
+		}
+		else
+		{
+			var array = VariableResolver.BuiltInVariables[varName].getter(self).Conv<IList>();
+			Ctx.Stack.Push(array[index], VMType.v);
+		}
 	}
 
 	public static void PushArgument(int index)
@@ -313,7 +328,26 @@ public static partial class VMExecutor
 			}
 			else if (variablePrefix == VariablePrefix.ArrayPushAF)
 			{
-				throw new NotImplementedException();
+				if (variableType == VariableType.Self)
+				{
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+
+					if (instanceId == GMConstants.global)
+					{
+						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
+
+						var arrayReference = new ArrayReference
+						{
+							Name = variableName,
+							Value = array,
+							IsGlobal = true
+						};
+
+						Ctx.Stack.Push(arrayReference, VMType.v);
+						return (ExecutionResult.Success, null);
+					}
+				}
 			}
 		}
 
