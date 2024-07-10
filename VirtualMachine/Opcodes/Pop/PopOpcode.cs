@@ -52,6 +52,29 @@ public static partial class VMExecutor
 		);
 	}
 
+	public static void PopToIndex(int assetId, string varName, object? value)
+	{
+		GamemakerObject? instance;
+		if (assetId < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// Asset Index
+			instance = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId);
+		}
+		else
+		{
+			// Instance Id
+			instance = InstanceManager.FindByInstanceId(assetId);
+		}
+
+		if (instance == null)
+		{
+			throw new NotImplementedException();
+		}
+
+		// TODO : double check this is always self. might be local as well????
+		instance.SelfVariables[varName] = value;
+	}
+
 	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -80,6 +103,11 @@ public static partial class VMExecutor
 			else if (variableType == VariableType.Self)
 			{
 				PopToSelf(Ctx.Self, variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Index)
+			{
+				PopToIndex(assetId,  variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -127,6 +155,40 @@ public static partial class VMExecutor
 						return (ExecutionResult.Success, null);
 					}
 				}
+			}
+		}
+		else if (variablePrefix == VariablePrefix.Stacktop)
+		{
+			// TODO : Check if 'self' is the only context where [stacktop] is used.
+
+			if (variableType == VariableType.Self)
+			{
+				int index = 0;
+				object? value = null;
+
+				if (instruction.TypeOne == VMType.i)
+				{
+					value = Ctx.Stack.Pop(instruction.TypeTwo);
+
+					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					if (index == GMConstants.stacktop)
+					{
+						index = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					}
+				}
+				else
+				{
+					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					if (index == GMConstants.stacktop)
+					{
+						index = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					}
+
+					value = Ctx.Stack.Pop(instruction.TypeTwo);
+				}
+
+				PopToIndex(index, variableName, value);
+				return (ExecutionResult.Success, null);
 			}
 		}
 
