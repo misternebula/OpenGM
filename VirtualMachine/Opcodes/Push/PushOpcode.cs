@@ -257,22 +257,14 @@ public static partial class VMExecutor
 					if (instanceId == GMConstants.global)
 					{
 						VariableResolver.ArraySet(index, null,
-							() =>
-							{
-								if (VariableResolver.GlobalVariables.TryGetValue(variableName, out var result))
-								{
-									return result.Conv<IList>();
-								}
-
-								return null;
-							},
-							list => VariableResolver.GlobalVariables[variableName] = list);
+							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var value) ? value as IList : null,
+							array => VariableResolver.GlobalVariables[variableName] = array);
 
 						var existingArray = VariableResolver.GlobalVariables[variableName].Conv<IList>();
 
 						var newArrReference = new ArrayReference
 						{
-							Array = (List<object>)existingArray,
+							Array = existingArray,
 							ArrayName = variableName,
 							IsGlobal = true
 						};

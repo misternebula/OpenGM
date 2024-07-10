@@ -407,7 +407,7 @@ public static partial class VMExecutor
 					}
 				}
 
-				array.Array[index] = value; // this is definitely wrong and still broke. make it work with rvalue (just make arrayreference be rvalue actually)
+				array.Array[index] = value;
 
 				if (array.IsGlobal)
 				{
