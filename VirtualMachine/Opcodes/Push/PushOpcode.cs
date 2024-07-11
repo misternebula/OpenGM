@@ -331,12 +331,12 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>(); // this is unused??? something is definitely wrong here
 					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.global)
 					{
-						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>()[index].Conv<IList>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -350,7 +350,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						var array = Ctx.Locals[variableName].Conv<IList>()[index].Conv<IList>();
+						var array = Ctx.Locals[variableName].Conv<IList>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -365,7 +365,7 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
-						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>()[index].Conv<IList>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>();
 
 						var arrayReference = new ArrayReference
 						{
