@@ -114,9 +114,9 @@ public static partial class VMExecutor
 
 	public static void PushSelf(GamemakerObject self, string varName)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
-			Ctx.Stack.Push(variable.getter(self), VMType.v);
+			Ctx.Stack.Push(gettersetter.getter(self), VMType.v);
 		}
 		else
 		{
@@ -126,9 +126,9 @@ public static partial class VMExecutor
 
 	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
-			var array = variable.getter(self).Conv<IList>();
+			var array = gettersetter.getter(self).Conv<IList>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 		else

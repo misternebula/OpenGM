@@ -30,9 +30,9 @@ public static partial class VMExecutor
 
 	public static void PopToSelf(GamemakerObject self, string varName, object? value)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
-			variable.setter!(self, value);
+			gettersetter.setter!(self, value);
 		}
 		else
 		{
@@ -42,10 +42,10 @@ public static partial class VMExecutor
 
 	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object? value)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
 			// dont need to ArraySet because this should never grow and it already exists so doesnt need to be created
-			variable.setter!(self, variable);
+			gettersetter.setter!(self, value);
 		}
 		else
 		{
