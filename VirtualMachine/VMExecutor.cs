@@ -489,7 +489,7 @@ public static partial class VMExecutor
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
 
-		if (@this.GetType() == type)
+		if (@this.GetType().Is(type))
 		{
 			return @this;
 		}
