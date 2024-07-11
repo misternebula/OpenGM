@@ -350,6 +350,21 @@ public static partial class VMExecutor
 				}
 			}
 		}
+		else if (variablePrefix == VariablePrefix.Stacktop)
+		{
+			if (variableType == VariableType.Self)
+			{
+				var stackTopValue = Ctx.Stack.Pop(VMType.i).Conv<int>();
+
+				if (stackTopValue == GMConstants.stacktop)
+				{
+					stackTopValue = Ctx.Stack.Pop(VMType.v).Conv<int>();
+				}
+
+				PushIndex(stackTopValue, variableName);
+				return (ExecutionResult.Success, null);
+			}
+		}
 
 		return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
 	}
