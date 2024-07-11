@@ -198,8 +198,9 @@ public static partial class ScriptResolver
 				result.Append("]");
 				return result.ToString();
 			}
-			else if (valueOrFormat is null) // maybe this should error instead of returning?
+			else if (valueOrFormat is null)
 			{
+				DebugLog.LogWarning("undefined in tostring function. is this allowed?");
 				return "undefined";
 			}
 			else if (valueOrFormat is bool b)
