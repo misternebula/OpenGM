@@ -273,7 +273,7 @@ public static partial class VMExecutor
 					if (instanceId == GMConstants.global)
 					{
 						VariableResolver.ArraySet(index, null,
-							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var value) ? value as IList : null,
+							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as IList : null,
 							array => VariableResolver.GlobalVariables[variableName] = array);
 
 						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
@@ -291,7 +291,7 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.local)
 					{
 						VariableResolver.ArraySet(index, null,
-							() => Ctx.Locals.TryGetValue(variableName, out var value) ? value as IList : null,
+							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
 							array => Ctx.Locals[variableName] = array);
 
 						var array = Ctx.Locals[variableName].Conv<IList>();
@@ -310,7 +310,7 @@ public static partial class VMExecutor
 					{
 						// TODO: check builtin self var
 						VariableResolver.ArraySet(index, null,
-							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
+							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as IList : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
 						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>();
@@ -384,14 +384,14 @@ public static partial class VMExecutor
 		{
 			if (variableType == VariableType.Self)
 			{
-				var stackTopValue = Ctx.Stack.Pop(VMType.i).Conv<int>();
+				var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
-				if (stackTopValue == GMConstants.stacktop)
+				if (id == GMConstants.stacktop)
 				{
-					stackTopValue = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					id = Ctx.Stack.Pop(VMType.v).Conv<int>();
 				}
 
-				PushIndex(stackTopValue, variableName);
+				PushIndex(id, variableName);
 				return (ExecutionResult.Success, null);
 			}
 		}

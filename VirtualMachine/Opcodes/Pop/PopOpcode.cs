@@ -55,7 +55,7 @@ public static partial class VMExecutor
 			VariableResolver.ArraySet(
 				index,
 				value,
-				() => self.SelfVariables.TryGetValue(varName, out var value) ? value as IList : null,
+				() => self.SelfVariables.TryGetValue(varName, out var array) ? array as IList : null,
 				array => self.SelfVariables[varName] = array);
 		}
 	}
@@ -164,31 +164,31 @@ public static partial class VMExecutor
 
 			if (variableType == VariableType.Self)
 			{
-				int index = 0;
+				int id = 0;
 				object? value = null;
 
 				if (instruction.TypeOne == VMType.i)
 				{
 					value = Ctx.Stack.Pop(instruction.TypeTwo);
 
-					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-					if (index == GMConstants.stacktop)
+					id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					if (id == GMConstants.stacktop)
 					{
-						index = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						id = Ctx.Stack.Pop(VMType.v).Conv<int>();
 					}
 				}
 				else
 				{
-					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-					if (index == GMConstants.stacktop)
+					id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					if (id == GMConstants.stacktop)
 					{
-						index = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						id = Ctx.Stack.Pop(VMType.v).Conv<int>();
 					}
 
 					value = Ctx.Stack.Pop(instruction.TypeTwo);
 				}
 
-				PopToIndex(index, variableName, value);
+				PopToIndex(id, variableName, value);
 				return (ExecutionResult.Success, null);
 			}
 		}
