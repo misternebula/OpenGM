@@ -312,7 +312,7 @@ public static partial class VMExecutor
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
-						var array = Ctx.Locals[variableName].Conv<IList>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>();
 
 						var arrayReference = new ArrayReference
 						{
