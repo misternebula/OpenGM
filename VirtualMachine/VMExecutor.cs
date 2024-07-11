@@ -159,7 +159,7 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.ReturnedValue)
 			{
-				Ctx!.ReturnValue = data!;
+				Ctx!.ReturnValue = data;
 				break;
 			}
 		}
