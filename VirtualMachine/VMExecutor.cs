@@ -468,9 +468,7 @@ public static partial class VMExecutor
 	
 	private static object Conv(this object? @this, Type type)
 	{
-		// TODO: collections
 		// TODO: check all numeric primitives
-		// TODO: cleanup
 
 		if (@this is null && type.Is<bool>())
 		{
