@@ -471,33 +471,21 @@ public static partial class VMExecutor
 	{
 		// TODO: check all numeric primitives
 
-		if (@this is null && type.Is<bool>())
-		{
-			// TODO: figure out why this is allowed
-			// DebugLog.LogWarning($"converting undefined to bool. is this allowed? Current script:{currentExecutingScript.First().Name}");
-			return false;
-		}
-
-		if (@this is null && (type.Is<int>() || type.Is<double>() || type.Is<float>() || type.Is<long>() || type.Is<short>()))
-		{
-			DebugLog.LogWarning($"converting undefined to number. is this allowed? Current script:{currentExecutingScript.First().Name}");
-			return 0;
-		}
-		
-		if (@this is null && type.Is<string>())
-		{
-			DebugLog.LogWarning($"converting undefined to string. is this allowed? Current script:{currentExecutingScript.First().Name}");
-			return "";
-		}
-
-		if (@this is null && type.Is<IList>())
-		{
-			DebugLog.LogWarning($"converting undefined to array. is this allowed? Current script:{currentExecutingScript.First().Name}");
-			return new List<object>();
-		}
-
 		if (@this is null)
 		{
+			if (type.Is<int>()) return (int)0;
+			if (type.Is<short>()) return (short)0;
+			if (type.Is<long>()) return (long)0;
+			
+			if (type.Is<double>()) return (double)0;
+			if (type.Is<float>()) return (float)0;
+
+			if (type.Is<bool>()) return false;
+
+			if (type.Is<string>()) return "";
+
+			if (type.Is<IList>()) return new List<object?>();
+
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
 
@@ -506,70 +494,71 @@ public static partial class VMExecutor
 			return @this;
 		}
 
-		try
+		if (@this is string s)
 		{
-			if (@this is string s)
-			{
-				// not sure how to implement numeric -> string properly
+			// not sure how to implement numeric -> string properly
 
-				// "numbers, minus signs, decimal points and exponential parts in the string are taken into account,
-				// while other characters (such as letters) will cause an error to be thrown."
+			// "numbers, minus signs, decimal points and exponential parts in the string are taken into account,
+			// while other characters (such as letters) will cause an error to be thrown."
 
-				if (type.Is<int>()) return int.Parse(s);
-				if (type.Is<short>()) return short.Parse(s);
-				if (type.Is<long>()) return long.Parse(s);
-				if (type.Is<double>()) return double.Parse(s);
-				if (type.Is<float>()) return float.Parse(s);
-				if (type.Is<bool>()) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
-			}
-			else if (@this is int or long or short)
-			{
-				var l = Convert.ToInt64(@this); // can we cast instead?
-
-				if (type.Is<int>()) return (int)l;
-				if (type.Is<short>()) return (short)l;
-				if (type.Is<long>()) return (long)l;
-				if (type.Is<bool>()) return l > 0;
-				if (type.Is<double>()) return (double)l;
-				if (type.Is<string>()) return l.ToString(); // not sure if positive numbers need to have a "+" in front?
-			}
-			else if (@this is bool b)
-			{
-				if (type.Is<int>()) return (int)(b ? 1 : 0);
-				if (type.Is<long>()) return (long)(b ? 1 : 0);
-				if (type.Is<short>()) return (short)(b ? 1 : 0);
-				if (type.Is<double>()) return (double)(b ? 1 : 0);
-				if (type.Is<float>()) return (double)(b ? 1 : 0);
-				if (type.Is<string>()) return b ? "1" : "0"; // GM represents bools as integers
-			}
-			else if (@this is double or float)
-			{
-				var d = Convert.ToDouble(@this);
-
-				if (type.Is<double>()) return (double)d;
-				if (type.Is<float>()) return (float)d;
-
-				if (type.Is<bool>()) return d > 0.5; // https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm
-
-				if (type.Is<int>()) return (int)d;
-				if (type.Is<long>()) return (long)d;
-				if (type.Is<short>()) return (short)d;
-
-				if (type.Is<string>())
-				{
-					var isInt = Math.Abs(d % 1) <= (double.Epsilon * 100);
-					// https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Strings/string.htm
-					return isInt ? d.ToString("0") : (object)d.ToString("0.00");
-				}
-			} 
-			else if (@this is IList array && type.Is<IList>())
-			{
-				return array;
-			}
+			if (type.Is<int>()) return int.Parse(s);
+			if (type.Is<short>()) return short.Parse(s);
+			if (type.Is<long>()) return long.Parse(s);
+			
+			if (type.Is<double>()) return double.Parse(s);
+			if (type.Is<float>()) return float.Parse(s);
+			
+			if (type.Is<bool>()) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 		}
-		catch
+		else if (@this is int or long or short)
 		{
-			throw new Exception($"Exception while converting {@this} ({@this.GetType().FullName}) to {type}");
+			var l = Convert.ToInt64(@this); // can we cast instead?
+
+			if (type.Is<int>()) return (int)l;
+			if (type.Is<short>()) return (short)l;
+			if (type.Is<long>()) return (long)l;
+			
+			if (type.Is<double>()) return (double)l;
+			if (type.Is<float>()) return (float)l;
+			
+			if (type.Is<bool>()) return l > 0;
+			
+			if (type.Is<string>()) return l.ToString(); // not sure if positive numbers need to have a "+" in front?
+		}
+		else if (@this is bool b)
+		{
+			if (type.Is<int>()) return (int)(b ? 1 : 0);
+			if (type.Is<long>()) return (long)(b ? 1 : 0);
+			if (type.Is<short>()) return (short)(b ? 1 : 0);
+			
+			if (type.Is<double>()) return (double)(b ? 1 : 0);
+			if (type.Is<float>()) return (double)(b ? 1 : 0);
+			
+			if (type.Is<string>()) return b ? "1" : "0"; // GM represents bools as integers
+		}
+		else if (@this is double or float)
+		{
+			var d = Convert.ToDouble(@this);
+
+			if (type.Is<double>()) return (double)d;
+			if (type.Is<float>()) return (float)d;
+
+			if (type.Is<int>()) return (int)d;
+			if (type.Is<long>()) return (long)d;
+			if (type.Is<short>()) return (short)d;
+			
+			if (type.Is<bool>()) return d > 0.5; // https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm
+
+			if (type.Is<string>())
+			{
+				var isInt = Math.Abs(d % 1) <= (double.Epsilon * 100);
+				// https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Strings/string.htm
+				return isInt ? d.ToString("0") : (object)d.ToString("0.00");
+			}
+		} 
+		else if (@this is IList array && type.Is<IList>())
+		{
+			return array;
 		}
 
 		throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");

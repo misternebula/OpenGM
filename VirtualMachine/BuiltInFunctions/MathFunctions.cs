@@ -200,7 +200,6 @@ public static partial class ScriptResolver
 			}
 			else if (valueOrFormat is null)
 			{
-				DebugLog.LogWarning($"undefined in tostring function. is this allowed? Current script:{VMExecutor.currentExecutingScript.First().Name}");
 				return "undefined";
 			}
 			else if (valueOrFormat is bool b)
