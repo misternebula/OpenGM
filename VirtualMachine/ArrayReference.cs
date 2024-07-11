@@ -16,8 +16,10 @@ public class ArrayReference
 	public IList Value = null!;
 	public bool IsGlobal;
 	public bool IsLocal;
-	// idk if we need to store this instead of just using Ctx.Self
-	// can the array reference escape to execution of another object???
+	/// <summary>
+	/// do we need to store this? vs using Ctx.Self
+	/// will this ever differ from Ctx.self? can the array reference escape to execution of another object???
+	/// </summary>
 	public GamemakerObject Instance = null!;
 
 	public override string ToString()

@@ -331,7 +331,7 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Ctx.Stack.Pop(VMType.i).Conv<int>(); // this is unused??? something is definitely wrong here
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>(); // BUG: this is unused??? something is definitely wrong here
 					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.global)
@@ -356,7 +356,7 @@ public static partial class VMExecutor
 						{
 							Name = variableName,
 							Value = array,
-							IsGlobal = true
+							IsLocal = true
 						};
 
 						Ctx.Stack.Push(arrayReference, VMType.v);
@@ -371,7 +371,7 @@ public static partial class VMExecutor
 						{
 							Name = variableName,
 							Value = array,
-							IsGlobal = true
+							Instance = Ctx.Self
 						};
 
 						Ctx.Stack.Push(arrayReference, VMType.v);
