@@ -36,14 +36,25 @@ public static class VariableResolver
 
 	public static readonly Dictionary<string, object?> GlobalVariables = new();
 
-	public static Dictionary<string, (Func<GamemakerObject, object?> getter, Action<GamemakerObject, object>? setter)> BuiltInVariables = new()
+	public static Dictionary<string, (Func<object?> getter, Action<object>? setter)> BuiltInVariables = new()
 	{
 		{ "working_directory", (get_working_directory, null) },
 		{ "fps", (get_fps, null) },
-		{ "x", (get_x, set_x) },
-		{ "y", (get_y, set_y) },
 		{ "room_width", (get_room_width, null)},
 		{ "room_height", (get_room_height, null)},
+		{ "room", (get_room, set_room)},
+		{ "room_speed", (get_room_speed, set_room_speed)},
+		{ "os_type", (get_os_type, null)},
+		{ "application_surface", (get_application_surface, null)},
+		{ "argument_count", (get_argument_count, null)},
+		// { "room_persistent", (get_room_persistent, set_room_persistent)},
+		{ "undefined", (get_undefined, null)}
+	};
+
+	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
+	{
+		{ "x", (get_x, set_x) },
+		{ "y", (get_y, set_y) },
 		{ "image_index", (get_image_index, set_image_index)},
 		{ "sprite_index", (get_sprite_index, set_sprite_index)},
 		{ "sprite_height", (get_sprite_height, null)},
@@ -53,7 +64,6 @@ public static class VariableResolver
 		{ "object_index", (get_object_index, null)},
 		{ "image_blend", (get_image_blend, set_image_blend)},
 		{ "depth", (get_depth, set_depth)},
-		{ "room", (get_room, set_room)},
 		{ "bbox_bottom", (get_bbox_bottom, null)},
 		{ "bbox_top", (get_bbox_top, null)},
 		{ "bbox_left", (get_bbox_left, null)},
@@ -75,33 +85,27 @@ public static class VariableResolver
 		{ "friction", (get_friction, set_friction) },
 		{ "gravity_direction", (get_gravity_direction, set_gravity_direction)},
 		{ "image_number", (get_image_number, null)},
-		{ "room_speed", (get_room_speed, set_room_speed)},
-		{ "os_type", (get_os_type, null)},
-		{ "application_surface", (get_application_surface, null)},
 		{ "alarm", (get_alarm, set_alarm)},
-		{ "argument_count", (get_argument_count, null)},
-		//{ "room_persistent", (get_room_persistent, set_room_persistent)}
-		{ "undefined", (get_undefined, null)}
 	};
 
-	public static object get_working_directory(GamemakerObject instance)
+	public static object get_working_directory()
 	{
 		return Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 	}
 
-	public static object get_fps(GamemakerObject instance)
+	public static object get_fps()
 	{
 		return Entry.GameSpeed; // TODO : this shouldnt be the desired fps, but the current fps (fluctuating)
 	}
 
 	public static object get_x(GamemakerObject instance) => instance.x;
-
 	public static void set_x(GamemakerObject instance, object? value) => instance.x = value.Conv<double>();
+
 	public static object get_y(GamemakerObject instance) => instance.y;
 	public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<double>();
 
-	public static object get_room_width(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeX;
-	public static object get_room_height(GamemakerObject instance) => (double)RoomManager.CurrentRoom.SizeY;
+	public static object get_room_width() => (double)RoomManager.CurrentRoom.SizeX;
+	public static object get_room_height() => (double)RoomManager.CurrentRoom.SizeY;
 
 	public static object get_image_index(GamemakerObject instance) => instance.image_index;
 	public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
@@ -125,8 +129,8 @@ public static class VariableResolver
 	public static object get_depth(GamemakerObject instance) => instance.depth;
 	public static void set_depth(GamemakerObject instance, object? value) => instance.depth = value.Conv<double>();
 
-	public static object get_room(GamemakerObject instance) => RoomManager.CurrentRoom.AssetId;
-	public static void set_room(GamemakerObject instance, object? value) => RoomManager.ChangeRoomAfterEvent(value.Conv<int>());
+	public static object get_room() => RoomManager.CurrentRoom.AssetId;
+	public static void set_room(object? value) => RoomManager.ChangeRoomAfterEvent(value.Conv<int>());
 
 	public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_bottom;
 	public static object get_bbox_top(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_top;
@@ -143,11 +147,7 @@ public static class VariableResolver
 	public static void set_image_speed(GamemakerObject instance, object? value) => instance.image_speed = value.Conv<double>();
 
 	public static object get_visible(GamemakerObject instance) => instance.visible;
-
-	public static void set_visible(GamemakerObject instance, object? value)
-	{
-		instance.visible = value.Conv<bool>();
-	}
+	public static void set_visible(GamemakerObject instance, object? value) => instance.visible = value.Conv<bool>();
 
 	public static object get_image_alpha(GamemakerObject instance) => instance.image_alpha;
 	public static void set_image_alpha(GamemakerObject instance, object? value) => instance.image_alpha = value.Conv<double>();
@@ -185,20 +185,20 @@ public static class VariableResolver
 
 	public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
 
-	//public static object get_room_persistent(GamemakerObject instance) => RoomManager.CurrentRoom.Persistent;
-	//public static void set_room_persistent(GamemakerObject instance, object? value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
+	// public static object get_room_persistent() => RoomManager.CurrentRoom.Persistent;
+	// public static void set_room_persistent(object? value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
 
-	public static object get_room_speed(GamemakerObject instance) => Entry.GameSpeed;
-	public static void set_room_speed(GamemakerObject instance, object? value) => Entry.SetGameSpeed(value.Conv<int>());
+	public static object get_room_speed() => Entry.GameSpeed;
+	public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
 
-	public static object get_os_type(GamemakerObject instance) => 0; // TODO : Check if this is actually os_windows
+	public static object get_os_type() => 0; // TODO : Check if this is actually os_windows
 
-	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
+	public static object get_application_surface() => SurfaceManager.application_surface;
 
 	public static object get_alarm(GamemakerObject instance) => instance.alarm.Cast<object?>().ToArray();
 	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IEnumerable>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
 
-	public static object get_argument_count(GamemakerObject instance) => VMExecutor.Ctx.Locals["arguments"].Conv<ICollection>().Count;
+	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<ICollection>().Count;
 	
-	public static object? get_undefined(GamemakerObject instance) => null;
+	public static object? get_undefined() => null;
 }

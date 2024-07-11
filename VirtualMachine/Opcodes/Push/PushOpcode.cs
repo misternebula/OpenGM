@@ -108,32 +108,32 @@ public static partial class VMExecutor
 
 	public static void PushBuiltin(string varName)
 	{
-		var value = VariableResolver.BuiltInVariables[varName].getter(null!);
+		var value = VariableResolver.BuiltInVariables[varName].getter();
 		Ctx.Stack.Push(value, VMType.v);
 	}
 
 	public static void PushSelf(GamemakerObject self, string varName)
 	{
-		if (self.SelfVariables.TryGetValue(varName, out var variable))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
 		{
 			Ctx.Stack.Push(variable, VMType.v);
 		}
 		else
 		{
-			Ctx.Stack.Push(VariableResolver.BuiltInVariables[varName].getter(self), VMType.v);
+			Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
 		}
 	}
 
 	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
 	{
-		if (self.SelfVariables.TryGetValue(varName, out var variable))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
 		{
-			var array = variable.Conv<IList>();
+			var array = variable.getter(self).Conv<IList>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 		else
 		{
-			var array = VariableResolver.BuiltInVariables[varName].getter(self).Conv<IList>();
+			var array = self.SelfVariables[varName].Conv<IList>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 	}
@@ -308,6 +308,8 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.self)
 					{
+						// TODO: check builtin self var
+						
 						VariableResolver.ArraySet(index, null,
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);

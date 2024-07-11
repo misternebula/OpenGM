@@ -11,6 +11,9 @@ namespace DELTARUNITYStandalone;
 /// </summary>
 public class GamemakerObject : DrawWithDepth
 {
+	/// <summary>
+	/// CHECK BUILTIN SELF VARS BEFORE THIS!!
+	/// </summary>
 	public Dictionary<string, object?> SelfVariables = new();
 
 	public ObjectDefinition Definition;

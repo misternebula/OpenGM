@@ -30,26 +30,31 @@ public static partial class VMExecutor
 
 	public static void PopToSelf(GamemakerObject self, string varName, object? value)
 	{
-		self.SelfVariables[varName] = value;
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
+		{
+			variable.setter!(self, value);
+		}
+		else
+		{
+			self.SelfVariables[varName] = value;
+		}
 	}
 
 	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object? value)
 	{
-		VariableResolver.ArraySet(
-			index,
-			value,
-			() => self.SelfVariables.TryGetValue(varName, out var value) ? value as IList : null,
-			array => self.SelfVariables[varName] = array);
-	}
-
-	public static void PopToBuiltInArray(GamemakerObject self, string varName, int index, object? value)
-	{
-		VariableResolver.ArraySet(
-			index,
-			value,
-			() => VariableResolver.BuiltInVariables.TryGetValue(varName, out var value) ? value.getter(self) as IList : null,
-			array => VariableResolver.BuiltInVariables[varName].setter!(self, array)
-		);
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
+		{
+			// dont need to ArraySet because this should never grow and it already exists so doesnt need to be created
+			variable.setter!(self, variable);
+		}
+		else
+		{
+			VariableResolver.ArraySet(
+				index,
+				value,
+				() => self.SelfVariables.TryGetValue(varName, out var value) ? value as IList : null,
+				array => self.SelfVariables[varName] = array);
+		}
 	}
 
 	public static void PopToIndex(int assetId, string varName, object? value)
@@ -72,7 +77,7 @@ public static partial class VMExecutor
 		}
 
 		// TODO : double check this is always self. might be local as well????
-		instance.SelfVariables[varName] = value;
+		PopToSelf(instance, varName, value);
 	}
 
 	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
@@ -144,13 +149,6 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.self)
 					{
-						// Built-in instance variables are "self".
-						if (VariableResolver.BuiltInVariables.ContainsKey(variableName))
-						{
-							PopToBuiltInArray(Ctx.Self, variableName, index, value);
-							return (ExecutionResult.Success, null);
-						}
-
 						PopToSelfArray(Ctx.Self, variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
