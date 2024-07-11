@@ -309,7 +309,6 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
-						
 						VariableResolver.ArraySet(index, null,
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
@@ -337,7 +336,36 @@ public static partial class VMExecutor
 
 					if (instanceId == GMConstants.global)
 					{
-						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>()[index].Conv<IList>();
+
+						var arrayReference = new ArrayReference
+						{
+							Name = variableName,
+							Value = array,
+							IsGlobal = true
+						};
+
+						Ctx.Stack.Push(arrayReference, VMType.v);
+						return (ExecutionResult.Success, null);
+					}
+					else if (instanceId == GMConstants.local)
+					{
+						var array = Ctx.Locals[variableName].Conv<IList>()[index].Conv<IList>();
+
+						var arrayReference = new ArrayReference
+						{
+							Name = variableName,
+							Value = array,
+							IsGlobal = true
+						};
+
+						Ctx.Stack.Push(arrayReference, VMType.v);
+						return (ExecutionResult.Success, null);
+					}
+					else if (instanceId == GMConstants.self)
+					{
+						// TODO: check builtin self var
+						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>()[index].Conv<IList>();
 
 						var arrayReference = new ArrayReference
 						{

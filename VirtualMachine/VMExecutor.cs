@@ -422,6 +422,7 @@ public static partial class VMExecutor
 				}
 				else
 				{
+					// TODO: check builtin self var
 					array.Instance.SelfVariables[array.Name] = array.Value;
 				}
 
