@@ -1,7 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿using DELTARUNITYStandalone.VirtualMachine;
+using System.Runtime.InteropServices;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace DELTARUNITYStandalone;
+
 public class KeyboardHandler
 {
 	public static bool[] KeyDown = new bool[256];
@@ -18,6 +20,11 @@ public class KeyboardHandler
 			KeyPressed[i] = isDown && !wasDown;
 			KeyReleased[i] = !isDown && wasDown;
 			KeyDown[i] = isDown;
+		}
+
+		if (state.IsKeyPressed(Keys.KeyPadEnter))
+		{
+			VMExecutor.VerboseStackLogs = !VMExecutor.VerboseStackLogs;
 		}
 	}
 

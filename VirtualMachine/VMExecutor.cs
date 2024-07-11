@@ -42,7 +42,9 @@ public static partial class VMExecutor
 	/// </summary>
 	public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
 
+	// debug
 	public static Stack<VMScript> currentExecutingScript = new();
+	public static bool VerboseStackLogs;
 
 	public static object? ExecuteScript(VMScript script, GamemakerObject? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
@@ -51,10 +53,13 @@ public static partial class VMExecutor
 			return null;
 		}
 
-		//if (!script.IsGlobalInit)
-		//{
+		if (VerboseStackLogs)
+		{
+			//if (!script.IsGlobalInit)
+			//{
 			// DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
-		//}
+			//}
+		}
 
 		var newCtx = new VMScriptExecutionContext
 		{
@@ -95,8 +100,7 @@ public static partial class VMExecutor
 			{
 				(executionResult, data) = ExecuteInstruction(script.Instructions[instructionIndex]);
 
-				/*
-				if (Ctx != null)
+				if (VerboseStackLogs && Ctx != null)
 				{
 					var stackStr = "{ ";
 					foreach (var item in Ctx.Stack)
@@ -107,7 +111,6 @@ public static partial class VMExecutor
 					stackStr += "}";
 					DebugLog.LogInfo($"STACK: {stackStr}");
 				}
-				*/
 			}
 			catch (Exception e)
 			{
@@ -173,7 +176,7 @@ public static partial class VMExecutor
 	// BUG: throws sometimes instead of returning ExecutionResult.Failure
 	public static (ExecutionResult result, object? data) ExecuteInstruction(VMScriptInstruction instruction)
 	{
-		// DebugLog.LogInfo($" - {instruction.Raw}");
+		if (VerboseStackLogs) DebugLog.LogInfo($" - {instruction.Raw}");
 
 		switch (instruction.Opcode)
 		{

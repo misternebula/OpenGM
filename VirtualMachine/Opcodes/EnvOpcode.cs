@@ -17,6 +17,8 @@ public static partial class VMExecutor
 		// SUPER HACKY. there HAS to be a better way of doing this
 		EnvironmentStack.Push(null!);
 
+		if (VerboseStackLogs) DebugLog.Log($"Pushenv {id}");
+
 		if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// asset id
@@ -25,6 +27,8 @@ public static partial class VMExecutor
 			// dont run anything if no instances
 			if (instances.Count == 0)
 			{
+				if (VerboseStackLogs) DebugLog.Log($"no instances!");
+				
 				if (instruction.JumpToEnd)
 				{
 					return (ExecutionResult.JumpedToEnd, null);
@@ -48,6 +52,7 @@ public static partial class VMExecutor
 					EventIndex = currentContext.EventIndex,
 				};
 
+				if (VerboseStackLogs) DebugLog.Log($"Pushing {instance.instanceId}");
 				EnvironmentStack.Push(newCtx);
 			}
 		}
