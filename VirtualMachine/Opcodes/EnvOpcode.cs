@@ -8,7 +8,7 @@ public static partial class VMExecutor
 
 		if (id == GMConstants.stacktop)
 		{
-			id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+			id = Ctx.Stack.Pop(VMType.v).Conv<int>();
 		}
 
 		var currentContext = Ctx;
