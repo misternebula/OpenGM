@@ -44,8 +44,11 @@ public static partial class VMExecutor
 	{
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
-			// dont need to ArraySet because this should never grow and it already exists so doesnt need to be created
-			gettersetter.setter!(self, value);
+			VariableResolver.ArraySet(
+				index,
+				value,
+				() => gettersetter.getter(self) as IList, // already did TryGetValue above
+				array => gettersetter.setter!(self, array));
 		}
 		else
 		{
