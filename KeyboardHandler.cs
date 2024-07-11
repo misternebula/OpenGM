@@ -22,7 +22,7 @@ public class KeyboardHandler
 			KeyDown[i] = isDown;
 		}
 
-		if (state.IsKeyPressed(Keys.KeyPadEnter))
+		if (state.IsKeyPressed(Keys.F1))
 		{
 			VMExecutor.VerboseStackLogs = !VMExecutor.VerboseStackLogs;
 		}
