@@ -195,7 +195,7 @@ public static class VariableResolver
 
 	public static object get_application_surface(GamemakerObject instance) => SurfaceManager.application_surface;
 
-	public static object get_alarm(GamemakerObject instance) => instance.alarm;
+	public static object get_alarm(GamemakerObject instance) => instance.alarm.Cast<object?>().ToArray();
 	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IEnumerable>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
 
 	public static object get_argument_count(GamemakerObject instance) => VMExecutor.Ctx.Locals["arguments"].Conv<ICollection>().Count;
