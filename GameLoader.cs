@@ -213,5 +213,7 @@ public static class GameLoader
 
 			TexGroups.Add(asset.GroupName, asset);
 		}
+		
+		Console.WriteLine($" Done!");
 	}
 }
