@@ -461,53 +461,29 @@ public static partial class VMExecutor
 		_ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
 	};
 
-	public static void Joe()
-	{
-		
-	}
-
-	public static T Conv<T>(this object? @this)
-	{
-		// TODO: i want to try removing this and see how Conv<object> reacts
-		if (typeof(T) != typeof(object))
-		{
-			return (T)@this.Conv(typeof(T));
-		}
-		else
-		{
-			throw new Exception("trying to conv to object lol");
-			// return (T)@this.Conv(Activator.CreateInstance(typeof(T), null)!.GetType());
-		}
-	}
-
-	public static object Conv(this object? @this, Type type)
+	public static T Conv<T>(this object? @this) => (T)@this.Conv(typeof(T));
+	
+	private static object Conv(this object? @this, Type type)
 	{
 		// TODO: collections
 		// TODO: check all numeric primitives
 		// TODO: cleanup
-		
-		if (@this is null)
-		{
-			// throw new NullReferenceException("null/undefined passed into conv");
-		}
-
-		if (@this is not null && type == typeof(object)) // gorp. this shouldnt happen
-		{
-			return @this;
-		}
 
 		if (@this is null && type.Is<bool>())
 		{
+			DebugLog.LogWarning("converting undefined to bool");
 			return false;
 		}
 
 		if (@this is null && (type.Is<int>() || type.Is<double>() || type.Is<float>() || type.Is<long>() || type.Is<short>()))
 		{
+			DebugLog.LogWarning("converting undefined to number");
 			return 0;
 		}
 
 		if (@this is null && type.Is<IEnumerable>())
 		{
+			DebugLog.LogWarning("converting undefined to array");
 			return new List<object>();
 		}
 
