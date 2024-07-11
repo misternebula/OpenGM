@@ -121,6 +121,8 @@ public static partial class VMExecutor
 		}
 		else if (variablePrefix == VariablePrefix.Array || variablePrefix == VariablePrefix.ArrayPopAF || variablePrefix == VariablePrefix.ArrayPushAF)
 		{
+			// pop appears to not support ArrayPopAF or ArrayPushAF
+			
 			if (variablePrefix == VariablePrefix.Array)
 			{
 				if (variableType == VariableType.Self)

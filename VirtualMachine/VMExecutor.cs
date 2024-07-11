@@ -474,19 +474,19 @@ public static partial class VMExecutor
 		if (@this is null && type.Is<bool>())
 		{
 			// TODO: figure out why this is allowed
-			// DebugLog.LogWarning("converting undefined to bool. is this allowed?");
+			// DebugLog.LogWarning($"converting undefined to bool. is this allowed? Current script:{currentExecutingScript.First().Name}");
 			return false;
 		}
 
 		if (@this is null && (type.Is<int>() || type.Is<double>() || type.Is<float>() || type.Is<long>() || type.Is<short>()))
 		{
-			DebugLog.LogWarning("converting undefined to number. is this allowed?");
+			DebugLog.LogWarning($"converting undefined to number. is this allowed? Current script:{currentExecutingScript.First().Name}");
 			return 0;
 		}
 
 		if (@this is null && type.Is<IEnumerable>())
 		{
-			DebugLog.LogWarning("converting undefined to array. is this allowed?");
+			DebugLog.LogWarning($"converting undefined to array. is this allowed? Current script:{currentExecutingScript.First().Name}");
 			return new List<object>();
 		}
 
