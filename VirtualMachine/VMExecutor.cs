@@ -483,6 +483,12 @@ public static partial class VMExecutor
 			DebugLog.LogWarning($"converting undefined to number. is this allowed? Current script:{currentExecutingScript.First().Name}");
 			return 0;
 		}
+		
+		if (@this is null && type.Is<string>())
+		{
+			DebugLog.LogWarning($"converting undefined to string. is this allowed? Current script:{currentExecutingScript.First().Name}");
+			return "";
+		}
 
 		if (@this is null && type.Is<IList>())
 		{
