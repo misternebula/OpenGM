@@ -435,7 +435,7 @@ public static partial class VMExecutor
 
 				var value = array.Value[index];
 
-				if (value is IEnumerable)
+				if (value is IList)
 				{
 					throw new NotImplementedException();
 				}
@@ -484,7 +484,7 @@ public static partial class VMExecutor
 			return 0;
 		}
 
-		if (@this is null && type.Is<IEnumerable>())
+		if (@this is null && type.Is<IList>())
 		{
 			DebugLog.LogWarning($"converting undefined to array. is this allowed? Current script:{currentExecutingScript.First().Name}");
 			return new List<object>();
@@ -556,9 +556,9 @@ public static partial class VMExecutor
 					return isInt ? d.ToString("0") : (object)d.ToString("0.00");
 				}
 			} 
-			else if (@this is IEnumerable e && type.Is<IEnumerable>())
+			else if (@this is IList array && type.Is<IList>())
 			{
-				return e;
+				return array;
 			}
 		}
 		catch

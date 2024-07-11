@@ -196,9 +196,9 @@ public static class VariableResolver
 	public static object get_application_surface() => SurfaceManager.application_surface;
 
 	public static object get_alarm(GamemakerObject instance) => instance.alarm.Cast<object?>().ToArray();
-	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IEnumerable>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
+	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
 
-	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<ICollection>().Count;
+	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>().Count;
 	
 	public static object? get_undefined() => null;
 }
