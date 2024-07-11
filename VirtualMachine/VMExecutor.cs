@@ -79,7 +79,7 @@ public static partial class VMExecutor
 
 		if (args != null)
 		{
-			// conv should be able to handle list to array via casting to ICollection
+			// conv should be able to handle list to array via casting to IList
 			newCtx.Locals["arguments"] = args;
 		}
 
