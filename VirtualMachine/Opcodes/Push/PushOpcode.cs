@@ -116,7 +116,7 @@ public static partial class VMExecutor
 	{
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var variable))
 		{
-			Ctx.Stack.Push(variable, VMType.v);
+			Ctx.Stack.Push(variable.getter(self), VMType.v);
 		}
 		else
 		{

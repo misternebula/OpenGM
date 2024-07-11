@@ -226,7 +226,7 @@ public static partial class VMExecutor
 				
 				// TODO: array and undefined cmp
 
-				if (second is int or short or long or double or float && first is int or short or long or double or float)
+				if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
 				{
 					var firstNumber = first.Conv<double>();
 					var secondNumber = second.Conv<double>();
