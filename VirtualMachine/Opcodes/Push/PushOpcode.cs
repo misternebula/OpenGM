@@ -314,7 +314,7 @@ public static partial class VMExecutor
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var value) ? value as IList : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
-						var array = Ctx.Locals[variableName].Conv<IList>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -350,6 +350,21 @@ public static partial class VMExecutor
 						return (ExecutionResult.Success, null);
 					}
 				}
+			}
+		}
+		else if (variablePrefix == VariablePrefix.Stacktop)
+		{
+			if (variableType == VariableType.Self)
+			{
+				var stackTopValue = Ctx.Stack.Pop(VMType.i).Conv<int>();
+
+				if (stackTopValue == GMConstants.stacktop)
+				{
+					stackTopValue = Ctx.Stack.Pop(VMType.v).Conv<int>();
+				}
+
+				PushIndex(stackTopValue, variableName);
+				return (ExecutionResult.Success, null);
 			}
 		}
 

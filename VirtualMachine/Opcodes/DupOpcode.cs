@@ -16,12 +16,6 @@ public static partial class VMExecutor
 		var dupSize = instruction.IntData;
 		var dupSwapSize = instruction.SecondIntData;
 
-		DebugLog.Log($"DoDup dupType:{dupType} dupTypeSize:{dupTypeSize} STACK : ");
-		foreach (var item in Ctx.Stack)
-		{
-			Console.WriteLine($" - {item.value} (VMType.{item.type}, {VMTypeToSize(item.type)} bytes)");
-		}
-
 		if (dupSwapSize != 0)
 		{
 			throw new NotImplementedException();
