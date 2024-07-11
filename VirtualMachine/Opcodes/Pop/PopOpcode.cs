@@ -24,8 +24,17 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index,
 			value,
-			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var value) ? value as IList : null,
+			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var array) ? array as IList : null,
 			array => VariableResolver.GlobalVariables[varName] = array);
+	}
+	
+	public static void PopToLocalArray(string varName, int index, object? value)
+	{
+		VariableResolver.ArraySet(
+			index,
+			value,
+			() => Ctx.Locals.TryGetValue(varName, out var array) ? array as IList : null,
+			array => Ctx.Locals[varName] = array);
 	}
 
 	public static void PopToSelf(GamemakerObject self, string varName, object? value)
@@ -150,7 +159,8 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						throw new NotImplementedException();
+						PopToLocalArray(variableName, index, value);
+						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
 					{
