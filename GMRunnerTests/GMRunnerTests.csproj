@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DELTARUNITYStandalone.csproj" />
+    <ProjectReference Include="..\DELTARUNITYStandalone\DELTARUNITYStandalone.csproj" />
   </ItemGroup>
 
 </Project>
