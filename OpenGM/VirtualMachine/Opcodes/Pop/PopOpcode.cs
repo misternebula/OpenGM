@@ -167,6 +167,22 @@ public static partial class VMExecutor
 						PopToSelfArray(Ctx.Self, variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
+					else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+					{
+						// asset id
+						var gm = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
+						PopToSelfArray(gm, variableName, index, value);
+						return (ExecutionResult.Success, null);
+					}
+					else
+					{
+						// instance id
+						var gm = InstanceManager.FindByInstanceId(instanceId)!;
+						PopToSelfArray(gm, variableName, index, value);
+						return (ExecutionResult.Success, null);
+					}
+
+					//return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, instanceId={instanceId}, value={value})");
 				}
 			}
 		}
