@@ -277,15 +277,7 @@ public static partial class VMExecutor
 							array => VariableResolver.GlobalVariables[variableName] = array);
 
 						var array = VariableResolver.GlobalVariables[variableName].Conv<List<object?>>();
-
-						var arrayReference = new ArrayReference
-						{
-							Name = variableName,
-							Value = array,
-							IsGlobal = true
-						};
-
-						Ctx.Stack.Push(arrayReference, VMType.v);
+						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
@@ -295,15 +287,7 @@ public static partial class VMExecutor
 							array => Ctx.Locals[variableName] = array);
 
 						var array = Ctx.Locals[variableName].Conv<List<object?>>();
-
-						var arrayReference = new ArrayReference
-						{
-							Name = variableName,
-							Value = array,
-							IsLocal = true
-						};
-
-						Ctx.Stack.Push(arrayReference, VMType.v);
+						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
@@ -314,15 +298,7 @@ public static partial class VMExecutor
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
 						var array = Ctx.Self.SelfVariables[variableName].Conv<List<object?>>();
-
-						var arrayReference = new ArrayReference
-						{
-							Name = variableName,
-							Value = array,
-							Instance = Ctx.Self
-						};
-
-						Ctx.Stack.Push(arrayReference, VMType.v);
+						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -331,50 +307,26 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Ctx.Stack.Pop(VMType.i).Conv<int>(); // BUG: this is unused??? something is definitely wrong here
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.global)
 					{
 						var array = VariableResolver.GlobalVariables[variableName].Conv<List<object?>>();
-
-						var arrayReference = new ArrayReference
-						{
-							Name = variableName,
-							Value = array,
-							IsGlobal = true
-						};
-
-						Ctx.Stack.Push(arrayReference, VMType.v);
+						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
 					{
 						var array = Ctx.Locals[variableName].Conv<List<object?>>();
-
-						var arrayReference = new ArrayReference
-						{
-							Name = variableName,
-							Value = array,
-							IsLocal = true
-						};
-
-						Ctx.Stack.Push(arrayReference, VMType.v);
+						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
 						var array = Ctx.Self.SelfVariables[variableName].Conv<List<object?>>();
-
-						var arrayReference = new ArrayReference
-						{
-							Name = variableName,
-							Value = array,
-							Instance = Ctx.Self
-						};
-
-						Ctx.Stack.Push(arrayReference, VMType.v);
+						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 				}

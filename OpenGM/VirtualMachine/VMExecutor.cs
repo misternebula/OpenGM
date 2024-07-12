@@ -397,47 +397,23 @@ public static partial class VMExecutor
 			case VMOpcode.POPAF:
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<ArrayReference>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<List<object?>>();
+				
 				var value = Ctx.Stack.Pop(VMType.v);
-
-				if (index >= array.Value.Count)
-				{
-					var numToAdd = index - array.Value.Count + 1;
-					for (var i = 0; i < numToAdd; i++)
-					{
-						array.Value.Add(null);
-					}
-				}
-
-				array.Value[index] = value;
-
-				if (array.IsGlobal)
-				{
-					VariableResolver.GlobalVariables[array.Name] = array.Value;
-				}
-				else if (array.IsLocal)
-				{
-					Ctx.Locals[array.Name] = array.Value;
-				}
-				else
-				{
-					// TODO: check builtin self var
-					array.Instance.SelfVariables[array.Name] = array.Value;
-				}
+				
+				// by the magic of reference types this will be set properly
+				VariableResolver.ArraySet(index, value,
+					() => array,
+					_ => throw new UnreachableException("this is called when getter is null"));
 
 				break;
 			}
 			case VMOpcode.PUSHAF: 
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<ArrayReference>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<List<object?>>();
 
-				var value = array.Value[index];
-
-				if (value is List<object?>)
-				{
-					throw new NotImplementedException();
-				}
+				var value = array[index];
 
 				Ctx.Stack.Push(value, VMType.v);
 
