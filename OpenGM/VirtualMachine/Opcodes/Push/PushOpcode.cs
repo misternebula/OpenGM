@@ -172,7 +172,7 @@ public static partial class VMExecutor
 			i++;
 		}
 
-		Ctx.Stack.Push(stackArray[i].Self.SelfVariables[varName], VMType.v);
+		PushSelf(stackArray[i].Self, varName);
 	}
 
 	public static (ExecutionResult, object?) DoPush(VMScriptInstruction instruction)
