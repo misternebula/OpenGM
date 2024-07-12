@@ -264,7 +264,8 @@ public static partial class ScriptResolver
 		{ "room_get_name", room_get_name},
 		{ "buffer_load", buffer_load },
 		{ "buffer_read", buffer_read },
-		{ "buffer_delete", buffer_delete}
+		{ "buffer_delete", buffer_delete},
+		{ "is_string", is_string }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2400,6 +2401,9 @@ public static partial class ScriptResolver
 
 		return null;
 	}
+
+	public static object? is_string(object?[] args)
+		=> args[0]!.GetType().Is<string>();
 }
 
 public class FileHandle
