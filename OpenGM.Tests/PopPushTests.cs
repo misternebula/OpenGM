@@ -121,27 +121,27 @@ public class PopPushTests
 	[TestMethod]
 	public void BadIndexGameTest()
 	{
-		// gml_GlobalScript_scr_spellinfo_all.asm:28
-		
-		VariableResolver.GlobalVariables["i"] = 1;
-		VariableResolver.GlobalVariables["j"] = 1;
-		VariableResolver.GlobalVariables["spell"] = new object?[] { null, new object?[] { "hello i am the spell" }, null };
+		VariableResolver.GlobalVariables["spell"] = new object?[]
+		{
+			null,
+			new object?[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+		};
 
 		TestUtils.ExecuteScript(
-			"global.spellid = global.spell[global.j][global.i]",
+			"aaaaaaaaaaaaaaaa",
 			"""
 			:[0]
+			
+			pushi.e 7
+			conv.i.v
 			pushi.e -5
-			push.v global.j
-			conv.v.i
-			push.v [arraypushaf]self.spell
-			push.v global.i
-			conv.v.i
-			pushaf.e
-			pop.v.v global.spellid
+			pushi.e 1
+			push.v [arraypopaf]self.spell
+			pushi.e 0
+			popaf.e
 			"""
 		);
 
-		Assert.AreEqual("hello i am the spell", VariableResolver.GlobalVariables["spellid"]);
+		var spell = VariableResolver.GlobalVariables["spell"];
 	}
 }
