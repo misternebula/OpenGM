@@ -161,6 +161,20 @@ public static partial class VMExecutor
 		}
 	}
 
+	public static void PushOther(string varName)
+	{
+		var stackArray = EnvironmentStack.ToArray();
+
+		var i = 1;
+
+		while (stackArray[i] == null)
+		{
+			i++;
+		}
+
+		Ctx.Stack.Push(stackArray[i].Self.SelfVariables[varName], VMType.v);
+	}
+
 	public static (ExecutionResult, object?) DoPush(VMScriptInstruction instruction)
 	{
 		switch (instruction.TypeOne)
@@ -226,6 +240,11 @@ public static partial class VMExecutor
 			else if (variableType == VariableType.Index)
 			{
 				PushIndex(assetId, variableName);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Other)
+			{
+				PushOther(variableName);
 				return (ExecutionResult.Success, null);
 			}
 		}
