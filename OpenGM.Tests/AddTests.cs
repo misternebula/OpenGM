@@ -1,5 +1,6 @@
 using OpenGM.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics;
 
 namespace OpenGM.Tests;
 
@@ -9,6 +10,7 @@ public class AddTests
 	[TestMethod]
 	public void TestAddSimple()
 	{
+		/*
 		var script = new VMScript();
 
 		script.Name = "AddSimple";
@@ -32,7 +34,7 @@ public class AddTests
 				Opcode = VMOpcode.ADD, TypeOne = VMType.i, TypeTwo = VMType.i
 			},
 
-			new ()
+			new()
 			{
 				Opcode = VMOpcode.CONV,
 				TypeOne = VMType.i,
@@ -46,5 +48,20 @@ public class AddTests
 		};
 
 		Assert.AreEqual(2, VMExecutor.ExecuteScript(script, null).Conv<int>());
+		*/
+
+		var result = TestUtils.ExecuteScript(
+			"AddSimple",
+			"""
+			:[0]
+			pushi.i 1
+			pushi.i 1
+			add.i.i
+			conv.i.v
+			ret.v
+			"""
+		).Conv<int>();
+
+		Assert.AreEqual(2, result);
 	}
 }

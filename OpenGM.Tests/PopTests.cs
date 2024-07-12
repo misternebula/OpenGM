@@ -89,7 +89,7 @@ public class PopTests
 
 			new() { Raw = "push.v [arraypopaf]self.mdArray", Opcode = VMOpcode.PUSH, TypeOne = VMType.v, StringData = "[arraypopaf]self.mdArray" },
 			new() { Raw = "pushi.e 1", Opcode = VMOpcode.PUSHI, TypeOne = VMType.e, ShortData = 1 },
-			new() { Raw = "popaf.e", Opcode = VMOpcode.POPAF, TypeOne = VMType.e},
+			new() { Raw = "popaf.e", Opcode = VMOpcode.POPAF, TypeOne = VMType.e },
 		};
 
 		VMExecutor.ExecuteScript(script, null);
@@ -99,5 +99,29 @@ public class PopTests
 		var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList>();
 
 		Assert.AreEqual("Test String 1 1", array[1].Conv<IList>()[1]);
+	}
+
+	[TestMethod]
+	public void AnotherMultiDimensionalTest()
+	{
+		TestUtils.ExecuteScript(
+			"PushGlobal",
+			"""
+				:[0]
+				pushi.e -1
+				pushi.e 0
+				push.v [arraypushaf]self.NAMEX
+				pushi.e 0
+				pushaf.e
+				pop.v.v self.HEARTX
+
+				pushi.e -1
+				pushi.e 0
+				push.v [arraypushaf]self.NAMEY
+				pushi.e 0
+				pushaf.e
+				pop.v.v self.HEARTY
+			"""
+		);
 	}
 }

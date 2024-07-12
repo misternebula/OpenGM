@@ -57,7 +57,7 @@ public static partial class VMExecutor
 		{
 			//if (!script.IsGlobalInit)
 			//{
-			// DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
+			DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
 			//}
 		}
 
