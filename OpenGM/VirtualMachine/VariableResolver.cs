@@ -195,7 +195,7 @@ public static class VariableResolver
 
 	public static object get_application_surface() => SurfaceManager.application_surface;
 
-	public static object get_alarm(GamemakerObject instance) => instance.alarm;
+	public static object get_alarm(GamemakerObject instance) => instance.alarm; // List<object> is already List<object?> cuz nullable classes arent real
 	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<List<object?>>().Select(x => (object)x.Conv<int>()).ToList();
 
 	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<List<object?>>().Count;
