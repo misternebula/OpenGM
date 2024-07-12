@@ -85,6 +85,8 @@ public class PopPushTests
 	[TestMethod]
 	public void ArrayTestFromGame()
 	{
+		// gml_Object_DEVICE_CHOICE_Create_0.asm:386
+		
 		VariableResolver.GlobalVariables["NAMEX"] = new object?[] { new object?[] { "name x" } };
 		VariableResolver.GlobalVariables["NAMEY"] = new object?[] { new object?[] { "name y" } };
 
@@ -119,6 +121,8 @@ public class PopPushTests
 	[TestMethod]
 	public void BadIndexGameTest()
 	{
+		// gml_GlobalScript_scr_spellinfo_all.asm:28
+		
 		VariableResolver.GlobalVariables["i"] = 1;
 		VariableResolver.GlobalVariables["j"] = 1;
 		VariableResolver.GlobalVariables["spell"] = new object?[] { null, new object?[] { "hello i am the spell" }, null };
