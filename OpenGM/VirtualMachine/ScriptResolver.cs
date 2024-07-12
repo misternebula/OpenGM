@@ -266,7 +266,8 @@ public static partial class ScriptResolver
 		{ "buffer_read", buffer_read },
 		{ "buffer_delete", buffer_delete},
 		{ "is_string", is_string },
-		{ "is_real", is_real }
+		{ "is_real", is_real },
+		{ "string_lower", string_lower }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2411,6 +2412,12 @@ public static partial class ScriptResolver
 		var objType = args[0]?.GetType();
 		if (objType is null) return false;
 		return objType.Is<int>() || objType.Is<float>() || objType.Is<short>() || objType.Is<double>() || objType.Is<long>();
+	}
+
+	public static object string_lower(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		return str.ToLower();
 	}
 }
 

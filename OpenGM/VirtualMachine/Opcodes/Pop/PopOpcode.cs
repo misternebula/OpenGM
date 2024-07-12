@@ -143,6 +143,10 @@ public static partial class VMExecutor
 					{
 						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+						if (instanceId == GMConstants.stacktop)
+						{
+							instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						}
 						value = Ctx.Stack.Pop(instruction.TypeTwo);
 					}
 					else
@@ -150,6 +154,10 @@ public static partial class VMExecutor
 						value = Ctx.Stack.Pop(instruction.TypeTwo);
 						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+						if (instanceId == GMConstants.stacktop)
+						{
+							instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						}
 					}
 
 					if (instanceId == GMConstants.global)
