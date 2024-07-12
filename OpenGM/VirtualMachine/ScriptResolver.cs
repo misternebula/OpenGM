@@ -2223,7 +2223,7 @@ public static partial class ScriptResolver
 
 		var asset = GameLoader.TexGroups[tex_id];
 
-		return asset.TexturePages;
+		return asset.TexturePages.Cast<object?>().ToList();
 	}
 
 	public static object? texture_prefetch(object?[] args)
