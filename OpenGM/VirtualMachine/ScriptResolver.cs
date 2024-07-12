@@ -1419,7 +1419,11 @@ public static partial class ScriptResolver
 
 		GamemakerObject? instance = null;
 
-		if (id < GMConstants.FIRST_INSTANCE_ID)
+		if (id == GMConstants.noone)
+		{
+			// set view target to no one i guess
+		}
+		else if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
 			instance = InstanceManager.FindByAssetId(id).FirstOrDefault();
 		}
