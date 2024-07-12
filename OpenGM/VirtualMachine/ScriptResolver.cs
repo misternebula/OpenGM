@@ -2403,13 +2403,13 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? is_string(object?[] args)
-		=> args[0]!.GetType().Is<string>();
+	public static object is_string(object?[] args)
+		=> args[0]?.GetType().Is<string>() ?? false;
 
-	public static object? is_real(object?[] args)
+	public static object is_real(object?[] args)
 	{
-		var objType = args[0]!.GetType();
-
+		var objType = args[0]?.GetType();
+		if (objType is null) return false;
 		return objType.Is<int>() || objType.Is<float>() || objType.Is<short>() || objType.Is<double>() || objType.Is<long>();
 	}
 }
