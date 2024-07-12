@@ -19,7 +19,21 @@ public static partial class VMExecutor
 
 		if (VerboseStackLogs) DebugLog.Log($"Pushenv {id}");
 
-		if (id < GMConstants.FIRST_INSTANCE_ID)
+		if (id == GMConstants.noone)
+		{
+			// run the code for no one
+			if (instruction.JumpToEnd)
+			{
+				return (ExecutionResult.JumpedToEnd, null);
+			}
+
+			return (ExecutionResult.JumpedToLabel, instruction.IntData);
+		}
+		else if (id is GMConstants.self or GMConstants.other or GMConstants.global or GMConstants.all)
+		{
+			throw new NotImplementedException();
+		}
+		else if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// asset id
 			var instances = InstanceManager.FindByAssetId(id);
