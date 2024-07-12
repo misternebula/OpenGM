@@ -40,11 +40,13 @@ public static class GameConverter
 	public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
 	{
 		Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts"));
+		Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output", "DEBUG_scripts"));
 
 		Console.Write($"Converting scripts...");
 		foreach (var code in codes)
 		{
 			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.json");
+			var saveDirectory2 = Path.Combine(Directory.GetCurrentDirectory(), "Output", "DEBUG_Scripts", $"{code.Name.Content}.asm");
 
 			var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
@@ -75,6 +77,7 @@ public static class GameConverter
 			}
 
 			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+			File.WriteAllText(saveDirectory2, asmFile);
 		}
 		Console.WriteLine($" Done!");
 	}
