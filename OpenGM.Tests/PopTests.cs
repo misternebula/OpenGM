@@ -10,6 +10,7 @@ public class PopTests
 	[TestMethod]
 	public void TestPushGlobal()
 	{
+		/*
 		var script = new VMScript();
 
 		script.Name = "PushGlobal";
@@ -35,6 +36,17 @@ public class PopTests
 		};
 
 		VMExecutor.ExecuteScript(script, null);
+		*/
+
+		TestUtils.ExecuteScript(
+			"PushGlobal",
+			"""
+			:[0]
+			pushi.i 5
+			conv.i.v
+			pop.v.v global.testVar
+			"""
+		);
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testVar"));
 
@@ -44,6 +56,7 @@ public class PopTests
 	[TestMethod]
 	public void TestPushGlobalArrayIndex()
 	{
+		/*
 		var script = new VMScript();
 
 		script.Name = "PushGlobalArrayIndex";
@@ -63,6 +76,27 @@ public class PopTests
 		};
 
 		VMExecutor.ExecuteScript(script, null);
+		*/
+
+		TestUtils.ExecuteScript(
+			"PushGlobalArrayIndex",
+			"""
+			:[0]
+			push.s "Test String 0"@0
+			conv.s.v
+
+			pushi.e -5
+			pushi.e 0
+			pop.v.v [array]self.testArray
+
+			push.s "Test String 1"@0
+			conv.s.v
+
+			pushi.e -5
+			pushi.e 1
+			pop.v.v [array]self.testArray
+			"""
+		);
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testArray"));
 
@@ -75,6 +109,7 @@ public class PopTests
 	[TestMethod]
 	public void TestPushMultiDimensionalArray()
 	{
+		/*
 		var script = new VMScript();
 
 		script.Name = "PushMultiDimensionalArray";
@@ -93,6 +128,23 @@ public class PopTests
 		};
 
 		VMExecutor.ExecuteScript(script, null);
+		*/
+
+		TestUtils.ExecuteScript(
+			"PushMultiDimensionalArray",
+			"""
+			:[0]
+			push.s "Test String 1 1"@0
+			conv.s.v
+			
+			pushi.e -5
+			pushi.e 1
+			push.v [arraypopaf]self.mdArray
+			
+			pushi.e 1
+			popaf.e
+			"""
+		);
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("mdArray"));
 
@@ -102,25 +154,27 @@ public class PopTests
 	}
 
 	[TestMethod]
-	public void AnotherMultiDimensionalTest()
+	public void ArrayTestFromGame()
 	{
 		TestUtils.ExecuteScript(
 			"PushGlobal",
 			"""
-				:[0]
-				pushi.e -1
-				pushi.e 0
-				push.v [arraypushaf]self.NAMEX
-				pushi.e 0
-				pushaf.e
-				pop.v.v self.HEARTX
+			:[0]
+			pushi.e -1
+			pushi.e 0
+			push.v [arraypushaf]self.NAMEX
 
-				pushi.e -1
-				pushi.e 0
-				push.v [arraypushaf]self.NAMEY
-				pushi.e 0
-				pushaf.e
-				pop.v.v self.HEARTY
+			pushi.e 0
+			pushaf.e
+			pop.v.v self.HEARTX
+
+			pushi.e -1
+			pushi.e 0
+			push.v [arraypushaf]self.NAMEY
+
+			pushi.e 0
+			pushaf.e
+			pop.v.v self.HEARTY
 			"""
 		);
 	}
