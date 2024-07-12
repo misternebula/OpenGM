@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DELTARUNITYStandalone\DELTARUNITYStandalone.csproj" />
+    <ProjectReference Include="..\OpenGM\OpenGM.csproj" />
   </ItemGroup>
 
 </Project>
