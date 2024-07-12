@@ -27,7 +27,7 @@ public static partial class VMExecutor
 			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var array) ? array as IList<object?> : null,
 			array => VariableResolver.GlobalVariables[varName] = array);
 	}
-	
+
 	public static void PopToLocalArray(string varName, int index, object? value)
 	{
 		VariableResolver.ArraySet(
@@ -124,14 +124,14 @@ public static partial class VMExecutor
 			}
 			else if (variableType == VariableType.Index)
 			{
-				PopToIndex(assetId,  variableName, dataPopped);
+				PopToIndex(assetId, variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
 		else if (variablePrefix == VariablePrefix.Array || variablePrefix == VariablePrefix.ArrayPopAF || variablePrefix == VariablePrefix.ArrayPushAF)
 		{
 			// pop appears to not support ArrayPopAF or ArrayPushAF
-			
+
 			if (variablePrefix == VariablePrefix.Array)
 			{
 				if (variableType == VariableType.Self)
@@ -151,7 +151,7 @@ public static partial class VMExecutor
 						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 					}
-					
+
 					if (instanceId == GMConstants.global)
 					{
 						PopToGlobalArray(variableName, index, value);
@@ -167,19 +167,22 @@ public static partial class VMExecutor
 						PopToSelfArray(Ctx.Self, variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
-					else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
-					{
-						// asset id
-						var gm = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
-						PopToSelfArray(gm, variableName, index, value);
-						return (ExecutionResult.Success, null);
-					}
 					else
 					{
-						// instance id
-						var gm = InstanceManager.FindByInstanceId(instanceId)!;
-						PopToSelfArray(gm, variableName, index, value);
-						return (ExecutionResult.Success, null);
+						if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+						{
+							// asset id
+							var gm = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
+							PopToSelfArray(gm, variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							// instance id
+							var gm = InstanceManager.FindByInstanceId(instanceId)!;
+							PopToSelfArray(gm, variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
 					}
 
 					//return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, instanceId={instanceId}, value={value})");
