@@ -47,28 +47,10 @@ public static class GameConverter
 			var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.json");
 
 			var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
-			var asmFileLines = asmFile.Split(Environment.NewLine);
 
-			var localVariables = new List<string>();
+			var asset = ConvertScript(asmFile);
 
-			int startLine = -1;
-			for (var i = 0; i < asmFileLines.Length; i++)
-			{
-				if (asmFileLines[i] == ":[0]")
-				{
-					startLine = i;
-				}
-
-				if (asmFileLines[i].StartsWith(".localvar"))
-				{
-					var split = asmFileLines[i].Split(' ');
-					localVariables.Add(split[2]);
-				}
-			}
-
-			var asset = new VMScript();
 			asset.AssetId = codes.IndexOf(code);
-			asset.LocalVariables = localVariables;
 			asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(code);
 
 			if (code.Name.Content.StartsWith("gml_Object_"))
@@ -92,251 +74,277 @@ public static class GameConverter
 				asset.Name = code.Name.Content;
 			}
 
-			if (startLine == -1)
-			{
-				// no code in file???
-
-				asset.Instructions = new();
-				asset.Labels = new() { { 0, new Label() { InstructionIndex = 0 } } };
-				File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
-
-				continue;
-			}
-
-			asmFileLines = asmFileLines.Skip(startLine).ToArray();
-			asmFileLines = asmFileLines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-
-			string? functionLabelAtNextLine = null;
-
-			foreach (var line in asmFileLines)
-			{
-				if (line.StartsWith(":["))
-				{
-					// Label Declaration
-
-					var id = line.Substring(2, line.Length - 3);
-
-					if (id == "end")
-					{
-						break;
-					}
-
-					var label = new Label() { InstructionIndex = asset.Instructions.Count };
-
-					if (functionLabelAtNextLine != null)
-					{
-						label.FunctionName = functionLabelAtNextLine;
-						functionLabelAtNextLine = null;
-					}
-
-					asset.Labels.Add(int.Parse(id), label);
-				}
-				else if (line.StartsWith("> "))
-				{
-					// Function Declaration
-
-					// next line should be a label
-					var removeChevron = line[2..];
-					var split = removeChevron.Split(" (");
-					functionLabelAtNextLine = split[0];
-				}
-				else
-				{
-					// Instruction
-					// instructions are in form OPERATION.TYPE.TYPE DATA
-
-					var opcode = line.Split(" ")[0];
-					var operation = opcode.Split('.')[0];
-					var types = opcode.Split(".").Skip(1).ToArray();
-
-					var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
-
-					var instruction = new VMScriptInstruction
-					{
-						Raw = line,
-						Opcode = enumOperation,
-						TypeOne = types.Length >= 1 ? (VMType)Enum.Parse(typeof(VMType), types[0]) : VMType.None,
-						TypeTwo = types.Length == 2 ? (VMType)Enum.Parse(typeof(VMType), types[1]) : VMType.None,
-					};
-
-					switch (enumOperation)
-					{
-						case VMOpcode.CHKINDEX:
-							// no data
-							break;
-						case VMOpcode.CONV:
-							// no data
-							break;
-						case VMOpcode.MUL:
-							// no data
-							break;
-						case VMOpcode.DIV:
-							// no data
-							break;
-						case VMOpcode.REM:
-							break;
-						case VMOpcode.MOD:
-							break;
-						case VMOpcode.ADD:
-							// no data
-							break;
-						case VMOpcode.SUB:
-							// no data
-							break;
-						case VMOpcode.AND:
-							break;
-						case VMOpcode.OR:
-							break;
-						case VMOpcode.XOR:
-							break;
-						case VMOpcode.NEG:
-							break;
-						case VMOpcode.NOT:
-							break;
-						case VMOpcode.SHL:
-							break;
-						case VMOpcode.SHR:
-							break;
-						case VMOpcode.CMP:
-							var comparison = line.Substring(opcode.Length + 1);
-							var enumComparison = (VMComparison)Enum.Parse(typeof(VMComparison), comparison);
-							instruction.Comparison = enumComparison;
-							break;
-						case VMOpcode.POP:
-							var variableName = line.Substring(opcode.Length + 1);
-							instruction.StringData = variableName;
-							break;
-						case VMOpcode.DUP:
-							var indexBack = line.Substring(opcode.Length + 1);
-
-							indexBack = indexBack.Split(" ;;; ")[0];
-
-							var splitBySpace = indexBack.Split(" ");
-							if (splitBySpace.Length == 1)
-							{
-								instruction.IntData = int.Parse(indexBack);
-							}
-							else
-							{
-								// This opcode has TWO PARAMETERS?? Gamemaker you've gone TOO FAR.
-								instruction.IntData = int.Parse(splitBySpace[0]);
-								instruction.SecondIntData = int.Parse(splitBySpace[1]);
-							}
-
-							
-							break;
-						case VMOpcode.RET:
-							// ???
-							break;
-						case VMOpcode.EXIT:
-							// ???
-							break;
-						case VMOpcode.POPZ:
-							// no data
-							break;
-						case VMOpcode.B:
-						case VMOpcode.BT:
-						case VMOpcode.BF:
-						case VMOpcode.PUSHENV:
-						case VMOpcode.POPENV:
-							var blockId = line.Substring(opcode.Length + 1)[1..^1];
-							if (blockId == "end")
-							{
-								instruction.JumpToEnd = true;
-							}
-							else if (blockId == "drop")
-							{
-								instruction.Drop = true;
-							}
-							else
-							{
-								instruction.IntData = int.Parse(blockId);
-							}
-							break;
-						case VMOpcode.PUSH:
-						case VMOpcode.PUSHLOC:
-						case VMOpcode.PUSHGLB:
-						case VMOpcode.PUSHBLTN:
-						case VMOpcode.PUSHI:
-							var value = line.Substring(opcode.Length + 1);
-							switch (instruction.TypeOne)
-							{
-								case VMType.None:
-									// what
-									break;
-								case VMType.s:
-									var indexOfLast = value.LastIndexOf('@');
-									var removedAddress = value.Substring(0, indexOfLast);
-									var removedQuotes = removedAddress[1..^1];
-									var stringData = removedQuotes.Replace(@"\\", @"\");
-									instruction.StringData = stringData;
-									break;
-								case VMType.i:
-									if (int.TryParse(value, out var intResult))
-									{
-										instruction.IntData = intResult;
-									}
-									else
-									{
-										// Probably dealing with text.
-										instruction.StringData = value;
-									}
-									break;
-								case VMType.l:
-									instruction.LongData = long.Parse(value);
-									break;
-								case VMType.v:
-									instruction.StringData = value;
-									break;
-								case VMType.b:
-									// not used i think?
-									instruction.BoolData = bool.Parse(value);
-									break;
-								case VMType.d:
-									instruction.DoubleData = double.Parse(value);
-									break;
-								case VMType.e:
-									instruction.ShortData = short.Parse(value);
-									break;
-								default:
-									throw new ArgumentOutOfRangeException();
-							}
-							break;
-						case VMOpcode.CALL:
-							var function = line.Substring(opcode.Length + 1);
-							var argcIndex = function.IndexOf("argc=");
-							var argumentCount = int.Parse(function[(argcIndex + 5)..^1]);
-							var functionName = function.Substring(0, function.IndexOf('('));
-							instruction.FunctionArgumentCount = argumentCount;
-							instruction.FunctionName = functionName;
-							break;
-						case VMOpcode.CALLV:
-							instruction.IntData = int.Parse(line.Substring(opcode.Length + 1));
-							break;
-						case VMOpcode.BREAK:
-							// ???
-							break;
-						case VMOpcode.SETOWNER:
-							break;
-						case VMOpcode.PUSHAF:
-							break;
-						case VMOpcode.POPAF:
-							break;
-						case VMOpcode.SAVEAREF:
-							break;
-						case VMOpcode.RESTOREAREF:
-							break;
-						default:
-							throw new ArgumentOutOfRangeException();
-					}
-
-					asset.Instructions.Add(instruction);
-				}
-			}
-
 			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
 		}
 		Console.WriteLine($" Done!");
+	}
+
+	public static VMScript ConvertScript(string asmFile)
+	{
+		var asmFileLines = asmFile.Split(Environment.NewLine);
+
+		var localVariables = new List<string>();
+
+		int startLine = -1;
+		for (var i = 0; i < asmFileLines.Length; i++)
+		{
+			if (asmFileLines[i] == ":[0]")
+			{
+				startLine = i;
+			}
+
+			if (asmFileLines[i].StartsWith(".localvar"))
+			{
+				var split = asmFileLines[i].Split(' ');
+				localVariables.Add(split[2]);
+			}
+		}
+
+		var asset = new VMScript();
+		asset.LocalVariables = localVariables;
+
+		if (startLine == -1)
+		{
+			// no code in file???
+
+			asset.Instructions = new();
+			asset.Labels = new() { { 0, new Label() { InstructionIndex = 0 } } };
+
+			return asset;
+		}
+
+		asmFileLines = asmFileLines.Skip(startLine).ToArray();
+		asmFileLines = asmFileLines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+		string? functionLabelAtNextLine = null;
+
+		foreach (var line in asmFileLines)
+		{
+			if (line.StartsWith(":["))
+			{
+				// Label Declaration
+
+				var id = line.Substring(2, line.Length - 3);
+
+				if (id == "end")
+				{
+					break;
+				}
+
+				var label = new Label() { InstructionIndex = asset.Instructions.Count };
+
+				if (functionLabelAtNextLine != null)
+				{
+					label.FunctionName = functionLabelAtNextLine;
+					functionLabelAtNextLine = null;
+				}
+
+				asset.Labels.Add(int.Parse(id), label);
+			}
+			else if (line.StartsWith("> "))
+			{
+				// Function Declaration
+
+				// next line should be a label
+				var removeChevron = line[2..];
+				var split = removeChevron.Split(" (");
+				functionLabelAtNextLine = split[0];
+			}
+			else
+			{
+				// Instruction
+				// instructions are in form OPERATION.TYPE.TYPE DATA
+
+				var opcode = line.Split(" ")[0];
+				var operation = opcode.Split('.')[0];
+				var types = opcode.Split(".").Skip(1).ToArray();
+
+				var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
+
+				var instruction = new VMScriptInstruction
+				{
+					Raw = line,
+					Opcode = enumOperation,
+					TypeOne = types.Length >= 1 ? (VMType)Enum.Parse(typeof(VMType), types[0]) : VMType.None,
+					TypeTwo = types.Length == 2 ? (VMType)Enum.Parse(typeof(VMType), types[1]) : VMType.None,
+				};
+
+				switch (enumOperation)
+				{
+					case VMOpcode.CHKINDEX:
+						// no data
+						break;
+					case VMOpcode.CONV:
+						// no data
+						break;
+					case VMOpcode.MUL:
+						// no data
+						break;
+					case VMOpcode.DIV:
+						// no data
+						break;
+					case VMOpcode.REM:
+						break;
+					case VMOpcode.MOD:
+						break;
+					case VMOpcode.ADD:
+						// no data
+						break;
+					case VMOpcode.SUB:
+						// no data
+						break;
+					case VMOpcode.AND:
+						break;
+					case VMOpcode.OR:
+						break;
+					case VMOpcode.XOR:
+						break;
+					case VMOpcode.NEG:
+						break;
+					case VMOpcode.NOT:
+						break;
+					case VMOpcode.SHL:
+						break;
+					case VMOpcode.SHR:
+						break;
+					case VMOpcode.CMP:
+						var comparison = line.Substring(opcode.Length + 1);
+						var enumComparison = (VMComparison)Enum.Parse(typeof(VMComparison), comparison);
+						instruction.Comparison = enumComparison;
+						break;
+					case VMOpcode.POP:
+						var variableName = line.Substring(opcode.Length + 1);
+						instruction.StringData = variableName;
+						break;
+					case VMOpcode.DUP:
+						var indexBack = line.Substring(opcode.Length + 1);
+
+						indexBack = indexBack.Split(" ;;; ")[0];
+
+						var splitBySpace = indexBack.Split(" ");
+						if (splitBySpace.Length == 1)
+						{
+							instruction.IntData = int.Parse(indexBack);
+						}
+						else
+						{
+							// This opcode has TWO PARAMETERS?? Gamemaker you've gone TOO FAR.
+							instruction.IntData = int.Parse(splitBySpace[0]);
+							instruction.SecondIntData = int.Parse(splitBySpace[1]);
+						}
+
+
+						break;
+					case VMOpcode.RET:
+						// ???
+						break;
+					case VMOpcode.EXIT:
+						// ???
+						break;
+					case VMOpcode.POPZ:
+						// no data
+						break;
+					case VMOpcode.B:
+					case VMOpcode.BT:
+					case VMOpcode.BF:
+					case VMOpcode.PUSHENV:
+					case VMOpcode.POPENV:
+						var blockId = line.Substring(opcode.Length + 1)[1..^1];
+						if (blockId == "end")
+						{
+							instruction.JumpToEnd = true;
+						}
+						else if (blockId == "drop")
+						{
+							instruction.Drop = true;
+						}
+						else
+						{
+							instruction.IntData = int.Parse(blockId);
+						}
+						break;
+					case VMOpcode.PUSH:
+					case VMOpcode.PUSHLOC:
+					case VMOpcode.PUSHGLB:
+					case VMOpcode.PUSHBLTN:
+					case VMOpcode.PUSHI:
+						var value = line.Substring(opcode.Length + 1);
+						switch (instruction.TypeOne)
+						{
+							case VMType.None:
+								// what
+								break;
+							case VMType.s:
+								var indexOfLast = value.LastIndexOf('@');
+								var removedAddress = value.Substring(0, indexOfLast);
+								var removedQuotes = removedAddress[1..^1];
+								var stringData = removedQuotes.Replace(@"\\", @"\");
+								instruction.StringData = stringData;
+								break;
+							case VMType.i:
+								if (int.TryParse(value, out var intResult))
+								{
+									instruction.IntData = intResult;
+								}
+								else
+								{
+									// Probably dealing with text.
+									instruction.StringData = value;
+								}
+								break;
+							case VMType.l:
+								instruction.LongData = long.Parse(value);
+								break;
+							case VMType.v:
+								instruction.StringData = value;
+								break;
+							case VMType.b:
+								// not used i think?
+								instruction.BoolData = bool.Parse(value);
+								break;
+							case VMType.d:
+								instruction.DoubleData = double.Parse(value);
+								break;
+							case VMType.e:
+								instruction.ShortData = short.Parse(value);
+								break;
+							default:
+								throw new ArgumentOutOfRangeException();
+						}
+						break;
+					case VMOpcode.CALL:
+						var function = line.Substring(opcode.Length + 1);
+						var argcIndex = function.IndexOf("argc=");
+						var argumentCount = int.Parse(function[(argcIndex + 5)..^1]);
+						var functionName = function.Substring(0, function.IndexOf('('));
+						instruction.FunctionArgumentCount = argumentCount;
+						instruction.FunctionName = functionName;
+						break;
+					case VMOpcode.CALLV:
+						instruction.IntData = int.Parse(line.Substring(opcode.Length + 1));
+						break;
+					case VMOpcode.BREAK:
+						// ???
+						break;
+					case VMOpcode.SETOWNER:
+						break;
+					case VMOpcode.PUSHAF:
+						break;
+					case VMOpcode.POPAF:
+						break;
+					case VMOpcode.SAVEAREF:
+						break;
+					case VMOpcode.RESTOREAREF:
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+
+				asset.Instructions.Add(instruction);
+			}
+		}
+
+		return asset;
 	}
 
 	public static void ExportPages(UndertaleData data)
