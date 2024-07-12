@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 
 /// <summary>
 /// used for for "af" operations

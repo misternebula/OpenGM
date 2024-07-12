@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class SurfaceManager
 {
 	public static int application_surface = -1;

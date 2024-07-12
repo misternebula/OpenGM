@@ -1,7 +1,7 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class InstanceManager
 {
 	public static List<GamemakerObject> instances = new List<GamemakerObject>();

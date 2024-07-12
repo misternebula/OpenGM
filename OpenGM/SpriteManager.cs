@@ -1,8 +1,8 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using OpenGM.SerializedFiles;
 using System.Drawing;
 using OpenTK.Mathematics;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 public static class SpriteManager
 {

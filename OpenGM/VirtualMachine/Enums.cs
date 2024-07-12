@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone.VirtualMachine;
+﻿namespace OpenGM.VirtualMachine;
 
 /// <summary>
 /// result of the execution of an instruction

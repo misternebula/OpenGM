@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {

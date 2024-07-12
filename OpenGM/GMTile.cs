@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public class GMTile : DrawWithDepth
 {
 	public float X;

@@ -1,4 +1,4 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using OpenGM.SerializedFiles;
 using Newtonsoft.Json.Linq;
 using NVorbis;
 using OpenTK.Audio.OpenAL;
@@ -15,7 +15,7 @@ using static UndertaleModLib.Models.UndertaleRoom;
 using OpenTK.Graphics.OpenGL;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
 {
 	public static Dictionary<string, VMScript> Scripts = new();

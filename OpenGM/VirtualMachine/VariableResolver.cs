@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.Collections;
 
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 public static class VariableResolver
 {
 	/// <summary>

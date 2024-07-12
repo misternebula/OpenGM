@@ -1,12 +1,12 @@
-using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using NVorbis;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.CompilerServices;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 /*
  * copied from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs

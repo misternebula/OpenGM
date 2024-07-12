@@ -1,4 +1,4 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -6,7 +6,7 @@ using OpenTK.Windowing.Desktop;
 using UndertaleModLib.Decompiler;
 using Vector2 = OpenTK.Mathematics.Vector2;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public class CustomWindow : GameWindow
 {
 	public static CustomWindow Instance { get; private set; } = null!;

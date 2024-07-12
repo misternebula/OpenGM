@@ -1,9 +1,9 @@
-﻿using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using System.Collections;
 using UndertaleModLib.Models;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 public class BBox
 {

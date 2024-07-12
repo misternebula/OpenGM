@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using StbImageSharp;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class PageManager
 {
 	public static Dictionary<string, (ImageResult image, int id)> TexturePages = new();

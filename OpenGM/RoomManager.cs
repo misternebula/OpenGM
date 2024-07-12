@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
-using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 using UndertaleModLib.Models;
-using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
+using EventType = OpenGM.VirtualMachine.EventType;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 public static class RoomManager
 {

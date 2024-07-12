@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class BufferManager
 {
 	private static int _nextId;

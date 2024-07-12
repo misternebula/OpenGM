@@ -1,8 +1,8 @@
-﻿using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
 using UndertaleModLib.Models;
 
-namespace DELTARUNITYStandalone.SerializedFiles;
+namespace OpenGM.SerializedFiles;
 
 /// <summary>
 /// "template" for an object. analagous to a class

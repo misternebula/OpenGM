@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {

@@ -1,8 +1,8 @@
-﻿using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using System.Runtime.InteropServices;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 public class KeyboardHandler
 {

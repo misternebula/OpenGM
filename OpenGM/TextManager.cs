@@ -1,8 +1,8 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
+﻿using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
 using UndertaleModLib.Decompiler;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class TextManager
 {
 	public static List<FontAsset> FontAssets = new();

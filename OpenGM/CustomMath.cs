@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class CustomMath
 {
 	public const double Rad2Deg = 57.2957795131;

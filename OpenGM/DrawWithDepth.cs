@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace OpenGM;
 
 [Serializable]
 public abstract class DrawWithDepth

@@ -1,8 +1,8 @@
-﻿using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;
 
-namespace GMRunnerTests;
+namespace OpenGM.Tests;
 
 [TestClass]
 public class PopTests

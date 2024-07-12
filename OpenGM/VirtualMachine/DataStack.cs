@@ -1,4 +1,4 @@
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 
 /// <summary>
 /// stack that also stores the type

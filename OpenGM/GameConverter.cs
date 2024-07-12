@@ -1,12 +1,12 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
-using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
+using EventType = OpenGM.VirtualMachine.EventType;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 /// <summary>
 /// Converts the UTMT data into our custom formats, which are saved into files

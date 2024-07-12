@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class TileManager
 {
 	public static List<DrawWithDepth> Tiles = new();

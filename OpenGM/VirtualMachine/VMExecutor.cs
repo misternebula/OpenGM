@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using DELTARUNITYStandalone.SerializedFiles;
+using OpenGM.SerializedFiles;
 using System.Collections;
 
-namespace DELTARUNITYStandalone.VirtualMachine;
+namespace OpenGM.VirtualMachine;
 
 /// <summary>
 /// contains data about each script execution and also environment

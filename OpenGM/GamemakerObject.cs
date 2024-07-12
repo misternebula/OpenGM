@@ -1,10 +1,10 @@
-﻿using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
-using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
+using EventType = OpenGM.VirtualMachine.EventType;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 /// <summary>
 /// instance of an ObjectDefinition

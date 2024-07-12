@@ -1,8 +1,8 @@
-﻿using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using UndertaleModLib.Models;
-using EventType = DELTARUNITYStandalone.VirtualMachine.EventType;
+using EventType = OpenGM.VirtualMachine.EventType;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class DrawManager
 {
 	public static int CirclePrecision = 24;

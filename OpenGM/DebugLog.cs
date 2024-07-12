@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone;
+﻿namespace OpenGM;
 
 public static class DebugLog
 {

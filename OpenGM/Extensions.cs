@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class Extensions
 {
 	public static Color4 BGRToColor(this int bgr)

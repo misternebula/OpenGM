@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone.VirtualMachine;
+﻿namespace OpenGM.VirtualMachine;
 
 [Serializable]
 public class VMScript

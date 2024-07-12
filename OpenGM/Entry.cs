@@ -1,10 +1,10 @@
-﻿using DELTARUNITYStandalone.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using UndertaleModLib;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 
 internal class Entry
 {

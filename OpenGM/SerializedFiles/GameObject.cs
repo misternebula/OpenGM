@@ -1,4 +1,4 @@
-﻿namespace DELTARUNITYStandalone.SerializedFiles;
+﻿namespace OpenGM.SerializedFiles;
 
 [Serializable]
 public class GameObject

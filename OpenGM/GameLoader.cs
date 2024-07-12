@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Text;
-using DELTARUNITYStandalone.SerializedFiles;
-using DELTARUNITYStandalone.VirtualMachine;
+using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
 using StbImageSharp;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public static class GameLoader
 {
 	public static void LoadGame()

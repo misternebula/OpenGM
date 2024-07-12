@@ -1,7 +1,7 @@
-using DELTARUNITYStandalone.VirtualMachine;
+using OpenGM.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GMRunnerTests;
+namespace OpenGM.Tests;
 
 [TestClass]
 public class AddTests

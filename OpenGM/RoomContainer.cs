@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DELTARUNITYStandalone.SerializedFiles;
+using OpenGM.SerializedFiles;
 
-namespace DELTARUNITYStandalone;
+namespace OpenGM;
 public class RoomContainer
 {
 	public RoomContainer(Room room)
