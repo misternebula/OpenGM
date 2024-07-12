@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using Newtonsoft.Json.Linq;
-using System.Collections;
-
-namespace OpenGM.VirtualMachine;
+﻿namespace OpenGM.VirtualMachine;
 
 public static class VariableResolver
 {
@@ -24,10 +20,20 @@ public static class VariableResolver
 
 		if (index >= array.Count)
 		{
+			object? placeholder = value switch
+			{
+				int or short or long or float or double => 0,
+				bool => false,
+				string => "",
+				IList<object?> => new List<object?>(),
+				null => null,
+				_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+			};
+			
 			var numToAdd = index - array.Count + 1;
 			for (var i = 0; i < numToAdd; i++)
 			{
-				array.Add(null);
+				array.Add(placeholder);
 			}
 		}
 

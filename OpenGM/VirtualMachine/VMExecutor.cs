@@ -389,7 +389,14 @@ public static partial class VMExecutor
 				throw new Exception($"CHKINDEX failed - {index}");
 			}
 			case VMOpcode.EXIT:
-				return (ExecutionResult.ReturnedValue, null);
+				return (ExecutionResult.ReturnedValue, instruction.TypeOne switch
+				{
+					VMType.i or VMType.e or VMType.d or VMType.l => 0,
+					VMType.b => false,
+					VMType.s => "",
+					VMType.v => null,
+					_ => throw new ArgumentOutOfRangeException()
+				});
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
 				var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
@@ -448,6 +455,7 @@ public static partial class VMExecutor
 
 		if (@this is null)
 		{
+			/*
 			if (type.Is<int>()) return (int)0;
 			if (type.Is<short>()) return (short)0;
 			if (type.Is<long>()) return (long)0;
@@ -460,6 +468,7 @@ public static partial class VMExecutor
 			if (type.Is<string>()) return "";
 
 			if (type.Is<IList<object?>>()) return new List<object?>();
+			*/
 
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
