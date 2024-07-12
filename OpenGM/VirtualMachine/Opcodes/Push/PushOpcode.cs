@@ -257,6 +257,11 @@ public static partial class VMExecutor
 					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
 					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
+					if (instanceId == GMConstants.stacktop)
+					{
+						instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					}
+
 					if (instanceId == GMConstants.global)
 					{
 						PushGlobalArrayIndex(variableName, index);
@@ -277,8 +282,25 @@ public static partial class VMExecutor
 						PushSelfArrayIndex(Ctx.Self, variableName, index);
 						return (ExecutionResult.Success, null);
 					}
+					else
+					{
+						if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+						{
+							// asset id
+							var self = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
+							PushSelfArrayIndex(self, variableName, index);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							// instance id
+							var self = InstanceManager.FindByInstanceId(instanceId)!;
+							PushSelfArrayIndex(self, variableName, index);
+							return (ExecutionResult.Success, null);
+						}
+					}
 
-					return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");
+					//return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");
 				}
 			}
 			else if (variablePrefix == VariablePrefix.ArrayPopAF)
