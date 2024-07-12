@@ -272,7 +272,7 @@ public static partial class VMExecutor
 					// TODO: make into methods and move out duplicated code
 					if (instanceId == GMConstants.global)
 					{
-						VariableResolver.ArraySet(index, null,
+						VariableResolver.ArraySet(index, new List<object?>(),
 							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as List<object?> : null,
 							array => VariableResolver.GlobalVariables[variableName] = array);
 
@@ -282,7 +282,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						VariableResolver.ArraySet(index, null,
+						VariableResolver.ArraySet(index, new List<object?>(),
 							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as List<object?> : null,
 							array => Ctx.Locals[variableName] = array);
 
@@ -293,7 +293,7 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
-						VariableResolver.ArraySet(index, null,
+						VariableResolver.ArraySet(index, new List<object?>(),
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as List<object?> : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
