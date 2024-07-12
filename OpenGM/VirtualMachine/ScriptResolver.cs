@@ -265,7 +265,8 @@ public static partial class ScriptResolver
 		{ "buffer_load", buffer_load },
 		{ "buffer_read", buffer_read },
 		{ "buffer_delete", buffer_delete},
-		{ "is_string", is_string }
+		{ "is_string", is_string },
+		{ "is_real", is_real }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -1433,7 +1434,7 @@ public static partial class ScriptResolver
 			instance = InstanceManager.FindByInstanceId(id);
 		}
 
-		DebugLog.Log($"camera_set_view_target {instance}");
+		//DebugLog.Log($"camera_set_view_target {instance}");
 
 		//GamemakerCamera.Instance.ObjectToFollow = instance;
 
@@ -2404,6 +2405,13 @@ public static partial class ScriptResolver
 
 	public static object? is_string(object?[] args)
 		=> args[0]!.GetType().Is<string>();
+
+	public static object? is_real(object?[] args)
+	{
+		var objType = args[0]!.GetType();
+
+		return objType.Is<int>() || objType.Is<float>() || objType.Is<short>() || objType.Is<double>() || objType.Is<long>();
+	}
 }
 
 public class FileHandle
