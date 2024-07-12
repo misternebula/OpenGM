@@ -50,7 +50,7 @@ public class PopTests
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testArray"));
 
-		var array = VariableResolver.GlobalVariables["testArray"].Conv<List<object?>>();
+		var array = VariableResolver.GlobalVariables["testArray"].Conv<IList<object?>>();
 
 		Assert.AreEqual("Test String 0", array[0]);
 		Assert.AreEqual("Test String 1", array[1]);
@@ -77,16 +77,16 @@ public class PopTests
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("mdArray"));
 
-		var array = VariableResolver.GlobalVariables["mdArray"].Conv<List<object?>>();
+		var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList<object?>>();
 
-		Assert.AreEqual("Test String 1 1", array[1].Conv<List<object?>>()[1]);
+		Assert.AreEqual("Test String 1 1", array[1].Conv<IList<object?>>()[1]);
 	}
 
 	[TestMethod]
 	public void ArrayTestFromGame()
 	{
-		VariableResolver.GlobalVariables["NAMEX"] = new List<object?> { new List<object?> { "name x" } };
-		VariableResolver.GlobalVariables["NAMEY"] = new List<object?> { new List<object?> { "name y" } };
+		VariableResolver.GlobalVariables["NAMEX"] = new object?[] { new object?[] { "name x" } };
+		VariableResolver.GlobalVariables["NAMEY"] = new object?[] { new object?[] { "name y" } };
 
 		TestUtils.ExecuteScript(
 			"global.HEARTX = global.NAMEX[0][0]; global.HEARTY = global.NAMEY[0][0]",
@@ -112,7 +112,7 @@ public class PopTests
 			"""
 		);
 
-		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTX"], VariableResolver.GlobalVariables["NAMEX"].Conv<List<object?>>()[0].Conv<List<object?>>()[0]);
-		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTY"], VariableResolver.GlobalVariables["NAMEY"].Conv<List<object?>>()[0].Conv<List<object?>>()[0]);
+		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTX"], VariableResolver.GlobalVariables["NAMEX"].Conv<IList<object?>>()[0].Conv<IList<object?>>()[0]);
+		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTY"], VariableResolver.GlobalVariables["NAMEY"].Conv<IList<object?>>()[0].Conv<IList<object?>>()[0]);
 	}
 }

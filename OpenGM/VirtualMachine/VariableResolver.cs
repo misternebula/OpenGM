@@ -12,8 +12,8 @@ public static class VariableResolver
 	/// `getter` SHOULD NOT COPY.
 	/// </summary>
 	public static void ArraySet(int index, object? value,
-		Func<List<object?>?> getter,
-		Action<List<object?>> setter)
+		Func<IList<object?>?> getter,
+		Action<IList<object?>> setter)
 	{
 		var array = getter();
 		if (array == null)
@@ -196,9 +196,9 @@ public static class VariableResolver
 	public static object get_application_surface() => SurfaceManager.application_surface;
 
 	public static object get_alarm(GamemakerObject instance) => instance.alarm;
-	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<List<object?>>();
+	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<object?[]>();
 
-	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<List<object?>>().Count;
+	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList<object?>>().Count;
 
 	public static object? get_undefined() => null;
 }

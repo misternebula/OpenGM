@@ -91,13 +91,13 @@ public static partial class VMExecutor
 
 	public static void PushGlobalArrayIndex(string varName, int index)
 	{
-		var array = VariableResolver.GlobalVariables[varName].Conv<List<object?>>();
+		var array = VariableResolver.GlobalVariables[varName].Conv<IList<object?>>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = Ctx.Locals[varName].Conv<List<object?>>();
+		var array = Ctx.Locals[varName].Conv<IList<object?>>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
@@ -128,19 +128,19 @@ public static partial class VMExecutor
 	{
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
-			var array = gettersetter.getter(self).Conv<List<object?>>();
+			var array = gettersetter.getter(self).Conv<IList<object?>>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 		else
 		{
-			var array = self.SelfVariables[varName].Conv<List<object?>>();
+			var array = self.SelfVariables[varName].Conv<IList<object?>>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 	}
 
 	public static void PushArgument(int index)
 	{
-		var arguments = Ctx.Locals["arguments"].Conv<List<object?>>();
+		var arguments = Ctx.Locals["arguments"].Conv<IList<object?>>();
 		Ctx.Stack.Push(arguments[index], VMType.v);
 	}
 
@@ -273,20 +273,20 @@ public static partial class VMExecutor
 					if (instanceId == GMConstants.global)
 					{
 						VariableResolver.ArraySet(index, new List<object?>(),
-							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as List<object?> : null,
+							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as IList<object?> : null,
 							array => VariableResolver.GlobalVariables[variableName] = array);
 
-						var array = VariableResolver.GlobalVariables[variableName].Conv<List<object?>>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
 					{
 						VariableResolver.ArraySet(index, new List<object?>(),
-							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as List<object?> : null,
+							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as IList<object?> : null,
 							array => Ctx.Locals[variableName] = array);
 
-						var array = Ctx.Locals[variableName].Conv<List<object?>>();
+						var array = Ctx.Locals[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
@@ -294,10 +294,10 @@ public static partial class VMExecutor
 					{
 						// TODO: check builtin self var
 						VariableResolver.ArraySet(index, new List<object?>(),
-							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as List<object?> : null,
+							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as IList<object?> : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
-						var array = Ctx.Self.SelfVariables[variableName].Conv<List<object?>>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
@@ -312,20 +312,20 @@ public static partial class VMExecutor
 
 					if (instanceId == GMConstants.global)
 					{
-						var array = VariableResolver.GlobalVariables[variableName].Conv<List<object?>>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						var array = Ctx.Locals[variableName].Conv<List<object?>>();
+						var array = Ctx.Locals[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
-						var array = Ctx.Self.SelfVariables[variableName].Conv<List<object?>>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}

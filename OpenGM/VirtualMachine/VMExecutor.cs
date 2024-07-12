@@ -44,7 +44,7 @@ public static partial class VMExecutor
 
 	// debug
 	public static Stack<VMScript> currentExecutingScript = new();
-	public static bool VerboseStackLogs;
+	public static bool VerboseStackLogs = true;
 
 	public static object? ExecuteScript(VMScript script, GamemakerObject? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
@@ -79,7 +79,7 @@ public static partial class VMExecutor
 
 		if (args != null)
 		{
-			// conv should be able to handle list to array via casting to List<object?>
+			// conv should be able to handle list to array via casting to IList<object?>
 			newCtx.Locals["arguments"] = args;
 		}
 
@@ -397,7 +397,7 @@ public static partial class VMExecutor
 			case VMOpcode.POPAF:
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<List<object?>>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<IList<object?>>();
 				
 				var value = Ctx.Stack.Pop(VMType.v);
 				
@@ -411,7 +411,7 @@ public static partial class VMExecutor
 			case VMOpcode.PUSHAF: 
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<List<object?>>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<IList<object?>>();
 
 				var value = array[index];
 
@@ -459,7 +459,7 @@ public static partial class VMExecutor
 
 			if (type.Is<string>()) return "";
 
-			if (type.Is<List<object?>>()) return new List<object?>();
+			if (type.Is<IList<object?>>()) return new List<object?>();
 
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
@@ -531,7 +531,7 @@ public static partial class VMExecutor
 				return isInt ? d.ToString("0") : (object)d.ToString("0.00");
 			}
 		} 
-		else if (@this is List<object?> array && type.Is<List<object?>>())
+		else if (@this is IList<object?> array && type.Is<IList<object?>>())
 		{
 			return array;
 		}
