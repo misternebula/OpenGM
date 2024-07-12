@@ -5,7 +5,7 @@ using System.Collections;
 namespace OpenGM.Tests;
 
 [TestClass]
-public class PopTests
+public class PopPushTests
 {
 	[TestMethod]
 	public void TestPushGlobal()
@@ -112,7 +112,32 @@ public class PopTests
 			"""
 		);
 
-		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTX"], VariableResolver.GlobalVariables["NAMEX"].Conv<IList<object?>>()[0].Conv<IList<object?>>()[0]);
-		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTY"], VariableResolver.GlobalVariables["NAMEY"].Conv<IList<object?>>()[0].Conv<IList<object?>>()[0]);
+		Assert.AreEqual("name x", VariableResolver.GlobalVariables["HEARTX"]);
+		Assert.AreEqual("name y", VariableResolver.GlobalVariables["HEARTY"]);
+	}
+
+	[TestMethod]
+	public void BadIndexGameTest()
+	{
+		VariableResolver.GlobalVariables["i"] = 1;
+		VariableResolver.GlobalVariables["j"] = 1;
+		VariableResolver.GlobalVariables["spell"] = new object?[] { null, new object?[] { "hello i am the spell" }, null };
+
+		TestUtils.ExecuteScript(
+			"global.spellid = global.spell[global.j][global.i]",
+			"""
+			:[0]
+			pushi.e -5
+			push.v global.j
+			conv.v.i
+			push.v [arraypushaf]self.spell
+			push.v global.i
+			conv.v.i
+			pushaf.e
+			pop.v.v global.spellid
+			"""
+		);
+
+		Assert.AreEqual("hello i am the spell", VariableResolver.GlobalVariables["spellid"]);
 	}
 }
