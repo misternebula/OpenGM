@@ -91,13 +91,13 @@ public static partial class VMExecutor
 
 	public static void PushGlobalArrayIndex(string varName, int index)
 	{
-		var array = VariableResolver.GlobalVariables[varName].Conv<IList>();
+		var array = VariableResolver.GlobalVariables[varName].Conv<List<object?>>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = Ctx.Locals[varName].Conv<IList>();
+		var array = Ctx.Locals[varName].Conv<List<object?>>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
@@ -128,19 +128,19 @@ public static partial class VMExecutor
 	{
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
 		{
-			var array = gettersetter.getter(self).Conv<IList>();
+			var array = gettersetter.getter(self).Conv<List<object?>>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 		else
 		{
-			var array = self.SelfVariables[varName].Conv<IList>();
+			var array = self.SelfVariables[varName].Conv<List<object?>>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 	}
 
 	public static void PushArgument(int index)
 	{
-		var arguments = Ctx.Locals["arguments"].Conv<IList>();
+		var arguments = Ctx.Locals["arguments"].Conv<List<object?>>();
 		Ctx.Stack.Push(arguments[index], VMType.v);
 	}
 
@@ -273,10 +273,10 @@ public static partial class VMExecutor
 					if (instanceId == GMConstants.global)
 					{
 						VariableResolver.ArraySet(index, null,
-							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as IList : null,
+							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as List<object?> : null,
 							array => VariableResolver.GlobalVariables[variableName] = array);
 
-						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<List<object?>>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -291,10 +291,10 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.local)
 					{
 						VariableResolver.ArraySet(index, null,
-							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
+							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as List<object?> : null,
 							array => Ctx.Locals[variableName] = array);
 
-						var array = Ctx.Locals[variableName].Conv<IList>();
+						var array = Ctx.Locals[variableName].Conv<List<object?>>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -310,10 +310,10 @@ public static partial class VMExecutor
 					{
 						// TODO: check builtin self var
 						VariableResolver.ArraySet(index, null,
-							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as IList : null,
+							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as List<object?> : null,
 							array => Ctx.Self.SelfVariables[variableName] = array);
 
-						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<List<object?>>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -336,7 +336,7 @@ public static partial class VMExecutor
 
 					if (instanceId == GMConstants.global)
 					{
-						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
+						var array = VariableResolver.GlobalVariables[variableName].Conv<List<object?>>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -350,7 +350,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						var array = Ctx.Locals[variableName].Conv<IList>();
+						var array = Ctx.Locals[variableName].Conv<List<object?>>();
 
 						var arrayReference = new ArrayReference
 						{
@@ -365,7 +365,7 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
-						var array = Ctx.Self.SelfVariables[variableName].Conv<IList>();
+						var array = Ctx.Self.SelfVariables[variableName].Conv<List<object?>>();
 
 						var arrayReference = new ArrayReference
 						{

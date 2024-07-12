@@ -13,13 +13,13 @@ public static partial class ScriptResolver
 
 	public static object array_length_1d(object?[] args)
 	{
-		var array = args[0].Conv<IList>();
+		var array = args[0].Conv<List<object?>>();
 		return array.Count;
 	}
 
 	public static object array_length(object?[] args)
 	{
-		var array = args[0].Conv<IList>();
+		var array = args[0].Conv<List<object?>>();
 		return array.Count;
 	}
 
@@ -177,7 +177,7 @@ public static partial class ScriptResolver
 		{
 			// value
 
-			if (valueOrFormat is IList array)
+			if (valueOrFormat is List<object?> array)
 			{
 				// array
 				// is any of this right? not sure.

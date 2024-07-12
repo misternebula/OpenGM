@@ -3,15 +3,17 @@ using Newtonsoft.Json.Linq;
 using System.Collections;
 
 namespace OpenGM.VirtualMachine;
+
 public static class VariableResolver
 {
 	/// <summary>
 	/// general form of the array index setting logic.
 	/// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
+	/// `getter` SHOULD NOT COPY.
 	/// </summary>
 	public static void ArraySet(int index, object? value,
-		Func<IList?> getter,
-		Action<IList> setter)
+		Func<List<object?>?> getter,
+		Action<List<object?>> setter)
 	{
 		var array = getter();
 		if (array == null)
@@ -25,13 +27,11 @@ public static class VariableResolver
 			var numToAdd = index - array.Count + 1;
 			for (var i = 0; i < numToAdd; i++)
 			{
-				// BUG: we might pass array into here (which is an IList, but throws on grow)
 				array.Add(null);
 			}
 		}
 
 		array[index] = value;
-		setter(array); // getter can make a copy so have to set again
 	}
 
 	public static readonly Dictionary<string, object?> GlobalVariables = new();
@@ -40,52 +40,52 @@ public static class VariableResolver
 	{
 		{ "working_directory", (get_working_directory, null) },
 		{ "fps", (get_fps, null) },
-		{ "room_width", (get_room_width, null)},
-		{ "room_height", (get_room_height, null)},
-		{ "room", (get_room, set_room)},
-		{ "room_speed", (get_room_speed, set_room_speed)},
-		{ "os_type", (get_os_type, null)},
-		{ "application_surface", (get_application_surface, null)},
-		{ "argument_count", (get_argument_count, null)},
+		{ "room_width", (get_room_width, null) },
+		{ "room_height", (get_room_height, null) },
+		{ "room", (get_room, set_room) },
+		{ "room_speed", (get_room_speed, set_room_speed) },
+		{ "os_type", (get_os_type, null) },
+		{ "application_surface", (get_application_surface, null) },
+		{ "argument_count", (get_argument_count, null) },
 		// { "room_persistent", (get_room_persistent, set_room_persistent)},
-		{ "undefined", (get_undefined, null)}
+		{ "undefined", (get_undefined, null) }
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
 	{
 		{ "x", (get_x, set_x) },
 		{ "y", (get_y, set_y) },
-		{ "image_index", (get_image_index, set_image_index)},
-		{ "sprite_index", (get_sprite_index, set_sprite_index)},
-		{ "sprite_height", (get_sprite_height, null)},
-		{ "sprite_width", (get_sprite_width, null)},
-		{ "xstart", (get_xstart, set_xstart)},
-		{ "ystart", (get_ystart, set_ystart)},
-		{ "object_index", (get_object_index, null)},
-		{ "image_blend", (get_image_blend, set_image_blend)},
-		{ "depth", (get_depth, set_depth)},
-		{ "bbox_bottom", (get_bbox_bottom, null)},
-		{ "bbox_top", (get_bbox_top, null)},
-		{ "bbox_left", (get_bbox_left, null)},
-		{ "bbox_right", (get_bbox_right, null)},
-		{ "image_yscale", (get_image_yscale, set_image_yscale)},
-		{ "image_xscale", (get_image_xscale, set_image_xscale)},
-		{ "image_speed", (get_image_speed, set_image_speed)},
-		{ "visible", (get_visible, set_visible)},
-		{ "image_alpha", (get_image_alpha, set_image_alpha)},
-		{ "image_angle", (get_image_angle, set_image_angle)},
-		{ "speed", (get_speed, set_speed)},
-		{ "hspeed", (get_hspeed, set_hspeed)},
-		{ "vspeed", (get_vspeed, set_vspeed)},
-		{ "direction", (get_direction, set_direction)},
-		{ "view_current", (get_view_current, null)},
+		{ "image_index", (get_image_index, set_image_index) },
+		{ "sprite_index", (get_sprite_index, set_sprite_index) },
+		{ "sprite_height", (get_sprite_height, null) },
+		{ "sprite_width", (get_sprite_width, null) },
+		{ "xstart", (get_xstart, set_xstart) },
+		{ "ystart", (get_ystart, set_ystart) },
+		{ "object_index", (get_object_index, null) },
+		{ "image_blend", (get_image_blend, set_image_blend) },
+		{ "depth", (get_depth, set_depth) },
+		{ "bbox_bottom", (get_bbox_bottom, null) },
+		{ "bbox_top", (get_bbox_top, null) },
+		{ "bbox_left", (get_bbox_left, null) },
+		{ "bbox_right", (get_bbox_right, null) },
+		{ "image_yscale", (get_image_yscale, set_image_yscale) },
+		{ "image_xscale", (get_image_xscale, set_image_xscale) },
+		{ "image_speed", (get_image_speed, set_image_speed) },
+		{ "visible", (get_visible, set_visible) },
+		{ "image_alpha", (get_image_alpha, set_image_alpha) },
+		{ "image_angle", (get_image_angle, set_image_angle) },
+		{ "speed", (get_speed, set_speed) },
+		{ "hspeed", (get_hspeed, set_hspeed) },
+		{ "vspeed", (get_vspeed, set_vspeed) },
+		{ "direction", (get_direction, set_direction) },
+		{ "view_current", (get_view_current, null) },
 		{ "persistent", (get_persistent, set_persistent) },
 		{ "id", (get_id, null) },
 		{ "gravity", (get_gravity, set_gravity) },
 		{ "friction", (get_friction, set_friction) },
-		{ "gravity_direction", (get_gravity_direction, set_gravity_direction)},
-		{ "image_number", (get_image_number, null)},
-		{ "alarm", (get_alarm, set_alarm)},
+		{ "gravity_direction", (get_gravity_direction, set_gravity_direction) },
+		{ "image_number", (get_image_number, null) },
+		{ "alarm", (get_alarm, set_alarm) },
 	};
 
 	public static object get_working_directory()
@@ -195,10 +195,10 @@ public static class VariableResolver
 
 	public static object get_application_surface() => SurfaceManager.application_surface;
 
-	public static object get_alarm(GamemakerObject instance) => instance.alarm.Cast<object?>().ToArray();
-	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().Select(x => x.Conv<int>()).ToArray();
+	public static object get_alarm(GamemakerObject instance) => instance.alarm;
+	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<List<object?>>().Select(x => (object)x.Conv<int>()).ToList();
 
-	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>().Count;
-	
+	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<List<object?>>().Count;
+
 	public static object? get_undefined() => null;
 }

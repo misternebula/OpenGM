@@ -50,7 +50,7 @@ public class PopTests
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testArray"));
 
-		var array = VariableResolver.GlobalVariables["testArray"].Conv<IList>();
+		var array = VariableResolver.GlobalVariables["testArray"].Conv<List<object?>>();
 
 		Assert.AreEqual("Test String 0", array[0]);
 		Assert.AreEqual("Test String 1", array[1]);
@@ -77,9 +77,9 @@ public class PopTests
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("mdArray"));
 
-		var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList>();
+		var array = VariableResolver.GlobalVariables["mdArray"].Conv<List<object?>>();
 
-		Assert.AreEqual("Test String 1 1", array[1].Conv<IList>()[1]);
+		Assert.AreEqual("Test String 1 1", array[1].Conv<List<object?>>()[1]);
 	}
 
 	[TestMethod]
@@ -112,7 +112,7 @@ public class PopTests
 			"""
 		);
 
-		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTX"], VariableResolver.GlobalVariables["NAMEX"].Conv<IList>()[0].Conv<IList>()[0]);
-		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTY"], VariableResolver.GlobalVariables["NAMEY"].Conv<IList>()[0].Conv<IList>()[0]);
+		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTX"], VariableResolver.GlobalVariables["NAMEX"].Conv<List<object?>>()[0].Conv<List<object?>>()[0]);
+		Assert.AreEqual(VariableResolver.GlobalVariables["HEARTY"], VariableResolver.GlobalVariables["NAMEY"].Conv<List<object?>>()[0].Conv<List<object?>>()[0]);
 	}
 }

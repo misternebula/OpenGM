@@ -79,7 +79,7 @@ public static partial class VMExecutor
 
 		if (args != null)
 		{
-			// conv should be able to handle list to array via casting to IList
+			// conv should be able to handle list to array via casting to List<object?>
 			newCtx.Locals["arguments"] = args;
 		}
 
@@ -405,7 +405,6 @@ public static partial class VMExecutor
 					var numToAdd = index - array.Value.Count + 1;
 					for (var i = 0; i < numToAdd; i++)
 					{
-						// BUG: we might pass array into here (which is an IList, but throws on grow)
 						array.Value.Add(null);
 					}
 				}
@@ -435,7 +434,7 @@ public static partial class VMExecutor
 
 				var value = array.Value[index];
 
-				if (value is IList)
+				if (value is List<object?>)
 				{
 					throw new NotImplementedException();
 				}
@@ -484,7 +483,7 @@ public static partial class VMExecutor
 
 			if (type.Is<string>()) return "";
 
-			if (type.Is<IList>()) return new List<object?>();
+			if (type.Is<List<object?>>()) return new List<object?>();
 
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
@@ -556,7 +555,7 @@ public static partial class VMExecutor
 				return isInt ? d.ToString("0") : (object)d.ToString("0.00");
 			}
 		} 
-		else if (@this is IList array && type.Is<IList>())
+		else if (@this is List<object?> array && type.Is<List<object?>>())
 		{
 			return array;
 		}
