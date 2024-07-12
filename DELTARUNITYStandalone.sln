@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DELTARUNITYStandalone", "DELTARUNITYStandalone.csproj", "{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DELTARUNITYStandalone", "DELTARUNITYStandalone.csproj", "{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GMRunnerTests", "GMRunnerTests\GMRunnerTests.csproj", "{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
