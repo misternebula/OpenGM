@@ -13,4 +13,7 @@ public static class Extensions
 
 	public static bool Is<T>(this Type @this) => @this.Is(typeof(T));
 	public static bool Is(this Type @this, Type type) => type.IsAssignableFrom(@this);
+
+	// better safe than sorry
+	public static string FixCRLF(this string @this) => @this.Replace("\r\n", "\n");
 }

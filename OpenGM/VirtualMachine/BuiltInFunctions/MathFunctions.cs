@@ -300,7 +300,7 @@ public static partial class ScriptResolver
 			return text;
 		}
 
-		return text.Replace("#", Environment.NewLine);
+		return text.Replace('#', '\n');
 	}
 
 	public static object string_pos(object?[] args)
