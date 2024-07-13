@@ -10,7 +10,7 @@ public static class VariableResolver
 	public static void ArraySet(int index, object? value,
 		Func<IList<object?>?> getter,
 		Action<IList<object?>> setter,
-		bool setIndexToValue = true)
+		bool growOnly = true)
 	{
 		var array = getter();
 		if (array == null)
@@ -39,7 +39,7 @@ public static class VariableResolver
 			}
 		}
 
-		if (setIndexToValue)
+		if (growOnly)
 		{
 			array[index] = value;
 		}
