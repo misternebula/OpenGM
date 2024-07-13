@@ -200,7 +200,7 @@ public static partial class ScriptResolver
 		{ "camera_get_view_y", camera_get_view_y },
 		{ "camera_get_view_width", camera_get_view_width },
 		{ "camera_get_view_height", camera_get_view_height },
-		//{ "camera_get_view_target", camera_get_view_target },
+		{ "camera_get_view_target", camera_get_view_target },
 		{ "view_get_camera", view_get_camera },
 		#endregion
 
@@ -1442,7 +1442,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	/*public static object? camera_get_view_target(object?[] args)
+	public static object? camera_get_view_target(object?[] args)
 	{
 		var camera_id = args[0].Conv<int>();
 
@@ -1453,8 +1453,9 @@ public static partial class ScriptResolver
 		}
 
 		// TODO : this can apparently return either an instance id or object index????
-		return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
-	}*/
+		return null;
+		// return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
+	}
 
 	public static object? camera_set_view_pos(object?[] args)
 	{
