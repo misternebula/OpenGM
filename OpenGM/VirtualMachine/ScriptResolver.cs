@@ -270,6 +270,11 @@ public static partial class ScriptResolver
 		{ "string_lower", string_lower },
 		{ "sprite_get_xoffset", sprite_get_xoffset },
 		{ "sprite_get_yoffset", sprite_get_yoffset },
+		{ "degtorad", degtorad },
+		{ "radtodeg", radtodeg},
+		{ "sign", sign},
+		{ "sprite_get_width", sprite_get_width},
+		{ "sprite_get_height", sprite_get_height}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2435,6 +2440,39 @@ public static partial class ScriptResolver
 		var index = args[0].Conv<int>();
 		var sprite = SpriteManager._spriteDict[index];
 		return sprite.OriginY;
+	}
+
+	public static object degtorad(object?[] args)
+	{
+		var deg = args[0].Conv<double>();
+		return deg * double.Pi / 180;
+	}
+
+	public static object radtodeg(object?[] args)
+	{
+		var rad = args[0].Conv<double>();
+		return rad * 180 / double.Pi;
+	}
+
+	public static object sign(object?[] args)
+	{
+		// TODO : handle NaN somehow????
+		var n = args[0].Conv<double>();
+		return Math.Sign(n);
+	}
+
+	public static object sprite_get_width(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[index];
+		return sprite.Width;
+	}
+
+	public static object sprite_get_height(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[index];
+		return sprite.Height;
 	}
 }
 
