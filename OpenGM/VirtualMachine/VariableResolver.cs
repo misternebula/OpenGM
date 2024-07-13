@@ -9,7 +9,8 @@ public static class VariableResolver
 	/// </summary>
 	public static void ArraySet(int index, object? value,
 		Func<IList<object?>?> getter,
-		Action<IList<object?>> setter)
+		Action<IList<object?>> setter,
+		bool setIndexToValue = true)
 	{
 		var array = getter();
 		if (array == null)
@@ -20,6 +21,7 @@ public static class VariableResolver
 
 		if (index >= array.Count)
 		{
+			// no clue if this is correct
 			object? placeholder = value switch
 			{
 				int or short or long or float or double => 0,
@@ -29,7 +31,7 @@ public static class VariableResolver
 				null => null,
 				_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 			};
-			
+
 			var numToAdd = index - array.Count + 1;
 			for (var i = 0; i < numToAdd; i++)
 			{
@@ -37,7 +39,10 @@ public static class VariableResolver
 			}
 		}
 
-		array[index] = value;
+		if (setIndexToValue)
+		{
+			array[index] = value;
+		}
 	}
 
 	public static readonly Dictionary<string, object?> GlobalVariables = new();

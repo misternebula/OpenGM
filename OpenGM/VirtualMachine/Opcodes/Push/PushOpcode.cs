@@ -315,7 +315,8 @@ public static partial class VMExecutor
 					{
 						VariableResolver.ArraySet(index, new List<object?>(),
 							() => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as IList<object?> : null,
-							array => VariableResolver.GlobalVariables[variableName] = array);
+							array => VariableResolver.GlobalVariables[variableName] = array,
+							setIndexToValue: false);
 
 						var array = VariableResolver.GlobalVariables[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
@@ -325,7 +326,8 @@ public static partial class VMExecutor
 					{
 						VariableResolver.ArraySet(index, new List<object?>(),
 							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as IList<object?> : null,
-							array => Ctx.Locals[variableName] = array);
+							array => Ctx.Locals[variableName] = array,
+							setIndexToValue: false);
 
 						var array = Ctx.Locals[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
@@ -336,7 +338,8 @@ public static partial class VMExecutor
 						// TODO: check builtin self var
 						VariableResolver.ArraySet(index, new List<object?>(),
 							() => Ctx.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as IList<object?> : null,
-							array => Ctx.Self.SelfVariables[variableName] = array);
+							array => Ctx.Self.SelfVariables[variableName] = array,
+							setIndexToValue: false);
 
 						var array = Ctx.Self.SelfVariables[variableName].Conv<IList<object?>>();
 						Ctx.Stack.Push(array[index], VMType.v);
