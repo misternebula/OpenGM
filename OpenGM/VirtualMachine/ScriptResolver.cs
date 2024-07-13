@@ -1602,7 +1602,13 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			var soundAsset = AudioManager.GetAudioInstance(id)!;
+			var soundAsset = AudioManager.GetAudioInstance(id);
+			if (soundAsset == null)
+			{
+				DebugLog.LogWarning($"trying to stop sound {id} which does not exist.\n" +
+					$"it was probably either done playing or already stopped");
+				return null;
+			}
 			AL.SourceStop(soundAsset.Source);
 			AudioManager.CheckALError();
 		}
