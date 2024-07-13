@@ -58,7 +58,8 @@ public static class VariableResolver
 		{ "application_surface", (get_application_surface, null) },
 		{ "argument_count", (get_argument_count, null) },
 		// { "room_persistent", (get_room_persistent, set_room_persistent)},
-		{ "undefined", (get_undefined, null) }
+		{ "undefined", (get_undefined, null) },
+		{ "view_current", (get_view_current, null)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -88,7 +89,6 @@ public static class VariableResolver
 		{ "hspeed", (get_hspeed, set_hspeed) },
 		{ "vspeed", (get_vspeed, set_vspeed) },
 		{ "direction", (get_direction, set_direction) },
-		{ "view_current", (get_view_current, null) },
 		{ "persistent", (get_persistent, set_persistent) },
 		{ "id", (get_id, null) },
 		{ "gravity", (get_gravity, set_gravity) },
@@ -177,7 +177,7 @@ public static class VariableResolver
 	public static object get_direction(GamemakerObject instance) => instance.direction;
 	public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<double>();
 
-	public static object get_view_current(GamemakerObject instance) => 0; // TODO : aghhhhh viewports aghhh
+	public static object get_view_current() => 0; // TODO : aghhhhh viewports aghhh
 
 	public static object get_persistent(GamemakerObject instance) => instance.persistent;
 	public static void set_persistent(GamemakerObject instance, object? value) => instance.persistent = value.Conv<bool>();

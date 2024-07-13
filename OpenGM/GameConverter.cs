@@ -74,7 +74,9 @@ public static class GameConverter
 				asset.Name = code.Name.Content;
 			}
 
-			File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+			var serialized = JsonConvert.SerializeObject(asset, Formatting.Indented);
+			serialized = serialized.Replace("\\\\\\\"", "\\\""); // todo : this is dumb. fix this better.
+			File.WriteAllText(saveDirectory, serialized);
 		}
 		Console.WriteLine($" Done!");
 	}
