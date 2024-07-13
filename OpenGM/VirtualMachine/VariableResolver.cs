@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine;
+﻿using System.Collections;
+
+namespace OpenGM.VirtualMachine;
 
 public static class VariableResolver
 {
@@ -8,8 +10,8 @@ public static class VariableResolver
 	/// `getter` SHOULD NOT COPY.
 	/// </summary>
 	public static void ArraySet(int index, object? value,
-		Func<IList<object?>?> getter,
-		Action<IList<object?>> setter,
+		Func<IList?> getter,
+		Action<IList> setter,
 		bool onlyGrow = false)
 	{
 		var array = getter();
@@ -27,7 +29,7 @@ public static class VariableResolver
 				int or short or long or float or double => 0,
 				bool => false,
 				string => "",
-				IList<object?> => new List<object?>(),
+				IList => new List<object?>(),
 				null => null,
 				_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 			};
@@ -206,9 +208,9 @@ public static class VariableResolver
 	public static object get_application_surface() => SurfaceManager.application_surface;
 
 	public static object get_alarm(GamemakerObject instance) => instance.alarm;
-	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<object?[]>();
+	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().ToArray();
 
-	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList<object?>>().Count;
+	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>().Count;
 
 	public static object? get_undefined() => null;
 }

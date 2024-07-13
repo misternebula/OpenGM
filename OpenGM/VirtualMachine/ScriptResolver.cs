@@ -1899,7 +1899,7 @@ public static partial class ScriptResolver
 	{
 		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
-		return layer.Elements.Select(x => (object)x.instanceId).ToList();
+		return layer.Elements.Select(x => x.instanceId).ToList();
 	}
 
 	private static object layer_get_element_type(object?[] args)
@@ -2233,7 +2233,7 @@ public static partial class ScriptResolver
 
 		var asset = GameLoader.TexGroups[tex_id];
 
-		return asset.TexturePages.Cast<object?>().ToList();
+		return asset.TexturePages;
 	}
 
 	public static object? texture_prefetch(object?[] args)

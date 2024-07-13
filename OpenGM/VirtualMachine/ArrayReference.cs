@@ -13,7 +13,7 @@ namespace OpenGM.VirtualMachine;
 public class ArrayReference
 {
 	public string Name = null!;
-	public IList<object?> Value = null!;
+	public IList Value = null!;
 	public bool IsGlobal;
 	public bool IsLocal;
 	/// <summary>

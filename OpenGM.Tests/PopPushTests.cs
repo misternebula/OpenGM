@@ -50,7 +50,7 @@ public class PopPushTests
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testArray"));
 
-		var array = VariableResolver.GlobalVariables["testArray"].Conv<IList<object?>>();
+		var array = VariableResolver.GlobalVariables["testArray"].Conv<IList>();
 
 		Assert.AreEqual("Test String 0", array[0]);
 		Assert.AreEqual("Test String 1", array[1]);
@@ -77,9 +77,9 @@ public class PopPushTests
 
 		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("mdArray"));
 
-		var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList<object?>>();
+		var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList>();
 
-		Assert.AreEqual("Test String 1 1", array[1].Conv<IList<object?>>()[1]);
+		Assert.AreEqual("Test String 1 1", array[1].Conv<IList>()[1]);
 	}
 
 	[TestMethod]
@@ -139,8 +139,8 @@ public class PopPushTests
 			"""
 		);
 
-		var spell = VariableResolver.GlobalVariables["spell"].Conv<IList<object?>>();
-		var spellSubArray = spell[1].Conv<IList<object?>>();
+		var spell = VariableResolver.GlobalVariables["spell"].Conv<IList>();
+		var spellSubArray = spell[1].Conv<IList>();
 		Assert.IsTrue(spell.Count == 10);
 		Assert.IsTrue(spellSubArray.Count == 10);
 

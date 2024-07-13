@@ -79,7 +79,7 @@ public static partial class VMExecutor
 
 		if (args != null)
 		{
-			// conv should be able to handle list to array via casting to IList<object?>
+			// conv should be able to handle list to array via casting to IList
 			newCtx.Locals["arguments"] = args;
 		}
 
@@ -404,7 +404,7 @@ public static partial class VMExecutor
 			case VMOpcode.POPAF:
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<IList<object?>>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<IList>();
 				
 				var value = Ctx.Stack.Pop(VMType.v);
 				
@@ -418,7 +418,7 @@ public static partial class VMExecutor
 			case VMOpcode.PUSHAF: 
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<IList<object?>>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<IList>();
 
 				var value = array[index];
 
@@ -467,7 +467,7 @@ public static partial class VMExecutor
 
 			if (type.Is<string>()) return "";
 
-			if (type.Is<IList<object?>>()) return new List<object?>();
+			if (type.Is<IList>()) return new List<object?>();
 			*/
 
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
@@ -540,7 +540,7 @@ public static partial class VMExecutor
 				return isInt ? d.ToString("0") : (object)d.ToString("0.00");
 			}
 		} 
-		else if (@this is IList<object?> array && type.Is<IList<object?>>())
+		else if (@this is IList array && type.Is<IList>())
 		{
 			return array;
 		}
