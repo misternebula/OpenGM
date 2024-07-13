@@ -11,9 +11,6 @@ public static class Extensions
 			: new Color4(bytes[2], bytes[1], bytes[0], 255);
 	}
 
-	public static bool Is<T>(this Type @this) => @this.Is(typeof(T));
-	public static bool Is(this Type @this, Type type) => type.IsAssignableFrom(@this);
-
 	// better safe than sorry
 	public static string FixCRLF(this string @this) => @this.Replace("\r\n", "\n");
 }
