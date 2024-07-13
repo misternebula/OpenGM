@@ -522,7 +522,7 @@ public static partial class VMExecutor
 			{
 				var isInt = Math.Abs(d % 1) <= (double.Epsilon * 100);
 				// https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Strings/string.htm
-				return isInt ? d.ToString("0") : (object)d.ToString("0.00");
+				return isInt ? d.ToString("0") : d.ToString("0.00");
 			}
 		} 
 		else if (@this is IList array && type == typeof(IList))
