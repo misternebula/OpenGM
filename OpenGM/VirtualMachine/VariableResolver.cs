@@ -10,7 +10,7 @@ public static class VariableResolver
 	public static void ArraySet(int index, object? value,
 		Func<IList<object?>?> getter,
 		Action<IList<object?>> setter,
-		bool growOnly = true)
+		bool onlyGrow = false)
 	{
 		var array = getter();
 		if (array == null)
@@ -39,10 +39,9 @@ public static class VariableResolver
 			}
 		}
 
-		if (growOnly)
-		{
-			array[index] = value;
-		}
+		if (onlyGrow) return;
+
+		array[index] = value;
 	}
 
 	public static readonly Dictionary<string, object?> GlobalVariables = new();
