@@ -13,13 +13,13 @@ public static partial class ScriptResolver
 
 	public static object array_length_1d(object?[] args)
 	{
-		var array = args[0].Conv<IList<object?>>();
+		var array = args[0].Conv<IList>();
 		return array.Count;
 	}
 
 	public static object array_length(object?[] args)
 	{
-		var array = args[0].Conv<IList<object?>>();
+		var array = args[0].Conv<IList>();
 		return array.Count;
 	}
 
@@ -177,7 +177,7 @@ public static partial class ScriptResolver
 		{
 			// value
 
-			if (valueOrFormat is IList<object?> array)
+			if (valueOrFormat is IList array)
 			{
 				// array
 				// is any of this right? not sure.
@@ -300,7 +300,7 @@ public static partial class ScriptResolver
 			return text;
 		}
 
-		return text.Replace("#", Environment.NewLine);
+		return text.Replace('#', '\n');
 	}
 
 	public static object string_pos(object?[] args)

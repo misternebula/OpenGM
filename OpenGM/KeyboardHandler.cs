@@ -22,9 +22,18 @@ public class KeyboardHandler
 			KeyDown[i] = isDown;
 		}
 
+		// debug
 		if (state.IsKeyPressed(Keys.F1))
 		{
 			VMExecutor.VerboseStackLogs = !VMExecutor.VerboseStackLogs;
+		}
+		if (state.IsKeyDown(Keys.F2))
+		{
+			CustomWindow.Instance.UpdateFrequency = double.MaxValue;
+		}
+		else
+		{
+			CustomWindow.Instance.UpdateFrequency = Entry.GameSpeed;
 		}
 	}
 

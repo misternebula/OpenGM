@@ -1607,7 +1607,13 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			var soundAsset = AudioManager.GetAudioInstance(id)!;
+			var soundAsset = AudioManager.GetAudioInstance(id);
+			if (soundAsset == null)
+			{
+				DebugLog.LogWarning($"trying to stop sound {id} which does not exist.\n" +
+					$"it was probably either done playing or already stopped");
+				return null;
+			}
 			AL.SourceStop(soundAsset.Source);
 			AudioManager.CheckALError();
 		}
@@ -1904,7 +1910,7 @@ public static partial class ScriptResolver
 	{
 		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
-		return layer.Elements.Select(x => (object)x.instanceId).ToList();
+		return layer.Elements.Select(x => x.instanceId).ToList();
 	}
 
 	private static object layer_get_element_type(object?[] args)
@@ -2238,7 +2244,7 @@ public static partial class ScriptResolver
 
 		var asset = GameLoader.TexGroups[tex_id];
 
-		return asset.TexturePages.Cast<object?>().ToList();
+		return asset.TexturePages;
 	}
 
 	public static object? texture_prefetch(object?[] args)
@@ -2412,15 +2418,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object is_string(object?[] args)
-		=> args[0]?.GetType().Is<string>() ?? false;
+	public static object is_string(object?[] args) => args[0] is string;
 
-	public static object is_real(object?[] args)
-	{
-		var objType = args[0]?.GetType();
-		if (objType is null) return false;
-		return objType.Is<int>() || objType.Is<float>() || objType.Is<short>() || objType.Is<double>() || objType.Is<long>();
-	}
+	public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
 
 	public static object string_lower(object?[] args)
 	{

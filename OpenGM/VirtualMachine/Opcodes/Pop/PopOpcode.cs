@@ -24,7 +24,7 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index,
 			value,
-			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var array) ? array as IList<object?> : null,
+			() => VariableResolver.GlobalVariables.TryGetValue(varName, out var array) ? array as IList : null,
 			array => VariableResolver.GlobalVariables[varName] = array);
 	}
 
@@ -33,7 +33,7 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index,
 			value,
-			() => Ctx.Locals.TryGetValue(varName, out var array) ? array as IList<object?> : null,
+			() => Ctx.Locals.TryGetValue(varName, out var array) ? array as IList : null,
 			array => Ctx.Locals[varName] = array);
 	}
 
@@ -56,7 +56,7 @@ public static partial class VMExecutor
 			VariableResolver.ArraySet(
 				index,
 				value,
-				() => gettersetter.getter(self) as IList<object?>, // already did TryGetValue above
+				() => gettersetter.getter(self) as IList, // already did TryGetValue above
 				array => gettersetter.setter!(self, array));
 		}
 		else
@@ -64,7 +64,7 @@ public static partial class VMExecutor
 			VariableResolver.ArraySet(
 				index,
 				value,
-				() => self.SelfVariables.TryGetValue(varName, out var array) ? array as IList<object?> : null,
+				() => self.SelfVariables.TryGetValue(varName, out var array) ? array as IList : null,
 				array => self.SelfVariables[varName] = array);
 		}
 	}

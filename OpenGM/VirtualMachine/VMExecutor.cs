@@ -79,7 +79,7 @@ public static partial class VMExecutor
 
 		if (args != null)
 		{
-			// conv should be able to handle list to array via casting to IList<object?>
+			// conv should be able to handle list to array via casting to IList
 			newCtx.Locals["arguments"] = args;
 		}
 
@@ -404,7 +404,7 @@ public static partial class VMExecutor
 			case VMOpcode.POPAF:
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<IList<object?>>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<IList>();
 				
 				var value = Ctx.Stack.Pop(VMType.v);
 				
@@ -418,7 +418,7 @@ public static partial class VMExecutor
 			case VMOpcode.PUSHAF: 
 			{
 				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<IList<object?>>();
+				var array = Ctx.Stack.Pop(VMType.v).Conv<IList>();
 
 				var value = array[index];
 
@@ -455,25 +455,10 @@ public static partial class VMExecutor
 
 		if (@this is null)
 		{
-			/*
-			if (type.Is<int>()) return (int)0;
-			if (type.Is<short>()) return (short)0;
-			if (type.Is<long>()) return (long)0;
-			
-			if (type.Is<double>()) return (double)0;
-			if (type.Is<float>()) return (float)0;
-
-			if (type.Is<bool>()) return false;
-
-			if (type.Is<string>()) return "";
-
-			if (type.Is<IList<object?>>()) return new List<object?>();
-			*/
-
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
 
-		if (@this.GetType().Is(type))
+		if (@this.GetType() == type)
 		{
 			return @this;
 		}
@@ -485,62 +470,62 @@ public static partial class VMExecutor
 			// "numbers, minus signs, decimal points and exponential parts in the string are taken into account,
 			// while other characters (such as letters) will cause an error to be thrown."
 
-			if (type.Is<int>()) return int.Parse(s);
-			if (type.Is<short>()) return short.Parse(s);
-			if (type.Is<long>()) return long.Parse(s);
+			if (type == typeof(int)) return int.Parse(s);
+			if (type == typeof(short)) return short.Parse(s);
+			if (type == typeof(long)) return long.Parse(s);
 			
-			if (type.Is<double>()) return double.Parse(s);
-			if (type.Is<float>()) return float.Parse(s);
+			if (type == typeof(double)) return double.Parse(s);
+			if (type == typeof(float)) return float.Parse(s);
 			
-			if (type.Is<bool>()) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
+			if (type == typeof(bool)) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
 		}
 		else if (@this is int or long or short)
 		{
 			var l = Convert.ToInt64(@this); // can we cast instead?
 
-			if (type.Is<int>()) return (int)l;
-			if (type.Is<short>()) return (short)l;
-			if (type.Is<long>()) return (long)l;
+			if (type == typeof(int)) return (int)l;
+			if (type == typeof(short)) return (short)l;
+			if (type == typeof(long)) return (long)l;
 			
-			if (type.Is<double>()) return (double)l;
-			if (type.Is<float>()) return (float)l;
+			if (type == typeof(double)) return (double)l;
+			if (type == typeof(float)) return (float)l;
 			
-			if (type.Is<bool>()) return l > 0;
+			if (type == typeof(bool)) return l > 0;
 			
-			if (type.Is<string>()) return l.ToString(); // not sure if positive numbers need to have a "+" in front?
+			if (type == typeof(string)) return l.ToString(); // not sure if positive numbers need to have a "+" in front?
 		}
 		else if (@this is bool b)
 		{
-			if (type.Is<int>()) return (int)(b ? 1 : 0);
-			if (type.Is<long>()) return (long)(b ? 1 : 0);
-			if (type.Is<short>()) return (short)(b ? 1 : 0);
+			if (type == typeof(int)) return (int)(b ? 1 : 0);
+			if (type == typeof(long)) return (long)(b ? 1 : 0);
+			if (type == typeof(short)) return (short)(b ? 1 : 0);
 			
-			if (type.Is<double>()) return (double)(b ? 1 : 0);
-			if (type.Is<float>()) return (double)(b ? 1 : 0);
+			if (type == typeof(double)) return (double)(b ? 1 : 0);
+			if (type == typeof(float)) return (double)(b ? 1 : 0);
 			
-			if (type.Is<string>()) return b ? "1" : "0"; // GM represents bools as integers
+			if (type == typeof(string)) return b ? "1" : "0"; // GM represents bools as integers
 		}
 		else if (@this is double or float)
 		{
 			var d = Convert.ToDouble(@this);
 
-			if (type.Is<double>()) return (double)d;
-			if (type.Is<float>()) return (float)d;
+			if (type == typeof(double)) return (double)d;
+			if (type == typeof(float)) return (float)d;
 
-			if (type.Is<int>()) return (int)d;
-			if (type.Is<long>()) return (long)d;
-			if (type.Is<short>()) return (short)d;
+			if (type == typeof(int)) return (int)d;
+			if (type == typeof(long)) return (long)d;
+			if (type == typeof(short)) return (short)d;
 			
-			if (type.Is<bool>()) return d > 0.5; // https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm
+			if (type == typeof(bool)) return d > 0.5; // https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Variable_Functions/bool.htm
 
-			if (type.Is<string>())
+			if (type == typeof(string))
 			{
 				var isInt = Math.Abs(d % 1) <= (double.Epsilon * 100);
 				// https://manual.yoyogames.com/GameMaker_Language/GML_Reference/Strings/string.htm
-				return isInt ? d.ToString("0") : (object)d.ToString("0.00");
+				return isInt ? d.ToString("0") : d.ToString("0.00");
 			}
 		} 
-		else if (@this is IList<object?> array && type.Is<IList<object?>>())
+		else if (@this is IList array && type == typeof(IList))
 		{
 			return array;
 		}

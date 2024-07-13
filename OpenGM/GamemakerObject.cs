@@ -19,7 +19,7 @@ public class GamemakerObject : DrawWithDepth
 	public ObjectDefinition Definition;
 
 	public int object_index => Definition.AssetId;
-	public object?[] alarm = Enumerable.Repeat((object?)-1, 12).ToArray();
+	public object?[] alarm = Enumerable.Repeat((object?)-1, 12).ToArray(); // doubles will be ArraySet here
 
 	public bool persistent = false;
 	public double x;

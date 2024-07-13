@@ -1,6 +1,7 @@
 ﻿using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
@@ -75,7 +76,6 @@ public static class GameConverter
 			}
 
 			var serialized = JsonConvert.SerializeObject(asset, Formatting.Indented);
-			serialized = serialized.Replace("\\\\\\\"", "\\\""); // todo : this is dumb. fix this better.
 			File.WriteAllText(saveDirectory, serialized);
 		}
 		Console.WriteLine($" Done!");
@@ -83,7 +83,7 @@ public static class GameConverter
 
 	public static VMScript ConvertScript(string asmFile)
 	{
-		var asmFileLines = asmFile.Split(Environment.NewLine);
+		var asmFileLines = asmFile.FixCRLF().Split('\n');
 
 		var localVariables = new List<string>();
 
@@ -280,7 +280,11 @@ public static class GameConverter
 								var indexOfLast = value.LastIndexOf('@');
 								var removedAddress = value.Substring(0, indexOfLast);
 								var removedQuotes = removedAddress[1..^1];
-								var stringData = removedQuotes.Replace(@"\\", @"\");
+								// https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Strings/Strings.htm
+								var stringData = removedQuotes
+									.Replace(@"\n", "\n")
+									.Replace(@"\\", @"\")
+									.Replace("\\\"", "\"");
 								instruction.StringData = stringData;
 								break;
 							case VMType.i:
