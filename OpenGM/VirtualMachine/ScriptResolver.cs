@@ -267,7 +267,9 @@ public static partial class ScriptResolver
 		{ "buffer_delete", buffer_delete},
 		{ "is_string", is_string },
 		{ "is_real", is_real },
-		{ "string_lower", string_lower }
+		{ "string_lower", string_lower },
+		{ "sprite_get_xoffset", sprite_get_xoffset },
+		{ "sprite_get_yoffset", sprite_get_yoffset },
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2419,6 +2421,20 @@ public static partial class ScriptResolver
 	{
 		var str = args[0].Conv<string>();
 		return str.ToLower();
+	}
+
+	public static object sprite_get_xoffset(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[index];
+		return sprite.OriginX;
+	}
+
+	public static object sprite_get_yoffset(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[index];
+		return sprite.OriginY;
 	}
 }
 
