@@ -274,7 +274,8 @@ public static partial class ScriptResolver
 		{ "radtodeg", radtodeg},
 		{ "sign", sign},
 		{ "sprite_get_width", sprite_get_width},
-		{ "sprite_get_height", sprite_get_height}
+		{ "sprite_get_height", sprite_get_height},
+		{ "variable_instance_set", variable_instance_set}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2473,6 +2474,17 @@ public static partial class ScriptResolver
 		var index = args[0].Conv<int>();
 		var sprite = SpriteManager._spriteDict[index];
 		return sprite.Height;
+	}
+
+	public static object? variable_instance_set(object?[] args)
+	{
+		var instanceId = args[0].Conv<int>();
+		var name = args[1].Conv<string>();
+		var value = args[0];
+
+		var instance = InstanceManager.FindByInstanceId(instanceId)!;
+		instance.SelfVariables[name] = value;
+		return null;
 	}
 }
 
