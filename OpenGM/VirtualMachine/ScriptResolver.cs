@@ -276,7 +276,16 @@ public static partial class ScriptResolver
 		{ "sprite_get_width", sprite_get_width},
 		{ "sprite_get_height", sprite_get_height},
 		{ "variable_instance_set", variable_instance_set},
-		{ "chr", chr}
+		{ "chr", chr},
+		{ "date_current_datetime", date_current_datetime},
+		{ "date_get_year", date_get_year},
+		{ "date_get_month", date_get_month},
+		{ "date_get_day", date_get_day},
+		{ "date_get_weekday", date_get_weekday},
+		{ "date_get_week", date_get_week},
+		{ "date_get_hour", date_get_hour},
+		{ "date_get_minute", date_get_minute},
+		{ "date_get_second", date_get_second},
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2506,10 +2515,177 @@ public static partial class ScriptResolver
 			throw new NotImplementedException();
 		}
 	}
+
+	// basically copied from https://github.com/YoYoGames/GameMaker-HTML5/blob/965f410a6553dd8e2418006ebeda5a86bd55dba2/scripts/functions/Function_Date.js
+
+	const double MILLISECONDS_IN_A_DAY = 86400000.0;
+	const double DAYS_SINCE_1900 = 25569;
+	private static readonly int[] monthlen = new[] { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	private static int DayOfYear(Date d)
+	{
+		var day = 0;
+		if (_useLocalTime)
+		{
+			var monthlens = GetMonthLengths(d.GetFullYear());
+			for (var i = 0; i < d.GetMonth(); i++)
+				day += monthlens[i];
+			day += d.GetDate();
+		}
+		else
+		{
+			var monthlens = GetMonthLengths(d.GetUTCFullYear());
+			for (var i = 0; i < d.GetUTCMonth(); i++)
+				day += monthlens[i];
+			day += d.GetUTCDate();
+		}
+
+		return day;
+	}
+
+	private static int[] GetMonthLengths(int year)
+	{
+		var monthLengths = monthlen.ToArray(); // copy array
+		if (IsLeapYear(year))
+		{
+			monthLengths[1] = 29;
+		}
+		return monthLengths;
+	}
+
+	private static bool IsLeapYear(int year)
+	{
+		return year % 400 == 0 || (year % 100 != 0 && year % 4 == 0);
+	}
+
+	private static double FromGMDateTime(double dateTime) => dateTime < DAYS_SINCE_1900
+			? dateTime * MILLISECONDS_IN_A_DAY
+			: (dateTime - DAYS_SINCE_1900) * MILLISECONDS_IN_A_DAY;
+
+	private static bool _useLocalTime = false;
+
+	public static object date_current_datetime(object?[] args)
+	{
+		var dt = new Date();
+		var mm = dt.GetMilliseconds();
+		var t = dt.GetTime() - mm;
+		return (t / MILLISECONDS_IN_A_DAY) + DAYS_SINCE_1900;
+	}
+
+	public static object date_get_year(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetFullYear() : d.GetUTCFullYear();
+	}
+
+	public static object date_get_month(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetMonth() + 1 : d.GetUTCMonth() + 1;
+	}
+
+	public static object date_get_day(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetDate() : d.GetUTCDate();
+	}
+
+	public static object date_get_weekday(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetDay() : d.GetUTCDay();
+	}
+
+	public static object date_get_week(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		var w = DayOfYear(d);
+		return CustomMath.FloorToInt(w / 7.0);
+	}
+
+	public static object date_get_hour(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetHours() : d.GetUTCHours();
+	}
+
+	public static object date_get_minute(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetMinutes() : d.GetUTCMinutes();
+	}
+
+	public static object date_get_second(object?[] args)
+	{
+		var time = args[0].Conv<double>();
+		var d = new Date();
+		d.SetTime(FromGMDateTime(time));
+
+		return _useLocalTime ? d.GetSeconds() : d.GetUTCSeconds();
+	}
 }
 
 public class FileHandle
 {
 	public StreamReader? Reader;
 	public StreamWriter? Writer;
+}
+
+// wrapper around c# datetime stuff that emulates JS Date stuff because im really lazy
+// TODO : get rid of this
+public class Date
+{
+	private DateTime _utcDate = DateTime.Now;
+
+	public int GetMilliseconds() => _utcDate.ToLocalTime().Millisecond;
+
+	public long GetTime() => new DateTimeOffset(_utcDate).ToUnixTimeMilliseconds();
+
+	public void SetTime(double ms)
+	{
+		_utcDate = DateTime.UnixEpoch;
+		_utcDate = _utcDate.AddMilliseconds(ms);
+	}
+
+	public int GetFullYear() => _utcDate.ToLocalTime().Year;
+	public int GetUTCFullYear() => _utcDate.Year;
+
+	public int GetMonth() => _utcDate.ToLocalTime().Month - 1;
+	public int GetUTCMonth() => _utcDate.Month - 1;
+
+	public int GetDate() => _utcDate.ToLocalTime().Day;
+	public int GetUTCDate() => _utcDate.Day;
+
+	public int GetDay() => (int)_utcDate.ToLocalTime().DayOfWeek;
+	public int GetUTCDay() => (int)_utcDate.DayOfWeek;
+
+	public int GetHours() => _utcDate.ToLocalTime().Hour;
+	public int GetUTCHours() => _utcDate.Hour;
+
+	public int GetMinutes() => _utcDate.ToLocalTime().Minute;
+	public int GetUTCMinutes() => _utcDate.Minute;
+
+	public int GetSeconds() => _utcDate.ToLocalTime().Second;
+	public int GetUTCSeconds() => _utcDate.Second;
 }
