@@ -267,11 +267,33 @@ public static partial class VMExecutor
 
 					if (instruction.Comparison == VMComparison.EQ)
 					{
-						Ctx.Stack.Push(first?.Equals(second), VMType.b);
+						if (first is null && second is null)
+						{
+							Ctx.Stack.Push(true, VMType.b);
+						}
+						else if (first is null || second is null)
+						{
+							Ctx.Stack.Push(false, VMType.b);
+						}
+						else
+						{
+							Ctx.Stack.Push(first?.Equals(second), VMType.b);
+						}
 					}
 					else if (instruction.Comparison == VMComparison.NEQ)
 					{
-						Ctx.Stack.Push(!first?.Equals(second), VMType.b);
+						if (first is null && second is null)
+						{
+							Ctx.Stack.Push(false, VMType.b);
+						}
+						else if (first is null || second is null)
+						{
+							Ctx.Stack.Push(true, VMType.b);
+						}
+						else
+						{
+							Ctx.Stack.Push(!first?.Equals(second), VMType.b);
+						}
 					}
 					else
 					{
