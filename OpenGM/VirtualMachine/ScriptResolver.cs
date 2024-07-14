@@ -275,7 +275,8 @@ public static partial class ScriptResolver
 		{ "sign", sign},
 		{ "sprite_get_width", sprite_get_width},
 		{ "sprite_get_height", sprite_get_height},
-		{ "variable_instance_set", variable_instance_set}
+		{ "variable_instance_set", variable_instance_set},
+		{ "chr", chr}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2485,6 +2486,25 @@ public static partial class ScriptResolver
 		var instance = InstanceManager.FindByInstanceId(instanceId)!;
 		instance.SelfVariables[name] = value;
 		return null;
+	}
+
+	public static object chr(object?[] args)
+	{
+		var val = args[0].Conv<int>();
+
+		// TODO : "This character depends on the current drawing fonts character set code page and if no font is set, it will use the default code page for the machine."
+		// what the fuck does this mean
+
+		var currentFont = TextManager.fontAsset;
+
+		if (currentFont.entriesDict.ContainsKey(val))
+		{
+			return Convert.ToChar(val).ToString();
+		}
+		else
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
 
