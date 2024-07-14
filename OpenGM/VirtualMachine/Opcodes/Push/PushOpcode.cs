@@ -112,6 +112,12 @@ public static partial class VMExecutor
 		Ctx.Stack.Push(value, VMType.v);
 	}
 
+	public static void PushBuiltinArrayIndex(string varName, int index)
+	{
+		var array = VariableResolver.BuiltInVariables[varName].getter().Conv<IList>();
+		Ctx.Stack.Push(array[index], VMType.v);
+	}
+
 	public static void PushSelf(GamemakerObject self, string varName)
 	{
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
@@ -280,6 +286,11 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.self)
 					{
 						PushSelfArrayIndex(Ctx.Self, variableName, index);
+						return (ExecutionResult.Success, null);
+					}
+					else if (instanceId == GMConstants.builtin)
+					{
+						PushBuiltinArrayIndex(variableName, index);
 						return (ExecutionResult.Success, null);
 					}
 					else
