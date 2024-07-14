@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections;
 
 namespace OpenGM.VirtualMachine;
 
@@ -61,7 +62,9 @@ public static class VariableResolver
 		{ "argument_count", (get_argument_count, null) },
 		// { "room_persistent", (get_room_persistent, set_room_persistent)},
 		{ "undefined", (get_undefined, null) },
-		{ "view_current", (get_view_current, null)}
+		{ "view_current", (get_view_current, null)},
+		{ "view_wport", (get_view_wport, set_view_wport)},
+		{ "pointer_null", (get_pointer_null, null)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -213,4 +216,9 @@ public static class VariableResolver
 	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>().Count;
 
 	public static object? get_undefined() => null;
+
+	public static object get_view_wport() => ViewportManager.view_wport;
+	public static void set_view_wport(object? value) => ViewportManager.view_wport = value.Conv<IList>().Cast<int>().ToArray();
+
+	public static object? get_pointer_null() => null;
 }
