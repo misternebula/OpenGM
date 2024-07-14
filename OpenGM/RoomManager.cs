@@ -130,7 +130,8 @@ public static class RoomManager
 			CurrentRoom.Layers.Add((int)layerContainer.ID, layerContainer);
 		}
 
-		foreach (var obj in InstanceManager.instances)
+		var currentInstances = InstanceManager.instances.ToList();
+		foreach (var obj in currentInstances)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
