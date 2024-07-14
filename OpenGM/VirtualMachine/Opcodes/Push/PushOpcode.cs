@@ -147,6 +147,15 @@ public static partial class VMExecutor
 	public static void PushArgument(int index)
 	{
 		var arguments = Ctx.Locals["arguments"].Conv<IList>();
+
+		if (index >= arguments.Count)
+		{
+			// Scripts can be called with fewer than normal arguments.
+			// They just get set to Undefined.
+			Ctx.Stack.Push(null, VMType.v);
+			return;
+		}
+
 		Ctx.Stack.Push(arguments[index], VMType.v);
 	}
 

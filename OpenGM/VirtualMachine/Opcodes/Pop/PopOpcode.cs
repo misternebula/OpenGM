@@ -92,6 +92,19 @@ public static partial class VMExecutor
 		PopToSelf(instance, varName, value);
 	}
 
+	public static void PopToArgument(int index, object? value)
+	{
+		var args = (object?[])Ctx.Locals["arguments"].Conv<IList>();
+
+		if (index >= args.Length)
+		{
+			Array.Resize(ref args, index + 1);
+		}
+		
+		args[index] = value;
+		Ctx.Locals["arguments"] = args;
+	}
+
 	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -125,6 +138,13 @@ public static partial class VMExecutor
 			else if (variableType == VariableType.Index)
 			{
 				PopToIndex(assetId, variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Argument)
+			{
+				var strIndex = variableName[8..]; // skip "argument"
+				var index = int.Parse(strIndex);
+				PopToArgument(index, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
