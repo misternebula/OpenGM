@@ -118,11 +118,11 @@ public static partial class VMExecutor
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
-	public static void PushSelf(GamemakerObject self, string varName)
+	public static void PushSelf(IStackContextSelf self, string varName)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
 		{
-			Ctx.Stack.Push(gettersetter.getter(self), VMType.v);
+			Ctx.Stack.Push(gettersetter.getter(gm), VMType.v);
 		}
 		else
 		{
@@ -130,11 +130,11 @@ public static partial class VMExecutor
 		}
 	}
 
-	public static void PushSelfArrayIndex(GamemakerObject self, string varName, int index)
+	public static void PushSelfArrayIndex(IStackContextSelf self, string varName, int index)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
 		{
-			var array = gettersetter.getter(self).Conv<IList>();
+			var array = gettersetter.getter(gm).Conv<IList>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 		else
@@ -195,7 +195,26 @@ public static partial class VMExecutor
 		switch (instruction.TypeOne)
 		{
 			case VMType.i:
-				Ctx.Stack.Push(instruction.IntData, VMType.i);
+
+				if (instruction.StringData != null)
+				{
+					if (AssetIndexManager.NameToIndex.ContainsKey(instruction.StringData))
+					{
+						Ctx.Stack.Push(AssetIndexManager.NameToIndex[instruction.StringData], VMType.i);
+					}
+					else if (instruction.StringData.StartsWith($"gml_Script_"))
+					{
+						Ctx.Stack.Push(ScriptResolver.ScriptFunctions.Keys.ToList().IndexOf(instruction.StringData), VMType.i);
+					}
+					else
+					{
+						throw new NotImplementedException();
+					}
+				}
+				else
+				{
+					Ctx.Stack.Push(instruction.IntData, VMType.i);
+				}
 				return (ExecutionResult.Success, null);
 			case VMType.e:
 				Ctx.Stack.Push(instruction.ShortData, VMType.e);
@@ -404,7 +423,17 @@ public static partial class VMExecutor
 
 				if (id == GMConstants.stacktop)
 				{
-					id = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					var popped = Ctx.Stack.Pop(VMType.v);
+
+					if (popped is GMLObject gmlo)
+					{
+						PushSelf(gmlo, variableName);
+						return (ExecutionResult.Success, null);
+					}
+					else
+					{
+						id = popped.Conv<int>();
+					}
 				}
 
 				PushIndex(id, variableName);

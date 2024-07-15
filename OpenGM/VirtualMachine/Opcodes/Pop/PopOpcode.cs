@@ -37,11 +37,11 @@ public static partial class VMExecutor
 			array => Ctx.Locals[varName] = array);
 	}
 
-	public static void PopToSelf(GamemakerObject self, string varName, object? value)
+	public static void PopToSelf(IStackContextSelf self, string varName, object? value)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
 		{
-			gettersetter.setter!(self, value);
+			gettersetter.setter!(gm, value);
 		}
 		else
 		{
@@ -49,15 +49,15 @@ public static partial class VMExecutor
 		}
 	}
 
-	public static void PopToSelfArray(GamemakerObject self, string varName, int index, object? value)
+	public static void PopToSelfArray(IStackContextSelf self, string varName, int index, object? value)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter))
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
 		{
 			VariableResolver.ArraySet(
 				index,
 				value,
-				() => gettersetter.getter(self) as IList, // already did TryGetValue above
-				array => gettersetter.setter!(self, array));
+				() => gettersetter.getter(gm) as IList, // already did TryGetValue above
+				array => gettersetter.setter!(gm, array));
 		}
 		else
 		{
@@ -220,6 +220,7 @@ public static partial class VMExecutor
 		else if (variablePrefix == VariablePrefix.Stacktop)
 		{
 			// TODO : Check if 'self' is the only context where [stacktop] is used.
+			// TODO : clean this shit up lol
 
 			if (variableType == VariableType.Self)
 			{
@@ -233,7 +234,17 @@ public static partial class VMExecutor
 					id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
 					{
-						id = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						var popped = Ctx.Stack.Pop(VMType.v);
+
+						if (popped is GMLObject gmlo)
+						{
+							PopToSelf(gmlo, variableName, value);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							id = popped.Conv<int>();
+						}
 					}
 				}
 				else
@@ -241,7 +252,18 @@ public static partial class VMExecutor
 					id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
 					{
-						id = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						var popped = Ctx.Stack.Pop(VMType.v);
+
+						if (popped is GMLObject gmlo)
+						{
+							value = Ctx.Stack.Pop(instruction.TypeTwo);
+							PopToSelf(gmlo, variableName, value);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							id = popped.Conv<int>();
+						}
 					}
 
 					value = Ctx.Stack.Pop(instruction.TypeTwo);

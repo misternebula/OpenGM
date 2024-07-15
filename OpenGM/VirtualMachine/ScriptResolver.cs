@@ -286,6 +286,7 @@ public static partial class ScriptResolver
 		{ "date_get_hour", date_get_hour},
 		{ "date_get_minute", date_get_minute},
 		{ "date_get_second", date_get_second},
+		{ "@@NewGMLObject@@", newgmlobject }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -318,11 +319,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	
-
 	public static object newgmlarray(object?[] args)
 	{
-		return new List<object?>();
+		return args;
 	}
 
 	public static object asset_get_index(object?[] args)
@@ -338,7 +337,7 @@ public static partial class ScriptResolver
 			return null;
 		}
 
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
+		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
 		return null;
 	}
 
@@ -1236,7 +1235,7 @@ public static partial class ScriptResolver
 
 	public static object? draw_self(object?[] args)
 	{
-		SpriteManager.DrawSelf(VMExecutor.Ctx.Self);
+		SpriteManager.DrawSelf(VMExecutor.Ctx.GMSelf);
 		return null;
 	}
 
@@ -1732,7 +1731,7 @@ public static partial class ScriptResolver
 	public static object? event_user(object?[] args)
 	{
 		var numb = args[0].Conv<int>();
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
+		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null;
 	}
 
@@ -1742,7 +1741,7 @@ public static partial class ScriptResolver
 		var scriptArgs = args[1..];
 
 		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
-		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
+		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
 	}
 
 	public static object? draw_line_width(object?[] args)
@@ -2246,7 +2245,7 @@ public static partial class ScriptResolver
 			objToCheck = InstanceManager.FindByInstanceId(obj)!;
 		}
 
-		return CollisionManager.DistanceToObject(VMExecutor.Ctx.Self, objToCheck);
+		return CollisionManager.DistanceToObject(VMExecutor.Ctx.GMSelf, objToCheck);
 	}
 
 	public static object texturegroup_get_textures(object?[] args)
@@ -2643,6 +2642,20 @@ public static partial class ScriptResolver
 		d.SetTime(FromGMDateTime(time));
 
 		return _useLocalTime ? d.GetSeconds() : d.GetUTCSeconds();
+	}
+
+	public static object? newgmlobject(object?[] args)
+	{
+		DebugLog.Log($"@@NewGMLObject@@");
+		var constructorIndex = args[0].Conv<int>();
+		var values = args[1..];
+		var obj = new GMLObject();
+
+		var (script, instructionIndex) = ScriptFunctions[ScriptFunctions.Keys.ToList()[constructorIndex]];
+		DebugLog.Log($" - Constructor: {script.Name} Index: {instructionIndex}");
+		var ret = VMExecutor.ExecuteScript(script, obj, args: values, startingIndex: instructionIndex);
+
+		return obj;
 	}
 }
 

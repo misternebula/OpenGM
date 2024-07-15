@@ -9,7 +9,8 @@ namespace OpenGM.VirtualMachine;
 /// </summary>
 public class VMScriptExecutionContext
 {
-	public GamemakerObject Self = null!; // can be null for global scripts but those shouldnt run functions that need it
+	public IStackContextSelf Self = null!; // can be null for global scripts but those shouldnt run functions that need it
+	public GamemakerObject GMSelf => (GamemakerObject)Self;
 	public ObjectDefinition? ObjectDefinition;
 	public DataStack Stack = null!;
 	public Dictionary<string, object?> Locals = null!;
@@ -24,13 +25,20 @@ public class VMScriptExecutionContext
 			return "NULL SELF";
 		}
 
-		var ret = $"{Self.object_index} ({Self.instanceId})\r\nStack:";
-		foreach (var item in Stack)
+		if (Self is GamemakerObject gm)
 		{
-			ret += $"- {item}\r\n";
-		}
+			var ret = $"{gm.object_index} ({gm.instanceId})\r\nStack:";
+			foreach (var item in Stack)
+			{
+				ret += $"- {item}\r\n";
+			}
 
-		return ret;
+			return ret;
+		}
+		else
+		{
+			return $"Self: {Self.GetType()}";
+		}
 	}
 }
 
@@ -46,7 +54,7 @@ public static partial class VMExecutor
 	public static Stack<VMScript> currentExecutingScript = new();
 	public static bool VerboseStackLogs = true;
 
-	public static object? ExecuteScript(VMScript script, GamemakerObject? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
+	public static object? ExecuteScript(VMScript script, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
 		if (script.Instructions.Count == 0)
 		{
@@ -353,14 +361,14 @@ public static partial class VMExecutor
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.Self, Ctx.ObjectDefinition, args: args), VMType.v);
+					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.GMSelf, Ctx.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
-					Ctx.Stack.Push(ExecuteScript(script, Ctx.Self, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
+					Ctx.Stack.Push(ExecuteScript(script, Ctx.GMSelf, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
 					break;
 				}
 

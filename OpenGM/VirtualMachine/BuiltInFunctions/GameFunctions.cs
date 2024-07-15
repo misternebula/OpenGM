@@ -21,11 +21,11 @@ public static partial class ScriptResolver
 
 		if (obj < GMConstants.FIRST_INSTANCE_ID)
 		{
-			return CollisionManager.place_meeting_assetid(x, y, obj, VMExecutor.Ctx.Self);
+			return CollisionManager.place_meeting_assetid(x, y, obj, VMExecutor.Ctx.GMSelf);
 		}
 		else
 		{
-			return CollisionManager.place_meeting_instanceid(x, y, obj, VMExecutor.Ctx.Self);
+			return CollisionManager.place_meeting_instanceid(x, y, obj, VMExecutor.Ctx.GMSelf);
 		}
 	}
 
@@ -35,8 +35,8 @@ public static partial class ScriptResolver
 		var targety = args[1].Conv<double>();
 		var sp = args[2].Conv<double>();
 
-		VMExecutor.Ctx.Self.direction = (double)point_direction(VMExecutor.Ctx.Self.x, VMExecutor.Ctx.Self.y, targetx, targety);
-		VMExecutor.Ctx.Self.speed = sp;
+		VMExecutor.Ctx.GMSelf.direction = (double)point_direction(VMExecutor.Ctx.GMSelf.x, VMExecutor.Ctx.GMSelf.y, targetx, targety);
+		VMExecutor.Ctx.GMSelf.speed = sp;
 
 		return null;
 	}
@@ -46,9 +46,9 @@ public static partial class ScriptResolver
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
 
-		var self = VMExecutor.Ctx.Self;
+		var self = VMExecutor.Ctx.GMSelf;
 
-		if (VMExecutor.Ctx.Self.mask_id == -1 && VMExecutor.Ctx.Self.sprite_index == -1)
+		if (VMExecutor.Ctx.GMSelf.mask_id == -1 && VMExecutor.Ctx.GMSelf.sprite_index == -1)
 		{
 			// TODO : Docs just say this means the result will be "incorrect". Wtf does that mean???
 			// just assuming it does point_distance
@@ -86,11 +86,11 @@ public static partial class ScriptResolver
 
 		if (obj < GMConstants.FIRST_INSTANCE_ID)
 		{
-			return CollisionManager.collision_rectangle_assetid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.Self);
+			return CollisionManager.collision_rectangle_assetid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.GMSelf);
 		}
 		else
 		{
-			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.Self);
+			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.GMSelf);
 		}
 	}
 
@@ -130,9 +130,9 @@ public static partial class ScriptResolver
 	{
 		if (args.Length == 0)
 		{
-			GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.Destroy);
-			GamemakerObject.ExecuteScript(VMExecutor.Ctx.Self, VMExecutor.Ctx.ObjectDefinition, EventType.CleanUp);
-			InstanceManager.instance_destroy(VMExecutor.Ctx.Self);
+			GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Destroy);
+			GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.CleanUp);
+			InstanceManager.instance_destroy(VMExecutor.Ctx.GMSelf);
 			return null;
 		}
 

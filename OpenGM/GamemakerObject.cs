@@ -9,12 +9,12 @@ namespace OpenGM;
 /// <summary>
 /// instance of an ObjectDefinition
 /// </summary>
-public class GamemakerObject : DrawWithDepth
+public class GamemakerObject : DrawWithDepth, IStackContextSelf
 {
 	/// <summary>
 	/// CHECK BUILTIN SELF VARS BEFORE THIS!!
 	/// </summary>
-	public Dictionary<string, object?> SelfVariables = new();
+	public Dictionary<string, object?> SelfVariables { get; } = new();
 
 	public ObjectDefinition Definition;
 
