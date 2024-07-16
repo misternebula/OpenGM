@@ -91,6 +91,7 @@ public static partial class ScriptResolver
 		{ "draw_set_halign", draw_set_halign },
 		{ "draw_set_valign", draw_set_valign },
 		{ "string_width", string_width },
+		{ "string_height", string_height },
 		{ "draw_text", draw_text },
 		{ "draw_text_transformed", draw_text_transformed },
 		{ "draw_text_color", draw_text_colour },
@@ -286,7 +287,8 @@ public static partial class ScriptResolver
 		{ "date_get_hour", date_get_hour},
 		{ "date_get_minute", date_get_minute},
 		{ "date_get_second", date_get_second},
-		{ "@@NewGMLObject@@", newgmlobject }
+		{ "@@NewGMLObject@@", newgmlobject },
+		{ "mouse_check_button_pressed", mouse_check_button_pressed}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -1730,6 +1732,27 @@ public static partial class ScriptResolver
 		return TextManager.StringWidth(str);
 	}
 
+	public static object string_height(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+
+		if (TextManager.fontAsset == null)
+		{
+			return 1;
+		}
+
+		var lines = TextManager.SplitText(str, -1, TextManager.fontAsset);
+		var textHeight = TextManager.TextHeight(str);
+		if (lines == null)
+		{
+			return textHeight;
+		}
+		else
+		{
+			return textHeight * lines.Count;
+		}
+	}
+
 	public static object? event_user(object?[] args)
 	{
 		var numb = args[0].Conv<int>();
@@ -2658,6 +2681,12 @@ public static partial class ScriptResolver
 		var ret = VMExecutor.ExecuteScript(script, obj, args: values, startingIndex: instructionIndex);
 
 		return obj;
+	}
+
+	public static object mouse_check_button_pressed(object?[] args)
+	{
+		var numb = args[0].Conv<int>();
+		return KeyboardHandler.MousePressed[numb];
 	}
 }
 
