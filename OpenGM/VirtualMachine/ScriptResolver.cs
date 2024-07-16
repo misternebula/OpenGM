@@ -1765,7 +1765,15 @@ public static partial class ScriptResolver
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = Scripts.First(x => x.Value.AssetId == scriptAssetId).Value;
+		var script = Scripts.FirstOrDefault(x => x.Value.AssetId == scriptAssetId).Value;
+
+		if (script == default)
+		{
+			(script, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
+
+			return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs, startingIndex: index);
+		}
+
 		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
 	}
 
