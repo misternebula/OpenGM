@@ -64,7 +64,7 @@ public static class RoomManager
 
 		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
 
-		var createdObjects = new List<GamemakerObject>();
+		var createdObjects = new List<(GamemakerObject gm, int pcc, int cc)>();
 
 		foreach (var item in TileManager.Tiles)
 		{
@@ -94,8 +94,8 @@ public static class RoomManager
 					newGM.image_yscale = item.ScaleY;
 					newGM.image_blend = (int)item.Color;
 					newGM.image_angle = item.Rotation;
-					
-					createdObjects.Add(newGM);
+
+					createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
 
 					layerContainer.Elements.Add(newGM);
 				}
@@ -136,14 +136,44 @@ public static class RoomManager
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
 
-		foreach (var obj in createdObjects)
+		foreach (var (obj, pcc, cc) in createdObjects)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.PreCreate);
 		}
 
-		foreach (var obj in createdObjects)
+		foreach (var (obj, pcc, cc) in createdObjects)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Create);
+		}
+
+		VMScript? GetVMScriptFromCodeIndex(int codeIndex)
+		{
+			if (codeIndex == -1)
+			{
+				return null;
+			}
+
+			return ScriptResolver.Scripts.Values.Single(x => x.AssetId == codeIndex);
+		}
+
+		foreach (var (obj, pcc, cc) in createdObjects)
+		{
+			var preCreateCode = GetVMScriptFromCodeIndex(pcc);
+			if (preCreateCode != null)
+			{
+				DebugLog.LogInfo($"RUNNING PCC {preCreateCode.Name}");
+				VMExecutor.ExecuteScript(preCreateCode, obj, obj.Definition);
+			}
+		}
+
+		foreach (var (obj, pcc, cc) in createdObjects)
+		{
+			var createCode = GetVMScriptFromCodeIndex(cc);
+			if (createCode != null)
+			{
+				DebugLog.LogInfo($"RUNNING CC {createCode.Name}");
+				VMExecutor.ExecuteScript(createCode, obj, obj.Definition);
+			}
 		}
 
 		DebugLog.LogInfo($"- Finished room change.");
