@@ -905,7 +905,8 @@ public static partial class ScriptResolver
 			AssetIndex = index,
 			name = $"fnt_{spriteAsset.Name}",
 			spriteIndex = spriteAssetIndex,
-			sep = sep
+			sep = sep,
+			Size = spriteAsset.Width
 		};
 
 		for (var i = 0; i < string_map.Length; i++)
