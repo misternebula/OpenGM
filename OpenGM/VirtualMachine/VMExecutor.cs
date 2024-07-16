@@ -305,7 +305,29 @@ public static partial class VMExecutor
 					}
 					else
 					{
-						return (ExecutionResult.Failed, $"cant cmp {instruction.Comparison} on {first?.GetType()} {first} and {second?.GetType()} {second}");
+						var firstValue = first is string s1 ? double.Parse(s1) : first.Conv<double>();
+						var secondValue = second is string s2 ? double.Parse(s2) : second.Conv<double>();
+
+						switch (instruction.Comparison)
+						{
+							case VMComparison.LT:
+								Ctx.Stack.Push(firstValue < secondValue, VMType.b);
+								break;
+							case VMComparison.LTE:
+								Ctx.Stack.Push(firstValue <= secondValue, VMType.b);
+								break;
+							case VMComparison.GTE:
+								Ctx.Stack.Push(firstValue >= secondValue, VMType.b);
+								break;
+							case VMComparison.GT:
+								Ctx.Stack.Push(firstValue > secondValue, VMType.b);
+								break;
+							case VMComparison.None:
+							default:
+								throw new ArgumentOutOfRangeException();
+						}
+
+						//return (ExecutionResult.Failed, $"cant cmp {instruction.Comparison} on {first?.GetType()} {first} and {second?.GetType()} {second}");
 					}
 				}
 				break;
