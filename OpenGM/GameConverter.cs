@@ -756,6 +756,9 @@ public static class GameConverter
 			var fontAsset = new FontAsset();
 			fontAsset.name = item.Name.Content;
 			fontAsset.AssetIndex = data.Fonts.IndexOf(item);
+			fontAsset.Size = (float)item.EmSize;
+			fontAsset.ScaleX = item.ScaleX;
+			fontAsset.ScaleY = item.ScaleY;
 
 			var pageItem = new SpritePageItem
 			{

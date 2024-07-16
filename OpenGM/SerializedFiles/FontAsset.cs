@@ -21,6 +21,10 @@ public class FontAsset
 	/// </summary>
 	public SpritePageItem? texture;
 
+	public float Size;
+	public double ScaleX;
+	public double ScaleY;
+
 	public List<Glyph> entries = new();
 	public Dictionary<int, Glyph> entriesDict = new();
 }
