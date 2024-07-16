@@ -676,8 +676,9 @@ public static partial class ScriptResolver
 		var val = args[1];
 		var writer = _fileHandles[fileid].Writer!;
 
-		if (val is not int and not double and not float)
+		if (val is not int and not double and not float and not long and not short)
 		{
+			DebugLog.LogError($"file_text_write_real got {val} ({val!.GetType()}) instead of a real!");
 			// i have no fucking idea
 			writer.Write(0);
 			return null;
