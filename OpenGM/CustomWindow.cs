@@ -93,6 +93,7 @@ public class CustomWindow : GameWindow
 
 		GL.Enable(EnableCap.Blend);
 
+		KeyboardHandler.UpdateMouseState(MouseState);
 		KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
 		RenderJobs.Clear();

@@ -10,9 +10,28 @@ public class KeyboardHandler
 	public static bool[] KeyPressed = new bool[256];
 	public static bool[] KeyReleased = new bool[256];
 
+	public static bool[] MouseDown = new bool[5];
+	public static bool[] MousePressed = new bool[5];
+	public static bool[] MouseReleased = new bool[5];
+
+	public static void UpdateMouseState(MouseState state)
+	{
+		var mouseButtons = new[] { MouseButton.Left, MouseButton.Middle, MouseButton.Right, MouseButton.Button1, MouseButton.Button2 };
+
+		for (var i = 0; i < 5; i++)
+		{
+			var isDown = state.IsButtonDown(mouseButtons[i]);
+			var wasDown = MouseDown[i];
+
+			MousePressed[i] = isDown && !wasDown;
+			MouseReleased[i] = !isDown && wasDown;
+			MouseDown[i] = isDown;
+		}
+	}
+
 	public static void UpdateKeyboardState(KeyboardState state)
 	{
-		for (var i = 0; i <= 255; i++)
+		for (var i = 0; i < 256; i++)
 		{
 			var isDown = CustomWindow.Instance.IsFocused && IsKeyDown(i);
 			var wasDown = KeyDown[i];
@@ -29,7 +48,7 @@ public class KeyboardHandler
 		}
 		if (state.IsKeyDown(Keys.F2))
 		{
-			CustomWindow.Instance.UpdateFrequency = double.MaxValue;
+			CustomWindow.Instance.UpdateFrequency = 0.0; // This means fastest
 		}
 		else
 		{
