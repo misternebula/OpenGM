@@ -291,7 +291,9 @@ public static partial class ScriptResolver
 		{ "date_get_minute", date_get_minute},
 		{ "date_get_second", date_get_second},
 		{ "@@NewGMLObject@@", newgmlobject },
-		{ "mouse_check_button_pressed", mouse_check_button_pressed}
+		{ "mouse_check_button_pressed", mouse_check_button_pressed},
+		{ "layer_set_visible", layer_set_visible},
+		{ "draw_line_width_color", draw_line_width_color}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2698,6 +2700,47 @@ public static partial class ScriptResolver
 	{
 		var numb = args[0].Conv<int>();
 		return KeyboardHandler.MousePressed[numb];
+	}
+
+	public static object? layer_set_visible(object?[] args)
+	{
+		var layer_value = args[0];
+		LayerContainer layer;
+		if (layer_value is string s)
+		{
+			layer = RoomManager.CurrentRoom.Layers.First(x => x.Value.Name == s).Value;
+		}
+		else
+		{
+			layer = RoomManager.CurrentRoom.Layers[args[0].Conv<int>()];
+		}
+
+		var visible = args[1].Conv<bool>();
+
+		layer.Visible = visible;
+		return null;
+	}
+
+	public static object? draw_line_width_color(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var width = args[4].Conv<int>();
+		var col1 = args[5].Conv<int>();
+		var col2 = args[5].Conv<int>();
+
+		CustomWindow.RenderJobs.Add(new GMLineJob()
+		{
+			start = new Vector2((float)x1, (float)y1),
+			end = new Vector2((float)x2, (float)y2),
+			width = width,
+			col1 = col1.BGRToColor(),
+			col2 = col2.BGRToColor()
+		});
+
+		return null;
 	}
 }
 
