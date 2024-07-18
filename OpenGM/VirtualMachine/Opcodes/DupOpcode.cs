@@ -15,7 +15,7 @@ public static partial class VMExecutor
 		var dupType = instruction.TypeOne;
 		var dupTypeSize = VMTypeToSize(dupType);
 		var dupSize = instruction.IntData;
-		var dupSwapSize = instruction.SecondIntData;
+		var dupSwapSize = instruction.SecondIntData >> 3;
 
 		if (VerboseStackLogs)
 		{
@@ -28,7 +28,57 @@ public static partial class VMExecutor
 
 		if (dupSwapSize != 0)
 		{
-			throw new NotImplementedException();
+			if (dupType == VMType.v && dupSize == 0)
+			{
+				// Exit early; basically a no-op instruction
+				return (ExecutionResult.Success, null);
+			}
+
+			// Load top data from stack
+			var topSize = dupSize * dupTypeSize;
+			var topStack = new Stack<(object? value, VMType type)>();
+			while (topSize > 0)
+			{
+#pragma warning disable CS0618
+				var curr = Ctx.Stack.Pop(); // i think this is the only time its okay to use untyped pop
+#pragma warning restore CS0618
+				topStack.Push(curr);
+				topSize -= VMTypeToSize(curr.type);
+			}
+
+			// Load bottom data from stack
+			var bottomSize = dupSwapSize * dupTypeSize;
+			var bottomStack = new Stack<(object? value, VMType type)>();
+			while (bottomSize > 0)
+			{
+#pragma warning disable CS0618
+				var curr = Ctx.Stack.Pop(); // i think this is the only time its okay to use untyped pop
+#pragma warning restore CS0618
+				bottomStack.Push(curr);
+				bottomSize -= VMTypeToSize(curr.type);
+			}
+
+			// Ensure we didn't read too much data accidentally
+			if (topSize < 0 || bottomSize < 0)
+			{
+				throw new NotImplementedException();
+			}
+
+			// Push top data back first (so that it ends up at the bottom)
+			while (topStack.Count > 0)
+			{
+#pragma warning disable CS0618
+				Ctx.Stack.Push(topStack.Pop());
+#pragma warning restore CS0618
+			}
+
+			// Push bottom data back second (so that it ends up at the top)
+			while (bottomStack.Count > 0)
+			{
+#pragma warning disable CS0618
+				Ctx.Stack.Push(bottomStack.Pop());
+#pragma warning restore CS0618
+			}
 		}
 		else
 		{
