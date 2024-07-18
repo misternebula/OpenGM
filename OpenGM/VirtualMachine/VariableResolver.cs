@@ -65,6 +65,7 @@ public static class VariableResolver
 		{ "undefined", (get_undefined, null) },
 		{ "view_current", (get_view_current, null)},
 		{ "view_wport", (get_view_wport, set_view_wport)},
+		{ "view_hport", (get_view_hport, set_view_hport)},
 		{ "pointer_null", (get_pointer_null, null)}
 	};
 
@@ -220,6 +221,9 @@ public static class VariableResolver
 
 	public static object get_view_wport() => ViewportManager.view_wport;
 	public static void set_view_wport(object? value) => ViewportManager.view_wport = value.Conv<IList>().Cast<int>().ToArray();
+
+	public static object get_view_hport() => ViewportManager.view_hport;
+	public static void set_view_hport(object? value) => ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
 
 	public static object? get_pointer_null() => null;
 }
