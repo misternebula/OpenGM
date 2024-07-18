@@ -14,6 +14,9 @@ using static UndertaleModLib.Models.UndertaleRoom;
 
 using OpenTK.Graphics.OpenGL;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using OpenGM.Rendering;
+using OpenGM.IO;
+using OpenGM.Loading;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver

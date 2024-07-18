@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using OpenGM.SerializedFiles;
 using System.Collections;
+using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine;
 

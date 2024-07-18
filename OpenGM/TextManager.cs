@@ -1,4 +1,5 @@
-﻿using OpenGM.SerializedFiles;
+﻿using OpenGM.Rendering;
+using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
 using UndertaleModLib.Decompiler;
 

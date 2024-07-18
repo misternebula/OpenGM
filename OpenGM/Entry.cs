@@ -1,4 +1,7 @@
-﻿using OpenGM.VirtualMachine;
+﻿using OpenGM.IO;
+using OpenGM.Loading;
+using OpenGM.Rendering;
+using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;

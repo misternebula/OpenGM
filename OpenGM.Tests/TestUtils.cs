@@ -1,3 +1,5 @@
+using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.VirtualMachine;
 
 namespace OpenGM.Tests;

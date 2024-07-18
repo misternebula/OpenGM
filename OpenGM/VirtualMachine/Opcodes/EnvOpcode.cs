@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine;
+﻿using OpenGM.IO;
+
+namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {

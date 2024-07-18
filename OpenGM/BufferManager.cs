@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using OpenGM.IO;
 
 namespace OpenGM;
 public static class BufferManager
