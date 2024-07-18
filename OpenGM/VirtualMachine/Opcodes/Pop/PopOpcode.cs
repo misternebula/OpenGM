@@ -106,6 +106,20 @@ public static partial class VMExecutor
 		Ctx.Locals["arguments"] = args;
 	}
 
+	public static void PopToOther(string varName, object? value)
+	{
+		var stackArray = EnvironmentStack.ToArray();
+
+		var i = 1;
+
+		while (stackArray[i] == null)
+		{
+			i++;
+		}
+
+		PopToSelf(stackArray[i].Self, varName, value);
+	}
+
 	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -146,6 +160,11 @@ public static partial class VMExecutor
 				var strIndex = variableName[8..]; // skip "argument"
 				var index = int.Parse(strIndex);
 				PopToArgument(index, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Other)
+			{
+				PopToOther(variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
