@@ -318,7 +318,9 @@ public class CustomWindow : GameWindow
             top = partJob.top;
         }
 
-        var topLeft = new Vector2d(spriteJob.screenPos.X - spriteJob.origin.X * spriteJob.scale.X, spriteJob.screenPos.Y - spriteJob.origin.Y * spriteJob.scale.Y);
+        var topLeft = new Vector2d(
+	        spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X) + (spriteJob.texture.TargetPosX * spriteJob.scale.X),
+	        spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y) + (spriteJob.texture.TargetPosY * spriteJob.scale.Y));
         var topRight = new Vector2d(topLeft.X + spriteWidth * spriteJob.scale.X, topLeft.Y);
         var bottomRight = new Vector2d(topRight.X, topRight.Y + spriteHeight * spriteJob.scale.Y);
         var bottomLeft = new Vector2d(topLeft.X, bottomRight.Y);
