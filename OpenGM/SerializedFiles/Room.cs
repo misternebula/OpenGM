@@ -48,6 +48,11 @@ public class Layer
 	public AnimationSpeedType Background_AnimationType;
 
 	public List<GamemakerTile> Assets_LegacyTiles = new();
+
+	public int Tiles_SizeX;
+	public int Tiles_SizeY;
+	public int Tiles_TileSet;
+	public int[][] Tiles_TileData = null!;
 }
 
 public class GamemakerTile

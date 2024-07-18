@@ -49,4 +49,6 @@ public class LayerContainer
 	public float VSpeed;
 	public float HSpeed;
 	public int Depth;
+
+	public bool Visible;
 }

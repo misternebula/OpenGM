@@ -129,7 +129,19 @@ public static class RoomManager
 				}
 			}
 
-			CurrentRoom.Layers.Add((int)layerContainer.ID, layerContainer);
+			if (layer.LayerType == UndertaleRoom.LayerType.Tiles)
+			{
+				DebugLog.Log($"CREATING TILES LAYER {layer.LayerName}");
+
+				var tilesLayer = new GMTilesLayer(layer)
+				{
+					depth = layer.LayerDepth
+				};
+
+				layerContainer.Elements.Add(tilesLayer);
+			}
+
+			CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);
 		}
 
 		var currentInstances = InstanceManager.instances.ToList();
