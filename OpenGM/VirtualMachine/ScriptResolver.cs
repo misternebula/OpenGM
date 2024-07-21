@@ -1964,7 +1964,7 @@ public static partial class ScriptResolver
 	private static object layer_get_element_type(object?[] args)
 	{
 		var element_id = args[0].Conv<int>();
-		var element = TileManager.Tiles.First(x => x.instanceId == element_id);
+		var element = RoomManager.CurrentRoom.Tiles.First(x => x.instanceId == element_id);
 
 		if (element is GMTile)
 		{

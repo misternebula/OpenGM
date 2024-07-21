@@ -24,6 +24,7 @@ public class RoomContainer
 	public int SizeY => RoomAsset.SizeY;
 
 	public Dictionary<int, LayerContainer> Layers = new();
+	public List<DrawWithDepth> Tiles = new();
 }
 
 public class LayerContainer

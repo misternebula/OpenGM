@@ -42,16 +42,16 @@ internal class GMTilesLayer : DrawWithDepth
 		{
 			for (var _x = 0; _x < _layer.Tiles_SizeX; _x++)
 			{
-				var tile = _layer.Tiles_TileData[_y][_x];
+				var tile = _layer.Tiles_TileData[_y, _x];
 
-				if (tile == 0)
+				if (tile.TileIndex == 0)
 				{
 					// There's a checkerboard graphic here in the tileset, so 0 represents no tile.
 					// Guessing GM also does this check? Why didn't they just make the first tile always blank?!
 					continue;
 				}
 
-				var indexIntoTileset = (tile * _tileSet.FramesPerTile) + _currentFrame;
+				var indexIntoTileset = (tile.TileIndex * _tileSet.FramesPerTile) + _currentFrame;
 				var tileId = _tileSet.TileIds[indexIntoTileset];
 
 				// We now have how many tiles into the tileset the current tile to draw is.
@@ -62,6 +62,8 @@ internal class GMTilesLayer : DrawWithDepth
 
 				var tileWidth = _tileSet.TileWidth + (_tileSet.OutputBorderX * 2); // Width of tile in tileset, not actual tile graphic
 				var tileHeight = _tileSet.TileHeight + (_tileSet.OutputBorderY * 2); // ditto
+
+				// TODO : Handle mirror, rotate, flip
 
 				CustomWindow.RenderJobs.Add(new GMSpritePartJob()
 				{

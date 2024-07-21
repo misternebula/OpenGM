@@ -7,6 +7,7 @@ using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 using OpenGM.IO;
+using System.Numerics;
 
 namespace OpenGM.Loading;
 
@@ -739,7 +740,31 @@ public static class GameConverter
                     layerasset.Tiles_SizeX = (int)layer.TilesData.TilesX;
                     layerasset.Tiles_SizeY = (int)layer.TilesData.TilesY;
                     layerasset.Tiles_TileSet = data.Backgrounds.IndexOf(layer.TilesData.Background);
-                    layerasset.Tiles_TileData = Array.ConvertAll(layer.TilesData.TileData, dim1 => Array.ConvertAll(dim1, dim2 => (int)dim2)); // this is dumb
+
+                    var cols = layer.TilesData.TilesY;
+                    var rows = layer.TilesData.TilesX;
+                    layerasset.Tiles_TileData = new TileBlob[cols, rows];
+
+                    for (var col = 0; col < cols; col++)
+                    {
+						for (var row = 0; row < rows; row++)
+						{
+                            var blobData = layer.TilesData.TileData[col][row];
+
+							var blob = new TileBlob
+							{
+								TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
+								Mirror = (blobData & 0x8000000) != 0, // bit 28
+								Flip = (blobData & 0x10000000) != 0, // bit 29
+								Rotate = (blobData & 0x20000000) != 0 // bit 30
+							};
+
+							layerasset.Tiles_TileData[col, row] = blob;
+						}
+					}
+
+
+                   // layerasset.Tiles_TileData = Array.ConvertAll(layer.TilesData.TileData, dim1 => Array.ConvertAll(dim1, dim2 => (int)dim2)); // this is dumb
                 }
                 else
                 {

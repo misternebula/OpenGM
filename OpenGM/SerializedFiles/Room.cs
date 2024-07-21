@@ -52,7 +52,7 @@ public class Layer
 	public int Tiles_SizeX;
 	public int Tiles_SizeY;
 	public int Tiles_TileSet;
-	public int[][] Tiles_TileData = null!;
+	public TileBlob[,] Tiles_TileData = null!;
 }
 
 public class GamemakerTile
@@ -69,4 +69,12 @@ public class GamemakerTile
 	public float ScaleX;
 	public float ScaleY;
 	public int Color;
+}
+
+public class TileBlob
+{
+	public int TileIndex; // bits 0-18
+	public bool Mirror; // bit 28
+	public bool Flip; // bit 29
+	public bool Rotate; // bit 30
 }

@@ -26,29 +26,58 @@ public static class RoomManager
 		DebugLog.LogInfo($"Changing to {RoomToChangeTo!.Name}");
 		ChangeRoomAfterEventExecution = false;
 
-		// events could destroy other objects, cant modify during iteration
-		var instanceList = new List<GamemakerObject>(InstanceManager.instances);
-
-		foreach (var instance in instanceList)
+		if (CurrentRoom != null && CurrentRoom.Persistent)
 		{
-			if (instance == null)
-			{
-				continue;
-			}
-
-			if (instance.persistent)
-			{
-				continue;
-			}
-
-			GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
-			GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
-
-			DrawManager.Unregister(instance);
-			//Destroy(instance.gameObject);
+			// uh oh.
+			throw new NotImplementedException();
 		}
+		else if (CurrentRoom != null)
+		{
+			// remove everything that isn't persistent
 
-		InstanceManager.instances = InstanceManager.instances.Where(x => x != null && x.persistent).ToList();
+			// events could destroy other objects, cant modify during iteration
+			var instanceList = new List<GamemakerObject>(InstanceManager.instances);
+
+			foreach (var instance in instanceList)
+			{
+				if (instance == null)
+				{
+					continue;
+				}
+
+				if (instance.persistent)
+				{
+					continue;
+				}
+
+				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
+				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
+
+				instance.Destroy();
+				//Destroy(instance.gameObject);
+			}
+
+			InstanceManager.instances = InstanceManager.instances.Where(x => x != null && !x.Destroyed && x.persistent).ToList();
+
+			foreach (var item in CurrentRoom.Tiles)
+			{
+				item.Destroy();
+			}
+			CurrentRoom.Tiles.Clear();
+
+			foreach (var layer in CurrentRoom.Layers)
+			{
+				foreach (var item in layer.Value.Elements)
+				{
+					if (item is GamemakerObject gm && gm.persistent)
+					{
+						continue;
+					}
+
+					item.Destroy();
+				}
+			}
+		}
 
 		RoomLoaded = false;
 
@@ -67,12 +96,6 @@ public static class RoomManager
 		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
 
 		var createdObjects = new List<(GamemakerObject gm, int pcc, int cc)>();
-
-		foreach (var item in TileManager.Tiles)
-		{
-			item.Destroy();
-		}
-		TileManager.Tiles.Clear();
 
 		InstanceManager.RoomChange();
 		CollisionManager.RoomChange();
@@ -123,7 +146,7 @@ public static class RoomManager
 						Color = tile.Color
 					};
 
-					TileManager.Tiles.Add(newTile);
+					CurrentRoom.Tiles.Add(newTile);
 
 					layerContainer.Elements.Add(newTile);
 				}
@@ -132,6 +155,11 @@ public static class RoomManager
 			if (layer.LayerType == UndertaleRoom.LayerType.Tiles)
 			{
 				DebugLog.Log($"CREATING TILES LAYER {layer.LayerName}");
+
+				if (layer.Tiles_TileSet == -1)
+				{
+					continue;
+				}
 
 				var tilesLayer = new GMTilesLayer(layer)
 				{
