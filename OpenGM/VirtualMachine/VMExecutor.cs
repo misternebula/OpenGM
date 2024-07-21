@@ -53,7 +53,7 @@ public static partial class VMExecutor
 
 	// debug
 	public static Stack<VMScript> currentExecutingScript = new();
-	public static bool VerboseStackLogs = true;
+	public static bool VerboseStackLogs;
 
 	public static object? ExecuteScript(VMScript script, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
