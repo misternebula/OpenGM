@@ -293,7 +293,11 @@ public static partial class ScriptResolver
 		{ "@@NewGMLObject@@", newgmlobject },
 		{ "mouse_check_button_pressed", mouse_check_button_pressed},
 		{ "layer_set_visible", layer_set_visible},
-		{ "draw_line_width_color", draw_line_width_color}
+		{ "draw_line_width_color", draw_line_width_color},
+		{ "surface_create", surface_create },
+		{ "surface_set_target", surface_set_target },
+		{ "draw_clear_alpha", draw_clear_alpha },
+		{ "layer_get_id", layer_get_id }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2684,13 +2688,11 @@ public static partial class ScriptResolver
 
 	public static object? newgmlobject(object?[] args)
 	{
-		DebugLog.Log($"@@NewGMLObject@@");
 		var constructorIndex = args[0].Conv<int>();
 		var values = args[1..];
 		var obj = new GMLObject();
 
 		var (script, instructionIndex) = ScriptFunctions[ScriptFunctions.Keys.ToList()[constructorIndex]];
-		DebugLog.Log($" - Constructor: {script.Name} Index: {instructionIndex}");
 		var ret = VMExecutor.ExecuteScript(script, obj, args: values, startingIndex: instructionIndex);
 
 		return obj;
@@ -2741,6 +2743,51 @@ public static partial class ScriptResolver
 		});
 
 		return null;
+	}
+
+	public static object surface_create(object?[] args)
+	{
+		var w = args[0].Conv<int>();
+		var h = args[1].Conv<int>();
+
+		var format = 0; // TODO : work out if this actually is surface_rgba8unorm
+
+		if (args.Length == 3)
+		{
+			format = args[2].Conv<int>();
+		}
+
+		return SurfaceManager.CreateSurface(w, h, format);
+	}
+
+	public static object surface_set_target(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+
+		if (args.Length == 2)
+		{
+			throw new NotImplementedException("depth surface passed uh oh");
+		}
+
+		return SurfaceManager.surface_set_target(id);
+	}
+
+	public static object? draw_clear_alpha(object?[] args)
+	{
+		var col = args[0].Conv<int>();
+		var alpha = args[1].Conv<double>();
+
+		// TODO: Implement
+
+		return null;
+	}
+
+	public static object layer_get_id(object?[] args)
+	{
+		var layer_name = args[0].Conv<string>();
+
+		var layer = RoomManager.CurrentRoom.Layers.Values.FirstOrDefault(x => x.Name == layer_name);
+		return layer == default ? -1 : layer.ID;
 	}
 }
 
