@@ -332,7 +332,7 @@ public static partial class ScriptResolver
 
 	public static object newgmlarray(object?[] args)
 	{
-		return args;
+		return args.ToList(); // needs to be resizeable, e.g. initializing __objectID2Depth
 	}
 
 	public static object asset_get_index(object?[] args)
