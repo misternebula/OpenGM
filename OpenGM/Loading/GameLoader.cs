@@ -223,7 +223,7 @@ public static class GameLoader
 
 	private static void LoadTileSets()
     {
-	    Console.Write($"Loading Tile Ses...");
+	    Console.Write($"Loading Tile Sets...");
 	    var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
 	    var files = Directory.GetFiles(objectsFolder);
 
