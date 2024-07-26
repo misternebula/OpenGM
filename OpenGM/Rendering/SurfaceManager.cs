@@ -63,6 +63,8 @@ public static class SurfaceManager
     {
         var bufferId = _framebuffers[id];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
+        
+        // BUG: memory leak! does not dealloc existing texture bound to fb!
 
         // Generate texture to attach to framebuffer
         var newId = GL.GenTexture();
