@@ -25,21 +25,20 @@ public static class VariableResolver
 
 		if (index >= array.Count)
 		{
-			// no clue if this is correct
-			object? placeholder = value switch
-			{
-				int or short or long or float or double => 0,
-				bool => false,
-				string => "",
-				IList => new List<object?>(),
-				null => null,
-				_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-			};
-
 			var numToAdd = index - array.Count + 1;
 			for (var i = 0; i < numToAdd; i++)
 			{
-				array.Add(placeholder);
+				// no clue if this is correct
+				// we want new list for every element here so its in the for loop
+				array.Add(value switch
+				{
+					int or short or long or float or double => 0,
+					bool => false,
+					string => "",
+					IList => new List<object?>(),
+					null => null,
+					_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+				});
 			}
 		}
 
