@@ -14,8 +14,21 @@ public static class SurfaceManager
     private static int _nextId = 1;
 
     private static Dictionary<int, int> _framebuffers = new();
+    public static Stack<int> SurfaceStack = new();
 
-    public static int CreateSurface(int width, int height, int format)
+    public static bool surface_set_target(int surface)
+    {
+        if (!_framebuffers.ContainsKey(surface))
+        {
+            throw new NotImplementedException("Surface does not exist!");
+        }
+
+        SurfaceStack.Push(surface);
+        return true;
+    }
+
+
+	public static int CreateSurface(int width, int height, int format)
     {
         DebugLog.LogInfo($"CreateSurface width:{width} height:{height} format:{format}");
 
