@@ -249,11 +249,7 @@ public static class AudioManager
         }
     }
 
-    public static void CheckALCError(
-        [CallerMemberName] string memberName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int sourceLineNumber = 0
-    )
+    public static void CheckALCError()
     {
         var e = ALC.GetError(_device);
         if (e != AlcError.NoError)
@@ -262,11 +258,7 @@ public static class AudioManager
         }
     }
 
-    public static void CheckALError(
-        [CallerMemberName] string memberName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int sourceLineNumber = 0
-    )
+    public static void CheckALError()
     {
         var e = AL.GetError();
         if (e != ALError.NoError)
