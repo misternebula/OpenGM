@@ -128,6 +128,8 @@ public static class GameLoader
             {
                 item.parent = InstanceManager.ObjectDefinitions[item.FileStorage.ParentID];
             }
+            
+            item.FileStorage = null!; // not used after here, so let it gc
         }
 
         Console.WriteLine($" Done!");
