@@ -27,6 +27,7 @@ internal class Entry
 		}
 
 		GameLoader.LoadGame();
+		AudioManager.InitAndLoadSounds();
 
 		var firstRoom = RoomManager.RoomList[0];
 
@@ -40,7 +41,6 @@ internal class Entry
 		window = new CustomWindow(gameSettings, nativeSettings, (uint)firstRoom.SizeX, (uint)firstRoom.SizeY);
 
 		PageManager.BindTextures();
-		AudioManager.Init();
 
 		Console.WriteLine($"Executing global scripts...");
 
@@ -54,7 +54,7 @@ internal class Entry
 
 		window.Run();
 
-		AudioManager.Dispose();
+		AudioManager.Uninit();
 	}
 
 	public static void SetGameSpeed(int fps)

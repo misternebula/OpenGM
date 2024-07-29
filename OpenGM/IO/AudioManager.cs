@@ -54,7 +54,7 @@ public static class AudioManager
     private static List<AudioInstance> _audioSources = new();
     private static Dictionary<int, AudioAsset> _audioClips = new();
 
-    public static void Init()
+    public static void InitAndLoadSounds()
     {
         _device = ALC.OpenDevice(null);
         CheckALCError();
@@ -199,7 +199,7 @@ public static class AudioManager
         Console.WriteLine($" Done!");
     }
 
-    public static void Dispose()
+    public static void Uninit()
     {
         /*
 		 * deallocate all the buffers
