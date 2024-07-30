@@ -61,11 +61,11 @@ public static class SpriteManager
             screenPos = new Vector2d(x, y),
             angle = rot,
             scale = new Vector2d(xscale, yscale),
-            blend = blend.BGRToColor(),
+            blend = blend.ABGRToCol4(),
             alpha = alpha,
             origin = origin,
             fogEnabled = FogEnabled,
-            fogColor = FogColor.BGRToColor()
+            fogColor = FogColor.ABGRToCol4()
         });
     }
 
@@ -84,7 +84,7 @@ public static class SpriteManager
             screenPos = new Vector2d(x, y),
             angle = 0,
             scale = new Vector2d(xscale, yscale),
-            blend = blend.BGRToColor(),
+            blend = blend.ABGRToCol4(),
             alpha = alpha,
             origin = Vector2.Zero,
             left = left,
