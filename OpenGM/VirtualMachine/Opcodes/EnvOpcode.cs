@@ -35,6 +35,16 @@ public static partial class VMExecutor
 		{
 			throw new NotImplementedException();
 		}
+		else if (id < 0)
+		{
+			// some other negative number??
+			if (instruction.JumpToEnd)
+			{
+				return (ExecutionResult.JumpedToEnd, null);
+			}
+
+			return (ExecutionResult.JumpedToLabel, instruction.IntData);
+		}
 		else if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// asset id
