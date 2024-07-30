@@ -26,6 +26,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 	public bool persistent = false;
 	public double x;
 	public double y;
+	public double xprevious;
+	public double yprevious;
 	public double xstart;
 	public double ystart;
 	public bool visible = true;

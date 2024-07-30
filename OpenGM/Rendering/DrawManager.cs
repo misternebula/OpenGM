@@ -100,6 +100,17 @@ public static class DrawManager
 
         var stepList = _drawObjects.OrderByDescending(x => x.instanceId);
 
+        foreach (var item in stepList)
+        {
+	        if (item is not GamemakerObject gm)
+	        {
+                continue;
+	        }
+
+	        gm.xprevious = gm.x;
+	        gm.yprevious = gm.y;
+        }
+
         if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
         {
             return;

@@ -102,6 +102,10 @@ public static class VariableResolver
 		{ "gravity_direction", (get_gravity_direction, set_gravity_direction) },
 		{ "image_number", (get_image_number, null) },
 		{ "alarm", (get_alarm, set_alarm) },
+		{ "xprevious", (get_xprevious, set_xprevious)},
+		{ "yprevious", (get_yprevious, set_yprevious)},
+		{ "sprite_xoffset", (get_sprite_xoffset, null)},
+		{ "sprite_yoffset", (get_sprite_yoffset, null)},
 	};
 
 	public static object get_working_directory()
@@ -225,4 +229,13 @@ public static class VariableResolver
 	public static void set_view_hport(object? value) => ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
 
 	public static object? get_pointer_null() => null;
+
+	public static object get_xprevious(GamemakerObject instance) => instance.xprevious;
+	public static void set_xprevious(GamemakerObject instance, object? value) => instance.xprevious = value.Conv<double>();
+
+	public static object get_yprevious(GamemakerObject instance) => instance.yprevious;
+	public static void set_yprevious(GamemakerObject instance, object? value) => instance.yprevious = value.Conv<double>();
+
+	public static object get_sprite_xoffset(GamemakerObject instance) => instance.sprite_xoffset;
+	public static object get_sprite_yoffset(GamemakerObject instance) => instance.sprite_yoffset;
 }
