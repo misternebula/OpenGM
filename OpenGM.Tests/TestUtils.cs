@@ -20,14 +20,9 @@ public static class TestUtils
 			ScriptResolver.Scripts.Add(script.Name, script);
 		}
 
-		foreach (var label in script.Labels)
+		foreach (var func in script.Functions)
 		{
-			if (label.Value.FunctionName == null)
-			{
-				continue;
-			}
-
-			ScriptResolver.ScriptFunctions.Add(label.Value.FunctionName, (script, label.Value.InstructionIndex));
+			ScriptResolver.ScriptFunctions.Add(func.FunctionName, (script, func.InstructionIndex));
 		}
 
 		VMExecutor.VerboseStackLogs = true;

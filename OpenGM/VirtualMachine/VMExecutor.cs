@@ -161,7 +161,7 @@ public static partial class VMExecutor
 			if (executionResult == ExecutionResult.JumpedToLabel)
 			{
 				var label = (int)data!;
-				instructionIndex = script.Labels[label].InstructionIndex;
+				instructionIndex = script.Labels[label];
 				lastJumpedLabel = label;
 				continue;
 			}

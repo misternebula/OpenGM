@@ -114,7 +114,7 @@ public static class GameConverter
             // no code in file???
 
             asset.Instructions = new();
-            asset.Labels = new() { { 0, new Label() { InstructionIndex = 0 } } };
+            asset.Labels = new() { { 0, 0 } };
 
             return asset;
         }
@@ -137,15 +137,13 @@ public static class GameConverter
                     break;
                 }
 
-                var label = new Label() { InstructionIndex = asset.Instructions.Count };
-
                 if (functionLabelAtNextLine != null)
                 {
-                    label.FunctionName = functionLabelAtNextLine;
+                    asset.Functions.Add(new FunctionDefinition() { InstructionIndex = asset.Instructions.Count, FunctionName = functionLabelAtNextLine });
                     functionLabelAtNextLine = null;
                 }
 
-                asset.Labels.Add(int.Parse(id), label);
+                asset.Labels.Add(int.Parse(id), asset.Instructions.Count);
             }
             else if (line.StartsWith("> "))
             {

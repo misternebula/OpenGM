@@ -42,14 +42,9 @@ public static class GameLoader
                 ScriptResolver.Scripts.Add(asset.Name, asset);
             }
 
-            foreach (var label in asset.Labels)
+            foreach (var func in asset.Functions)
             {
-                if (label.Value.FunctionName == null)
-                {
-                    continue;
-                }
-
-                ScriptResolver.ScriptFunctions.Add(label.Value.FunctionName, (asset, label.Value.InstructionIndex));
+                ScriptResolver.ScriptFunctions.Add(func.FunctionName, (asset, func.InstructionIndex));
             }
         }
         Console.WriteLine($" Done!");
