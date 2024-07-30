@@ -199,7 +199,6 @@ public static class RoomManager
 			var preCreateCode = GetVMScriptFromCodeIndex(pcc);
 			if (preCreateCode != null)
 			{
-				DebugLog.LogInfo($"RUNNING PCC {preCreateCode.Name}");
 				VMExecutor.ExecuteScript(preCreateCode, obj, obj.Definition);
 			}
 		}
@@ -209,7 +208,6 @@ public static class RoomManager
 			var createCode = GetVMScriptFromCodeIndex(cc);
 			if (createCode != null)
 			{
-				DebugLog.LogInfo($"RUNNING CC {createCode.Name}");
 				VMExecutor.ExecuteScript(createCode, obj, obj.Definition);
 			}
 		}
