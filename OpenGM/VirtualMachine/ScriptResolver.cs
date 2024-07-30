@@ -301,7 +301,9 @@ public static partial class ScriptResolver
 		{ "layer_tilemap_get_id", layer_tilemap_get_id },
 		{ "draw_tilemap", draw_tilemap},
 		{ "surface_reset_target", surface_reset_target },
-		{ "surface_free", surface_free }
+		{ "surface_free", surface_free },
+		{ "draw_rectangle_colour", draw_rectangle_colour },
+		{ "draw_rectangle_color", draw_rectangle_colour }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2847,6 +2849,37 @@ public static partial class ScriptResolver
 	{
 		var surface = args[0].Conv<int>();
 		SurfaceManager.FreeSurface(surface);
+		return null;
+	}
+
+	public static object? draw_rectangle_colour(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var col1 = args[4].Conv<int>();
+		var col2 = args[5].Conv<int>();
+		var col3 = args[6].Conv<int>();
+		var col4 = args[7].Conv<int>();
+		var outline = args[8].Conv<bool>();
+
+		// todo : actually do the colors lol
+
+		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		{
+			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			alpha = SpriteManager.DrawAlpha,
+			Outline = outline,
+			Vertices = new[]
+			{
+				new Vector2d(x1, y1),
+				new Vector2d(x2, y1),
+				new Vector2d(x2, y2),
+				new Vector2d(x1, y2)
+			}
+		});
+
 		return null;
 	}
 }
