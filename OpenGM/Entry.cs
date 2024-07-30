@@ -54,7 +54,7 @@ internal class Entry
 
 		window.Run();
 
-		AudioManager.Uninit();
+		AudioManager.Dispose();
 	}
 
 	public static void SetGameSpeed(int fps)

@@ -139,7 +139,7 @@ public static class AudioManager
         Console.WriteLine($" Done!");
     }
 
-    public static void Uninit()
+    public static void Dispose()
     {
         /*
 		 * deallocate all the buffers
