@@ -297,7 +297,11 @@ public static partial class ScriptResolver
 		{ "surface_create", surface_create },
 		{ "surface_set_target", surface_set_target },
 		{ "draw_clear_alpha", draw_clear_alpha },
-		{ "layer_get_id", layer_get_id }
+		{ "layer_get_id", layer_get_id },
+		{ "layer_tilemap_get_id", layer_tilemap_get_id },
+		{ "draw_tilemap", draw_tilemap},
+		{ "surface_reset_target", surface_reset_target },
+		{ "surface_free", surface_free }
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -1968,16 +1972,31 @@ public static partial class ScriptResolver
 	private static object layer_get_element_type(object?[] args)
 	{
 		var element_id = args[0].Conv<int>();
-		var element = RoomManager.CurrentRoom.Tiles.First(x => x.instanceId == element_id);
 
-		if (element is GMTile)
+		CLayerElementBase baseElement = null!;
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
 		{
-			return 7;
+			foreach (var element in layer.Value.LayerAsset.Elements)
+			{
+				if (element.Id == element_id)
+				{
+					baseElement = element;
+					break;
+				}
+			}
+
+			if (baseElement != null)
+			{
+				break;
+			}
 		}
-		else
+
+		if (baseElement == null)
 		{
-			return 9; // undefined
+			return ElementType.Undefined;
 		}
+
+		return baseElement.Type;
 	}
 
 	private static object? layer_tile_alpha(object?[] args)
@@ -2788,6 +2807,47 @@ public static partial class ScriptResolver
 
 		var layer = RoomManager.CurrentRoom.Layers.Values.FirstOrDefault(x => x.Name == layer_name);
 		return layer == default ? -1 : layer.ID;
+	}
+
+	public static object layer_tilemap_get_id(object?[] args)
+	{
+		var layer_id = args[0].Conv<int>();
+
+		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+
+		var layerElements = layer.LayerAsset.Elements;
+		var element = layerElements.First(x => x is CLayerTilemapElement) as CLayerTilemapElement;
+		if (element == null)
+		{
+			return -1;
+		}
+		else
+		{
+			return element.Id;
+		}
+	}
+
+	public static object? draw_tilemap(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+		var y = args[1].Conv<double>();
+
+		// TODO : implement
+
+		return null;
+	}
+
+	public static object surface_reset_target(object?[] args)
+	{
+		return SurfaceManager.surface_reset_target();
+	}
+
+	public static object? surface_free(object?[] args)
+	{
+		var surface = args[0].Conv<int>();
+		SurfaceManager.FreeSurface(surface);
+		return null;
 	}
 }
 

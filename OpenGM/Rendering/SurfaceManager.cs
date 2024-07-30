@@ -27,11 +27,14 @@ public static class SurfaceManager
         return true;
     }
 
+	public static bool surface_reset_target()
+    {
+		SurfaceStack.Pop();
+		return true;
+	}
 
 	public static int CreateSurface(int width, int height, int format)
     {
-        DebugLog.LogInfo($"CreateSurface width:{width} height:{height} format:{format}");
-
         // Generate framebuffer
         var buffer = GL.GenFramebuffer();
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
@@ -57,6 +60,12 @@ public static class SurfaceManager
         _framebuffers.Add(_nextId, buffer);
 
         return _nextId++;
+    }
+
+    public static void FreeSurface(int id)
+    {
+        var buffer = _framebuffers[id];
+        GL.DeleteFramebuffer(buffer);
     }
 
     public static void ResizeSurface(int id, int w, int h)
