@@ -1,5 +1,6 @@
 ﻿using MemoryPack;
 using Newtonsoft.Json;
+using OpenGM.Rendering;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
@@ -52,7 +53,10 @@ public enum ElementType
 }
 
 [MemoryPackable]
-public partial class CLayerElementBase
+[MemoryPackUnion(0, typeof(GameObject))]
+[MemoryPackUnion(1, typeof(CLayerTilemapElement))]
+[MemoryPackUnion(2, typeof(CLayerBackgroundElement))]
+public abstract partial class CLayerElementBase
 {
 	public ElementType Type;
 	public int Id;
@@ -96,6 +100,7 @@ public partial class CLayerBackgroundElement : CLayerElementBase
 	public AnimationSpeedType AnimationSpeedType;
 }
 
+[MemoryPackable]
 public partial class GamemakerTile
 {
 	public int X;
@@ -112,7 +117,8 @@ public partial class GamemakerTile
 	public int Color;
 }
 
-public partial class TileBlob
+// not serialized
+public class TileBlob
 {
 	public int TileIndex; // bits 0-18
 	public bool Mirror; // bit 28

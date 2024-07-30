@@ -1,5 +1,4 @@
 ﻿using MemoryPack;
-using Newtonsoft.Json;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using System.Diagnostics;
@@ -745,12 +744,8 @@ public static class GameConverter
             }
 
             // TODO: MemoryPack, use MemoryPackUnion for polymorphism
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, new JsonSerializerSettings()
-            {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.All
-            }));
+            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
         Console.WriteLine(" Done!");
     }

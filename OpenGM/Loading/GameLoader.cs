@@ -142,11 +142,8 @@ public static class GameLoader
 
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<Room>(text, new JsonSerializerSettings()
-            { 
-                TypeNameHandling = TypeNameHandling.Auto,
-            })!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<Room>(text)!;
 
             foreach (var layer in asset.Layers)
             {
