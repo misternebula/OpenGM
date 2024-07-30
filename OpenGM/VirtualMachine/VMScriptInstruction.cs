@@ -1,7 +1,9 @@
-﻿namespace OpenGM.VirtualMachine;
+﻿using MemoryPack;
 
-[Serializable]
-public class VMScriptInstruction
+namespace OpenGM.VirtualMachine;
+
+[MemoryPackable]
+public partial class VMScriptInstruction
 {
 	public string Raw = null!;
 

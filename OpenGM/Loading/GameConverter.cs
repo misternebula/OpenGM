@@ -1,4 +1,5 @@
-﻿using OpenGM.SerializedFiles;
+﻿using MemoryPack;
+using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -79,8 +80,8 @@ public static class GameConverter
                 asset.Name = code.Name.Content;
             }
 
-            var serialized = JsonConvert.SerializeObject(asset, Formatting.Indented);
-            File.WriteAllText(saveDirectory, serialized);
+            var serialized = MemoryPackSerializer.Serialize(asset);
+            File.WriteAllBytes(saveDirectory, serialized);
         }
         Console.WriteLine($" Done!");
     }

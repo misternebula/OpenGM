@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MemoryPack;
+using System.Collections;
 using System.Text;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
@@ -30,8 +31,8 @@ public static class GameLoader
         var files = Directory.GetFiles(scriptsFolder);
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<VMScript>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<VMScript>(text)!;
 
             if (asset.IsGlobalInit)
             {

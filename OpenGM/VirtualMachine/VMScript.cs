@@ -1,7 +1,9 @@
-﻿namespace OpenGM.VirtualMachine;
+﻿using MemoryPack;
 
-[Serializable]
-public class VMScript
+namespace OpenGM.VirtualMachine;
+
+[MemoryPackable]
+public partial class VMScript
 {
 	public int AssetId;
 	public string Name = null!;
@@ -12,7 +14,8 @@ public class VMScript
 	public List<VMScriptInstruction> Instructions = new();
 }
 
-public class FunctionDefinition
+[MemoryPackable]
+public partial class FunctionDefinition
 {
 	public int InstructionIndex;
 	public string FunctionName = null!;
