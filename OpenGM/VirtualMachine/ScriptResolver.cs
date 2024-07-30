@@ -191,6 +191,9 @@ public static partial class ScriptResolver
 
 		#region YoYo
 		{ "@@NewGMLArray@@", newgmlarray },
+		{ "@@NewGMLObject@@", newgmlobject },
+		{ "@@This@@", yoyothis },
+		{ "@@Other@@", yoyoother },
 		#endregion
 
 		#region Layer
@@ -290,7 +293,6 @@ public static partial class ScriptResolver
 		{ "date_get_hour", date_get_hour},
 		{ "date_get_minute", date_get_minute},
 		{ "date_get_second", date_get_second},
-		{ "@@NewGMLObject@@", newgmlobject },
 		{ "mouse_check_button_pressed", mouse_check_button_pressed},
 		{ "layer_set_visible", layer_set_visible},
 		{ "draw_line_width_color", draw_line_width_color},
@@ -2849,6 +2851,9 @@ public static partial class ScriptResolver
 		SurfaceManager.FreeSurface(surface);
 		return null;
 	}
+
+	private static object yoyothis(object?[] arg) => GMConstants.self;
+	private static object yoyoother(object?[] arg) => GMConstants.other;
 }
 
 public class FileHandle
