@@ -37,6 +37,7 @@ public class LayerContainer
 		VSpeed = layer.VSpeed;
 		HSpeed = layer.HSpeed;
 		Depth = layer.LayerDepth;
+		Visible = layer.IsVisible;
 	}
 
 	public Layer LayerAsset;
