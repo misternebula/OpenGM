@@ -1,5 +1,4 @@
-﻿using NAudio.Vorbis;
-using OpenGM.SerializedFiles;
+﻿using OpenGM.SerializedFiles;
 using Newtonsoft.Json.Linq;
 using NVorbis;
 using OpenTK.Audio.OpenAL;
@@ -1550,11 +1549,11 @@ public static partial class ScriptResolver
 		}
 
 		// maybe this should be moved to RegisterAudioClip
-		using var reader = new VorbisWaveReader(filename);
-		var data = new byte[reader.Length];
-		reader.ReadExactly(data, 0, data.Length);
-		var stereo = reader.WaveFormat.Channels == 2;
-		var freq = reader.WaveFormat.SampleRate;
+		using var reader = new VorbisReader(filename);
+		var data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
+		reader.ReadSamples(data, 0, data.Length);
+		var stereo = reader.Channels == 2;
+		var freq = reader.SampleRate;
 
 		var buffer = AL.GenBuffer();
 		AudioManager.CheckALError();
