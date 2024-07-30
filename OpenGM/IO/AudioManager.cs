@@ -82,43 +82,41 @@ public static class AudioManager
         Console.Write($"Loading sounds...");
 
         var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        var files = Directory.GetFiles(soundsFolder, "*.bin");
+        var files = Directory.GetFiles(soundsFolder);
         foreach (var file in files)
         {
             var text = File.ReadAllBytes(file);
             var asset = MemoryPackSerializer.Deserialize<SoundAsset>(text)!;
 
-            float[] data;
+            byte[] data;
             bool stereo;
             int freq;
-            if (Path.GetExtension(asset.File) == ".wav")
+            if (asset.IsWav)
             {
                 try
                 {
-                    using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
-                    data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
-                    reader.Read(data, 0, data.Length);
+                    using var stream = new MemoryStream(asset.WavOrOggData);
+                    using var reader = new WaveFileReader(stream);
+                    data = new byte[reader.Length];
+                    reader.ReadExactly(data, 0, data.Length);
                     stereo = reader.WaveFormat.Channels == 2;
                     freq = reader.WaveFormat.SampleRate;
                 }
                 catch (Exception)
                 {
-                    data = new float[] { };
+                    data = new byte[] { };
                     freq = 1;
                     stereo = false;
                 }
             }
-            else if (Path.GetExtension(asset.File) == ".ogg")
-            {
-                using var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
-                data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
-                reader.ReadSamples(data, 0, data.Length);
-                stereo = reader.Channels == 2;
-                freq = reader.SampleRate;
-            }
             else
             {
-                throw new NotImplementedException($"unknown audio file format {asset.File}");
+                using var stream = new MemoryStream(asset.WavOrOggData);
+                using var reader = new VorbisWaveReader(stream);
+                data = new byte[reader.Length];
+                reader.ReadExactly(data, 0, data.Length);
+                stereo = reader.WaveFormat.Channels == 2;
+                freq = reader.WaveFormat.SampleRate;
             }
 
             var buffer = AL.GenBuffer();
