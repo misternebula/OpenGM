@@ -213,6 +213,8 @@ public static class RoomManager
 				VMExecutor.ExecuteScript(createCode, obj, obj.Definition);
 			}
 		}
+		
+		GC.Collect();
 
 		DebugLog.LogInfo($"- Finished room change.");
 
