@@ -19,11 +19,6 @@ public class GMBackground : DrawWithDepth
 
 	public override void Draw()
 	{
-		if (!_element.Visible || !_element.Layer.Visible)
-		{
-			return;
-		}
-
 		// TODO : account for tiling
 		// TODO : account for stretch
 		// TODO : work out what foreground does

@@ -38,13 +38,6 @@ internal class GMTilesLayer : DrawWithDepth
 			}
 		}
 
-		// TODO : Does tilemap animation still happen if the layer is not visible?
-		// just move this if block above the previous if so
-		if (!_element.Layer.Visible)
-		{
-			return;
-		}
-
 		for (var _y = 0; _y < _element.Height; _y++)
 		{
 			for (var _x = 0; _x < _element.Width; _x++)
