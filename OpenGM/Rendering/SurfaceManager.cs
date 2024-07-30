@@ -68,6 +68,7 @@ public static class SurfaceManager
         
         var buffer = _framebuffers[id];
         GL.DeleteFramebuffer(buffer);
+        _framebuffers.Remove(id);
     }
 
     public static void ResizeSurface(int id, int w, int h)
