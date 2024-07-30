@@ -21,38 +21,36 @@ public static class GameConverter
         Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
 
         Console.WriteLine($"Converting game assets...");
-        // TODO: pack everything into 1 file for faster read
+        DataWin dataWin = new();
         
-        ConvertScripts(data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        ConvertScripts(dataWin, data, data.Code.Where(c => c.ParentEntry is null).ToList());
 
-        ExportPages(data);
+        ExportPages(dataWin, data);
 
-        ConvertSprites(data.Sprites);
+        ConvertSprites(dataWin, data.Sprites);
 
-        ExportAssetOrder(data);
+        ExportAssetOrder(dataWin, data);
 
-        ExportObjectDefinitions(data);
+        ExportObjectDefinitions(dataWin, data);
 
-        ExportRooms(data);
+        ExportRooms(dataWin, data);
 
-        ExportFonts(data);
+        ExportFonts(dataWin, data);
 
-        ExportSounds(data);
+        ExportSounds(dataWin, data);
 
-        ExportTextureGroups(data);
+        ExportTextureGroups(dataWin, data);
 
-        ExportTileSets(data);
+        ExportTileSets(dataWin, data);
+        
+        File.WriteAllBytes("data_OpenGM.win", MemoryPackSerializer.Serialize(dataWin));
     }
 
-    public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
+    public static void ConvertScripts(DataWin dataWin, UndertaleData data, List<UndertaleCode> codes)
     {
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts"));
-
         Console.Write($"Converting scripts...");
         foreach (var code in codes)
         {
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.bin");
-
             var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
             var asset = ConvertScript(asmFile);
@@ -81,8 +79,7 @@ public static class GameConverter
                 asset.Name = code.Name.Content;
             }
 
-            var serialized = MemoryPackSerializer.Serialize(asset);
-            File.WriteAllBytes(saveDirectory, serialized);
+            dataWin.Scripts.Add(asset);
         }
         Console.WriteLine($" Done!");
     }
@@ -357,11 +354,9 @@ public static class GameConverter
         return asset;
     }
 
-    public static void ExportPages(UndertaleData data)
+    public static void ExportPages(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting texture pages...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        Directory.CreateDirectory(outputPath);
 
         foreach (var page in data.EmbeddedTextures)
         {
@@ -371,18 +366,14 @@ public static class GameConverter
                 PngData = page.TextureData.TextureBlob
             };
             
-            var saveDirectory = Path.Combine(outputPath, $"{page.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            dataWin.TexturePages.Add(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    public static void ConvertSprites(IList<UndertaleSprite> sprites)
+    public static void ConvertSprites(DataWin dataWin, IList<UndertaleSprite> sprites)
     {
         Console.Write($"Converting sprites...");
-
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        Directory.CreateDirectory(outputPath);
 
         for (var i = 0; i < sprites.Count; i++)
         {
@@ -437,14 +428,14 @@ public static class GameConverter
                 asset.CollisionMasks.Add(item.Data);
             }
 
-            var saveDirectory = Path.Combine(outputPath, $"{sprite.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            dataWin.Sprites.Add(asset);
         }
 
         Console.WriteLine($" Done!");
     }
 
-    public static void ExportAssetOrder(UndertaleData data)
+    // TOOD: put in datawin
+    public static void ExportAssetOrder(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting asset order...");
 
@@ -545,11 +536,9 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
-    public static void ExportObjectDefinitions(UndertaleData data)
+    public static void ExportObjectDefinitions(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting object definitions...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        Directory.CreateDirectory(outputPath);
 
         for (var i = 0; i < data.GameObjects.Count; i++)
         {
@@ -630,19 +619,16 @@ public static class GameConverter
 
             asset.FileStorage = storage;
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects", $"{asset.Name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            dataWin.Objects.Add(asset);
         }
         Console.WriteLine(" Done!");
     }
 
     public static int CurrentElementID = 0;
 
-    public static void ExportRooms(UndertaleData data)
+    public static void ExportRooms(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting rooms...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        Directory.CreateDirectory(outputPath);
 
         var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
 
@@ -747,18 +733,14 @@ public static class GameConverter
                 asset.Layers.Add(layerasset);
             }
 
-            // TODO: MemoryPack, use MemoryPackUnion for polymorphism
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            dataWin.Rooms.Add(asset);
         }
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportFonts(UndertaleData data)
+    public static void ExportFonts(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting fonts...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        Directory.CreateDirectory(outputPath);
 
         foreach (var item in data.Fonts)
         {
@@ -804,13 +786,13 @@ public static class GameConverter
                 fontAsset.entriesDict.Add(glyphAsset.characterIndex, glyphAsset);
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts", $"{fontAsset.name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(fontAsset));
+            dataWin.Fonts.Add(fontAsset);
         }
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportSounds(UndertaleData data)
+    // TODO: get byte loading work in LoadSounds
+    public static void ExportSounds(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting sounds...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
@@ -860,11 +842,9 @@ public static class GameConverter
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportTextureGroups(UndertaleData data)
+    public static void ExportTextureGroups(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting texture groups...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        Directory.CreateDirectory(outputPath);
 
         foreach (var group in data.TextureGroupInfo)
         {
@@ -875,18 +855,15 @@ public static class GameConverter
             asset.Sprites = group.Sprites.Select(x => data.Sprites.IndexOf(x.Resource)).ToArray();
             asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
 
-            var saveDirectory = Path.Combine(outputPath, $"{group.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            dataWin.TextureGroups.Add(asset);
         }
 
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportTileSets(UndertaleData data)
+    public static void ExportTileSets(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting tile sets...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-        Directory.CreateDirectory(outputPath);
 
         foreach (var set in data.Backgrounds)
         {
@@ -918,9 +895,8 @@ public static class GameConverter
                 BSizeY = set.Texture.BoundingHeight,
                 Page = set.Texture.TexturePage.Name.Content
             };
-
-            var saveDirectory = Path.Combine(outputPath, $"{set.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            
+            dataWin.TileSets.Add(asset);
         }
 
         Console.WriteLine(" Done!");

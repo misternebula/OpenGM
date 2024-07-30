@@ -16,10 +16,3 @@ public partial class DataWin
 	public List<TileSet> TileSets = new();
 	public List<SoundAsset> Sounds = new();
 }
-
-[MemoryPackable]
-public partial class TexturePage
-{
-	public string Name = null!;
-	public byte[] PngData = null!;
-}

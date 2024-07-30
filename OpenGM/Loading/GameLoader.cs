@@ -14,28 +14,24 @@ public static class GameLoader
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
-        AssetIndexManager.LoadAssetIndexes();
-        LoadScripts();
-        LoadObjects();
-        LoadRooms();
-        LoadSprites();
-        LoadFonts();
-        LoadTexturePages();
-        LoadTextureGroups();
-        LoadTileSets();
-        AudioManager.LoadSounds();
+        var dataWin = MemoryPackSerializer.Deserialize<DataWin>(File.ReadAllBytes("data_OpenGM.win"))!;
+        AssetIndexManager.LoadAssetIndexes(dataWin);
+        LoadScripts(dataWin);
+        LoadObjects(dataWin);
+        LoadRooms(dataWin);
+        LoadSprites(dataWin);
+        LoadFonts(dataWin);
+        LoadTexturePages(dataWin);
+        LoadTextureGroups(dataWin);
+        LoadTileSets(dataWin);
+        AudioManager.LoadSounds(dataWin);
     }
 
-    private static void LoadScripts()
+    private static void LoadScripts(DataWin dataWin)
     {
         Console.Write($"Loading scripts...");
-        var scriptsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
-        var files = Directory.GetFiles(scriptsFolder);
-        foreach (var file in files)
+        foreach (var asset in dataWin.Scripts)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<VMScript>(text)!;
-
             if (asset.IsGlobalInit)
             {
                 ScriptResolver.GlobalInitScripts.Add(asset);
@@ -53,17 +49,12 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects()
+    private static void LoadObjects(DataWin dataWin)
     {
         Console.Write($"Loading objects...");
 
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        var files = Directory.GetFiles(objectsFolder);
-
-        foreach (var file in files)
+        foreach (var asset in dataWin.Objects)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<ObjectDefinition>(text)!;
             var storage = asset.FileStorage;
 
             VMScript? GetVMScriptFromCodeIndex(int codeIndex)
@@ -133,18 +124,12 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadRooms()
+    private static void LoadRooms(DataWin dataWin)
     {
         Console.Write($"Loading rooms...");
 
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        var files = Directory.GetFiles(objectsFolder);
-
-        foreach (var file in files)
+        foreach (var asset in dataWin.Rooms)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<Room>(text)!;
-
             foreach (var layer in asset.Layers)
             {
                 foreach (var element in layer.Elements)
@@ -183,51 +168,34 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadSprites()
+    private static void LoadSprites(DataWin dataWin)
     {
         Console.Write($"Loading sprites...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        var files = Directory.GetFiles(objectsFolder);
-
-        foreach (var file in files)
+        foreach (var asset in dataWin.Sprites)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<SpriteData>(text)!;
-
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadFonts()
+    private static void LoadFonts(DataWin dataWin)
     {
         Console.Write($"Loading Fonts...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        var files = Directory.GetFiles(objectsFolder);
-
-        foreach (var file in files)
+        foreach (var asset in dataWin.Fonts)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<FontAsset>(text)!;
-
             TextManager.FontAssets.Add(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadTexturePages()
+    private static void LoadTexturePages(DataWin dataWin)
     {
         Console.Write($"Loading Texture Pages...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        var files = Directory.GetFiles(objectsFolder);
 
         //StbImage.stbi_set_flip_vertically_on_load(1);
 
-        foreach (var file in files)
+        foreach (var asset in dataWin.TexturePages)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TexturePage>(text)!;
-
             var imageResult = ImageResult.FromMemory(asset.PngData, ColorComponents.RedGreenBlueAlpha);
             PageManager.TexturePages.Add(asset.Name, (imageResult, -1));
         }
@@ -237,17 +205,11 @@ public static class GameLoader
 
     public static Dictionary<string, TextureGroup> TexGroups = new();
 
-    private static void LoadTextureGroups()
+    private static void LoadTextureGroups(DataWin dataWin)
     {
         Console.Write($"Loading Texture Groups...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        var files = Directory.GetFiles(objectsFolder);
-
-        foreach (var file in files)
+        foreach (var asset in dataWin.TextureGroups)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TextureGroup>(text)!;
-
             TexGroups.Add(asset.GroupName, asset);
         }
 
@@ -256,17 +218,11 @@ public static class GameLoader
 
     public static Dictionary<int, TileSet> TileSets = new();
 
-	private static void LoadTileSets()
+	private static void LoadTileSets(DataWin dataWin)
     {
 	    Console.Write($"Loading Tile Sets...");
-	    var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-	    var files = Directory.GetFiles(objectsFolder);
-
-	    foreach (var file in files)
+	    foreach (var asset in dataWin.TileSets)
 	    {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TileSet>(text)!;
-
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }
 

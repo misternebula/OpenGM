@@ -77,7 +77,8 @@ public static class AudioManager
     /// load all the audio data into buffers
     /// has to happen after init since context is set up there
     /// </summary>
-    public static void LoadSounds()
+    /// <param name="dataWin"></param>
+    public static void LoadSounds(DataWin dataWin)
     {
         Console.Write($"Loading sounds...");
 
