@@ -2816,8 +2816,8 @@ public static partial class ScriptResolver
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 
 		var layerElements = layer.LayerAsset.Elements;
-		var element = layerElements.First(x => x is CLayerTilemapElement) as CLayerTilemapElement;
-		if (element == null)
+		var element = layerElements.FirstOrDefault(x => x is CLayerTilemapElement);
+		if (element == default)
 		{
 			return -1;
 		}
