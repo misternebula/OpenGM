@@ -1,7 +1,9 @@
-﻿namespace OpenGM.SerializedFiles;
+﻿using MemoryPack;
 
-[Serializable]
-public class FontAsset
+namespace OpenGM.SerializedFiles;
+
+[MemoryPackable]
+public partial class FontAsset
 {
 	public int AssetIndex;
 	public string name = null!;
@@ -29,8 +31,8 @@ public class FontAsset
 	public Dictionary<int, Glyph> entriesDict = new();
 }
 
-[Serializable]
-public class Glyph
+[MemoryPackable]
+public partial class Glyph
 {
 	/// <summary>
 	/// If the font was created from a sprite, this will be the image index of the glyph from that sprite, otherwise it will be its Unicode character number

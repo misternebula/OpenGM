@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using MemoryPack;
+using Newtonsoft.Json;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
 
-[Serializable]
-public class Room
+[MemoryPackable]
+public partial class Room
 {
 	public int AssetId;
 	public string Name = null!;
@@ -22,8 +23,8 @@ public class Room
 	public List<Layer> Layers = new();
 }
 
-[Serializable]
-public class Layer
+[MemoryPackable]
+public partial class Layer
 {
 	public int LayerID;
 	public int LayerDepth;
@@ -50,19 +51,19 @@ public enum ElementType
 	Text
 }
 
-[Serializable]
-public class CLayerElementBase
+[MemoryPackable]
+public partial class CLayerElementBase
 {
 	public ElementType Type;
 	public int Id;
 	public string Name = null!;
 
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public LayerContainer Layer = null!;
 }
 
-[Serializable]
-public class CLayerTilemapElement : CLayerElementBase
+[MemoryPackable]
+public partial class CLayerTilemapElement : CLayerElementBase
 {
 	public int BackgroundIndex;
 	public float x;
@@ -75,12 +76,12 @@ public class CLayerTilemapElement : CLayerElementBase
 	/// </summary>
 	public uint[][] Tiles = null!;
 
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public TileBlob[,] TilesData = null!;
 }
 
-[Serializable]
-public class CLayerBackgroundElement : CLayerElementBase
+[MemoryPackable]
+public partial class CLayerBackgroundElement : CLayerElementBase
 {
 	public bool Visible;
 	public bool Foreground;
@@ -95,7 +96,7 @@ public class CLayerBackgroundElement : CLayerElementBase
 	public AnimationSpeedType AnimationSpeedType;
 }
 
-public class GamemakerTile
+public partial class GamemakerTile
 {
 	public int X;
 	public int Y;
@@ -111,7 +112,7 @@ public class GamemakerTile
 	public int Color;
 }
 
-public class TileBlob
+public partial class TileBlob
 {
 	public int TileIndex; // bits 0-18
 	public bool Mirror; // bit 28

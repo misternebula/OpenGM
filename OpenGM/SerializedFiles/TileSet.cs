@@ -1,7 +1,9 @@
-﻿namespace OpenGM.SerializedFiles;
+﻿using MemoryPack;
 
-[Serializable]
-public class TileSet
+namespace OpenGM.SerializedFiles;
+
+[MemoryPackable]
+public partial class TileSet
 {
 	public string Name = null!;
 	public int AssetIndex;

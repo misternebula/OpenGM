@@ -1,7 +1,7 @@
 ﻿using MemoryPack;
+using Newtonsoft.Json;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
-using Newtonsoft.Json;
 using System.Diagnostics;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
@@ -22,6 +22,8 @@ public static class GameConverter
         Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
 
         Console.WriteLine($"Converting game assets...");
+        // TODO: pack everything into 1 file for faster read
+        
         ConvertScripts(data, data.Code.Where(c => c.ParentEntry is null).ToList());
 
         ExportPages(data);
@@ -50,7 +52,7 @@ public static class GameConverter
         Console.Write($"Converting scripts...");
         foreach (var code in codes)
         {
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.json");
+            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.bin");
 
             var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
@@ -432,8 +434,8 @@ public static class GameConverter
                 asset.CollisionMasks.Add(item.Data);
             }
 
-            var saveDirectory = Path.Combine(outputPath, $"{sprite.Name.Content}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+            var saveDirectory = Path.Combine(outputPath, $"{sprite.Name.Content}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
 
         Console.WriteLine($" Done!");
@@ -625,8 +627,8 @@ public static class GameConverter
 
             asset.FileStorage = storage;
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects", $"{asset.Name}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects", $"{asset.Name}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
         Console.WriteLine(" Done!");
     }
@@ -742,6 +744,7 @@ public static class GameConverter
                 asset.Layers.Add(layerasset);
             }
 
+            // TODO: MemoryPack, use MemoryPackUnion for polymorphism
             var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.json");
             File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, new JsonSerializerSettings()
             {
@@ -802,8 +805,8 @@ public static class GameConverter
                 fontAsset.entriesDict.Add(glyphAsset.characterIndex, glyphAsset);
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts", $"{fontAsset.name}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(fontAsset, Formatting.Indented));
+            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts", $"{fontAsset.name}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(fontAsset));
         }
         Console.WriteLine(" Done!");
     }
@@ -852,8 +855,8 @@ public static class GameConverter
                 }
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
         Console.WriteLine(" Done!");
     }
@@ -873,8 +876,8 @@ public static class GameConverter
             asset.Sprites = group.Sprites.Select(x => data.Sprites.IndexOf(x.Resource)).ToArray();
             asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
 
-            var saveDirectory = Path.Combine(outputPath, $"{group.Name.Content}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+            var saveDirectory = Path.Combine(outputPath, $"{group.Name.Content}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
 
         Console.WriteLine(" Done!");
@@ -917,8 +920,8 @@ public static class GameConverter
                 Page = set.Texture.TexturePage.Name.Content
             };
 
-            var saveDirectory = Path.Combine(outputPath, $"{set.Name.Content}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+            var saveDirectory = Path.Combine(outputPath, $"{set.Name.Content}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
 
         Console.WriteLine(" Done!");

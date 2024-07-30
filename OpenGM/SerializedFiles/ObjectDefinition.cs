@@ -1,4 +1,5 @@
-﻿using OpenGM.VirtualMachine;
+﻿using MemoryPack;
+using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
 using UndertaleModLib.Models;
 
@@ -7,8 +8,8 @@ namespace OpenGM.SerializedFiles;
 /// <summary>
 /// "template" for an object. analagous to a class
 /// </summary>
-[Serializable]
-public class ObjectDefinition
+[MemoryPackable]
+public partial class ObjectDefinition
 {
 	public int AssetId;
 
@@ -27,38 +28,38 @@ public class ObjectDefinition
 	/// <summary>
 	/// analogous to a superclass
 	/// </summary>
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public ObjectDefinition? parent;
 
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public VMScript? CreateScript;
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public VMScript? DestroyScript;
 
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public Dictionary<int, VMScript> AlarmScript = new();
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public Dictionary<EventSubtypeStep, VMScript> StepScript = new();
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public Dictionary<int, VMScript> CollisionScript = new();
 	//keyboard
 	//mouse
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public Dictionary<EventSubtypeOther, VMScript> OtherScript = new();
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public Dictionary<EventSubtypeDraw, VMScript> DrawScript = new();
 	//keypress
 	//keyrelease
 	//trigger
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public VMScript? CleanUpScript;
 	//gesture
-	[JsonIgnore]
+	[MemoryPackIgnore]
 	public VMScript? PreCreateScript;
 }
 
-[Serializable]
-public class ObjectDefinitionStorage
+[MemoryPackable]
+public partial class ObjectDefinitionStorage
 {
 	public int ParentID;
 	public int CreateScriptID;

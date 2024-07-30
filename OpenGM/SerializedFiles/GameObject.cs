@@ -1,7 +1,9 @@
-﻿namespace OpenGM.SerializedFiles;
+﻿using MemoryPack;
 
-[Serializable]
-public class GameObject : CLayerElementBase
+namespace OpenGM.SerializedFiles;
+
+[MemoryPackable]
+public partial class GameObject : CLayerElementBase
 {
 	public float X;
 	public float Y;

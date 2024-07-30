@@ -26,8 +26,8 @@ internal class Entry
 			GameConverter.ConvertGame(data);
 		}
 
+		AudioManager.Init();
 		GameLoader.LoadGame();
-		AudioManager.InitAndLoadSounds();
 
 		var firstRoom = RoomManager.RoomList[0];
 

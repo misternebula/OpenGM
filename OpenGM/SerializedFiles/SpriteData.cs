@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using MemoryPack;
+using Newtonsoft.Json;
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
 
-[Serializable]
-public class SpriteData
+[MemoryPackable]
+public partial class SpriteData
 {
 	public int AssetIndex;
 	public string Name = null!;
@@ -24,13 +25,13 @@ public class SpriteData
 	public float PlaybackSpeed;
 	public AnimSpeedType PlaybackSpeedType;
 
-	[JsonIgnore] public Vector2i Origin => new(OriginX, OriginY);
+	[MemoryPackIgnore] public Vector2i Origin => new(OriginX, OriginY);
 
-	[JsonIgnore] public Vector4i Margins => new(MarginLeft, MarginRight, MarginBottom, MarginTop);
+	[MemoryPackIgnore] public Vector4i Margins => new(MarginLeft, MarginRight, MarginBottom, MarginTop);
 }
 
-[Serializable]
-public class SpritePageItem
+[MemoryPackable]
+public partial class SpritePageItem
 {
 	public int SourcePosX;
 	public int SourcePosY;

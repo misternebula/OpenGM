@@ -1,3 +1,4 @@
+using MemoryPack;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using NAudio.Wave;
@@ -54,7 +55,7 @@ public static class AudioManager
     private static List<AudioInstance> _audioSources = new();
     private static Dictionary<int, AudioAsset> _audioClips = new();
 
-    public static void InitAndLoadSounds()
+    public static void Init()
     {
         _device = ALC.OpenDevice(null);
         CheckALCError();
@@ -69,83 +70,22 @@ public static class AudioManager
         CheckALError();
         Console.WriteLine(AL.Get(ALGetString.Extensions));
         CheckALError();
-
-#pragma warning disable CS0162
-        // test
-        if (false)
-        {
-            /*
-			* these are like clips
-			* we can probably alloc one for each sound on init
-			* otherwise just alloc and dealloc as needed
-			*/
-            var buffer = AL.GenBuffer();
-            CheckALError();
-            var bufferData = new double[44100 * 2];
-            for (var i = 0; i < bufferData.Length; i += 2)
-            {
-                bufferData[i] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
-                bufferData[i + 1] = Math.Sin(i * (2 * Math.PI / 44100) * 440);
-            }
-            AL.BufferData(buffer, ALFormat.StereoDoubleExt, bufferData, 44100);
-            CheckALError();
-
-            /*
-			* these are audio sources
-			* pretty self explanatory
-			*/
-            var source = AL.GenSource();
-            CheckALError();
-            AL.Source(source, ALSourcei.Buffer, buffer);
-            CheckALError();
-            AL.Source(source, ALSourcef.Gain, .1f);
-            CheckALError();
-            // AL.Source(source, ALSourceb.Looping, true);
-            AL.SourcePlay(source);
-            CheckALError();
-        }
-
-        LoadSounds();
-
-        // test 2
-        if (false)
-        {
-            var clip = _audioClips.Last().Value;
-
-            AL.GenSource(out var source);
-            CheckALError();
-            AL.Source(source, ALSourcei.Buffer, clip.Clip);
-            CheckALError();
-            AL.Source(source, ALSourcef.Gain, (float)clip.Gain);
-            CheckALError();
-            AL.Source(source, ALSourcef.Pitch, (float)clip.Pitch);
-            CheckALError();
-            AL.SourcePlay(source);
-            CheckALError();
-
-            _audioSources.Add(new()
-            {
-                Asset = clip,
-                Source = source,
-            });
-        }
-#pragma warning restore CS0162
     }
 
     /// <summary>
     /// load all the audio data into buffers
     /// has to happen after init since context is set up there
     /// </summary>
-    private static void LoadSounds()
+    public static void LoadSounds()
     {
         Console.Write($"Loading sounds...");
 
         var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        var files = Directory.GetFiles(soundsFolder, "*.json");
+        var files = Directory.GetFiles(soundsFolder, "*.bin");
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<SoundAsset>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<SoundAsset>(text)!;
 
             float[] data;
             bool stereo;

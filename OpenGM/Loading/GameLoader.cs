@@ -4,6 +4,7 @@ using System.Text;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
+using OpenGM.IO;
 using StbImageSharp;
 using OpenGM.Rendering;
 
@@ -22,6 +23,7 @@ public static class GameLoader
         LoadTexturePages();
         LoadTextureGroups();
         LoadTileSets();
+        AudioManager.LoadSounds();
     }
 
     private static void LoadScripts()
@@ -60,8 +62,8 @@ public static class GameLoader
 
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<ObjectDefinition>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<ObjectDefinition>(text)!;
             var storage = asset.FileStorage;
 
             VMScript? GetVMScriptFromCodeIndex(int codeIndex)
@@ -192,8 +194,8 @@ public static class GameLoader
 
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<SpriteData>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<SpriteData>(text)!;
 
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
@@ -208,8 +210,8 @@ public static class GameLoader
 
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<FontAsset>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<FontAsset>(text)!;
 
             TextManager.FontAssets.Add(asset);
         }
@@ -243,8 +245,8 @@ public static class GameLoader
 
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<TextureGroup>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<TextureGroup>(text)!;
 
             TexGroups.Add(asset.GroupName, asset);
         }
@@ -262,8 +264,8 @@ public static class GameLoader
 
 	    foreach (var file in files)
 	    {
-		    var text = File.ReadAllText(file);
-		    var asset = JsonConvert.DeserializeObject<TileSet>(text)!;
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<TileSet>(text)!;
 
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }
