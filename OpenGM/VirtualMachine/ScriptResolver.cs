@@ -193,7 +193,8 @@ public static partial class ScriptResolver
 		{ "@@NewGMLArray@@", newgmlarray },
 		{ "@@NewGMLObject@@", newgmlobject },
 		{ "@@This@@", yoyothis },
-		{ "@@Other@@", yoyoother },
+		// { "@@try_hook@@", tryhook },
+		// { "@@try_unhook@@", tryunhook },
 		#endregion
 
 		#region Layer
