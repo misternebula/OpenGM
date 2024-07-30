@@ -64,6 +64,8 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id)
     {
+        // BUG: does not free texture bound to fb
+        
         var buffer = _framebuffers[id];
         GL.DeleteFramebuffer(buffer);
     }
