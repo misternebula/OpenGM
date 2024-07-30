@@ -29,6 +29,8 @@ internal class Entry
 		AudioManager.Init();
 		GameLoader.LoadGame();
 
+		// Environment.Exit(0);
+
 		var firstRoom = RoomManager.RoomList[0];
 
 		var gameSettings = GameWindowSettings.Default;

@@ -223,10 +223,13 @@ public static class GameLoader
 
         //StbImage.stbi_set_flip_vertically_on_load(1);
 
-        foreach (var image in files)
+        foreach (var file in files)
         {
-            var imageResult = ImageResult.FromStream(File.OpenRead(image), ColorComponents.RedGreenBlueAlpha);
-            PageManager.TexturePages.Add(Path.GetFileNameWithoutExtension(image), (imageResult, -1));
+            var text = File.ReadAllBytes(file);
+            var asset = MemoryPackSerializer.Deserialize<TexturePage>(text)!;
+
+            var imageResult = ImageResult.FromMemory(asset.PngData, ColorComponents.RedGreenBlueAlpha);
+            PageManager.TexturePages.Add(asset.Name, (imageResult, -1));
         }
 
         Console.WriteLine($" Done!");

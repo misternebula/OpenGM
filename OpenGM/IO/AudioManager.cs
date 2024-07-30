@@ -1,4 +1,5 @@
 using MemoryPack;
+using NAudio.Vorbis;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using NAudio.Wave;

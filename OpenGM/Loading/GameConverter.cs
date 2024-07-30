@@ -365,10 +365,14 @@ public static class GameConverter
 
         foreach (var page in data.EmbeddedTextures)
         {
-            var pageName = page.Name.Content;
-            var blob = page.TextureData.TextureBlob;
-            var texPath = Path.Combine(outputPath, $"{pageName}.png");
-            File.WriteAllBytes(texPath, blob);
+            var asset = new TexturePage
+            {
+                Name = page.Name.Content,
+                PngData = page.TextureData.TextureBlob
+            };
+            
+            var saveDirectory = Path.Combine(outputPath, $"{page.Name.Content}.bin");
+            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
         }
         Console.WriteLine($" Done!");
     }

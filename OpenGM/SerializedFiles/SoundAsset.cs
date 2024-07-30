@@ -10,4 +10,6 @@ public partial class SoundAsset
 	public string File = null!;
 	public float Volume;
 	public float Pitch;
+
+	public byte[] WavOrOggData = null!;
 }
