@@ -104,15 +104,17 @@ public static class RoomManager
 		{
 			var layerContainer = new LayerContainer(layer);
 
-			if (layer.Instances_Objects != null)
+			foreach (var element in layer.Elements)
 			{
-				foreach (var item in layer.Instances_Objects)
+				element.Layer = layerContainer;
+
+				if (element.Type == ElementType.Instance)
 				{
-					//var id = InstanceManager.instance_create_depth(item.X, item.Y, layer.LayerDepth, item.DefinitionID);
+					var item = (element as GameObject)!;
 
 					var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
 					var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
-					
+
 					newGM._createRan = true;
 					newGM.depth = layer.LayerDepth;
 					newGM.image_xscale = item.ScaleX;
@@ -124,49 +126,43 @@ public static class RoomManager
 
 					layerContainer.ElementsToDraw.Add(newGM);
 				}
-			}
-
-			if (layer.Assets_LegacyTiles != null && layer.Assets_LegacyTiles.Count != 0)
-			{
-				foreach (var tile in layer.Assets_LegacyTiles)
+				else if (element.Type == ElementType.Tilemap)
 				{
-					var newTile = new GMTile
-					{
-						X = tile.X,
-						Y = tile.Y,
-						Definition = tile.Definition,
-						left = tile.SourceLeft,
-						top = tile.SourceTop,
-						width = tile.SourceWidth,
-						height = tile.SourceHeight,
-						depth = tile.Depth,
-						instanceId = (int)tile.InstanceID,
-						XScale = tile.ScaleX,
-						YScale = tile.ScaleY,
-						Color = tile.Color
-					};
+					var item = (element as CLayerTilemapElement)!;
 
-					CurrentRoom.Tiles.Add(newTile);
+					if (item.BackgroundIndex == -1)
+					{
+						continue;
+					}
+
+					var tilesLayer = new GMTilesLayer(item)
+					{
+						depth = layer.LayerDepth
+					};
 
 					layerContainer.ElementsToDraw.Add(tilesLayer);
 				}
-			}
-
-			if (layer.LayerType == UndertaleRoom.LayerType.Tiles)
-			{
-				DebugLog.Log($"CREATING TILES LAYER {layer.LayerName}");
-
-				if (layer.Tiles_TileSet == -1)
+				else if (element.Type == ElementType.Background)
 				{
-					continue;
+					var item = (element as CLayerBackgroundElement)!;
+
+					if (item.Index == -1)
+					{
+						DebugLog.LogWarning($"Background {item.Name} with null index!");
+						continue;
+					}
+
+					var background = new GMBackground(item)
+					{
+						depth = layer.LayerDepth
+					};
+
+					layerContainer.ElementsToDraw.Add(background);
 				}
-
-				var tilesLayer = new GMTilesLayer(layer)
+				else
 				{
-					depth = layer.LayerDepth
-				};
-
-				layerContainer.Elements.Add(tilesLayer);
+					DebugLog.LogError($"Don't know how to load element type {element.Type}!");
+				}
 			}
 
 			CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);

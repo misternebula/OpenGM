@@ -12,15 +12,15 @@ namespace OpenGM.Rendering;
 
 internal class GMTilesLayer : DrawWithDepth
 {
-	private Layer _layer;
+	private CLayerTilemapElement _element;
 
-	public GMTilesLayer(Layer layer)
+	public GMTilesLayer(CLayerTilemapElement element)
 	{
-		_layer = layer;
+		_element = element;
 		DrawManager.Register(this);
 		_timing = new Stopwatch();
 		_timing.Start();
-		_tileSet = GameLoader.TileSets[_layer.Tiles_TileSet];
+		_tileSet = GameLoader.TileSets[_element.BackgroundIndex];
 	}
 
 	private Stopwatch _timing;
@@ -38,11 +38,11 @@ internal class GMTilesLayer : DrawWithDepth
 			}
 		}
 
-		for (var _y = 0; _y < _layer.Tiles_SizeY; _y++)
+		for (var _y = 0; _y < _element.Height; _y++)
 		{
-			for (var _x = 0; _x < _layer.Tiles_SizeX; _x++)
+			for (var _x = 0; _x < _element.Width; _x++)
 			{
-				var tile = _layer.Tiles_TileData[_y, _x];
+				var tile = _element.TilesData[_y, _x];
 
 				if (tile.TileIndex == 0)
 				{

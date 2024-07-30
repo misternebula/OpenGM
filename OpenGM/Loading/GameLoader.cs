@@ -138,7 +138,42 @@ public static class GameLoader
         foreach (var file in files)
         {
             var text = File.ReadAllText(file);
-            var asset = JsonConvert.DeserializeObject<Room>(text)!;
+            var asset = JsonConvert.DeserializeObject<Room>(text, new JsonSerializerSettings()
+            { 
+                TypeNameHandling = TypeNameHandling.Auto,
+            })!;
+
+            foreach (var layer in asset.Layers)
+            {
+                foreach (var element in layer.Elements)
+                {
+                    if (element is CLayerTilemapElement tilemap)
+                    {
+                        var uintData = tilemap.Tiles;
+                        tilemap.TilesData = new TileBlob[tilemap.Height, tilemap.Width];
+
+                        var cols = tilemap.Height;
+                        var rows = tilemap.Width;
+						for (var col = 0; col < cols; col++)
+						{
+							for (var row = 0; row < rows; row++)
+							{
+								var blobData = uintData[col][row];
+
+								var blob = new TileBlob
+								{
+									TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
+									Mirror = (blobData & 0x8000000) != 0, // bit 28
+									Flip = (blobData & 0x10000000) != 0, // bit 29
+									Rotate = (blobData & 0x20000000) != 0 // bit 30
+								};
+
+								tilemap.TilesData[col, row] = blob;
+							}
+						}
+					}
+                }
+            }
 
             RoomManager.RoomList.Add(asset.AssetId, asset);
         }

@@ -1,4 +1,5 @@
-﻿using UndertaleModLib.Models;
+﻿using Newtonsoft.Json;
+using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
 
@@ -24,35 +25,74 @@ public class Room
 [Serializable]
 public class Layer
 {
-	public string LayerName = null!;
 	public int LayerID;
 	public int LayerDepth;
-	public UndertaleRoom.LayerType LayerType;
 	public float XOffset;
 	public float YOffset;
 	public float HSpeed;
 	public float VSpeed;
 	public bool IsVisible;
+	public string LayerName = null!;
+	public List<CLayerElementBase> Elements = new();
+}
 
-	public List<GameObject> Instances_Objects = new();
+public enum ElementType
+{
+	Undefined,
+	Background,
+	Instance,
+	OldTilemap,
+	Sprite,
+	Tilemap,
+	ParticleSystem,
+	Tile,
+	Sequence,
+	Text
+}
 
-	public bool Background_Visible;
-	public bool Background_Foreground;
-	public int Background_SpriteID;
-	public bool Background_TilingH;
-	public bool Background_TilingV;
-	public bool Background_Stretch;
-	public int Background_Color;
-	public float Background_FirstFrame;
-	public float Background_AnimationSpeed;
-	public AnimationSpeedType Background_AnimationType;
+[Serializable]
+public class CLayerElementBase
+{
+	public ElementType Type;
+	public int Id;
+	public string Name = null!;
 
-	public List<GamemakerTile> Assets_LegacyTiles = new();
+	[JsonIgnore]
+	public LayerContainer Layer = null!;
+}
 
-	public int Tiles_SizeX;
-	public int Tiles_SizeY;
-	public int Tiles_TileSet;
-	public TileBlob[,] Tiles_TileData = null!;
+[Serializable]
+public class CLayerTilemapElement : CLayerElementBase
+{
+	public int BackgroundIndex;
+	public float x;
+	public float y;
+	public int Width;
+	public int Height;
+
+	/// <summary>
+	/// Just for compressed storage, don't actually use this for displaying tiles.
+	/// </summary>
+	public uint[][] Tiles = null!;
+
+	[JsonIgnore]
+	public TileBlob[,] TilesData = null!;
+}
+
+[Serializable]
+public class CLayerBackgroundElement : CLayerElementBase
+{
+	public bool Visible;
+	public bool Foreground;
+	public int Index;
+	public bool HTiled;
+	public bool VTiled;
+	public bool Stretch;
+	public int Color;
+	public double Alpha;
+	public int FirstFrame;
+	public double AnimationSpeed;
+	public AnimationSpeedType AnimationSpeedType;
 }
 
 public class GamemakerTile

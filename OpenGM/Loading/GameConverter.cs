@@ -630,6 +630,8 @@ public static class GameConverter
         Console.WriteLine(" Done!");
     }
 
+    public static int CurrentElementID = 0;
+
     public static void ExportRooms(UndertaleData data)
     {
         Console.Write($"Exporting rooms...");
@@ -662,7 +664,6 @@ public static class GameConverter
                     LayerName = layer.LayerName.Content,
                     LayerID = (int)layer.LayerId,
                     LayerDepth = layer.LayerDepth,
-                    LayerType = layer.LayerType,
                     XOffset = layer.XOffset,
                     YOffset = layer.YOffset,
                     HSpeed = layer.HSpeed,
@@ -670,12 +671,29 @@ public static class GameConverter
                     IsVisible = layer.IsVisible
                 };
 
-                if (layer.LayerType == UndertaleRoom.LayerType.Instances)
+                if (layer.LayerType == UndertaleRoom.LayerType.Tiles)
+                {
+                    var tilelayer = new CLayerTilemapElement
+                    {
+                        Type = ElementType.Tilemap,
+                        Id = CurrentElementID++,
+                        Name = layer.LayerName.Content,
+                        Width = (int)layer.TilesData.TilesX,
+                        Height = (int)layer.TilesData.TilesY,
+                        BackgroundIndex = data.Backgrounds.IndexOf(layer.TilesData.Background),
+                        Tiles = layer.TilesData.TileData,
+                    };
+
+                    layerasset.Elements.Add(tilelayer);
+                }
+                else if (layer.LayerType == UndertaleRoom.LayerType.Instances)
                 {
                     foreach (var instance in layer.InstancesData.Instances)
                     {
                         var objectAsset = new GameObject
                         {
+                            Type = ElementType.Instance,
+                            Id = CurrentElementID++,
                             X = instance.X,
                             Y = instance.Y,
                             DefinitionID = data.GameObjects.IndexOf(instance.ObjectDefinition),
@@ -685,84 +703,35 @@ public static class GameConverter
                             ScaleY = instance.ScaleY,
                             Color = (int)instance.Color,
                             Rotation = instance.Rotation,
-                            PreCreateCodeID = codes.IndexOf(instance.PreCreateCode)
+                            PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
                         };
 
-                        layerasset.Instances_Objects.Add(objectAsset);
+                        layerasset.Elements.Add(objectAsset);
                     }
                 }
                 else if (layer.LayerType == UndertaleRoom.LayerType.Background)
                 {
-                    layerasset.Background_Visible = layer.BackgroundData.Visible;
-                    layerasset.Background_Foreground = layer.BackgroundData.Foreground;
-                    layerasset.Background_SpriteID = data.Sprites.IndexOf(layer.BackgroundData.Sprite);
-                    layerasset.Background_TilingH = layer.BackgroundData.TiledHorizontally;
-                    layerasset.Background_TilingV = layer.BackgroundData.TiledVertically;
-                    layerasset.Background_Stretch = layer.BackgroundData.Stretch;
-                    layerasset.Background_Color = (int)layer.BackgroundData.Color;
-                    layerasset.Background_FirstFrame = layer.BackgroundData.FirstFrame;
-                    layerasset.Background_AnimationSpeed = layer.BackgroundData.AnimationSpeed;
-                    layerasset.Background_AnimationType = layer.BackgroundData.AnimationSpeedType;
-                }
-                else if (layer.LayerType == UndertaleRoom.LayerType.Assets)
-                {
-                    foreach (var tile in layer.AssetsData.LegacyTiles)
+                    var col4 = ((int)layer.BackgroundData.Color).ABGRToCol4();
+
+                    var backgroundElement = new CLayerBackgroundElement()
                     {
-                        var legacyTile = new GamemakerTile
-                        {
-                            X = tile.X,
-                            Y = tile.Y,
-                            Definition = data.Sprites.IndexOf(tile.SpriteDefinition),
-                            SourceLeft = (int)tile.SourceX,
-                            SourceTop = (int)tile.SourceY,
-                            SourceWidth = (int)tile.Width,
-                            SourceHeight = (int)tile.Height,
-                            Depth = tile.TileDepth,
-                            InstanceID = (int)tile.InstanceID,
-                            ScaleX = tile.ScaleX,
-                            ScaleY = tile.ScaleY,
-                            Color = (int)tile.Color
-                        };
+                        Type = ElementType.Background,
+                        Id = CurrentElementID++,
+                        Name = layer.LayerName.Content,
+                        Visible = layer.BackgroundData.Visible,
+                        Foreground = layer.BackgroundData.Foreground,
+                        Index = data.Sprites.IndexOf(layer.BackgroundData.Sprite),
+                        HTiled = layer.BackgroundData.TiledHorizontally,
+                        VTiled = layer.BackgroundData.TiledVertically,
+                        Stretch = layer.BackgroundData.Stretch,
+                        Color = (int)layer.BackgroundData.Color,
+                        Alpha = col4.A,
+                        FirstFrame = (int)layer.BackgroundData.FirstFrame,
+                        AnimationSpeed = layer.BackgroundData.AnimationSpeed,
+                        AnimationSpeedType = layer.BackgroundData.AnimationSpeedType
+                    };
 
-                        layerasset.Assets_LegacyTiles.Add(legacyTile);
-                    }
-
-                    foreach (var sprite in layer.AssetsData.Sprites)
-                    {
-                        // uhh
-                        DebugLog.LogError($"Room:{room.Name.Content} Layer:{layer.LayerName.Content} Sprite:{sprite.Name.Content}");
-                    }
-                }
-                else if (layer.LayerType == UndertaleRoom.LayerType.Tiles)
-                {
-                    layerasset.Tiles_SizeX = (int)layer.TilesData.TilesX;
-                    layerasset.Tiles_SizeY = (int)layer.TilesData.TilesY;
-                    layerasset.Tiles_TileSet = data.Backgrounds.IndexOf(layer.TilesData.Background);
-
-                    var cols = layer.TilesData.TilesY;
-                    var rows = layer.TilesData.TilesX;
-                    layerasset.Tiles_TileData = new TileBlob[cols, rows];
-
-                    for (var col = 0; col < cols; col++)
-                    {
-						for (var row = 0; row < rows; row++)
-						{
-                            var blobData = layer.TilesData.TileData[col][row];
-
-							var blob = new TileBlob
-							{
-								TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
-								Mirror = (blobData & 0x8000000) != 0, // bit 28
-								Flip = (blobData & 0x10000000) != 0, // bit 29
-								Rotate = (blobData & 0x20000000) != 0 // bit 30
-							};
-
-							layerasset.Tiles_TileData[col, row] = blob;
-						}
-					}
-
-
-                   // layerasset.Tiles_TileData = Array.ConvertAll(layer.TilesData.TileData, dim1 => Array.ConvertAll(dim1, dim2 => (int)dim2)); // this is dumb
+                    layerasset.Elements.Add(backgroundElement);
                 }
                 else
                 {
@@ -773,7 +742,11 @@ public static class GameConverter
             }
 
             var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.json");
-            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, Formatting.Indented));
+            File.WriteAllText(saveDirectory, JsonConvert.SerializeObject(asset, new JsonSerializerSettings()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.All
+            }));
         }
         Console.WriteLine(" Done!");
     }

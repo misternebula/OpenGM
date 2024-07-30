@@ -1,7 +1,7 @@
 ﻿namespace OpenGM.SerializedFiles;
 
 [Serializable]
-public class GameObject
+public class GameObject : CLayerElementBase
 {
 	public float X;
 	public float Y;
