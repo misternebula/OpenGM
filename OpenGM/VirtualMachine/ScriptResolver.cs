@@ -191,6 +191,10 @@ public static partial class ScriptResolver
 
 		#region YoYo
 		{ "@@NewGMLArray@@", newgmlarray },
+		{ "@@NewGMLObject@@", newgmlobject },
+		{ "@@This@@", yoyothis },
+		// { "@@try_hook@@", tryhook },
+		// { "@@try_unhook@@", tryunhook },
 		#endregion
 
 		#region Layer
@@ -290,7 +294,6 @@ public static partial class ScriptResolver
 		{ "date_get_hour", date_get_hour},
 		{ "date_get_minute", date_get_minute},
 		{ "date_get_second", date_get_second},
-		{ "@@NewGMLObject@@", newgmlobject },
 		{ "mouse_check_button_pressed", mouse_check_button_pressed},
 		{ "layer_set_visible", layer_set_visible},
 		{ "draw_line_width_color", draw_line_width_color},
@@ -2818,8 +2821,8 @@ public static partial class ScriptResolver
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 
 		var layerElements = layer.LayerAsset.Elements;
-		var element = layerElements.First(x => x is CLayerTilemapElement) as CLayerTilemapElement;
-		if (element == null)
+		var element = layerElements.FirstOrDefault(x => x is CLayerTilemapElement);
+		if (element == default)
 		{
 			return -1;
 		}
@@ -2882,6 +2885,9 @@ public static partial class ScriptResolver
 
 		return null;
 	}
+
+	private static object yoyothis(object?[] arg) => GMConstants.self;
+	private static object yoyoother(object?[] arg) => GMConstants.other;
 }
 
 public class FileHandle

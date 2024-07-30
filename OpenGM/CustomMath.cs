@@ -59,6 +59,22 @@ public static class CustomMath
 	public static double Mod(double a, double b)
 	{
 		// % is actually remainder in C/C#, and will return a negative number
+		
+		/*
+		 * Remainder and Modulus have the same value for positive values.
+		 * % in C# is NOT modulo - it's remainder.
+		 * Modulus always has the same sign as the divisor, and remainder has the same sign as the dividend
+		 * (dividend / divisor = quotient)
+		 * 10 REM 3 = 1
+		 * -10 REM 3 = -1
+		 * 10 REM -3 = 1
+		 * -10 REM -3 = -1
+		 * 10 MOD 3 = 1
+		 * -10 MOD 3 = 2
+		 * 10 MOD -3 = -2
+		 * -10 MOD -3 = -1
+		 */
+		
 		return ((a % b) + b) % b;
 	}
 
