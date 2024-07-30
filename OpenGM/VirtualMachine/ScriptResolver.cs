@@ -1962,7 +1962,7 @@ public static partial class ScriptResolver
 	{
 		var layer_id = args[0].Conv<int>();
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
-		return layer.Elements.Select(x => x.instanceId).ToList();
+		return layer.ElementsToDraw.Select(x => x.instanceId).ToList();
 	}
 
 	private static object layer_get_element_type(object?[] args)

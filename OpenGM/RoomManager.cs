@@ -67,7 +67,7 @@ public static class RoomManager
 
 			foreach (var layer in CurrentRoom.Layers)
 			{
-				foreach (var item in layer.Value.Elements)
+				foreach (var item in layer.Value.ElementsToDraw)
 				{
 					if (item is GamemakerObject gm && gm.persistent)
 					{
@@ -122,7 +122,7 @@ public static class RoomManager
 
 					createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
 
-					layerContainer.Elements.Add(newGM);
+					layerContainer.ElementsToDraw.Add(newGM);
 				}
 			}
 
@@ -148,7 +148,7 @@ public static class RoomManager
 
 					CurrentRoom.Tiles.Add(newTile);
 
-					layerContainer.Elements.Add(newTile);
+					layerContainer.ElementsToDraw.Add(tilesLayer);
 				}
 			}
 

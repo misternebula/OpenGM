@@ -41,7 +41,7 @@ public class LayerContainer
 
 	public Layer LayerAsset;
 
-	public List<DrawWithDepth> Elements = new();
+	public List<DrawWithDepth> ElementsToDraw = new();
 
 	public int ID => LayerAsset.LayerID;
 	public string Name => LayerAsset.LayerName;
