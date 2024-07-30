@@ -2550,7 +2550,7 @@ public static partial class ScriptResolver
 	{
 		var instanceId = args[0].Conv<int>();
 		var name = args[1].Conv<string>();
-		var value = args[0];
+		var value = args[2];
 
 		var instance = InstanceManager.FindByInstanceId(instanceId)!;
 		instance.SelfVariables[name] = value;
