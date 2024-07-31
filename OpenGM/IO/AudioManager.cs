@@ -90,27 +90,22 @@ public static class AudioManager
             {
                 if (asset.IsWav)
                 {
-                    asset.Data = new byte[] { };
-                    asset.Freq = 1;
-                    asset.Stereo = false;
-
-                    /*
                     try
                     {
                         using var reader = new AudioFileReader(Path.Combine(soundsFolder, $"{asset.Name}.wav"));
-                        data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
-                        reader.Read(data, 0, data.Length);
-                        stereo = reader.WaveFormat.Channels == 2;
-                        freq = reader.WaveFormat.SampleRate;
+                        asset.Data = new byte[reader.Length];
+                        reader.ReadExactly(asset.Data);
+                        asset.Stereo = reader.WaveFormat.Channels == 2;
+                        asset.Freq = reader.WaveFormat.SampleRate;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                         // ch2 has some empty audio for some reason
-                        data = new byte[] { };
-                        freq = 1;
-                        stereo = false;
+                        DebugLog.LogWarning($"error loading wav {asset.Name}: {e}");
+                        asset.Data = new byte[] { };
+                        asset.Freq = 1;
+                        asset.Stereo = false;
                     }
-                    */
                 }
                 else
                 {
