@@ -24,12 +24,20 @@ public static class SurfaceManager
         }
 
         SurfaceStack.Push(surface);
+        var buffer = _framebuffers[surface];
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        // future draws will draw to this fbo
         return true;
     }
 
 	public static bool surface_reset_target()
     {
-		SurfaceStack.Pop();
+        if (!SurfaceStack.TryPop(out var surface))
+        {
+            surface = application_surface;
+        }
+        var buffer = _framebuffers[surface]; // what happens if this buffer is deleted?
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
 		return true;
 	}
 
@@ -64,7 +72,7 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id)
     {
-        // BUG: does not free texture bound to fb
+        // BUG: does not free texture bound to fbo
         
         var buffer = _framebuffers[id];
         GL.DeleteFramebuffer(buffer);
@@ -76,7 +84,7 @@ public static class SurfaceManager
         var bufferId = _framebuffers[id];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
-        // BUG: memory leak! does not dealloc existing texture bound to fb!
+        // BUG: memory leak! does not dealloc existing texture bound to fbo!
 
         // Generate texture to attach to framebuffer
         var newId = GL.GenTexture();
