@@ -1,4 +1,6 @@
 ﻿using MemoryPack;
+using NAudio.Wave;
+using NVorbis;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using System.Diagnostics;
@@ -17,7 +19,7 @@ namespace OpenGM.Loading;
 /// </summary>
 public static class GameConverter
 {
-    public static bool DecompressOnConvert = false; // so it can be changed while debugging
+    public static bool DecompressOnConvert = true; // so it can be changed while debugging
     
     public static void ConvertGame(UndertaleData data)
     {
@@ -846,9 +848,50 @@ public static class GameConverter
                     asset.Data = embeddedAudio[item.AudioID].Data;
                 }
             }
+            
+            if (DecompressOnConvert)
+            {
+                if (asset.IsWav)
+                {
+                    try
+                    {
+                        // WaveFileReader doesnt work so have to write to file and then read :(
+                        File.WriteAllBytes("TEMP_LOAD_SOUNDS_FILE", asset.Data);
+                        
+                        using var reader = new AudioFileReader("TEMP_LOAD_SOUNDS_FILE");
+                        asset.Data = new byte[reader.Length];
+                        reader.ReadExactly(asset.Data);
+                        asset.Stereo = reader.WaveFormat.Channels == 2;
+                        asset.Freq = reader.WaveFormat.SampleRate;
+                    }
+                    catch (Exception e)
+                    {
+                        // ch2 has some empty audio for some reason
+                        DebugLog.LogWarning($"error loading wav {asset.Name}: {e.Message}");
+                        asset.Data = new byte[] { };
+                        asset.Stereo = false;
+                        asset.Freq = 1;
+                    }
+                }
+                else
+                {
+                    // VorbisWaveReader doesnt like me so we have to copy :(
+                    using var stream = new MemoryStream(asset.Data);
+                    using var reader = new VorbisReader(stream);
+                    var floatData = new float[reader.TotalSamples * reader.Channels];
+                    reader.ReadSamples(floatData);
+                    asset.Data = new byte[System.Buffer.ByteLength(floatData)];
+                    System.Buffer.BlockCopy(floatData, 0, asset.Data, 0, asset.Data.Length);
+                    asset.Stereo = reader.Channels == 2;
+                    asset.Freq = reader.SampleRate;
+                }
+            }
 
             dataWin.Sounds.Add(asset);
         }
+        
+        File.Delete("TEMP_LOAD_SOUNDS_FILE");
+        
         Console.WriteLine(" Done!");
     }
 
