@@ -29,7 +29,7 @@ internal class Entry
 		AudioManager.Init();
 		GameLoader.LoadGame();
 
-		Environment.Exit(0);
+		// Environment.Exit(0);
 
 		var firstRoom = RoomManager.RoomList[0];
 

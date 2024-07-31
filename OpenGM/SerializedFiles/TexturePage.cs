@@ -6,5 +6,7 @@ namespace OpenGM.SerializedFiles;
 public partial class TexturePage
 {
 	public string Name = null!;
-	public byte[] PngData = null!;
+	public int Width;
+	public int Height;
+	public byte[] Data = null!;
 }

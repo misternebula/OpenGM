@@ -7,6 +7,7 @@ using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 using OpenGM.IO;
+using StbImageSharp;
 using System.Numerics;
 
 namespace OpenGM.Loading;
@@ -358,12 +359,18 @@ public static class GameConverter
     {
         Console.Write($"Exporting texture pages...");
 
+        // StbImage.stbi_set_flip_vertically_on_load(1);
+
         foreach (var page in data.EmbeddedTextures)
         {
+            var imageResult = ImageResult.FromMemory(page.TextureData.TextureBlob, ColorComponents.RedGreenBlueAlpha);
+            
             var asset = new TexturePage
             {
                 Name = page.Name.Content,
-                PngData = page.TextureData.TextureBlob
+                Width = imageResult.Width,
+                Height = imageResult.Height,
+                Data = imageResult.Data
             };
             
             dataWin.TexturePages.Add(asset);
@@ -813,7 +820,7 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.File = $"{asset.Name}.ogg";
-                    File.Copy(asset.File, Path.Combine(outputPath, asset.File));
+                    File.Copy(asset.File, Path.Combine(outputPath, asset.File), true);
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())
                 {
