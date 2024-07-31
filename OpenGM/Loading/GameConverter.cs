@@ -17,6 +17,8 @@ namespace OpenGM.Loading;
 /// </summary>
 public static class GameConverter
 {
+    public static bool DecompressOnConvert = false; // so it can be changed while debugging
+    
     public static void ConvertGame(UndertaleData data)
     {
         Console.WriteLine($"Converting game assets...");
@@ -359,20 +361,23 @@ public static class GameConverter
     {
         Console.Write($"Exporting texture pages...");
 
-        // StbImage.stbi_set_flip_vertically_on_load(1);
+        if (DecompressOnConvert)
+            StbImage.stbi_set_flip_vertically_on_load(0);
 
         foreach (var page in data.EmbeddedTextures)
         {
-            var imageResult = ImageResult.FromMemory(page.TextureData.TextureBlob, ColorComponents.RedGreenBlueAlpha);
-            
             var asset = new TexturePage
             {
                 Name = page.Name.Content,
-                Width = imageResult.Width,
-                Height = imageResult.Height,
-                Data = imageResult.Data
+                Width = page.TextureData.Width,
+                Height = page.TextureData.Height,
+                Data = page.TextureData.TextureBlob
             };
-            
+            if (DecompressOnConvert)
+            {
+                asset.Data = ImageResult.FromMemory(asset.Data, ColorComponents.RedGreenBlueAlpha).Data;
+            }
+
             dataWin.TexturePages.Add(asset);
         }
         Console.WriteLine($" Done!");

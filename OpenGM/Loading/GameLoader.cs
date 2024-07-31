@@ -6,6 +6,7 @@ using OpenGM.VirtualMachine;
 using Newtonsoft.Json;
 using OpenGM.IO;
 using OpenGM.Rendering;
+using StbImageSharp;
 
 namespace OpenGM.Loading;
 public static class GameLoader
@@ -195,8 +196,18 @@ public static class GameLoader
     {
         Console.Write($"Loading Texture Pages...");
 
+        if (GameConverter.DecompressOnConvert)
+        {
+            StbImage.stbi_set_flip_vertically_on_load(0);
+        }
+        
         foreach (var asset in dataWin.TexturePages)
         {
+            if (!GameConverter.DecompressOnConvert)
+            {
+                asset.Data = ImageResult.FromMemory(asset.Data, ColorComponents.RedGreenBlueAlpha).Data;
+            }
+
             PageManager.TexturePages.Add(asset.Name, (asset, -1));
         }
 
