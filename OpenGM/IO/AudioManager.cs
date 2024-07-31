@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using NVorbis;
 using OpenGM.Loading;
 using OpenTK.Audio.OpenAL;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace OpenGM.IO;
@@ -83,7 +84,6 @@ public static class AudioManager
     {
         Console.Write($"Loading sounds...");
 
-        var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
         foreach (var asset in dataWin.Sounds)
         {
             if (!GameConverter.DecompressOnConvert)
@@ -92,7 +92,10 @@ public static class AudioManager
                 {
                     try
                     {
-                        using var reader = new AudioFileReader(Path.Combine(soundsFolder, $"{asset.Name}.wav"));
+                        // WaveFileReader doesnt work so have to write to file and then read :(
+                        File.WriteAllBytes("TEMP_LOAD_SOUNDS_FILE", asset.Data);
+                        
+                        using var reader = new AudioFileReader("TEMP_LOAD_SOUNDS_FILE");
                         asset.Data = new byte[reader.Length];
                         reader.ReadExactly(asset.Data);
                         asset.Stereo = reader.WaveFormat.Channels == 2;
@@ -101,14 +104,15 @@ public static class AudioManager
                     catch (Exception e)
                     {
                         // ch2 has some empty audio for some reason
-                        DebugLog.LogWarning($"error loading wav {asset.Name}: {e}");
+                        DebugLog.LogWarning($"error loading wav {asset.Name}: {e.Message}");
                         asset.Data = new byte[] { };
-                        asset.Freq = 1;
                         asset.Stereo = false;
+                        asset.Freq = 1;
                     }
                 }
                 else
                 {
+                    // VorbisWaveReader doesnt like me so we have to copy :(
                     using var stream = new MemoryStream(asset.Data);
                     using var reader = new VorbisReader(stream);
                     var floatData = new float[reader.TotalSamples * reader.Channels];
@@ -135,6 +139,8 @@ public static class AudioManager
                 Offset = 0,
             };
         }
+        
+        File.Delete("TEMP_LOAD_SOUNDS_FILE");
 
         Console.WriteLine($" Done!");
     }

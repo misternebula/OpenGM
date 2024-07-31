@@ -808,8 +808,6 @@ public static class GameConverter
     public static void ExportSounds(DataWin dataWin, UndertaleData data)
     {
         Console.Write($"Exporting sounds...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        Directory.CreateDirectory(outputPath);
 
         foreach (var item in data.Sounds)
         {
@@ -833,7 +831,6 @@ public static class GameConverter
                     // embedded .wav
                     asset.IsWav = true;
                     var embeddedAudio = data.EmbeddedAudio;
-                    File.WriteAllBytes(Path.Combine(outputPath, $"{asset.Name}.wav"), embeddedAudio[item.AudioID].Data);
                     asset.Data = embeddedAudio[item.AudioID].Data;
                 }
                 else
@@ -846,7 +843,6 @@ public static class GameConverter
                     using var audioGroupData = UndertaleIO.Read(stream);
 
                     var embeddedAudio = audioGroupData.EmbeddedAudio;
-                    File.WriteAllBytes(Path.Combine(outputPath, $"{asset.Name}.wav"), embeddedAudio[item.AudioID].Data);
                     asset.Data = embeddedAudio[item.AudioID].Data;
                 }
             }
