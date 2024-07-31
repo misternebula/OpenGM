@@ -14,7 +14,11 @@ public static class GameLoader
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
+        
+        Console.Write("Loading datawin...");
         var dataWin = MemoryPackSerializer.Deserialize<DataWin>(File.ReadAllBytes("data_OpenGM.win"))!;
+        Console.WriteLine(" Done!");
+
         AssetIndexManager.LoadAssetIndexes(dataWin);
         LoadScripts(dataWin);
         LoadObjects(dataWin);

@@ -18,8 +18,6 @@ public static class GameConverter
 {
     public static void ConvertGame(UndertaleData data)
     {
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
-
         Console.WriteLine($"Converting game assets...");
         DataWin dataWin = new();
         
@@ -43,7 +41,9 @@ public static class GameConverter
 
         ExportTileSets(dataWin, data);
         
+        Console.Write("Saving datawin...");
         File.WriteAllBytes("data_OpenGM.win", MemoryPackSerializer.Serialize(dataWin));
+        Console.WriteLine(" Done!");
     }
 
     public static void ConvertScripts(DataWin dataWin, UndertaleData data, List<UndertaleCode> codes)
