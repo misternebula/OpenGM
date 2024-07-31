@@ -7,9 +7,9 @@ public partial class SoundAsset
 {
 	public int AssetID;
 	public string Name = null!;
-	public string File = null!;
 	public float Volume;
 	public float Pitch;
 
-	public byte[] WavOrOggData = null!;
+	public bool IsWav;
+	public byte[] Data = null!;
 }

@@ -83,21 +83,16 @@ public static class AudioManager
         Console.Write($"Loading sounds...");
 
         var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        var files = Directory.GetFiles(soundsFolder, "*.bin");
-        foreach (var file in files)
+        foreach (var asset in dataWin.Sounds)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<SoundAsset>(text)!;
-
             float[] data;
             bool stereo;
             int freq;
-            // TODO: i cant figure out how to get this to load from bytes without breaking :(
-            if (Path.GetExtension(asset.File) == ".wav")
+            if (asset.IsWav)
             {
                 try
                 {
-                    using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
+                    using var reader = new AudioFileReader(Path.Combine(soundsFolder, $"{asset.Name}.wav"));
                     data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
                     reader.Read(data, 0, data.Length);
                     stereo = reader.WaveFormat.Channels == 2;
@@ -105,22 +100,19 @@ public static class AudioManager
                 }
                 catch (Exception)
                 {
+                    // ch2 has some empty audio for some reason
                     data = new float[] { };
                     freq = 1;
                     stereo = false;
                 }
             }
-            else if (Path.GetExtension(asset.File) == ".ogg")
+            else
             {
-                using var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
+                using var reader = new VorbisReader(Path.Combine(soundsFolder, $"{asset.Name}.ogg"));
                 data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
                 reader.ReadSamples(data, 0, data.Length);
                 stereo = reader.Channels == 2;
                 freq = reader.SampleRate;
-            }
-            else
-            {
-                throw new NotImplementedException($"unknown audio file format {asset.File}");
             }
 
             var buffer = AL.GenBuffer();
