@@ -103,6 +103,7 @@ public static partial class ScriptResolver
 		{ "draw_sprite", draw_sprite },
 		{ "draw_sprite_ext", draw_sprite_ext },
 		{ "draw_sprite_stretched", draw_sprite_stretched },
+		{ "draw_sprite_stretched_ext", draw_sprite_stretched_ext },
 		{ "draw_sprite_part", draw_sprite_part },
 		{ "draw_sprite_part_ext", draw_sprite_part_ext },
 		{ "draw_sprite_tiled_ext", draw_sprite_tiled_ext },
@@ -307,6 +308,11 @@ public static partial class ScriptResolver
 		{ "surface_free", surface_free },
 		{ "draw_rectangle_colour", draw_rectangle_colour },
 		{ "draw_rectangle_color", draw_rectangle_colour },
+		{ "draw_ellipse", draw_ellipse },
+		{ "variable_instance_exists", variable_instance_exists},
+		{ "game_get_speed", game_get_speed},
+		{ "power", power},
+		{ "audio_sound_get_track_position", audio_sound_get_track_position}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2899,6 +2905,103 @@ public static partial class ScriptResolver
 		});
 
 		return null;
+	}
+
+
+
+	public static object? draw_ellipse(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var outline = args[4].Conv<bool>();
+
+		var midpointX = (x1 + x2) / 2;
+		var midpointY = (y1 + y2) / 2;
+
+		var xRadius = Math.Abs((x1 - x2) / 2);
+		var yRadius = Math.Abs((y1 - y2) / 2);
+
+		var angle = 360 / DrawManager.CirclePrecision;
+
+		var points = new Vector2d[DrawManager.CirclePrecision];
+		for (var i = 0; i < DrawManager.CirclePrecision; i++)
+		{
+			points[i] = new Vector2d(
+				midpointX + (xRadius * Math.Sin(angle * i)),
+				midpointY + (yRadius * Math.Cos(angle * i)));
+		}
+
+		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		{
+			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			alpha = SpriteManager.DrawAlpha,
+			Vertices = points,
+			Outline = outline
+		});
+
+		return null;
+	}
+
+	public static object variable_instance_exists(object?[] args)
+	{
+		var instance_id = args[0].Conv<int>();
+		var name = args[1].Conv<string>();
+
+		var instance = InstanceManager.FindByInstanceId(instance_id);
+
+		if (instance == null)
+		{
+			return false;
+		}
+
+		if (instance.SelfVariables.ContainsKey(name))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public static object game_get_speed(object?[] args)
+	{
+		var type = args[0].Conv<int>();
+
+		if (type == 0)
+		{
+			// FPS
+			return Entry.GameSpeed;
+		}
+		else
+		{
+			// microseconds per frame
+			return CustomMath.FloorToInt(1000000.0 / Entry.GameSpeed);
+		}
+	}
+
+	public static object power(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var n = args[1].Conv<double>();
+
+		return Math.Pow(x, n);
+	}
+
+	public static object audio_sound_get_track_position(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		if (index < GMConstants.FIRST_INSTANCE_ID)
+		{
+			return AudioManager.GetAssetOffset(index);
+
+			// unlike gain and pitch, this doesnt change currently playing instances
+		}
+		else
+		{
+			return (double)AL.GetSource(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset);
+		}
 	}
 
 	private static object yoyothis(object?[] arg) => GMConstants.self;
