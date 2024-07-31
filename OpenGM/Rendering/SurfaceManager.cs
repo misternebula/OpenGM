@@ -24,12 +24,20 @@ public static class SurfaceManager
         }
 
         SurfaceStack.Push(surface);
+        var buffer = _framebuffers[surface];
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        // future draws will draw to this fbo
         return true;
     }
 
 	public static bool surface_reset_target()
     {
-		SurfaceStack.Pop();
+        if (!SurfaceStack.TryPop(out var surface))
+        {
+            surface = application_surface;
+        }
+        var buffer = _framebuffers[surface]; // what happens if this buffer is deleted?
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
 		return true;
 	}
 
@@ -45,6 +53,7 @@ public static class SurfaceManager
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
 
         // Attach texture to framebuffer
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
@@ -64,7 +73,7 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id)
     {
-        // BUG: does not free texture bound to fb
+        // BUG: does not free texture bound to fbo
         
         var buffer = _framebuffers[id];
         GL.DeleteFramebuffer(buffer);
@@ -76,7 +85,7 @@ public static class SurfaceManager
         var bufferId = _framebuffers[id];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
-        // BUG: memory leak! does not dealloc existing texture bound to fb!
+        // BUG: memory leak! does not dealloc existing texture bound to fbo!
 
         // Generate texture to attach to framebuffer
         var newId = GL.GenTexture();
@@ -84,6 +93,7 @@ public static class SurfaceManager
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
 
         // Attach texture to framebuffer
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
@@ -98,6 +108,7 @@ public static class SurfaceManager
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         return width;
     }
@@ -109,6 +120,7 @@ public static class SurfaceManager
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         return height;
     }
