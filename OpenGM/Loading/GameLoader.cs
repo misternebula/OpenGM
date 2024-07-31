@@ -57,36 +57,30 @@ public static class GameLoader
     {
         Console.Write($"Loading objects...");
 
+        // dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
+        var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
+        id2Script[-1] = null;
+
         foreach (var asset in dataWin.Objects)
         {
             var storage = asset.FileStorage;
 
-            VMScript? GetVMScriptFromCodeIndex(int codeIndex)
-            {
-                if (codeIndex == -1)
-                {
-                    return null;
-                }
-
-                return ScriptResolver.Scripts.Values.Single(x => x.AssetId == codeIndex);
-            }
-
-            asset.CreateScript = GetVMScriptFromCodeIndex(storage.CreateScriptID);
-            asset.DestroyScript = GetVMScriptFromCodeIndex(storage.DestroyScriptID);
+            asset.CreateScript = id2Script[storage.CreateScriptID];
+            asset.DestroyScript = id2Script[storage.DestroyScriptID];
 
             foreach (var (subtype, codeId) in storage.AlarmScriptIDs)
             {
-                asset.AlarmScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
+                asset.AlarmScript[subtype] = id2Script[codeId]!;
             }
 
             foreach (var (subtype, codeId) in storage.StepScriptIDs)
             {
-                asset.StepScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
+                asset.StepScript[subtype] = id2Script[codeId]!;
             }
 
             foreach (var (subtype, codeId) in storage.CollisionScriptIDs)
             {
-                asset.CollisionScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
+                asset.CollisionScript[subtype] = id2Script[codeId]!;
             }
 
             // Keyboard
@@ -94,23 +88,23 @@ public static class GameLoader
 
             foreach (var (subtype, codeId) in storage.OtherScriptIDs)
             {
-                asset.OtherScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
+                asset.OtherScript[subtype] = id2Script[codeId]!;
             }
 
             foreach (var (subtype, codeId) in storage.DrawScriptIDs)
             {
-                asset.DrawScript[subtype] = GetVMScriptFromCodeIndex(codeId)!;
+                asset.DrawScript[subtype] = id2Script[codeId]!;
             }
 
             // KeyPress
             // KeyRelease
             // Trigger
 
-            asset.CleanUpScript = GetVMScriptFromCodeIndex(storage.CleanUpScriptID);
+            asset.CleanUpScript = id2Script[storage.CleanUpScriptID];
 
             // Gesture
 
-            asset.PreCreateScript = GetVMScriptFromCodeIndex(storage.PreCreateScriptID);
+            asset.PreCreateScript = id2Script[storage.PreCreateScriptID];
 
             InstanceManager.ObjectDefinitions.Add(asset.AssetId, asset);
         }
