@@ -53,6 +53,7 @@ public static class SurfaceManager
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
 
         // Attach texture to framebuffer
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
@@ -92,6 +93,7 @@ public static class SurfaceManager
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
 
         // Attach texture to framebuffer
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
@@ -106,6 +108,7 @@ public static class SurfaceManager
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         return width;
     }
@@ -117,6 +120,7 @@ public static class SurfaceManager
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         return height;
     }

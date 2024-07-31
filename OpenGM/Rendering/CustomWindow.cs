@@ -44,6 +44,9 @@ public class CustomWindow : GameWindow
         Width = width;
         Height = height;
 
+        GL.Enable(EnableCap.Texture2D); // always allow a texture to be drawn. does nothing if no texture is bound
+        GL.Enable(EnableCap.Blend); // always allow blending
+        
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha); // bm_normal
     }
 
@@ -91,8 +94,6 @@ public class CustomWindow : GameWindow
     protected override void OnUpdateFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
-
-        GL.Enable(EnableCap.Blend);
 
         KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
@@ -257,7 +258,6 @@ public class CustomWindow : GameWindow
                     }
 
 
-                    GL.Enable(EnableCap.Texture2D);
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
 
                     GL.Begin(PrimitiveType.Quads);
@@ -286,9 +286,9 @@ public class CustomWindow : GameWindow
 
                     GL.End();
 
-                    xOffset += glyph.shift * textJob.scale.X;
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
 
-                    GL.Disable(EnableCap.Texture2D);
+                    xOffset += glyph.shift * textJob.scale.X;
                 }
             }
         }
@@ -298,7 +298,6 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
 
-        GL.Enable(EnableCap.Texture2D);
         GL.BindTexture(TextureTarget.Texture2D, id);
 
         GL.Begin(PrimitiveType.Quads);
@@ -358,7 +357,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
 
-        GL.Disable(EnableCap.Texture2D);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     private static void RenderLine(GMLineJob lineJob)
@@ -456,7 +455,7 @@ public class GMPolygonJob : GMBaseJob
     public bool Outline;
 }
 
-public class GMBaseJob
+public abstract class GMBaseJob
 {
     public Color4 blend;
     public double alpha;
