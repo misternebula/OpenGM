@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGM.IO;
+﻿using System.Collections;
 
 namespace OpenGM.VirtualMachine;
 
@@ -110,14 +104,25 @@ public static partial class VMExecutor
 	{
 		var stackArray = EnvironmentStack.ToArray();
 
-		var i = 1;
-
-		while (stackArray[i] == null)
+		if (stackArray.Any(x => x == null))
 		{
-			i++;
-		}
+			// iterate backwards until we find the null value
 
-		PopToSelf(stackArray[i].Self, varName, value);
+			var i = 0;
+
+			while (stackArray[i] != null)
+			{
+				i++;
+			}
+
+			// i now holds index of null value. next value is the one calling pushenv
+
+			PopToSelf(stackArray[i + 1].Self, varName, value);
+		}
+		else
+		{
+			PopToSelf(stackArray[1].Self, varName, value);
+		}
 	}
 
 	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)

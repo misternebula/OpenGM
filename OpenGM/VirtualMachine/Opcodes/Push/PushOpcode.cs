@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine;
 
@@ -180,14 +182,25 @@ public static partial class VMExecutor
 	{
 		var stackArray = EnvironmentStack.ToArray();
 
-		var i = 1;
-
-		while (stackArray[i] == null)
+		if (stackArray.Any(x => x == null))
 		{
-			i++;
-		}
+			// iterate backwards until we find the null value
 
-		PushSelf(stackArray[i].Self, varName);
+			var i = 0;
+
+			while (stackArray[i] != null)
+			{
+				i++;
+			}
+
+			// i now holds index of null value. next value is the one calling pushenv
+
+			PushSelf(stackArray[i + 1].Self, varName);
+		}
+		else
+		{
+			PushSelf(stackArray[1].Self, varName);
+		}
 	}
 
 	public static (ExecutionResult, object?) DoPush(VMScriptInstruction instruction)
