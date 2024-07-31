@@ -1998,10 +1998,10 @@ public static partial class ScriptResolver
 
 		if (baseElement == null)
 		{
-			return ElementType.Undefined;
+			return (int)ElementType.Undefined;
 		}
 
-		return baseElement.Type;
+		return (int)baseElement.Type;
 	}
 
 	private static object? layer_tile_alpha(object?[] args)
