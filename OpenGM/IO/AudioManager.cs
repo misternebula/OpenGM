@@ -272,8 +272,13 @@ public static class AudioManager
         _audioClips[assetIndex].Offset = time;
     }
 
+    public static double GetAssetOffset(int assetIndex)
+    { 
+	    return _audioClips[assetIndex].Offset;
+    }
 
-    public static AudioAsset GetAudioAsset(int assetIndex)
+
+	public static AudioAsset GetAudioAsset(int assetIndex)
     {
         return _audioClips[assetIndex];
     }
