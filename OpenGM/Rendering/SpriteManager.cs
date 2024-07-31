@@ -104,7 +104,7 @@ public static class SpriteManager
         DrawSpriteExt(obj.sprite_index, obj.image_index, obj.x, obj.y, obj.image_xscale, obj.image_yscale, obj.image_angle, obj.image_blend, obj.image_alpha);
     }
 
-    public static void draw_sprite_stretched(int name, int index, double x, double y, double w, double h)
+    public static void draw_sprite_stretched(int name, int index, double x, double y, double w, double h, int color, double alpha)
     {
         var sprite = GetSpritePage(name, index);
 
@@ -117,8 +117,8 @@ public static class SpriteManager
             screenPos = new Vector2d(x, y),
             angle = 0,
             scale = new Vector2d(w / spriteWidth, h / spriteHeight),
-            blend = Color.White,
-            alpha = 1,
+            blend = color.ABGRToCol4(),
+            alpha = alpha,
             origin = Vector2.Zero
         });
     }

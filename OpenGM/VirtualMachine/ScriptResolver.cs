@@ -306,7 +306,7 @@ public static partial class ScriptResolver
 		{ "surface_reset_target", surface_reset_target },
 		{ "surface_free", surface_free },
 		{ "draw_rectangle_colour", draw_rectangle_colour },
-		{ "draw_rectangle_color", draw_rectangle_colour }
+		{ "draw_rectangle_color", draw_rectangle_colour },
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -1270,7 +1270,22 @@ public static partial class ScriptResolver
 		var w = args[4].Conv<double>();
 		var h = args[5].Conv<double>();
 
-		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h);
+		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, SpriteManager.DrawColor, SpriteManager.DrawAlpha);
+		return null;
+	}
+
+	public static object? draw_sprite_stretched_ext(object?[] args)
+	{
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var x = args[2].Conv<double>();
+		var y = args[3].Conv<double>();
+		var w = args[4].Conv<double>();
+		var h = args[5].Conv<double>();
+		var colour = args[6].Conv<int>();
+		var alpha = args[7].Conv<double>();
+
+		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, colour, alpha);
 		return null;
 	}
 
