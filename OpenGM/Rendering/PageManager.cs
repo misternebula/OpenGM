@@ -8,6 +8,8 @@ public static class PageManager
 
     public static void BindTextures()
     {
+        Console.Write("Binding textures...");
+        
         foreach (var item in TexturePages)
         {
             var page = item.Value.page;
@@ -21,5 +23,7 @@ public static class PageManager
 
             TexturePages[item.Key] = (page, newId);
         }
+        
+        Console.WriteLine(" Done!");
     }
 }
