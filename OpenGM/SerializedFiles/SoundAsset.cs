@@ -11,5 +11,7 @@ public partial class SoundAsset
 	public float Pitch;
 
 	public bool IsWav;
+	public bool Stereo;
+	public int Freq;
 	public byte[] Data = null!;
 }

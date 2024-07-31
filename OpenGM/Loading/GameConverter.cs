@@ -826,7 +826,6 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.IsWav = false;
-                    File.Copy($"{asset.Name}.ogg", Path.Combine(outputPath, $"{asset.Name}.ogg"), true);
                     asset.Data = File.ReadAllBytes($"{asset.Name}.ogg");
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())

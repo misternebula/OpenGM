@@ -5,6 +5,7 @@ using OpenGM.VirtualMachine;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using NVorbis;
+using OpenGM.Loading;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.CompilerServices;
 
@@ -85,39 +86,48 @@ public static class AudioManager
         var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
         foreach (var asset in dataWin.Sounds)
         {
-            float[] data;
-            bool stereo;
-            int freq;
-            if (asset.IsWav)
+            if (!GameConverter.DecompressOnConvert)
             {
-                try
+                if (asset.IsWav)
                 {
-                    using var reader = new AudioFileReader(Path.Combine(soundsFolder, $"{asset.Name}.wav"));
-                    data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
-                    reader.Read(data, 0, data.Length);
-                    stereo = reader.WaveFormat.Channels == 2;
-                    freq = reader.WaveFormat.SampleRate;
+                    asset.Data = new byte[] { };
+                    asset.Freq = 1;
+                    asset.Stereo = false;
+
+                    /*
+                    try
+                    {
+                        using var reader = new AudioFileReader(Path.Combine(soundsFolder, $"{asset.Name}.wav"));
+                        data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
+                        reader.Read(data, 0, data.Length);
+                        stereo = reader.WaveFormat.Channels == 2;
+                        freq = reader.WaveFormat.SampleRate;
+                    }
+                    catch (Exception)
+                    {
+                        // ch2 has some empty audio for some reason
+                        data = new byte[] { };
+                        freq = 1;
+                        stereo = false;
+                    }
+                    */
                 }
-                catch (Exception)
+                else
                 {
-                    // ch2 has some empty audio for some reason
-                    data = new float[] { };
-                    freq = 1;
-                    stereo = false;
+                    using var stream = new MemoryStream(asset.Data);
+                    using var reader = new VorbisReader(stream);
+                    var floatData = new float[reader.TotalSamples * reader.Channels];
+                    reader.ReadSamples(floatData);
+                    asset.Data = new byte[System.Buffer.ByteLength(floatData)];
+                    System.Buffer.BlockCopy(floatData, 0, asset.Data, 0, asset.Data.Length);
+                    asset.Stereo = reader.Channels == 2;
+                    asset.Freq = reader.SampleRate;
                 }
-            }
-            else
-            {
-                using var reader = new VorbisReader(Path.Combine(soundsFolder, $"{asset.Name}.ogg"));
-                data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
-                reader.ReadSamples(data, 0, data.Length);
-                stereo = reader.Channels == 2;
-                freq = reader.SampleRate;
             }
 
             var buffer = AL.GenBuffer();
             CheckALError();
-            AL.BufferData(buffer, stereo ? ALFormat.StereoFloat32Ext : ALFormat.MonoFloat32Ext, data, freq);
+            AL.BufferData(buffer, asset.Stereo ? ALFormat.StereoFloat32Ext : ALFormat.MonoFloat32Ext, asset.Data, asset.Freq);
             CheckALError();
 
             _audioClips[asset.AssetID] = new()
