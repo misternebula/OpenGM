@@ -14,28 +14,30 @@ public static class GameLoader
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
-        
-        Console.Write("Loading datawin...");
-        var dataWin = MemoryPackSerializer.Deserialize<DataWin>(File.ReadAllBytes("data_OpenGM.win"))!;
-        Console.WriteLine(" Done!");
 
-        AssetIndexManager.LoadAssetIndexes(dataWin);
-        LoadScripts(dataWin);
-        LoadObjects(dataWin);
-        LoadRooms(dataWin);
-        LoadSprites(dataWin);
-        LoadFonts(dataWin);
-        LoadTexturePages(dataWin);
-        LoadTextureGroups(dataWin);
-        LoadTileSets(dataWin);
-        AudioManager.LoadSounds(dataWin);
+        using var stream = File.OpenRead("data_OpenGM.win");
+
+        // must match order of gameconverter
+        AssetIndexManager.LoadAssetIndexes(stream);
+        LoadScripts(stream);
+        LoadObjects(stream);
+        LoadRooms(stream);
+        LoadSprites(stream);
+        LoadFonts(stream);
+        LoadTexturePages(stream);
+        LoadTextureGroups(stream);
+        LoadTileSets(stream);
+        AudioManager.LoadSounds(stream);
     }
 
-    private static void LoadScripts(DataWin dataWin)
+    private static void LoadScripts(FileStream stream)
     {
         Console.Write($"Loading scripts...");
-        foreach (var asset in dataWin.Scripts)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<VMScript>();
+            
             if (asset.IsGlobalInit)
             {
                 ScriptResolver.GlobalInitScripts.Add(asset);
@@ -53,7 +55,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects(DataWin dataWin)
+    private static void LoadObjects(FileStream stream)
     {
         Console.Write($"Loading objects...");
 
@@ -61,8 +63,10 @@ public static class GameLoader
         var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
         id2Script[-1] = null;
 
-        foreach (var asset in dataWin.Objects)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<ObjectDefinition>();
             var storage = asset.FileStorage;
 
             asset.CreateScript = id2Script[storage.CreateScriptID];
@@ -122,12 +126,15 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadRooms(DataWin dataWin)
+    private static void LoadRooms(FileStream stream)
     {
         Console.Write($"Loading rooms...");
 
-        foreach (var asset in dataWin.Rooms)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<Room>();
+            
             foreach (var layer in asset.Layers)
             {
                 foreach (var element in layer.Elements)
@@ -166,27 +173,33 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadSprites(DataWin dataWin)
+    private static void LoadSprites(FileStream stream)
     {
         Console.Write($"Loading sprites...");
-        foreach (var asset in dataWin.Sprites)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<SpriteData>();
+            
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadFonts(DataWin dataWin)
+    private static void LoadFonts(FileStream stream)
     {
         Console.Write($"Loading Fonts...");
-        foreach (var asset in dataWin.Fonts)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<FontAsset>();
+            
             TextManager.FontAssets.Add(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadTexturePages(DataWin dataWin)
+    private static void LoadTexturePages(FileStream stream)
     {
         Console.Write($"Loading Texture Pages...");
 
@@ -195,8 +208,11 @@ public static class GameLoader
             StbImage.stbi_set_flip_vertically_on_load(0);
         }
         
-        foreach (var asset in dataWin.TexturePages)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<TexturePage>();
+
             if (!GameConverter.DecompressOnConvert)
             {
                 asset.Data = ImageResult.FromMemory(asset.Data, ColorComponents.RedGreenBlueAlpha).Data;
@@ -210,11 +226,14 @@ public static class GameLoader
 
     public static Dictionary<string, TextureGroup> TexGroups = new();
 
-    private static void LoadTextureGroups(DataWin dataWin)
+    private static void LoadTextureGroups(FileStream stream)
     {
         Console.Write($"Loading Texture Groups...");
-        foreach (var asset in dataWin.TextureGroups)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<TextureGroup>();
+            
             TexGroups.Add(asset.GroupName, asset);
         }
 
@@ -223,11 +242,14 @@ public static class GameLoader
 
     public static Dictionary<int, TileSet> TileSets = new();
 
-	private static void LoadTileSets(DataWin dataWin)
+	private static void LoadTileSets(FileStream stream)
     {
 	    Console.Write($"Loading Tile Sets...");
-	    foreach (var asset in dataWin.TileSets)
-	    {
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = stream.Read<TileSet>();
+            
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }
 

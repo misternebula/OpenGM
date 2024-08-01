@@ -1,6 +1,8 @@
-﻿using OpenTK.Mathematics;
+﻿using MemoryPack;
+using OpenTK.Mathematics;
 
 namespace OpenGM;
+
 public static class Extensions
 {
 	public static Color4 ABGRToCol4(this int bgr)
@@ -13,4 +15,14 @@ public static class Extensions
 
 	// better safe than sorry
 	public static string FixCRLF(this string @this) => @this.Replace("\r\n", "\n");
+
+	public static T Read<T>(this Stream @this)
+	{
+		T result = default!;
+		Task.Run(async () => result = (await MemoryPackSerializer.DeserializeAsync<T>(@this))!).Wait();
+		return result;
+	}
+
+	public static void Write<T>(this Stream @this, T value) =>
+		Task.Run(async () => await MemoryPackSerializer.SerializeAsync(@this, value)).Wait();
 }

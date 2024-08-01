@@ -1,11 +1,11 @@
 using MemoryPack;
 using NAudio.Vorbis;
-using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using NVorbis;
 using OpenGM.Loading;
+using OpenGM.SerializedFiles;
 using OpenTK.Audio.OpenAL;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -80,12 +80,15 @@ public static class AudioManager
     /// has to happen after init since context is set up there
     /// </summary>
     /// <param name="dataWin"></param>
-    public static void LoadSounds(DataWin dataWin)
+    public static void LoadSounds(FileStream stream)
     {
         Console.Write($"Loading sounds...");
 
-        foreach (var asset in dataWin.Sounds)
+        var length = stream.Read<int>();
+        for (var i = 0; i < length; i++)
         {
+            var asset = stream.Read<SoundAsset>();
+            
             if (!GameConverter.DecompressOnConvert)
             {
                 if (asset.IsWav)
@@ -113,8 +116,8 @@ public static class AudioManager
                 else
                 {
                     // VorbisWaveReader doesnt like me so we have to copy :(
-                    using var stream = new MemoryStream(asset.Data);
-                    using var reader = new VorbisReader(stream);
+                    using var vorbisStream = new MemoryStream(asset.Data);
+                    using var reader = new VorbisReader(vorbisStream);
                     var floatData = new float[reader.TotalSamples * reader.Channels];
                     reader.ReadSamples(floatData);
                     asset.Data = new byte[System.Buffer.ByteLength(floatData)];
