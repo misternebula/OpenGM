@@ -151,13 +151,22 @@ public static class SurfaceManager
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-        // TODO draw rectangle with that texture
-        /*
-         * i am too tired to write this rn.
-         * this will do similar code to drawing sprites
-         * where it binds the texture and draws a quad with uvs 0-1
-         * it DOES NOT use draw_set_color stuff
-         */
-        ScriptResolver.draw_rectangle(x, y, x + GetSurfaceWidth(id), y + GetSurfaceHeight(id), false);
+        var w = GetSurfaceWidth(id);
+        var h = GetSurfaceHeight(id);
+
+        // draw rectangle with that texture
+        // TODO: this draws nothing for the tension bar. fuck
+        GL.BindTexture(TextureTarget.Texture2D, textureId);
+        GL.Begin(PrimitiveType.Quads);
+        GL.TexCoord2(0, 0);
+        GL.Vertex2(x, y);
+        GL.TexCoord2(1, 0);
+        GL.Vertex2(x + w, y);
+        GL.TexCoord2(1, 1);
+        GL.Vertex2(x + w, y + h);
+        GL.TexCoord2(0, 1);
+        GL.Vertex2(x, y + h);
+        GL.End();
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 }
