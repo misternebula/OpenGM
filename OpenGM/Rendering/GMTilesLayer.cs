@@ -72,7 +72,7 @@ internal class GMTilesLayer : DrawWithDepth
 
 				// TODO : Handle mirror, rotate, flip
 
-				CustomWindow.RenderJobs.Add(new GMSpritePartJob()
+				CustomWindow.Draw(new GMSpritePartJob()
 				{
 					texture = _tileSet.Texture,
 					width = _tileSet.TileWidth,

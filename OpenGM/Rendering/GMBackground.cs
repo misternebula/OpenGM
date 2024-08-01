@@ -32,7 +32,7 @@ public class GMBackground : DrawWithDepth
 		var sprite = SpriteManager.GetSpritePage(_element.Index, _currentFrame);
 		var origin = SpriteManager.GetSpriteOrigin(_element.Index);
 
-		CustomWindow.RenderJobs.Add(new GMSpriteJob()
+		CustomWindow.Draw(new GMSpriteJob()
 		{
 			texture = sprite,
 			origin = origin,

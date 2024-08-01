@@ -85,76 +85,21 @@ public class CustomWindow : GameWindow
         GL.LoadMatrix(ref matrix);
     }
 
-    // TODO: draw immediately instead of using jobs
-    // maybe dont if we switch to not immediate-mode gl
-    public static List<GMBaseJob> RenderJobs = new();
-
-    public static List<GMBaseJob> DebugRenderJobs = new();
-
-    protected override void OnUpdateFrame(FrameEventArgs args)
+    protected override void OnRenderFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
 
         KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
-        RenderJobs.Clear();
-        DebugRenderJobs.Clear();
-
+        GL.Clear(ClearBufferMask.ColorBufferBit);
         DrawManager.FixedUpdate();
+        SwapBuffers();
+        
         AudioManager.Update();
     }
 
-    protected override void OnRenderFrame(FrameEventArgs e)
-    {
-        base.OnRenderFrame(e);
-
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-        foreach (var item in RenderJobs)
-        {
-            if (item is GMTextJob textJob)
-            {
-                RenderText(textJob);
-            }
-            else if (item is GMSpriteJob spriteJob)
-            {
-                RenderSprite(spriteJob);
-            }
-            else if (item is GMLineJob lineJob)
-            {
-                RenderLine(lineJob);
-            }
-            else if (item is GMPolygonJob polyJob)
-            {
-                RenderPolygon(polyJob);
-            }
-        }
-
-        foreach (var item in DebugRenderJobs)
-        {
-            if (item is GMTextJob textJob)
-            {
-                RenderText(textJob);
-            }
-            else if (item is GMSpriteJob spriteJob)
-            {
-                RenderSprite(spriteJob);
-            }
-            else if (item is GMLineJob lineJob)
-            {
-                RenderLine(lineJob);
-            }
-            else if (item is GMPolygonJob polyJob)
-            {
-                RenderPolygon(polyJob);
-            }
-        }
-
-        SwapBuffers();
-    }
-
-    private static void RenderText(GMTextJob textJob)
+    public static void Draw(GMTextJob textJob)
     {
         if (string.IsNullOrEmpty(textJob.text))
         {
@@ -294,7 +239,7 @@ public class CustomWindow : GameWindow
         }
     }
 
-    private static void RenderSprite(GMSpriteJob spriteJob)
+    public static void Draw(GMSpriteJob spriteJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
 
@@ -360,7 +305,7 @@ public class CustomWindow : GameWindow
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    private static void RenderLine(GMLineJob lineJob)
+    public static void Draw(GMLineJob lineJob)
     {
         var startToEndGradient = new Vector2(lineJob.end.X - lineJob.start.X, lineJob.end.Y - lineJob.start.Y);
         var perpendicularGradient = new Vector2(startToEndGradient.Y, -startToEndGradient.X);
@@ -384,7 +329,7 @@ public class CustomWindow : GameWindow
         GL.End();
     }
 
-    private static void RenderPolygon(GMPolygonJob polyJob)
+    public static void Draw(GMPolygonJob polyJob)
     {
         if (polyJob.Outline)
         {

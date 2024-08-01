@@ -973,7 +973,7 @@ public static partial class ScriptResolver
 
 		static void draw(double x1, double y1, double x2, double y2)
 		{
-			CustomWindow.RenderJobs.Add(new GMPolygonJob()
+			CustomWindow.Draw(new GMPolygonJob()
 			{
 				blend = SpriteManager.DrawColor.ABGRToCol4(),
 				alpha = SpriteManager.DrawAlpha,
@@ -1825,7 +1825,7 @@ public static partial class ScriptResolver
 		var y2 = args[3].Conv<double>();
 		var w = args[4].Conv<int>();
 			
-		CustomWindow.RenderJobs.Add(new GMLineJob()
+		CustomWindow.Draw(new GMLineJob()
 		{
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,
@@ -2111,7 +2111,7 @@ public static partial class ScriptResolver
 		{
 			// draw body of arrow
 
-			CustomWindow.RenderJobs.Add(new GMLineJob()
+			CustomWindow.Draw(new GMLineJob()
 			{
 				blend = SpriteManager.DrawColor.ABGRToCol4(),
 				alpha = SpriteManager.DrawAlpha,
@@ -2137,7 +2137,7 @@ public static partial class ScriptResolver
 			var c = (headHeight / 3) + (x2 - headLength);
 			var d = (y2 - headHeight) - headLength / 3;
 
-			CustomWindow.RenderJobs.Add(new GMPolygonJob()
+			CustomWindow.Draw(new GMPolygonJob()
 			{
 				blend = SpriteManager.DrawColor.ABGRToCol4(),
 				alpha = SpriteManager.DrawAlpha,
@@ -2268,7 +2268,7 @@ public static partial class ScriptResolver
 			points[i] = new Vector2d(x + (r * Math.Sin(angle * i)), y + (r * Math.Cos(angle * i)));
 		}
 
-		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		CustomWindow.Draw(new GMPolygonJob()
 		{
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,
@@ -2289,7 +2289,7 @@ public static partial class ScriptResolver
 		var y3 = args[5].Conv<double>();
 		var outline = args[6].Conv<bool>();
 
-		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		CustomWindow.Draw(new GMPolygonJob()
 		{
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,
@@ -2461,7 +2461,7 @@ public static partial class ScriptResolver
 		var sep = args[3].Conv<int>();
 		var w = args[4].Conv<double>();
 
-		CustomWindow.RenderJobs.Add(new GMTextJob()
+		CustomWindow.Draw(new GMTextJob()
 		{
 			alpha = SpriteManager.DrawAlpha,
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
@@ -2779,7 +2779,7 @@ public static partial class ScriptResolver
 		var col1 = args[5].Conv<int>();
 		var col2 = args[5].Conv<int>();
 
-		CustomWindow.RenderJobs.Add(new GMLineJob()
+		CustomWindow.Draw(new GMLineJob()
 		{
 			start = new Vector2((float)x1, (float)y1),
 			end = new Vector2((float)x2, (float)y2),
@@ -2891,7 +2891,7 @@ public static partial class ScriptResolver
 
 		// todo : actually do the colors lol
 
-		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		CustomWindow.Draw(new GMPolygonJob()
 		{
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,
@@ -2934,7 +2934,7 @@ public static partial class ScriptResolver
 				midpointY + (yRadius * Math.Cos(angle * i)));
 		}
 
-		CustomWindow.RenderJobs.Add(new GMPolygonJob()
+		CustomWindow.Draw(new GMPolygonJob()
 		{
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,

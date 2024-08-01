@@ -20,7 +20,7 @@ public static class TextManager
 
 	public static void DrawTextTransformed(double x, double y, string text, double xscale, double yscale, double angle)
 	{
-		CustomWindow.RenderJobs.Add(new GMTextJob()
+		CustomWindow.Draw(new GMTextJob()
 		{
 			text = text,
 			screenPos = new Vector2d(x, y),
@@ -288,7 +288,7 @@ public static class TextManager
 
 	public static void DrawTextColor(double x, double y, string text, int c1, int c2, int c3, int c4, double alpha)
 	{
-		CustomWindow.RenderJobs.Add(new GMTextJob()
+		CustomWindow.Draw(new GMTextJob()
 		{
 			text = text,
 			screenPos = new Vector2d(x, y),

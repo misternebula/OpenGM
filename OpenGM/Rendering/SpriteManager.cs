@@ -55,7 +55,7 @@ public static class SpriteManager
         var sprite = GetSpritePage(name, index);
         var origin = GetSpriteOrigin(name);
 
-        CustomWindow.RenderJobs.Add(new GMSpriteJob()
+        CustomWindow.Draw(new GMSpriteJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
@@ -78,7 +78,7 @@ public static class SpriteManager
     {
         //var sprite = SpritePart(name, index, left, top, width, height);
         var sprite = GetSpritePage(name, index);
-        CustomWindow.RenderJobs.Add(new GMSpritePartJob()
+        CustomWindow.Draw(new GMSpritePartJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
@@ -111,7 +111,7 @@ public static class SpriteManager
         var spriteWidth = sprite.TargetSizeX;
         var spriteHeight = sprite.TargetSizeY;
 
-        CustomWindow.RenderJobs.Add(new GMSpriteJob()
+        CustomWindow.Draw(new GMSpriteJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
