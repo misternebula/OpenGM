@@ -1,5 +1,6 @@
 ﻿using MemoryPack;
 using OpenTK.Mathematics;
+using System.Buffers;
 
 namespace OpenGM;
 
@@ -18,11 +19,23 @@ public static class Extensions
 
 	public static T Read<T>(this Stream @this)
 	{
-		T result = default!;
-		Task.Run(async () => result = (await MemoryPackSerializer.DeserializeAsync<T>(@this))!).Wait();
+		Span<byte> lengthBytes = stackalloc byte[sizeof(int)];
+		@this.ReadExactly(lengthBytes);
+		var length = BitConverter.ToInt32(lengthBytes);
+
+		var resultBytes = ArrayPool<byte>.Shared.Rent(length);
+		var resultSpan = resultBytes.AsSpan(0, length);
+		@this.ReadExactly(resultSpan);
+		var result = MemoryPackSerializer.Deserialize<T>(resultSpan)!;
+		ArrayPool<byte>.Shared.Return(resultBytes);
+
 		return result;
 	}
 
-	public static void Write<T>(this Stream @this, T value) =>
-		Task.Run(async () => await MemoryPackSerializer.SerializeAsync(@this, value)).Wait();
+	public static void Write<T>(this Stream @this, T value)
+	{
+		var bytes = MemoryPackSerializer.Serialize(value);
+		@this.Write(BitConverter.GetBytes(bytes.Length));
+		@this.Write(bytes);
+	}
 }

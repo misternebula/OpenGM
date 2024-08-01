@@ -38,6 +38,8 @@ public static class GameConverter
         ExportTextureGroups(stream, data);
         ExportTileSets(stream, data);
         ExportSounds(stream, data);
+        
+        GC.Collect();
     }
 
     public static void ConvertScripts(FileStream stream, UndertaleData data, List<UndertaleCode> codes)

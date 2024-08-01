@@ -28,6 +28,8 @@ public static class GameLoader
         LoadTextureGroups(stream);
         LoadTileSets(stream);
         AudioManager.LoadSounds(stream);
+        
+        GC.Collect();
     }
 
     private static void LoadScripts(FileStream stream)
