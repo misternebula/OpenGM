@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenGM.IO;
+using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
+
+// reference: https://learnopengl.com/Advanced-OpenGL/Framebuffers
 
 namespace OpenGM.Rendering;
 public static class SurfaceManager
@@ -15,6 +18,8 @@ public static class SurfaceManager
 
     private static Dictionary<int, int> _framebuffers = new();
     public static Stack<int> SurfaceStack = new();
+
+    public static bool surface_exists(int surface) => _framebuffers.ContainsKey(surface);
 
     public static bool surface_set_target(int surface)
     {
@@ -134,5 +139,25 @@ public static class SurfaceManager
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return height;
+    }
+
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L3763
+    public static void draw_surface(int id, double x, double y)
+    {
+        var buffer = _framebuffers[id];
+
+        // we drew into this fbo earlier, get its texture data
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+        // TODO draw rectangle with that texture
+        /*
+         * i am too tired to write this rn.
+         * this will do similar code to drawing sprites
+         * where it binds the texture and draws a quad with uvs 0-1
+         * it DOES NOT use draw_set_color stuff
+         */
+        ScriptResolver.draw_rectangle(x, y, x + GetSurfaceWidth(id), y + GetSurfaceHeight(id), false);
     }
 }

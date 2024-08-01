@@ -191,11 +191,12 @@ public static partial class ScriptResolver
 		#endregion
 
 		#region YoYo
-		{ "@@NewGMLArray@@", newgmlarray },
-		{ "@@NewGMLObject@@", newgmlobject },
-		{ "@@This@@", yoyothis },
-		// { "@@try_hook@@", tryhook },
-		// { "@@try_unhook@@", tryunhook },
+		{ "@@NewGMLArray@@", NewGMLArray },
+		{ "@@NewGMLObject@@", NewGMLObject },
+		{ "@@This@@", This },
+		{ "@@Other@@", Other },
+		{ "@@try_hook@@", try_hook },
+		{ "@@try_unhook@@", try_unhook },
 		#endregion
 
 		#region Layer
@@ -261,6 +262,7 @@ public static partial class ScriptResolver
 		{ "surface_get_height", surface_get_height},
 		{ "os_get_language", os_get_language},
 		{ "surface_resize", surface_resize },
+		{ "surface_exists", surface_exists },
 		{ "lerp", lerp },
 		{ "clamp", clamp },
 		{ "gamepad_button_check_pressed", gamepad_button_check_pressed},
@@ -313,7 +315,8 @@ public static partial class ScriptResolver
 		{ "game_get_speed", game_get_speed},
 		{ "power", power},
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
-		{ "point_in_rectangle", point_in_rectangle}
+		{ "point_in_rectangle", point_in_rectangle},
+		{ "draw_surface", draw_surface}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -346,7 +349,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object newgmlarray(object?[] args)
+	public static object NewGMLArray(object?[] args)
 	{
 		return args.ToList(); // needs to be resizeable, e.g. initializing __objectID2Depth
 	}
@@ -951,7 +954,7 @@ public static partial class ScriptResolver
 		return newFont.AssetIndex;
 	}
 
-	public static object? draw_rectangle(object?[] args)
+	public static object? draw_rectangle(params object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
 		var y1 = args[1].Conv<double>();
@@ -2732,7 +2735,7 @@ public static partial class ScriptResolver
 		return _useLocalTime ? d.GetSeconds() : d.GetUTCSeconds();
 	}
 
-	public static object? newgmlobject(object?[] args)
+	public static object? NewGMLObject(object?[] args)
 	{
 		var constructorIndex = args[0].Conv<int>();
 		var values = args[1..];
@@ -2823,7 +2826,10 @@ public static partial class ScriptResolver
 		var col = args[0].Conv<int>();
 		var alpha = args[1].Conv<double>();
 
-		// TODO: Implement
+		// this is wrong. it makes the start of cyber dw white. what
+		// var realCol = col.ABGRToCol4();
+		// realCol.A = (float)alpha;
+		// GL.ClearColor(realCol);
 
 		return null;
 	}
@@ -3019,8 +3025,28 @@ public static partial class ScriptResolver
 		return x1 <= px && px < x2 && y1 <= py && py <= y2;
 	}
 
-	private static object yoyothis(object?[] arg) => GMConstants.self;
-	private static object yoyoother(object?[] arg) => GMConstants.other;
+	private static object This(object?[] args) => GMConstants.self;
+	private static object Other(object?[] args) => GMConstants.other;
+	// TODO what the fuck are these? apparently its JS stuff? see F_JSTryHook etc
+	private static object? try_hook(object?[] args) => null;
+	private static object? try_unhook(object?[] args) => null;
+
+	private static object surface_exists(object?[] args)
+	{
+		var surface = args[0].Conv<int>();
+		return SurfaceManager.surface_exists(surface);
+	}
+
+	private static object? draw_surface(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+		var y = args[2].Conv<double>();
+		
+		SurfaceManager.draw_surface(id, x, y);
+		
+		return null;
+	}
 }
 
 public class FileHandle
