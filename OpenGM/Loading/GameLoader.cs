@@ -30,7 +30,7 @@ public static class GameLoader
     {
         Console.Write($"Loading scripts...");
         var scriptsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
-        var files = Directory.GetFiles(scriptsFolder);
+        var files = Directory.EnumerateFiles(scriptsFolder);
         foreach (var file in files)
         {
             var text = File.ReadAllBytes(file);
@@ -58,7 +58,7 @@ public static class GameLoader
         Console.Write($"Loading objects...");
 
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        var files = Directory.GetFiles(objectsFolder);
+        var files = Directory.EnumerateFiles(objectsFolder);
 
         // dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
         var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
@@ -132,7 +132,7 @@ public static class GameLoader
         Console.Write($"Loading rooms...");
 
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        var files = Directory.GetFiles(objectsFolder);
+        var files = Directory.EnumerateFiles(objectsFolder);
 
         foreach (var file in files)
         {
@@ -181,7 +181,7 @@ public static class GameLoader
     {
         Console.Write($"Loading sprites...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        var files = Directory.GetFiles(objectsFolder);
+        var files = Directory.EnumerateFiles(objectsFolder);
 
         foreach (var file in files)
         {
@@ -197,7 +197,7 @@ public static class GameLoader
     {
         Console.Write($"Loading Fonts...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        var files = Directory.GetFiles(objectsFolder);
+        var files = Directory.EnumerateFiles(objectsFolder);
 
         foreach (var file in files)
         {
@@ -213,7 +213,7 @@ public static class GameLoader
     {
         Console.Write($"Loading Texture Pages...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        var files = Directory.GetFiles(objectsFolder);
+        var files = Directory.EnumerateFiles(objectsFolder);
 
         //StbImage.stbi_set_flip_vertically_on_load(1);
 
@@ -232,7 +232,7 @@ public static class GameLoader
     {
         Console.Write($"Loading Texture Groups...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        var files = Directory.GetFiles(objectsFolder);
+        var files = Directory.EnumerateFiles(objectsFolder);
 
         foreach (var file in files)
         {
@@ -251,7 +251,7 @@ public static class GameLoader
     {
 	    Console.Write($"Loading Tile Sets...");
 	    var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-	    var files = Directory.GetFiles(objectsFolder);
+	    var files = Directory.EnumerateFiles(objectsFolder);
 
 	    foreach (var file in files)
 	    {

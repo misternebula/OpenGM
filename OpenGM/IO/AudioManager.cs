@@ -81,7 +81,7 @@ public static class AudioManager
         Console.Write($"Loading sounds...");
 
         var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        var files = Directory.GetFiles(soundsFolder, "*.bin");
+        var files = Directory.EnumerateFiles(soundsFolder, "*.bin");
         foreach (var file in files)
         {
             var text = File.ReadAllBytes(file);
