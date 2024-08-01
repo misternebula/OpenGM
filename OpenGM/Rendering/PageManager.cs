@@ -8,6 +8,8 @@ public static class PageManager
 
     public static void BindTextures()
     {
+        Console.Write("Binding textures...");
+        
         foreach (var item in TexturePages)
         {
             var image = item.Value.image;
@@ -18,8 +20,11 @@ public static class PageManager
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
 
             TexturePages[item.Key] = (image, newId);
         }
+        
+        Console.WriteLine(" Done!");
     }
 }
