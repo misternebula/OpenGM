@@ -316,7 +316,8 @@ public static partial class ScriptResolver
 		{ "power", power},
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
 		{ "point_in_rectangle", point_in_rectangle},
-		{ "draw_surface", draw_surface}
+		{ "draw_surface", draw_surface},
+		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -1280,7 +1281,8 @@ public static partial class ScriptResolver
 		var w = args[4].Conv<double>();
 		var h = args[5].Conv<double>();
 
-		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, SpriteManager.DrawColor, SpriteManager.DrawAlpha);
+		//SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, SpriteManager.DrawColor, SpriteManager.DrawAlpha);
+		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, 0x00FFFFFF, SpriteManager.DrawAlpha);
 		return null;
 	}
 
@@ -2253,6 +2255,46 @@ public static partial class ScriptResolver
 				break;
 		}
 
+		return null;
+	}
+
+	public static object? gpu_set_blendmode_ext(object?[] args)
+	{
+		var src = args[0].Conv<int>();
+		var dst = args[0].Conv<int>();
+
+		BlendingFactor GetBlend(int arg)
+		{
+			switch (arg)
+			{
+				case 0:
+					return BlendingFactor.Zero;
+				case 1:
+					return BlendingFactor.One;
+				case 2:
+					return BlendingFactor.SrcColor;
+				case 3:
+					return BlendingFactor.OneMinusSrcColor;
+				case 4:
+					return BlendingFactor.SrcAlpha;
+				case 5:
+					return BlendingFactor.OneMinusSrcAlpha;
+				case 6:
+					return BlendingFactor.DstAlpha;
+				case 7:
+					return BlendingFactor.OneMinusDstAlpha;
+				case 8:
+					return BlendingFactor.DstColor;
+				case 9:
+					return BlendingFactor.OneMinusDstColor;
+				case 10:
+					return BlendingFactor.SrcAlphaSaturate;
+				default:
+					throw new ArgumentException();
+			}
+		}
+
+		GL.BlendFunc(GetBlend(src), GetBlend(dst));
 		return null;
 	}
 
