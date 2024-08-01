@@ -25,7 +25,7 @@ public static class SurfaceManager
 
         SurfaceStack.Push(surface);
         var buffer = _framebuffers[surface];
-        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         // future draws will draw to this fbo
         return true;
     }
@@ -36,8 +36,8 @@ public static class SurfaceManager
         {
             surface = application_surface;
         }
-        var buffer = _framebuffers[surface]; // what happens if this buffer is deleted?
-        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
 		return true;
 	}
 
@@ -73,9 +73,13 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id)
     {
-        // BUG: does not free texture bound to fbo
-        
         var buffer = _framebuffers[id];
+        
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.DeleteTexture(textureId);
+
         GL.DeleteFramebuffer(buffer);
         _framebuffers.Remove(id);
     }
@@ -85,7 +89,9 @@ public static class SurfaceManager
         var bufferId = _framebuffers[id];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
-        // BUG: memory leak! does not dealloc existing texture bound to fbo!
+        // delete existing texture if there is one
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.DeleteTexture(textureId);
 
         // Generate texture to attach to framebuffer
         var newId = GL.GenTexture();
@@ -98,6 +104,11 @@ public static class SurfaceManager
         // Attach texture to framebuffer
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
 
+        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+        {
+            DebugLog.LogError($"ERROR: Framebuffer is not complete!");
+        }
+        
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
@@ -106,10 +117,10 @@ public static class SurfaceManager
         var bufferId = _framebuffers[id];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         return width;
     }
 
@@ -118,10 +129,10 @@ public static class SurfaceManager
         var bufferId = _framebuffers[id];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         return height;
     }
 }

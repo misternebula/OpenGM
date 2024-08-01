@@ -1,9 +1,11 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
+using OpenTK.Graphics.Egl;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System.Runtime.InteropServices;
 using UndertaleModLib.Decompiler;
 using Vector2 = OpenTK.Mathematics.Vector2;
 
@@ -43,6 +45,14 @@ public class CustomWindow : GameWindow
         Instance = this;
         Width = width;
         Height = height;
+        
+        GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>
+        {
+            var message = Marshal.PtrToStringAnsi(messagePtr);
+            if (type == DebugType.DebugTypeError) throw new Exception($"GL error from {source}: {message}");
+            DebugLog.LogInfo($"GL message from {source}: {message}");
+        }, 0);
+        GL.Enable(EnableCap.DebugOutput);
 
         GL.Enable(EnableCap.Texture2D); // always allow a texture to be drawn. does nothing if no texture is bound
         GL.Enable(EnableCap.Blend); // always allow blending
