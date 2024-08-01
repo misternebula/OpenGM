@@ -312,7 +312,8 @@ public static partial class ScriptResolver
 		{ "variable_instance_exists", variable_instance_exists},
 		{ "game_get_speed", game_get_speed},
 		{ "power", power},
-		{ "audio_sound_get_track_position", audio_sound_get_track_position}
+		{ "audio_sound_get_track_position", audio_sound_get_track_position},
+		{ "point_in_rectangle", point_in_rectangle}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -3002,6 +3003,18 @@ public static partial class ScriptResolver
 		{
 			return (double)AL.GetSource(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset);
 		}
+	}
+
+	public static object point_in_rectangle(object?[] args)
+	{
+		var px = args[0].Conv<double>();
+		var py = args[1].Conv<double>();
+		var x1 = args[2].Conv<double>();
+		var y1 = args[3].Conv<double>();
+		var x2 = args[4].Conv<double>();
+		var y2 = args[5].Conv<double>();
+
+		return x1 <= px && px < x2 && y1 <= py && py <= y2;
 	}
 
 	private static object yoyothis(object?[] arg) => GMConstants.self;
