@@ -3001,7 +3001,9 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			return (double)AL.GetSource(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset);
+			var offset = AL.GetSource(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset);
+			AudioManager.CheckALError();
+			return offset;
 		}
 	}
 
