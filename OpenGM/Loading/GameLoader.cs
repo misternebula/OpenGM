@@ -16,32 +16,34 @@ public static class GameLoader
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
-        AssetIndexManager.LoadAssetIndexes();
-        LoadScripts();
-        LoadObjects();
-        LoadRooms();
-        LoadSprites();
-        LoadFonts();
-        LoadTexturePages();
-        LoadTextureGroups();
-        LoadTileSets();
-        AudioManager.LoadSounds();
+
+        using var stream = File.OpenRead("data_OpenGM.win");
+
+        // must match order of gameconverter
+        AssetIndexManager.LoadAssetIndexes(stream);
+        LoadScripts(stream);
+        LoadObjects(stream);
+        LoadRooms(stream);
+        LoadSprites(stream);
+        LoadFonts(stream);
+        LoadTexturePages(stream);
+        LoadTextureGroups(stream);
+        LoadTileSets(stream);
+        AudioManager.LoadSounds(stream);
         
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    private static void LoadScripts()
+    private static void LoadScripts(FileStream stream)
     {
         Console.Write($"Loading scripts...");
-        var scriptsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
-        var files = Directory.EnumerateFiles(scriptsFolder);
 
         var allUsedFunctions = new HashSet<string>();
 
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<VMScript>(text)!;
+            var asset = stream.Read<VMScript>();
 
             if (asset.IsGlobalInit)
             {
@@ -84,7 +86,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects()
+    private static void LoadObjects(FileStream stream)
     {
         Console.Write($"Loading objects...");
 
@@ -158,7 +160,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadRooms()
+    private static void LoadRooms(FileStream stream)
     {
         Console.Write($"Loading rooms...");
 
@@ -210,7 +212,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadSprites()
+    private static void LoadSprites(FileStream stream)
     {
         Console.Write($"Loading sprites...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
@@ -226,7 +228,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadFonts()
+    private static void LoadFonts(FileStream stream)
     {
         Console.Write($"Loading Fonts...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
@@ -242,7 +244,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadTexturePages()
+    private static void LoadTexturePages(FileStream stream)
     {
         Console.Write($"Loading Texture Pages...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
@@ -261,7 +263,7 @@ public static class GameLoader
 
     public static Dictionary<string, TextureGroup> TexGroups = new();
 
-    private static void LoadTextureGroups()
+    private static void LoadTextureGroups(FileStream stream)
     {
         Console.Write($"Loading Texture Groups...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
@@ -280,7 +282,7 @@ public static class GameLoader
 
     public static Dictionary<int, TileSet> TileSets = new();
 
-	private static void LoadTileSets()
+	private static void LoadTileSets(FileStream stream)
     {
 	    Console.Write($"Loading Tile Sets...");
 	    var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");

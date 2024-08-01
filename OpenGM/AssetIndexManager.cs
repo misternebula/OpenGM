@@ -20,7 +20,7 @@ public static class AssetIndexManager
 	public static Dictionary<AssetType, Dictionary<string, int>> AssetList = new();
 	public static Dictionary<string, int> NameToIndex = new();
 
-	public static void LoadAssetIndexes()
+	public static void LoadAssetIndexes(FileStream stream)
 	{
 		Console.Write($"Loading asset order...");
 		var file = Path.Combine(Directory.GetCurrentDirectory(), "Output", "asset_names.txt");

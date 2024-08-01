@@ -21,40 +21,30 @@ public static class GameConverter
         Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
 
         Console.WriteLine($"Converting game assets...");
-        // TODO: pack everything into 1 file for faster read
         
-        ConvertScripts(data, data.Code.Where(c => c.ParentEntry is null).ToList());
-
-        ExportPages(data);
-
-        ConvertSprites(data.Sprites);
-
-        ExportAssetOrder(data);
-
-        ExportObjectDefinitions(data);
-
-        ExportRooms(data);
-
-        ExportFonts(data);
-
-        ExportSounds(data);
-
-        ExportTextureGroups(data);
-
-        ExportTileSets(data);
+        using var stream = File.OpenWrite("data_OpenGM.win");
         
+        // must match order of gameloader
+        ExportAssetOrder(stream, data);
+        ConvertScripts(stream, data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        ExportObjectDefinitions(stream, data);
+        ExportRooms(stream, data);
+        ConvertSprites(stream, data.Sprites);
+        ExportFonts(stream, data);
+        ExportPages(stream, data);
+        ExportTextureGroups(stream, data);
+        ExportTileSets(stream, data);
+        ExportSounds(stream, data);
+
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
+    public static void ConvertScripts(FileStream stream, UndertaleData data, List<UndertaleCode> codes)
     {
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts"));
-
         Console.Write($"Converting scripts...");
+        stream.WriteLength(codes.Count);
         foreach (var code in codes)
         {
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.bin");
-
             var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
             var asset = ConvertScript(asmFile);
@@ -83,8 +73,7 @@ public static class GameConverter
                 asset.Name = code.Name.Content;
             }
 
-            var serialized = MemoryPackSerializer.Serialize(asset);
-            File.WriteAllBytes(saveDirectory, serialized);
+            stream.Write(asset);
         }
         Console.WriteLine($" Done!");
     }
@@ -359,7 +348,7 @@ public static class GameConverter
         return asset;
     }
 
-    public static void ExportPages(UndertaleData data)
+    public static void ExportPages(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting texture pages...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
@@ -375,7 +364,7 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
-    public static void ConvertSprites(IList<UndertaleSprite> sprites)
+    public static void ConvertSprites(FileStream stream, IList<UndertaleSprite> sprites)
     {
         Console.Write($"Converting sprites...");
 
@@ -442,7 +431,7 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
-    public static void ExportAssetOrder(UndertaleData data)
+    public static void ExportAssetOrder(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting asset order...");
 
@@ -543,7 +532,7 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
-    public static void ExportObjectDefinitions(UndertaleData data)
+    public static void ExportObjectDefinitions(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting object definitions...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
@@ -636,7 +625,7 @@ public static class GameConverter
 
     public static int CurrentElementID = 0;
 
-    public static void ExportRooms(UndertaleData data)
+    public static void ExportRooms(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting rooms...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
@@ -752,7 +741,7 @@ public static class GameConverter
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportFonts(UndertaleData data)
+    public static void ExportFonts(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting fonts...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
@@ -808,7 +797,7 @@ public static class GameConverter
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportSounds(UndertaleData data)
+    public static void ExportSounds(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting sounds...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
@@ -829,7 +818,7 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.File = $"{asset.Name}.ogg";
-                    File.Copy(asset.File, Path.Combine(outputPath, asset.File));
+                    File.Copy(asset.File, Path.Combine(outputPath, asset.File), true);
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())
                 {
@@ -844,8 +833,8 @@ public static class GameConverter
                     asset.File = $"{asset.Name}.wav";
 
                     var audioGroupPath = $"audiogroup{item.GroupID}.dat";
-                    using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
-                    using var audioGroupData = UndertaleIO.Read(stream);
+                    using var audioGroupStream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
+                    using var audioGroupData = UndertaleIO.Read(audioGroupStream);
 
                     var embeddedAudio = audioGroupData.EmbeddedAudio;
                     File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
@@ -858,7 +847,7 @@ public static class GameConverter
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportTextureGroups(UndertaleData data)
+    public static void ExportTextureGroups(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting texture groups...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
@@ -880,7 +869,7 @@ public static class GameConverter
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportTileSets(UndertaleData data)
+    public static void ExportTileSets(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting tile sets...");
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
