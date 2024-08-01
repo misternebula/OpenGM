@@ -41,12 +41,12 @@ public static class SurfaceManager
         {
             // this should eventually be application_surface, but we're not using that rn, so draw directly to the screen
             // this does not fix the tensionbar thing. darn :(
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            // GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             return true;
             // surface = application_surface;
         }
         var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
 		return true;
 	}
 

@@ -11,6 +11,8 @@ using OpenGM.Rendering;
 namespace OpenGM.Loading;
 public static class GameLoader
 {
+    public static bool DebugDumpFunctions = false;
+    
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
@@ -24,6 +26,8 @@ public static class GameLoader
         LoadTextureGroups();
         LoadTileSets();
         AudioManager.LoadSounds();
+        
+        GC.Collect(); // gc after doing a buncha loading
     }
 
     private static void LoadScripts()
@@ -31,6 +35,9 @@ public static class GameLoader
         Console.Write($"Loading scripts...");
         var scriptsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
         var files = Directory.EnumerateFiles(scriptsFolder);
+
+        var allUsedFunctions = new HashSet<string>();
+
         foreach (var file in files)
         {
             var text = File.ReadAllBytes(file);
@@ -49,7 +56,31 @@ public static class GameLoader
             {
                 ScriptResolver.ScriptFunctions.Add(func.FunctionName, (asset, func.InstructionIndex));
             }
+
+            if (DebugDumpFunctions)
+            {
+                var usedFunctions = asset.Instructions.Where(x => x.Opcode == VMOpcode.CALL).Select(x => x.FunctionName);
+                usedFunctions = usedFunctions.Where(x =>
+                    !x.StartsWith("gml_Object_") &&
+                    !x.StartsWith("gml_Script_") &&
+                    !x.StartsWith("gml_GlobalScript_") &&
+                    !x.StartsWith("gml_RoomCC_")
+                );
+                foreach (var usedFunction in usedFunctions)
+                {
+                    allUsedFunctions.Add(usedFunction);
+                }
+            }
         }
+
+        if (DebugDumpFunctions)
+        {
+            var builtInfunctions = ScriptResolver.BuiltInFunctions.Select(x => x.Key).ToHashSet();
+            IEnumerable<string> allUsedFunctions2 = allUsedFunctions.Order();
+            allUsedFunctions2 = allUsedFunctions2.Select(x => builtInfunctions.Contains(x) ? $"[IMPLEMENTED] {x}" : x);
+            File.WriteAllText("used functions.txt", string.Join('\n', allUsedFunctions2));
+        }
+
         Console.WriteLine($" Done!");
     }
 
@@ -146,6 +177,8 @@ public static class GameLoader
                     if (element is CLayerTilemapElement tilemap)
                     {
                         var uintData = tilemap.Tiles;
+                        tilemap.Tiles = null!; // not used after here, so let it gc 
+                        
                         tilemap.TilesData = new TileBlob[tilemap.Height, tilemap.Width];
 
                         var cols = tilemap.Height;

@@ -22,9 +22,13 @@ public static class PageManager
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
+            image.Data = null; // let this get gc'd since it was uploaded to the gpu
+
             TexturePages[item.Key] = (image, newId);
         }
         
+        GC.Collect(); // gc to remove above
+
         Console.WriteLine(" Done!");
     }
 }

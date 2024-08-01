@@ -42,6 +42,8 @@ public static class GameConverter
         ExportTextureGroups(data);
 
         ExportTileSets(data);
+        
+        GC.Collect(); // gc after doing a buncha loading
     }
 
     public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
