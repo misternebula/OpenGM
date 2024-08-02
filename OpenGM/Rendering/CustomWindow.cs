@@ -355,10 +355,16 @@ public class CustomWindow : GameWindow
 
         GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
 
-        foreach (var item in polyJob.Vertices)
+        for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
-            GL.Vertex2(item);
-        }
+	        if (polyJob.Colors != null)
+	        {
+                var col = polyJob.Colors[i];
+		        GL.Color4(new Color4(col.R, col.G, col.B, (float)polyJob.alpha));
+			}
+
+            GL.Vertex2(polyJob.Vertices[i]);
+		}
 
         GL.End();
     }
@@ -410,6 +416,7 @@ public class GMTextJob : GMBaseJob
 public class GMPolygonJob : GMBaseJob
 {
     public Vector2d[] Vertices = null!;
+    public Color4[] Colors = null!;
     public bool Outline;
 }
 

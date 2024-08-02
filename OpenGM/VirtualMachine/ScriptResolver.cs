@@ -317,7 +317,8 @@ public static partial class ScriptResolver
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
 		{ "point_in_rectangle", point_in_rectangle},
 		{ "draw_surface", draw_surface},
-		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext}
+		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext},
+		{ "draw_triangle_color", draw_triangle_color}
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
@@ -2310,7 +2311,7 @@ public static partial class ScriptResolver
 		var points = new Vector2d[DrawManager.CirclePrecision];
 		for (var i = 0; i < DrawManager.CirclePrecision; i++)
 		{
-			points[i] = new Vector2d(x + (r * Math.Sin(angle * i)), y + (r * Math.Cos(angle * i)));
+			points[i] = new Vector2d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)));
 		}
 
 		CustomWindow.Draw(new GMPolygonJob()
@@ -2937,8 +2938,6 @@ public static partial class ScriptResolver
 		var col4 = args[7].Conv<int>();
 		var outline = args[8].Conv<bool>();
 
-		// todo : actually do the colors lol
-
 		CustomWindow.Draw(new GMPolygonJob()
 		{
 			blend = SpriteManager.DrawColor.ABGRToCol4(),
@@ -2950,6 +2949,10 @@ public static partial class ScriptResolver
 				new Vector2d(x2, y1),
 				new Vector2d(x2, y2),
 				new Vector2d(x1, y2)
+			},
+			Colors = new []
+			{
+				col1.ABGRToCol4(), col2.ABGRToCol4(), col3.ABGRToCol4(), col4.ABGRToCol4()
 			}
 		});
 
@@ -3087,6 +3090,41 @@ public static partial class ScriptResolver
 		
 		SurfaceManager.draw_surface(id, x, y);
 		
+		return null;
+	}
+
+	public static object? draw_triangle_color(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var x3 = args[4].Conv<double>();
+		var y3 = args[5].Conv<double>();
+		var col1 = args[6].Conv<int>();
+		var col2 = args[7].Conv<int>();
+		var col3 = args[8].Conv<int>();
+		var outline = args[9].Conv<bool>();
+
+		CustomWindow.Draw(new GMPolygonJob()
+		{
+			Outline =  outline,
+			Vertices = new[]
+			{
+				new Vector2d(x1, y1),
+				new Vector2d(x2, y2),
+				new Vector2d(x3, y3)
+			},
+			alpha = SpriteManager.DrawAlpha,
+			Colors = new[] { col1.ABGRToCol4(), col2.ABGRToCol4(), col3.ABGRToCol4() }
+		});
+
+		return null;
+	}
+
+	public static object? draw_sprite_pos(object?[] args)
+	{
+		// todo : implement
 		return null;
 	}
 }
