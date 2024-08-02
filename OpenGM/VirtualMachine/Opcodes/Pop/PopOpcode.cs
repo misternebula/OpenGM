@@ -106,7 +106,7 @@ public static partial class VMExecutor
 	{
 		var stackArray = EnvironmentStack.ToArray();
 
-		if (stackArray.Any(x => x == null))
+		if (stackArray.Contains(null))
 		{
 			// iterate backwards until we find the null value
 
