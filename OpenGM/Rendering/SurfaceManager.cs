@@ -30,7 +30,7 @@ public static class SurfaceManager
 
         SurfaceStack.Push(surface);
         var buffer = _framebuffers[surface];
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         // future draws will draw to this fbo
         return true;
     }
