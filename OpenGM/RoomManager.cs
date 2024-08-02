@@ -212,7 +212,7 @@ public static class RoomManager
 			}
 		}
 		
-		GC.Collect();
+		GC.Collect(); // gc on load boundary
 
 		DebugLog.LogInfo($"- Finished room change.");
 

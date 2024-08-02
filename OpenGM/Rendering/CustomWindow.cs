@@ -1,13 +1,11 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
-using OpenTK.Graphics.Egl;
+using OpenTK.Core.Native;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System.Runtime.InteropServices;
 using UndertaleModLib.Decompiler;
-using Vector2 = OpenTK.Mathematics.Vector2;
 
 namespace OpenGM.Rendering;
 public class CustomWindow : GameWindow
@@ -48,7 +46,7 @@ public class CustomWindow : GameWindow
         
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>
         {
-            var message = Marshal.PtrToStringAnsi(messagePtr);
+            var message = MarshalTk.MarshalPtrToString(messagePtr);
             if (type == DebugType.DebugTypeError) throw new Exception($"GL error from {source}: {message}");
             DebugLog.LogInfo($"GL message from {source}: {message}");
         }, 0);

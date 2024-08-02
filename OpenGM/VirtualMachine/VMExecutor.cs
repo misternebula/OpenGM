@@ -54,6 +54,8 @@ public static partial class VMExecutor
 	// debug
 	public static Stack<VMScript> currentExecutingScript = new();
 	public static bool VerboseStackLogs;
+	
+	// private static IList? _temporaryArrayStorage = null;
 
 	public static object? ExecuteScript(VMScript script, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
@@ -431,6 +433,7 @@ public static partial class VMExecutor
 			case VMOpcode.CHKINDEX:
 			{
 				// unused in ch2???? no clue what this does
+				// used for multi-dimensional array bounds checking. c# does that anyway so its probably fine
 				
 				var (index, type) = Ctx.Stack.Peek();
 
@@ -452,6 +455,7 @@ public static partial class VMExecutor
 				});
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
+				// apparently used for COW array stuff. does that mean this subtley breaks everything because arrays expect to copy?
 				var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 				break;
 			case VMOpcode.POPAF:
@@ -479,8 +483,28 @@ public static partial class VMExecutor
 
 				break;
 			}
+			case VMOpcode.SAVEAREF:
+			{
+				// doing what the comment in Underanalyzer says makes everything break???
+				
+				// if (_temporaryArrayStorage != null) throw new Exception("savearef - array already stored");
+				// var wtfIsThis = Ctx.Stack.Pop(VMType.i);
+				// _temporaryArrayStorage = Ctx.Stack.Pop(VMType.v).Conv<IList>();
+				break;
+			}
+			case VMOpcode.RESTOREAREF:
+			{
+				// doing what the comment in Underanalyzer says makes everything break???
+				
+				// if (_temporaryArrayStorage == null) throw new Exception("savearef - array not stored");
+				// Ctx.Stack.Push(_temporaryArrayStorage, VMType.v);
+				// _temporaryArrayStorage = null;
+				break;
+			}
 			case VMOpcode.CALLV:
+				throw new NotImplementedException("callv");
 			case VMOpcode.BREAK:
+				throw new UnreachableException("break is used as an extended opcode marker, so it should never show up as an instruction");
 			default:
 				return (ExecutionResult.Failed, $"Unknown opcode {instruction.Opcode}");
 		}

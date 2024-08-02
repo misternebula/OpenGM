@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 
@@ -31,13 +32,35 @@ public static partial class VMExecutor
 
 			return (ExecutionResult.JumpedToLabel, instruction.IntData);
 		}
-		else if (id is GMConstants.self or GMConstants.other or GMConstants.global or GMConstants.all)
+		else if (id == GMConstants.other)
+		{
+			var stackArray = EnvironmentStack.ToArray();
+			// we just pushed null, so one above that is self, and the one above THAT is other
+			var instance = stackArray[2].GMSelf;
+			
+			// TODO: how does return work??
+			var newCtx = new VMScriptExecutionContext
+			{
+				Self = instance,
+				ObjectDefinition = instance.Definition,
+				// TODO: why copy? is with statement a separate block?
+				Stack = new(currentContext.Stack),
+				Locals = new(currentContext.Locals),
+				ReturnValue = currentContext.ReturnValue,
+				EventType = currentContext.EventType,
+				EventIndex = currentContext.EventIndex,
+			};
+
+			EnvironmentStack.Push(newCtx);
+		}
+		else if (id is GMConstants.self or GMConstants.global or GMConstants.all)
 		{
 			throw new NotImplementedException();
 		}
 		else if (id < 0)
 		{
 			// some other negative number??
+			DebugLog.LogError($"wtf! other negative number {id} in pushenv!!!");
 			if (instruction.JumpToEnd)
 			{
 				return (ExecutionResult.JumpedToEnd, null);
