@@ -4,6 +4,8 @@ namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {
+	// TODO: pop builtin/array. yes, it is used in ch2
+	
 	public static void PopToGlobal(string varName, object? value)
 	{
 		VariableResolver.GlobalVariables[varName] = value;
