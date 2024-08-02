@@ -316,7 +316,8 @@ public static partial class ScriptResolver
 		{ "power", power},
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
 		{ "point_in_rectangle", point_in_rectangle},
-		{ "draw_surface", draw_surface}
+		{ "draw_surface", draw_surface},
+		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
 	private static object? layer_force_draw_depth(object?[] args)
