@@ -35,8 +35,7 @@ public static partial class VMExecutor
 		else if (id == GMConstants.other)
 		{
 			var stackArray = EnvironmentStack.ToArray();
-			// we just pushed null, so one above that has `other`
-			// actually apparently we have to go one above that or else i get mysterious errors about "grazed" not existing in battle. idk man
+			// we just pushed null, so one above that is self, and the one above THAT is other
 			var instance = stackArray[2].GMSelf;
 			
 			// TODO: how does return work??
