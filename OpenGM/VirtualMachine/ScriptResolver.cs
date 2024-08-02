@@ -1281,7 +1281,7 @@ public static partial class ScriptResolver
 		var w = args[4].Conv<double>();
 		var h = args[5].Conv<double>();
 
-		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, SpriteManager.DrawColor, SpriteManager.DrawAlpha);
+		SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, 16777215, 1);
 		return null;
 	}
 
