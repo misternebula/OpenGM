@@ -2162,6 +2162,11 @@ public static partial class ScriptResolver
 
 		var hueDegree = (hue / 255) * 360;
 
+		if (hueDegree >= 360)
+		{
+			hueDegree -= 360;
+		}
+
 		var chroma = val * sat;
 
 		var hPrime = hueDegree / 60;
@@ -2215,7 +2220,7 @@ public static partial class ScriptResolver
 		var gByte = (byte)(g * 255);
 		var bByte = (byte)(b * 255);
 
-		return (bByte << 16) + (byte)(gByte << 8) + rByte;
+		return (bByte << 16) + (gByte << 8) + rByte;
 	}
 
 	public static object? gpu_set_blendmode(object?[] args)
@@ -2981,8 +2986,8 @@ public static partial class ScriptResolver
 		for (var i = 0; i < DrawManager.CirclePrecision; i++)
 		{
 			points[i] = new Vector2d(
-				midpointX + (xRadius * Math.Sin(angle * i)),
-				midpointY + (yRadius * Math.Cos(angle * i)));
+				midpointX + (xRadius * Math.Sin(angle * i * CustomMath.Deg2Rad)),
+				midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)));
 		}
 
 		CustomWindow.Draw(new GMPolygonJob()
