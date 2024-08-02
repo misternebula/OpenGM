@@ -146,4 +146,33 @@ public class PopPushTests
 
 		Assert.AreEqual(7, spellSubArray[1].Conv<int>());
 	}
+
+	[TestMethod]
+	public void SavearefTest()
+	{
+		VariableResolver.GlobalVariables["bmenucoord"] = new object?[] { new object?[] { 69 } };
+		VariableResolver.GlobalVariables["charturn"] = 0;
+
+		TestUtils.ExecuteScript(
+			"global.bmenucoord[0][global.charturn] += 1",
+			"""
+			:[0]
+			pushi.e -5
+			pushi.e 0
+			push.v [arraypopaf]self.bmenucoord
+			pushglb.v global.charturn
+			conv.v.i
+			dup.i 4
+			savearef.e
+			pushaf.e
+			pushi.e 1
+			add.i.v
+			restorearef.e
+			dup.i 4 40 ;;; this is a weird GMS2.3+ swap instruction
+			popaf.e
+			"""
+		);
+		
+		Assert.AreEqual(70, VariableResolver.GlobalVariables["bmenucoord"].Conv<IList>()[0].Conv<IList>()[0].Conv<int>());
+	}
 }
