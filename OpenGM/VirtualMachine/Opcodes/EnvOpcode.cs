@@ -36,7 +36,8 @@ public static partial class VMExecutor
 		{
 			var stackArray = EnvironmentStack.ToArray();
 			// we just pushed null, so one above that has `other`
-			var instance = stackArray[1].GMSelf;
+			// actually apparently we have to go one above that or else i get mysterious errors about "grazed" not existing in battle. idk man
+			var instance = stackArray[2].GMSelf;
 			
 			// TODO: how does return work??
 			var newCtx = new VMScriptExecutionContext
