@@ -1624,7 +1624,12 @@ public static partial class ScriptResolver
 		if (index >= GMConstants.FIRST_INSTANCE_ID)
 		{
 			// instance id
-			var soundAsset = AudioManager.GetAudioInstance(index)!;
+			var soundAsset = AudioManager.GetAudioInstance(index);
+			if (soundAsset == null)
+			{
+				return null;
+			}
+			
 			AL.Source(soundAsset.Source, ALSourcef.Pitch, (float)pitch);
 			AudioManager.CheckALError();
 		}
@@ -1720,8 +1725,12 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			AL.SourcePlay(AudioManager.GetAudioInstance(index)!.Source);
-			AudioManager.CheckALError();
+			var instance = AudioManager.GetAudioInstance(index);
+			if (instance != null)
+			{
+				AL.SourcePlay(instance.Source);
+				AudioManager.CheckALError();
+			}
 		}
 
 		return null;
@@ -1740,7 +1749,12 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			AL.Source(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset, (float)time);
+			var instance = AudioManager.GetAudioInstance(index);
+			if (instance != null)
+			{
+				AL.Source(instance.Source, ALSourcef.SecOffset, (float)time);
+				AudioManager.CheckALError();
+			}
 		}
 		
 		return null;
@@ -1752,6 +1766,7 @@ public static partial class ScriptResolver
 
 		if (index < GMConstants.FIRST_INSTANCE_ID)
 		{
+			// playing = exists for us, so anything in here means something is playing
 			foreach (var item in AudioManager.GetAudioInstances(index))
 			{
 				if (item != null)
@@ -3008,9 +3023,14 @@ public static partial class ScriptResolver
 		}
 		else
 		{
-			var offset = AL.GetSource(AudioManager.GetAudioInstance(index)!.Source, ALSourcef.SecOffset);
-			AudioManager.CheckALError();
-			return offset;
+			var instance = AudioManager.GetAudioInstance(index);
+			if (instance != null)
+			{
+				var offset = AL.GetSource(instance!.Source, ALSourcef.SecOffset);
+				AudioManager.CheckALError();
+				return offset;
+			}
+			return 0;
 		}
 	}
 
