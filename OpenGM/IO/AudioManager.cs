@@ -93,6 +93,7 @@ public static class AudioManager
             int freq;
             if (Path.GetExtension(asset.File) == ".wav")
             {
+                // reading from one file over and over again = SLOW! (500ms)
                 File.WriteAllBytes("TEMP_AUDIO_FILE", bytes);
 
                 try
