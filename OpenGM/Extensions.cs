@@ -17,35 +17,17 @@ public static class Extensions
 	// better safe than sorry
 	public static string FixCRLF(this string @this) => @this.Replace("\r\n", "\n");
 
-	public static int ReadLength(this Stream @this)
+	public static T Read<T>(this BinaryReader @this)
 	{
-		Span<byte> lengthSpan = stackalloc byte[sizeof(int)];
-		@this.ReadExactly(lengthSpan);
-		return BitConverter.ToInt32(lengthSpan);
+		var length = @this.ReadInt32();
+		var bytes = @this.ReadBytes(length);
+		return MemoryPackSerializer.Deserialize<T>(bytes)!;
 	}
 
-	public static T Read<T>(this Stream @this)
-	{
-		var length = @this.ReadLength();
-
-		var resultBytes = ArrayPool<byte>.Shared.Rent(length);
-		var resultSpan = resultBytes.AsSpan(0, length);
-		@this.ReadExactly(resultSpan);
-		var result = MemoryPackSerializer.Deserialize<T>(resultSpan)!;
-		ArrayPool<byte>.Shared.Return(resultBytes);
-
-		return result;
-	}
-
-	public static void WriteLength(this Stream @this, int length)
-	{
-		@this.Write(BitConverter.GetBytes(length));
-	}
-
-	public static void Write<T>(this Stream @this, T value)
+	public static void Write<T>(this BinaryWriter @this, T value)
 	{
 		var bytes = MemoryPackSerializer.Serialize(value);
-		@this.WriteLength(bytes.Length);
+		@this.Write(bytes.Length);
 		@this.Write(bytes);
 	}
 }

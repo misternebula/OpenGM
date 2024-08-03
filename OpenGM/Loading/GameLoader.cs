@@ -18,32 +18,33 @@ public static class GameLoader
         Console.WriteLine($"Loading game files...");
 
         using var stream = File.OpenRead("data_OpenGM.win");
+        using var reader = new BinaryReader(stream);
 
         // must match order of gameconverter
-        AssetIndexManager.LoadAssetIndexes(stream);
-        LoadScripts(stream);
-        LoadObjects(stream);
-        LoadRooms(stream);
-        LoadSprites(stream);
-        LoadFonts(stream);
-        LoadTexturePages(stream);
-        LoadTextureGroups(stream);
-        LoadTileSets(stream);
-        AudioManager.LoadSounds(stream);
+        AssetIndexManager.LoadAssetIndexes(reader);
+        LoadScripts(reader);
+        LoadObjects(reader);
+        LoadRooms(reader);
+        LoadSprites(reader);
+        LoadFonts(reader);
+        LoadTexturePages(reader);
+        LoadTextureGroups(reader);
+        LoadTileSets(reader);
+        AudioManager.LoadSounds(reader);
         
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    private static void LoadScripts(FileStream stream)
+    private static void LoadScripts(BinaryReader reader)
     {
         Console.Write($"Loading scripts...");
 
         var allUsedFunctions = new HashSet<string>();
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<VMScript>();
+            var asset = reader.Read<VMScript>();
 
             if (asset.IsGlobalInit)
             {
@@ -86,7 +87,7 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects(FileStream stream)
+    private static void LoadObjects(BinaryReader reader)
     {
         Console.Write($"Loading objects...");
 
@@ -94,10 +95,10 @@ public static class GameLoader
         var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
         id2Script[-1] = null;
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<ObjectDefinition>();
+            var asset = reader.Read<ObjectDefinition>();
             var storage = asset.FileStorage;
 
             asset.CreateScript = id2Script[storage.CreateScriptID];
@@ -157,14 +158,14 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadRooms(FileStream stream)
+    private static void LoadRooms(BinaryReader reader)
     {
         Console.Write($"Loading rooms...");
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<Room>();
+            var asset = reader.Read<Room>();
 
             foreach (var layer in asset.Layers)
             {
@@ -206,35 +207,35 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadSprites(FileStream stream)
+    private static void LoadSprites(BinaryReader reader)
     {
         Console.Write($"Loading sprites...");
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<SpriteData>();
+            var asset = reader.Read<SpriteData>();
 
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadFonts(FileStream stream)
+    private static void LoadFonts(BinaryReader reader)
     {
         Console.Write($"Loading Fonts...");
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<FontAsset>();
+            var asset = reader.Read<FontAsset>();
 
             TextManager.FontAssets.Add(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadTexturePages(FileStream stream)
+    private static void LoadTexturePages(BinaryReader reader)
     {
         Console.Write($"Loading Texture Pages...");
         var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
@@ -253,14 +254,14 @@ public static class GameLoader
 
     public static Dictionary<string, TextureGroup> TexGroups = new();
 
-    private static void LoadTextureGroups(FileStream stream)
+    private static void LoadTextureGroups(BinaryReader reader)
     {
         Console.Write($"Loading Texture Groups...");
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<TextureGroup>();
+            var asset = reader.Read<TextureGroup>();
 
             TexGroups.Add(asset.GroupName, asset);
         }
@@ -270,14 +271,14 @@ public static class GameLoader
 
     public static Dictionary<int, TileSet> TileSets = new();
 
-	private static void LoadTileSets(FileStream stream)
+	private static void LoadTileSets(BinaryReader reader)
     {
 	    Console.Write($"Loading Tile Sets...");
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<TileSet>();
+            var asset = reader.Read<TileSet>();
 
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }

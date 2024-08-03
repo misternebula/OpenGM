@@ -76,14 +76,14 @@ public static class AudioManager
     /// load all the audio data into buffers
     /// has to happen after init since context is set up there
     /// </summary>
-    public static void LoadSounds(FileStream stream)
+    public static void LoadSounds(BinaryReader reader)
     {
         Console.Write($"Loading sounds...");
 
-        var length = stream.ReadLength();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = stream.Read<SoundAsset>();
+            var asset = reader.Read<SoundAsset>();
 
             float[] data;
             bool stereo;
@@ -92,11 +92,11 @@ public static class AudioManager
             {
                 try
                 {
-                    using var reader = new AudioFileReader(asset.File);
-                    data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
-                    reader.Read(data, 0, data.Length);
-                    stereo = reader.WaveFormat.Channels == 2;
-                    freq = reader.WaveFormat.SampleRate;
+                    using var audioFileReader = new AudioFileReader(asset.File);
+                    data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
+                    audioFileReader.Read(data, 0, data.Length);
+                    stereo = audioFileReader.WaveFormat.Channels == 2;
+                    freq = audioFileReader.WaveFormat.SampleRate;
                 }
                 catch (Exception)
                 {
@@ -107,11 +107,11 @@ public static class AudioManager
             }
             else if (Path.GetExtension(asset.File) == ".ogg")
             {
-                using var reader = new VorbisReader(asset.File);
-                data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
-                reader.ReadSamples(data, 0, data.Length);
-                stereo = reader.Channels == 2;
-                freq = reader.SampleRate;
+                using var vorbisReader = new VorbisReader(asset.File);
+                data = new float[vorbisReader.TotalSamples * vorbisReader.Channels]; // is this correct length?
+                vorbisReader.ReadSamples(data, 0, data.Length);
+                stereo = vorbisReader.Channels == 2;
+                freq = vorbisReader.SampleRate;
             }
             else
             {
