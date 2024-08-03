@@ -367,10 +367,8 @@ public static class GameConverter
     public static void ConvertSprites(FileStream stream, IList<UndertaleSprite> sprites)
     {
         Console.Write($"Converting sprites...");
-
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        Directory.CreateDirectory(outputPath);
-
+        
+        stream.WriteLength(sprites.Count);
         for (var i = 0; i < sprites.Count; i++)
         {
             var sprite = sprites[i];
@@ -424,8 +422,7 @@ public static class GameConverter
                 asset.CollisionMasks.Add(item.Data);
             }
 
-            var saveDirectory = Path.Combine(outputPath, $"{sprite.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            stream.Write(asset);
         }
 
         Console.WriteLine($" Done!");
@@ -535,9 +532,8 @@ public static class GameConverter
     public static void ExportObjectDefinitions(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting object definitions...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        Directory.CreateDirectory(outputPath);
 
+        stream.WriteLength(data.GameObjects.Count);
         for (var i = 0; i < data.GameObjects.Count; i++)
         {
             var obj = data.GameObjects[i];
@@ -617,8 +613,7 @@ public static class GameConverter
 
             asset.FileStorage = storage;
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects", $"{asset.Name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            stream.Write(asset);
         }
         Console.WriteLine(" Done!");
     }
@@ -628,11 +623,10 @@ public static class GameConverter
     public static void ExportRooms(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting rooms...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        Directory.CreateDirectory(outputPath);
 
         var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
 
+        stream.WriteLength(data.Rooms.Count);
         foreach (var room in data.Rooms)
         {
             var asset = new Room
@@ -734,9 +728,7 @@ public static class GameConverter
                 asset.Layers.Add(layerasset);
             }
 
-            // TODO: MemoryPack, use MemoryPackUnion for polymorphism
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            stream.Write(asset);
         }
         Console.WriteLine(" Done!");
     }
@@ -744,9 +736,7 @@ public static class GameConverter
     public static void ExportFonts(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting fonts...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        Directory.CreateDirectory(outputPath);
-
+        stream.WriteLength(data.Fonts.Count);
         foreach (var item in data.Fonts)
         {
             var fontAsset = new FontAsset();
@@ -791,8 +781,7 @@ public static class GameConverter
                 fontAsset.entriesDict.Add(glyphAsset.characterIndex, glyphAsset);
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts", $"{fontAsset.name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(fontAsset));
+            stream.Write(fontAsset);
         }
         Console.WriteLine(" Done!");
     }
@@ -803,6 +792,7 @@ public static class GameConverter
         var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
         Directory.CreateDirectory(outputPath);
 
+        stream.WriteLength(data.Sounds.Count);
         foreach (var item in data.Sounds)
         {
             var asset = new SoundAsset();
@@ -841,8 +831,7 @@ public static class GameConverter
                 }
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            stream.Write(asset);
         }
         Console.WriteLine(" Done!");
     }
@@ -850,9 +839,8 @@ public static class GameConverter
     public static void ExportTextureGroups(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting texture groups...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        Directory.CreateDirectory(outputPath);
 
+        stream.WriteLength(data.TextureGroupInfo.Count);
         foreach (var group in data.TextureGroupInfo)
         {
             var asset = new TextureGroup();
@@ -862,8 +850,7 @@ public static class GameConverter
             asset.Sprites = group.Sprites.Select(x => data.Sprites.IndexOf(x.Resource)).ToArray();
             asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
 
-            var saveDirectory = Path.Combine(outputPath, $"{group.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            stream.Write(asset);
         }
 
         Console.WriteLine(" Done!");
@@ -872,9 +859,8 @@ public static class GameConverter
     public static void ExportTileSets(FileStream stream, UndertaleData data)
     {
         Console.Write($"Exporting tile sets...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-        Directory.CreateDirectory(outputPath);
 
+        stream.WriteLength(data.Backgrounds.Count);
         foreach (var set in data.Backgrounds)
         {
             var asset = new TileSet();
@@ -906,8 +892,7 @@ public static class GameConverter
                 Page = set.Texture.TexturePage.Name.Content
             };
 
-            var saveDirectory = Path.Combine(outputPath, $"{set.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            stream.Write(asset);
         }
 
         Console.WriteLine(" Done!");

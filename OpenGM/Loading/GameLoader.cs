@@ -90,17 +90,14 @@ public static class GameLoader
     {
         Console.Write($"Loading objects...");
 
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        var files = Directory.EnumerateFiles(objectsFolder);
-
         // dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
         var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
         id2Script[-1] = null;
 
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<ObjectDefinition>(text)!;
+            var asset = stream.Read<ObjectDefinition>();
             var storage = asset.FileStorage;
 
             asset.CreateScript = id2Script[storage.CreateScriptID];
@@ -164,13 +161,10 @@ public static class GameLoader
     {
         Console.Write($"Loading rooms...");
 
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        var files = Directory.EnumerateFiles(objectsFolder);
-
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<Room>(text)!;
+            var asset = stream.Read<Room>();
 
             foreach (var layer in asset.Layers)
             {
@@ -215,13 +209,11 @@ public static class GameLoader
     private static void LoadSprites(FileStream stream)
     {
         Console.Write($"Loading sprites...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<SpriteData>(text)!;
+            var asset = stream.Read<SpriteData>();
 
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
@@ -231,13 +223,11 @@ public static class GameLoader
     private static void LoadFonts(FileStream stream)
     {
         Console.Write($"Loading Fonts...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<FontAsset>(text)!;
+            var asset = stream.Read<FontAsset>();
 
             TextManager.FontAssets.Add(asset);
         }
@@ -266,13 +256,11 @@ public static class GameLoader
     private static void LoadTextureGroups(FileStream stream)
     {
         Console.Write($"Loading Texture Groups...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TextureGroup>(text)!;
+            var asset = stream.Read<TextureGroup>();
 
             TexGroups.Add(asset.GroupName, asset);
         }
@@ -285,13 +273,11 @@ public static class GameLoader
 	private static void LoadTileSets(FileStream stream)
     {
 	    Console.Write($"Loading Tile Sets...");
-	    var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-	    var files = Directory.EnumerateFiles(objectsFolder);
 
-	    foreach (var file in files)
-	    {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TileSet>(text)!;
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = stream.Read<TileSet>();
 
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }

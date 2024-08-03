@@ -81,11 +81,10 @@ public static class AudioManager
         Console.Write($"Loading sounds...");
 
         var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        var files = Directory.EnumerateFiles(soundsFolder, "*.bin");
-        foreach (var file in files)
+        var length = stream.ReadLength();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<SoundAsset>(text)!;
+            var asset = stream.Read<SoundAsset>();
 
             float[] data;
             bool stereo;
