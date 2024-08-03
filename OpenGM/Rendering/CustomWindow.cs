@@ -55,7 +55,9 @@ public class CustomWindow : GameWindow
         GL.Enable(EnableCap.Texture2D); // always allow a texture to be drawn. does nothing if no texture is bound
         GL.Enable(EnableCap.Blend); // always allow blending
         
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha); // bm_normal
+        // bm_normal
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.BlendEquation(BlendEquationMode.FuncAdd);
     }
 
     protected override void OnLoad()
