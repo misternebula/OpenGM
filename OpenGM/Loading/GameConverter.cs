@@ -357,6 +357,7 @@ public static class GameConverter
         writer.Write(data.EmbeddedTextures.Count);
         foreach (var page in data.EmbeddedTextures)
         {
+            // dont even need a class for this
             var pageName = page.Name.Content;
             var blob = page.TextureData.TextureBlob;
             writer.Write(pageName);
@@ -434,100 +435,100 @@ public static class GameConverter
     {
         Console.Write($"Exporting asset order...");
 
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "asset_names.txt");
-
-        using (StreamWriter streamWriter = new StreamWriter(outputPath))
+        // jank, but it works and its fast to load
+        var streamWriter = new StringBuilder();
         {
             // Write Sounds.
-            streamWriter.WriteLine("@@sounds@@");
+            streamWriter.AppendLine("@@sounds@@");
             if (data.Sounds.Count > 0)
             {
                 foreach (UndertaleSound sound in data.Sounds)
-                    streamWriter.WriteLine(sound.Name.Content);
+                    streamWriter.AppendLine(sound.Name.Content);
             }
             // Write Sprites.
-            streamWriter.WriteLine("@@sprites@@");
+            streamWriter.AppendLine("@@sprites@@");
             if (data.Sprites.Count > 0)
             {
                 foreach (var sprite in data.Sprites)
-                    streamWriter.WriteLine(sprite.Name.Content);
+                    streamWriter.AppendLine(sprite.Name.Content);
             }
 
             // Write Backgrounds.
-            streamWriter.WriteLine("@@backgrounds@@");
+            streamWriter.AppendLine("@@backgrounds@@");
             if (data.Backgrounds.Count > 0)
             {
                 foreach (var background in data.Backgrounds)
-                    streamWriter.WriteLine(background.Name.Content);
+                    streamWriter.AppendLine(background.Name.Content);
             }
 
             // Write Paths.
-            streamWriter.WriteLine("@@paths@@");
+            streamWriter.AppendLine("@@paths@@");
             if (data.Paths.Count > 0)
             {
                 foreach (UndertalePath path in data.Paths)
-                    streamWriter.WriteLine(path.Name.Content);
+                    streamWriter.AppendLine(path.Name.Content);
             }
 
             // Write Code.
-            streamWriter.WriteLine("@@code@@");
+            streamWriter.AppendLine("@@code@@");
             var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
             if (codes.Count > 0)
             {
                 foreach (UndertaleCode code in codes)
-                    streamWriter.WriteLine(code.Name.Content);
+                    streamWriter.AppendLine(code.Name.Content);
             }
 
             // Write Fonts.
-            streamWriter.WriteLine("@@fonts@@");
+            streamWriter.AppendLine("@@fonts@@");
             if (data.Fonts.Count > 0)
             {
                 foreach (UndertaleFont font in data.Fonts)
-                    streamWriter.WriteLine(font.Name.Content);
+                    streamWriter.AppendLine(font.Name.Content);
             }
 
             // Write Objects.
-            streamWriter.WriteLine("@@objects@@");
+            streamWriter.AppendLine("@@objects@@");
             if (data.GameObjects.Count > 0)
             {
                 foreach (UndertaleGameObject gameObject in data.GameObjects)
-                    streamWriter.WriteLine(gameObject.Name.Content);
+                    streamWriter.AppendLine(gameObject.Name.Content);
             }
 
             // Write Timelines.
-            streamWriter.WriteLine("@@timelines@@");
+            streamWriter.AppendLine("@@timelines@@");
             if (data.Timelines.Count > 0)
             {
                 foreach (UndertaleTimeline timeline in data.Timelines)
-                    streamWriter.WriteLine(timeline.Name.Content);
+                    streamWriter.AppendLine(timeline.Name.Content);
             }
 
             // Write Rooms.
-            streamWriter.WriteLine("@@rooms@@");
+            streamWriter.AppendLine("@@rooms@@");
             if (data.Rooms.Count > 0)
             {
                 foreach (UndertaleRoom room in data.Rooms)
-                    streamWriter.WriteLine(room.Name.Content);
+                    streamWriter.AppendLine(room.Name.Content);
             }
 
             // Write Shaders.
-            streamWriter.WriteLine("@@shaders@@");
+            streamWriter.AppendLine("@@shaders@@");
             if (data.Shaders.Count > 0)
             {
                 foreach (UndertaleShader shader in data.Shaders)
-                    streamWriter.WriteLine(shader.Name.Content);
+                    streamWriter.AppendLine(shader.Name.Content);
             }
 
             // Write Extensions.
-            streamWriter.WriteLine("@@extensions@@");
+            streamWriter.AppendLine("@@extensions@@");
             if (data.Extensions.Count > 0)
             {
                 foreach (UndertaleExtension extension in data.Extensions)
-                    streamWriter.WriteLine(extension.Name.Content);
+                    streamWriter.AppendLine(extension.Name.Content);
             }
 
             // TODO: Perhaps detect GMS2.3, export those asset names as well.
         }
+        writer.Write(streamWriter.ToString());
         Console.WriteLine($" Done!");
     }
 

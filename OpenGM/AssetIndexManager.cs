@@ -23,9 +23,8 @@ public static class AssetIndexManager
 	public static void LoadAssetIndexes(BinaryReader reader)
 	{
 		Console.Write($"Loading asset order...");
-		var file = Path.Combine(Directory.GetCurrentDirectory(), "Output", "asset_names.txt");
 
-		var lines = File.ReadAllLines(file);
+		var lines = reader.ReadString().FixCRLF().Split('\n');
 		var headerLineNumber = 0;
 		AssetType currentAssetType = 0;
 		for (int i = 0; i < lines.Length; i++)
