@@ -238,15 +238,18 @@ public static class GameLoader
     private static void LoadTexturePages(BinaryReader reader)
     {
         Console.Write($"Loading Texture Pages...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
         //StbImage.stbi_set_flip_vertically_on_load(1);
 
-        foreach (var image in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var imageResult = ImageResult.FromStream(File.OpenRead(image), ColorComponents.RedGreenBlueAlpha);
-            PageManager.TexturePages.Add(Path.GetFileNameWithoutExtension(image), (imageResult, -1));
+            var pageName = reader.ReadString();
+            var blobLength = reader.ReadInt32();
+            var blob = reader.ReadBytes(blobLength);
+            
+            var imageResult = ImageResult.FromMemory(blob, ColorComponents.RedGreenBlueAlpha);
+            PageManager.TexturePages.Add(pageName, (imageResult, -1));
         }
 
         Console.WriteLine($" Done!");

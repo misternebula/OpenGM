@@ -353,15 +353,15 @@ public static class GameConverter
     public static void ExportPages(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting texture pages...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        Directory.CreateDirectory(outputPath);
 
+        writer.Write(data.EmbeddedTextures.Count);
         foreach (var page in data.EmbeddedTextures)
         {
             var pageName = page.Name.Content;
             var blob = page.TextureData.TextureBlob;
-            var texPath = Path.Combine(outputPath, $"{pageName}.png");
-            File.WriteAllBytes(texPath, blob);
+            writer.Write(pageName);
+            writer.Write(blob.Length);
+            writer.Write(blob);
         }
         Console.WriteLine($" Done!");
     }
