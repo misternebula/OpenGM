@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenGM.IO;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 // reference: https://learnopengl.com/Advanced-OpenGL/Framebuffers
 
@@ -33,7 +34,13 @@ public static class SurfaceManager
         var buffer = _framebuffers[surface];
         // future draws will draw to this fbo
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.Viewport(0, 0, GetSurfaceWidth(surface), GetSurfaceHeight(surface));
+        var width = GetSurfaceWidth(surface);
+        var height = GetSurfaceHeight(surface);
+        GL.Viewport(0, 0, width, height);
+        // UpdateDefaultCamera in html5
+        var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+        GL.MatrixMode(MatrixMode.Projection);
+        GL.LoadMatrix(ref matrix);
         return true;
     }
 
@@ -44,13 +51,26 @@ public static class SurfaceManager
         {
             var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-            GL.Viewport(0, 0, GetSurfaceWidth(surface), GetSurfaceHeight(surface));
+            // i am actually so confused on how any of this works, even looking at html5
+            var x = (float)CustomWindow.Instance.X;
+            var y = (float)CustomWindow.Instance.Y;
+            var width = GetSurfaceWidth(surface);
+            var height = GetSurfaceHeight(surface);
+            GL.Viewport(0, 0, width, height);
+            var matrix = Matrix4.CreateOrthographicOffCenter(x, x+width, y+height, y, 0, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref matrix);
         }
         else
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             // ClientSize and FramebufferSize are the same
-            GL.Viewport(0, 0, CustomWindow.Instance.ClientSize.X, CustomWindow.Instance.ClientSize.Y);
+            var width = CustomWindow.Instance.ClientSize.X;
+            var height = CustomWindow.Instance.ClientSize.Y;
+            GL.Viewport(0, 0, width, height);
+            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref matrix);
         }
         return true;
 	}
@@ -157,10 +177,8 @@ public static class SurfaceManager
 
     // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Surface.js#L841
     // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L3763
-    public static void draw_surface(int id, double x, double y)
-    {
+    public static void draw_surface(int id, double x, double y) => 
         draw_surface_stretched(id, x, y, GetSurfaceWidth(id), GetSurfaceHeight(id));
-    }
 
     public static void draw_surface_stretched(int id, double x, double y, double w, double h)
     {
@@ -176,13 +194,14 @@ public static class SurfaceManager
         // TODO: this draws nothing for the tension bar. fuck
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.Begin(PrimitiveType.Quads);
-        GL.TexCoord2(0, 0);
-        GL.Vertex2(x, y);
-        GL.TexCoord2(1, 0);
-        GL.Vertex2(x + w, y);
-        GL.TexCoord2(1, 1);
-        GL.Vertex2(x + w, y + h);
+        // the order here is different from sprite drawing or else everything gets y flipped????
         GL.TexCoord2(0, 1);
+        GL.Vertex2(x, y);
+        GL.TexCoord2(1, 1);
+        GL.Vertex2(x + w, y);
+        GL.TexCoord2(1, 0);
+        GL.Vertex2(x + w, y + h);
+        GL.TexCoord2(0, 0);
         GL.Vertex2(x, y + h);
         GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);

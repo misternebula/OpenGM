@@ -170,9 +170,9 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.surface_set_target(SurfaceManager.application_surface);
+        SurfaceManager.surface_set_target(SurfaceManager.application_surface);
         
-        // GL.Clear(ClearBufferMask.ColorBufferBit);
+        GL.Clear(ClearBufferMask.ColorBufferBit);
 
         // TODO: at some point this must be replaced by drawing each view
         
@@ -191,7 +191,7 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.surface_reset_target();
+        SurfaceManager.surface_reset_target();
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
@@ -203,10 +203,8 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            // 0, 0, CustomWindow.Instance.ClientSize.X, CustomWindow.Instance.ClientSize.Y);
-        // SurfaceManager.draw_surface(SurfaceManager.application_surface, 
-            // 0, 0);
+        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            0, 0, CustomWindow.Instance.ClientSize.X, CustomWindow.Instance.ClientSize.Y);
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {
