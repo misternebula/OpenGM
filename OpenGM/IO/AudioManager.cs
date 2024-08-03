@@ -76,29 +76,33 @@ public static class AudioManager
     /// load all the audio data into buffers
     /// has to happen after init since context is set up there
     /// </summary>
-    public static void LoadSounds()
+    public static void LoadSounds(BinaryReader reader)
     {
         Console.Write($"Loading sounds...");
 
-        var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        var files = Directory.EnumerateFiles(soundsFolder, "*.bin");
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<SoundAsset>(text)!;
+            var asset = reader.ReadMemoryPack<SoundAsset>();
 
+            var bytesLength = reader.ReadInt32();
+            var bytes = reader.ReadBytes(bytesLength);
+            
             float[] data;
             bool stereo;
             int freq;
             if (Path.GetExtension(asset.File) == ".wav")
             {
+                // write to the same file to get slightly more perf. need the extension so the reader knows what it is
+                File.WriteAllBytes("temp.wav", bytes);
+                
                 try
                 {
-                    using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
-                    data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
-                    reader.Read(data, 0, data.Length);
-                    stereo = reader.WaveFormat.Channels == 2;
-                    freq = reader.WaveFormat.SampleRate;
+                    using var audioFileReader = new AudioFileReader("temp.wav");
+                    data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
+                    audioFileReader.Read(data, 0, data.Length);
+                    stereo = audioFileReader.WaveFormat.Channels == 2;
+                    freq = audioFileReader.WaveFormat.SampleRate;
                 }
                 catch (Exception)
                 {
@@ -109,11 +113,13 @@ public static class AudioManager
             }
             else if (Path.GetExtension(asset.File) == ".ogg")
             {
-                using var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
-                data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
-                reader.ReadSamples(data, 0, data.Length);
-                stereo = reader.Channels == 2;
-                freq = reader.SampleRate;
+                using var stream = new MemoryStream(bytes);
+
+                using var vorbisReader = new VorbisReader(stream);
+                data = new float[vorbisReader.TotalSamples * vorbisReader.Channels]; // is this correct length?
+                vorbisReader.ReadSamples(data, 0, data.Length);
+                stereo = vorbisReader.Channels == 2;
+                freq = vorbisReader.SampleRate;
             }
             else
             {
@@ -135,6 +141,7 @@ public static class AudioManager
                 Offset = 0,
             };
         }
+        File.Delete("temp.wav");
 
         Console.WriteLine($" Done!");
     }

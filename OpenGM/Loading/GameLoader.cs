@@ -16,32 +16,35 @@ public static class GameLoader
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
-        AssetIndexManager.LoadAssetIndexes();
-        LoadScripts();
-        LoadObjects();
-        LoadRooms();
-        LoadSprites();
-        LoadFonts();
-        LoadTexturePages();
-        LoadTextureGroups();
-        LoadTileSets();
-        AudioManager.LoadSounds();
+
+        using var stream = File.OpenRead("data_OpenGM.win");
+        using var reader = new BinaryReader(stream);
+
+        // must match order of gameconverter
+        AssetIndexManager.LoadAssetIndexes(reader);
+        LoadScripts(reader);
+        LoadObjects(reader);
+        LoadRooms(reader);
+        LoadSprites(reader);
+        LoadFonts(reader);
+        LoadTexturePages(reader);
+        LoadTextureGroups(reader);
+        LoadTileSets(reader);
+        AudioManager.LoadSounds(reader);
         
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    private static void LoadScripts()
+    private static void LoadScripts(BinaryReader reader)
     {
         Console.Write($"Loading scripts...");
-        var scriptsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts");
-        var files = Directory.EnumerateFiles(scriptsFolder);
 
         var allUsedFunctions = new HashSet<string>();
 
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<VMScript>(text)!;
+            var asset = reader.ReadMemoryPack<VMScript>();
 
             if (asset.IsGlobalInit)
             {
@@ -84,21 +87,18 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects()
+    private static void LoadObjects(BinaryReader reader)
     {
         Console.Write($"Loading objects...");
-
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
         // dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
         var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
         id2Script[-1] = null;
 
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<ObjectDefinition>(text)!;
+            var asset = reader.ReadMemoryPack<ObjectDefinition>();
             var storage = asset.FileStorage;
 
             asset.CreateScript = id2Script[storage.CreateScriptID];
@@ -158,17 +158,14 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadRooms()
+    private static void LoadRooms(BinaryReader reader)
     {
         Console.Write($"Loading rooms...");
 
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        var files = Directory.EnumerateFiles(objectsFolder);
-
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<Room>(text)!;
+            var asset = reader.ReadMemoryPack<Room>();
 
             foreach (var layer in asset.Layers)
             {
@@ -210,50 +207,49 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadSprites()
+    private static void LoadSprites(BinaryReader reader)
     {
         Console.Write($"Loading sprites...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<SpriteData>(text)!;
+            var asset = reader.ReadMemoryPack<SpriteData>();
 
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadFonts()
+    private static void LoadFonts(BinaryReader reader)
     {
         Console.Write($"Loading Fonts...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<FontAsset>(text)!;
+            var asset = reader.ReadMemoryPack<FontAsset>();
 
             TextManager.FontAssets.Add(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadTexturePages()
+    private static void LoadTexturePages(BinaryReader reader)
     {
         Console.Write($"Loading Texture Pages...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
         //StbImage.stbi_set_flip_vertically_on_load(1);
 
-        foreach (var image in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var imageResult = ImageResult.FromStream(File.OpenRead(image), ColorComponents.RedGreenBlueAlpha);
-            PageManager.TexturePages.Add(Path.GetFileNameWithoutExtension(image), (imageResult, -1));
+            var pageName = reader.ReadString();
+            var blobLength = reader.ReadInt32();
+            var blob = reader.ReadBytes(blobLength);
+            
+            var imageResult = ImageResult.FromMemory(blob, ColorComponents.RedGreenBlueAlpha);
+            PageManager.TexturePages.Add(pageName, (imageResult, -1));
         }
 
         Console.WriteLine($" Done!");
@@ -261,16 +257,14 @@ public static class GameLoader
 
     public static Dictionary<string, TextureGroup> TexGroups = new();
 
-    private static void LoadTextureGroups()
+    private static void LoadTextureGroups(BinaryReader reader)
     {
         Console.Write($"Loading Texture Groups...");
-        var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        var files = Directory.EnumerateFiles(objectsFolder);
 
-        foreach (var file in files)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TextureGroup>(text)!;
+            var asset = reader.ReadMemoryPack<TextureGroup>();
 
             TexGroups.Add(asset.GroupName, asset);
         }
@@ -280,16 +274,14 @@ public static class GameLoader
 
     public static Dictionary<int, TileSet> TileSets = new();
 
-	private static void LoadTileSets()
+	private static void LoadTileSets(BinaryReader reader)
     {
 	    Console.Write($"Loading Tile Sets...");
-	    var objectsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-	    var files = Directory.EnumerateFiles(objectsFolder);
 
-	    foreach (var file in files)
-	    {
-            var text = File.ReadAllBytes(file);
-            var asset = MemoryPackSerializer.Deserialize<TileSet>(text)!;
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<TileSet>();
 
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }

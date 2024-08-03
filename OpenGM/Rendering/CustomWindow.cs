@@ -55,7 +55,9 @@ public class CustomWindow : GameWindow
         GL.Enable(EnableCap.Texture2D); // always allow a texture to be drawn. does nothing if no texture is bound
         GL.Enable(EnableCap.Blend); // always allow blending
         
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha); // bm_normal
+        // bm_normal
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.BlendEquation(BlendEquationMode.FuncAdd);
     }
 
     protected override void OnLoad()
@@ -100,14 +102,10 @@ public class CustomWindow : GameWindow
         KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
-        // TODO: should do this https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
-        // where it draws some stuff to application_surface, and then draws that as a quad to the screen
-        
-        GL.Clear(ClearBufferMask.ColorBufferBit);
         DrawManager.FixedUpdate();
-        SwapBuffers();
-        
         AudioManager.Update();
+        
+        SwapBuffers();
     }
 
     public static void Draw(GMTextJob textJob)
@@ -117,7 +115,7 @@ public class CustomWindow : GameWindow
             return;
         }
 
-        var lines = textJob.text.FixCRLF().Split('\n');
+        var lines = textJob.text.SplitLines();
         var textHeight = TextManager.StringHeight(textJob.text);
 
         for (var i = 0; i < lines.Length; i++)

@@ -8,6 +8,7 @@ using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 using OpenGM.IO;
 using System.Numerics;
+using System.Text;
 
 namespace OpenGM.Loading;
 
@@ -18,43 +19,32 @@ public static class GameConverter
 {
     public static void ConvertGame(UndertaleData data)
     {
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
-
         Console.WriteLine($"Converting game assets...");
-        // TODO: pack everything into 1 file for faster read
         
-        ConvertScripts(data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        using var stream = File.OpenWrite("data_OpenGM.win");
+        using var writer = new BinaryWriter(stream);
 
-        ExportPages(data);
+        // must match order of gameloader
+        ExportAssetOrder(writer, data);
+        ConvertScripts(writer, data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        ExportObjectDefinitions(writer, data);
+        ExportRooms(writer, data);
+        ConvertSprites(writer, data.Sprites);
+        ExportFonts(writer, data);
+        ExportPages(writer, data);
+        ExportTextureGroups(writer, data);
+        ExportTileSets(writer, data);
+        ExportSounds(writer, data);
 
-        ConvertSprites(data.Sprites);
-
-        ExportAssetOrder(data);
-
-        ExportObjectDefinitions(data);
-
-        ExportRooms(data);
-
-        ExportFonts(data);
-
-        ExportSounds(data);
-
-        ExportTextureGroups(data);
-
-        ExportTileSets(data);
-        
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    public static void ConvertScripts(UndertaleData data, List<UndertaleCode> codes)
+    public static void ConvertScripts(BinaryWriter writer, UndertaleData data, List<UndertaleCode> codes)
     {
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts"));
-
         Console.Write($"Converting scripts...");
+        writer.Write(codes.Count);
         foreach (var code in codes)
         {
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Scripts", $"{code.Name.Content}.bin");
-
             var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
             var asset = ConvertScript(asmFile);
@@ -83,15 +73,14 @@ public static class GameConverter
                 asset.Name = code.Name.Content;
             }
 
-            var serialized = MemoryPackSerializer.Serialize(asset);
-            File.WriteAllBytes(saveDirectory, serialized);
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine($" Done!");
     }
 
     public static VMScript ConvertScript(string asmFile)
     {
-        var asmFileLines = asmFile.FixCRLF().Split('\n');
+        var asmFileLines = asmFile.SplitLines();
 
         var localVariables = new List<string>();
 
@@ -359,29 +348,28 @@ public static class GameConverter
         return asset;
     }
 
-    public static void ExportPages(UndertaleData data)
+    public static void ExportPages(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting texture pages...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Pages");
-        Directory.CreateDirectory(outputPath);
 
+        writer.Write(data.EmbeddedTextures.Count);
         foreach (var page in data.EmbeddedTextures)
         {
+            // dont even need a class for this
             var pageName = page.Name.Content;
             var blob = page.TextureData.TextureBlob;
-            var texPath = Path.Combine(outputPath, $"{pageName}.png");
-            File.WriteAllBytes(texPath, blob);
+            writer.Write(pageName);
+            writer.Write(blob.Length);
+            writer.Write(blob);
         }
         Console.WriteLine($" Done!");
     }
 
-    public static void ConvertSprites(IList<UndertaleSprite> sprites)
+    public static void ConvertSprites(BinaryWriter writer, IList<UndertaleSprite> sprites)
     {
         Console.Write($"Converting sprites...");
-
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sprites");
-        Directory.CreateDirectory(outputPath);
-
+        
+        writer.Write(sprites.Count);
         for (var i = 0; i < sprites.Count; i++)
         {
             var sprite = sprites[i];
@@ -435,120 +423,118 @@ public static class GameConverter
                 asset.CollisionMasks.Add(item.Data);
             }
 
-            var saveDirectory = Path.Combine(outputPath, $"{sprite.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            writer.WriteMemoryPack(asset);
         }
 
         Console.WriteLine($" Done!");
     }
 
-    public static void ExportAssetOrder(UndertaleData data)
+    public static void ExportAssetOrder(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting asset order...");
 
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "asset_names.txt");
-
-        using (StreamWriter writer = new StreamWriter(outputPath))
+        // jank, but it works and its fast to load
+        var streamWriter = new StringBuilder();
         {
             // Write Sounds.
-            writer.WriteLine("@@sounds@@");
+            streamWriter.AppendLine("@@sounds@@");
             if (data.Sounds.Count > 0)
             {
                 foreach (UndertaleSound sound in data.Sounds)
-                    writer.WriteLine(sound.Name.Content);
+                    streamWriter.AppendLine(sound.Name.Content);
             }
             // Write Sprites.
-            writer.WriteLine("@@sprites@@");
+            streamWriter.AppendLine("@@sprites@@");
             if (data.Sprites.Count > 0)
             {
                 foreach (var sprite in data.Sprites)
-                    writer.WriteLine(sprite.Name.Content);
+                    streamWriter.AppendLine(sprite.Name.Content);
             }
 
             // Write Backgrounds.
-            writer.WriteLine("@@backgrounds@@");
+            streamWriter.AppendLine("@@backgrounds@@");
             if (data.Backgrounds.Count > 0)
             {
                 foreach (var background in data.Backgrounds)
-                    writer.WriteLine(background.Name.Content);
+                    streamWriter.AppendLine(background.Name.Content);
             }
 
             // Write Paths.
-            writer.WriteLine("@@paths@@");
+            streamWriter.AppendLine("@@paths@@");
             if (data.Paths.Count > 0)
             {
                 foreach (UndertalePath path in data.Paths)
-                    writer.WriteLine(path.Name.Content);
+                    streamWriter.AppendLine(path.Name.Content);
             }
 
             // Write Code.
-            writer.WriteLine("@@code@@");
+            streamWriter.AppendLine("@@code@@");
             var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
             if (codes.Count > 0)
             {
                 foreach (UndertaleCode code in codes)
-                    writer.WriteLine(code.Name.Content);
+                    streamWriter.AppendLine(code.Name.Content);
             }
 
             // Write Fonts.
-            writer.WriteLine("@@fonts@@");
+            streamWriter.AppendLine("@@fonts@@");
             if (data.Fonts.Count > 0)
             {
                 foreach (UndertaleFont font in data.Fonts)
-                    writer.WriteLine(font.Name.Content);
+                    streamWriter.AppendLine(font.Name.Content);
             }
 
             // Write Objects.
-            writer.WriteLine("@@objects@@");
+            streamWriter.AppendLine("@@objects@@");
             if (data.GameObjects.Count > 0)
             {
                 foreach (UndertaleGameObject gameObject in data.GameObjects)
-                    writer.WriteLine(gameObject.Name.Content);
+                    streamWriter.AppendLine(gameObject.Name.Content);
             }
 
             // Write Timelines.
-            writer.WriteLine("@@timelines@@");
+            streamWriter.AppendLine("@@timelines@@");
             if (data.Timelines.Count > 0)
             {
                 foreach (UndertaleTimeline timeline in data.Timelines)
-                    writer.WriteLine(timeline.Name.Content);
+                    streamWriter.AppendLine(timeline.Name.Content);
             }
 
             // Write Rooms.
-            writer.WriteLine("@@rooms@@");
+            streamWriter.AppendLine("@@rooms@@");
             if (data.Rooms.Count > 0)
             {
                 foreach (UndertaleRoom room in data.Rooms)
-                    writer.WriteLine(room.Name.Content);
+                    streamWriter.AppendLine(room.Name.Content);
             }
 
             // Write Shaders.
-            writer.WriteLine("@@shaders@@");
+            streamWriter.AppendLine("@@shaders@@");
             if (data.Shaders.Count > 0)
             {
                 foreach (UndertaleShader shader in data.Shaders)
-                    writer.WriteLine(shader.Name.Content);
+                    streamWriter.AppendLine(shader.Name.Content);
             }
 
             // Write Extensions.
-            writer.WriteLine("@@extensions@@");
+            streamWriter.AppendLine("@@extensions@@");
             if (data.Extensions.Count > 0)
             {
                 foreach (UndertaleExtension extension in data.Extensions)
-                    writer.WriteLine(extension.Name.Content);
+                    streamWriter.AppendLine(extension.Name.Content);
             }
 
             // TODO: Perhaps detect GMS2.3, export those asset names as well.
         }
+        writer.Write(streamWriter.ToString());
         Console.WriteLine($" Done!");
     }
 
-    public static void ExportObjectDefinitions(UndertaleData data)
+    public static void ExportObjectDefinitions(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting object definitions...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects");
-        Directory.CreateDirectory(outputPath);
 
+        writer.Write(data.GameObjects.Count);
         for (var i = 0; i < data.GameObjects.Count; i++)
         {
             var obj = data.GameObjects[i];
@@ -628,22 +614,20 @@ public static class GameConverter
 
             asset.FileStorage = storage;
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Objects", $"{asset.Name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine(" Done!");
     }
 
     public static int CurrentElementID = 0;
 
-    public static void ExportRooms(UndertaleData data)
+    public static void ExportRooms(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting rooms...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms");
-        Directory.CreateDirectory(outputPath);
 
         var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
 
+        writer.Write(data.Rooms.Count);
         foreach (var room in data.Rooms)
         {
             var asset = new Room
@@ -745,19 +729,15 @@ public static class GameConverter
                 asset.Layers.Add(layerasset);
             }
 
-            // TODO: MemoryPack, use MemoryPackUnion for polymorphism
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Rooms", $"{asset.Name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportFonts(UndertaleData data)
+    public static void ExportFonts(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting fonts...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts");
-        Directory.CreateDirectory(outputPath);
-
+        writer.Write(data.Fonts.Count);
         foreach (var item in data.Fonts)
         {
             var fontAsset = new FontAsset();
@@ -802,18 +782,16 @@ public static class GameConverter
                 fontAsset.entriesDict.Add(glyphAsset.characterIndex, glyphAsset);
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Fonts", $"{fontAsset.name}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(fontAsset));
+            writer.WriteMemoryPack(fontAsset);
         }
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportSounds(UndertaleData data)
+    public static void ExportSounds(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting sounds...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        Directory.CreateDirectory(outputPath);
 
+        writer.Write(data.Sounds.Count);
         foreach (var item in data.Sounds)
         {
             var asset = new SoundAsset();
@@ -822,6 +800,7 @@ public static class GameConverter
             asset.Volume = item.Volume;
             asset.Pitch = 1; // going by the docs, im fairly certain item.Pitch is not used
 
+            byte[] bytes;
             // https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
             // ignore compressed for now
             {
@@ -829,14 +808,14 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.File = $"{asset.Name}.ogg";
-                    File.Copy(asset.File, Path.Combine(outputPath, asset.File));
+                    bytes = File.ReadAllBytes(asset.File);
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())
                 {
                     // embedded .wav
                     asset.File = $"{asset.Name}.wav";
                     var embeddedAudio = data.EmbeddedAudio;
-                    File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
+                    bytes = embeddedAudio[item.AudioID].Data;
                 }
                 else
                 {
@@ -848,22 +827,23 @@ public static class GameConverter
                     using var audioGroupData = UndertaleIO.Read(stream);
 
                     var embeddedAudio = audioGroupData.EmbeddedAudio;
-                    File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
+                    bytes = embeddedAudio[item.AudioID].Data;
                 }
             }
 
-            var saveDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds", $"{item.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            writer.WriteMemoryPack(asset);
+            
+            writer.Write(bytes.Length);
+            writer.Write(bytes);
         }
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportTextureGroups(UndertaleData data)
+    public static void ExportTextureGroups(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting texture groups...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TexGroups");
-        Directory.CreateDirectory(outputPath);
 
+        writer.Write(data.TextureGroupInfo.Count);
         foreach (var group in data.TextureGroupInfo)
         {
             var asset = new TextureGroup();
@@ -873,19 +853,17 @@ public static class GameConverter
             asset.Sprites = group.Sprites.Select(x => data.Sprites.IndexOf(x.Resource)).ToArray();
             asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
 
-            var saveDirectory = Path.Combine(outputPath, $"{group.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            writer.WriteMemoryPack(asset);
         }
 
         Console.WriteLine(" Done!");
     }
 
-    public static void ExportTileSets(UndertaleData data)
+    public static void ExportTileSets(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting tile sets...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "TileSets");
-        Directory.CreateDirectory(outputPath);
 
+        writer.Write(data.Backgrounds.Count);
         foreach (var set in data.Backgrounds)
         {
             var asset = new TileSet();
@@ -917,8 +895,7 @@ public static class GameConverter
                 Page = set.Texture.TexturePage.Name.Content
             };
 
-            var saveDirectory = Path.Combine(outputPath, $"{set.Name.Content}.bin");
-            File.WriteAllBytes(saveDirectory, MemoryPackSerializer.Serialize(asset));
+            writer.WriteMemoryPack(asset);
         }
 
         Console.WriteLine(" Done!");

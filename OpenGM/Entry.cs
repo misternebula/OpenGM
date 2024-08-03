@@ -17,7 +17,7 @@ internal class Entry
 
 	static void Main(string[] args)
 	{
-		if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Output")))
+		if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "data_OpenGM.win")))
 		{
 			Console.WriteLine($"Extracting game assets...");
 			var dataPath = @"data.win";
