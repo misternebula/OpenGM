@@ -17,6 +17,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
+using System.IO;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
@@ -318,7 +319,12 @@ public static partial class ScriptResolver
 		{ "point_in_rectangle", point_in_rectangle},
 		{ "draw_surface", draw_surface},
 		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext},
-		{ "draw_triangle_color", draw_triangle_color}
+		{ "draw_triangle_color", draw_triangle_color},
+		{ "path_add", path_add},
+		{ "path_set_closed", path_set_closed},
+		{ "path_set_precision", path_set_precision},
+		{ "path_add_point", path_add_point},
+		{ "draw_path", draw_path}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3150,6 +3156,57 @@ public static partial class ScriptResolver
 	public static object? draw_sprite_pos(object?[] args)
 	{
 		// todo : implement
+		return null;
+	}
+
+	public static object? path_add(object?[] args)
+	{
+		return PathManager.PathAdd();
+	}
+
+	public static object? path_set_closed(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var value = args[1].Conv<bool>();
+
+		PathManager.Paths[id].closed = value;
+		PathManager.ComputeInternal(PathManager.Paths[id]);
+		return null;
+	}
+
+	public static object? path_set_precision(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var value = args[1].Conv<int>();
+
+		PathManager.Paths[id].precision = value;
+		PathManager.ComputeInternal(PathManager.Paths[id]);
+		return null;
+	}
+
+	public static object? path_add_point(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var x = (float)args[1].Conv<double>();
+		var y = (float)args[2].Conv<double>();
+		var speed = (float)args[3].Conv<double>();
+
+		var path = PathManager.Paths[id];
+		PathManager.AddPoint(path, x, y, speed);
+
+		return null;
+	}
+
+	public static object? draw_path(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+		var y = args[2].Conv<double>();
+		var absolute = args[3].Conv<bool>();
+
+		var path = PathManager.Paths[id];
+
+		PathManager.DrawPath(path, (float)x, (float)y, absolute);
 		return null;
 	}
 }

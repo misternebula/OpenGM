@@ -340,6 +340,19 @@ public class CustomWindow : GameWindow
         GL.End();
     }
 
+    public static void Draw(GMLinesJob linesJob)
+    {
+        GL.Begin(PrimitiveType.LineStrip);
+        GL.Color4(new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha));
+
+        foreach (var vert in linesJob.Vertices)
+        {
+            GL.Vertex2(vert);
+        }
+
+        GL.End();
+	}
+
     public static void Draw(GMPolygonJob polyJob)
     {
         if (polyJob.Outline)
@@ -375,6 +388,11 @@ public class GMLineJob : GMBaseJob
     public int width = 1;
     public Color4 col1;
     public Color4 col2;
+}
+
+public class GMLinesJob : GMBaseJob
+{
+	public Vector2d[] Vertices = null!;
 }
 
 public class GMSpriteJob : GMBaseJob
