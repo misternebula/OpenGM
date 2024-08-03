@@ -14,8 +14,8 @@ public static class Extensions
 			: new Color4(bytes[3], bytes[2], bytes[1], bytes[0]);
 	}
 
-	// better safe than sorry
-	public static string FixCRLF(this string @this) => @this.Replace("\r\n", "\n");
+	// sometimes things use \r\n, sometimes they use \n
+	public static string[] SplitLines(this string @this) => @this.Replace("\r\n", "\n").Split('\n');
 
 	public static T ReadMemoryPack<T>(this BinaryReader @this)
 	{

@@ -228,7 +228,7 @@ public static class TextManager
 	{
 		// TODO : wtf is this?
 
-		var lines = text.FixCRLF().Split('\n');
+		var lines = text.SplitLines();
 
 		// get tallest character in last line
 		var tallestChar = 0;
@@ -252,7 +252,7 @@ public static class TextManager
 
 	public static int StringWidth(string text)
 	{
-		var lines = text.FixCRLF().Split('\n');
+		var lines = text.SplitLines();
 
 		var longestLine = 0;
 		foreach (var line in lines)

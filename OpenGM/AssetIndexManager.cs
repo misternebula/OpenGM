@@ -24,7 +24,7 @@ public static class AssetIndexManager
 	{
 		Console.Write($"Loading asset order...");
 
-		var lines = reader.ReadString().FixCRLF().Split('\n');
+		var lines = reader.ReadString().SplitLines();
 		var headerLineNumber = 0;
 		AssetType currentAssetType = 0;
 		for (int i = 0; i < lines.Length; i++)

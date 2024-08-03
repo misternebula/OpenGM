@@ -82,7 +82,7 @@ public static class GameConverter
 
     public static VMScript ConvertScript(string asmFile)
     {
-        var asmFileLines = asmFile.FixCRLF().Split('\n');
+        var asmFileLines = asmFile.SplitLines();
 
         var localVariables = new List<string>();
 

@@ -117,7 +117,7 @@ public class CustomWindow : GameWindow
             return;
         }
 
-        var lines = textJob.text.FixCRLF().Split('\n');
+        var lines = textJob.text.SplitLines();
         var textHeight = TextManager.StringHeight(textJob.text);
 
         for (var i = 0; i < lines.Length; i++)
