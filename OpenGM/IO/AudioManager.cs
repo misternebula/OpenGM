@@ -93,12 +93,12 @@ public static class AudioManager
             int freq;
             if (Path.GetExtension(asset.File) == ".wav")
             {
-                // need to write it temporarily cuz AudioFileReader needs a file
-                File.WriteAllBytes(asset.File, bytes);
+                // write to the same file to get slightly more perf. need the extension so the reader knows what it is
+                File.WriteAllBytes("temp.wav", bytes);
                 
                 try
                 {
-                    using var audioFileReader = new AudioFileReader(asset.File);
+                    using var audioFileReader = new AudioFileReader("temp.wav");
                     data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
                     audioFileReader.Read(data, 0, data.Length);
                     stereo = audioFileReader.WaveFormat.Channels == 2;
@@ -110,8 +110,6 @@ public static class AudioManager
                     freq = 1;
                     stereo = false;
                 }
-                
-                File.Delete(asset.File);
             }
             else if (Path.GetExtension(asset.File) == ".ogg")
             {
@@ -143,6 +141,7 @@ public static class AudioManager
                 Offset = 0,
             };
         }
+        File.Delete("temp.wav");
 
         Console.WriteLine($" Done!");
     }
