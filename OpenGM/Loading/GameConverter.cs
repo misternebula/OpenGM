@@ -19,8 +19,6 @@ public static class GameConverter
 {
     public static void ConvertGame(UndertaleData data)
     {
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Output"));
-
         Console.WriteLine($"Converting game assets...");
         
         using var stream = File.OpenWrite("data_OpenGM.win");
@@ -792,8 +790,6 @@ public static class GameConverter
     public static void ExportSounds(BinaryWriter writer, UndertaleData data)
     {
         Console.Write($"Exporting sounds...");
-        var outputPath = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
-        Directory.CreateDirectory(outputPath);
 
         writer.Write(data.Sounds.Count);
         foreach (var item in data.Sounds)
@@ -804,6 +800,7 @@ public static class GameConverter
             asset.Volume = item.Volume;
             asset.Pitch = 1; // going by the docs, im fairly certain item.Pitch is not used
 
+            byte[] bytes;
             // https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
             // ignore compressed for now
             {
@@ -811,29 +808,33 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.File = $"{asset.Name}.ogg";
+                    bytes = File.ReadAllBytes(asset.File);
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())
                 {
                     // embedded .wav
-                    asset.File = Path.Combine(outputPath, $"{asset.Name}.wav");
+                    asset.File = $"{asset.Name}.wav";
                     var embeddedAudio = data.EmbeddedAudio;
-                    File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
+                    bytes = embeddedAudio[item.AudioID].Data;
                 }
                 else
                 {
                     // .wav in some audio group file
-                    asset.File = Path.Combine(outputPath, $"{asset.Name}.wav");
+                    asset.File = $"{asset.Name}.wav";
 
                     var audioGroupPath = $"audiogroup{item.GroupID}.dat";
                     using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
                     using var audioGroupData = UndertaleIO.Read(stream);
 
                     var embeddedAudio = audioGroupData.EmbeddedAudio;
-                    File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
+                    bytes = embeddedAudio[item.AudioID].Data;
                 }
             }
 
             writer.WriteMemoryPack(asset);
+            
+            writer.Write(bytes.Length);
+            writer.Write(bytes);
         }
         Console.WriteLine(" Done!");
     }

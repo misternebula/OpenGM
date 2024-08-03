@@ -85,14 +85,19 @@ public static class AudioManager
         {
             var asset = reader.ReadMemoryPack<SoundAsset>();
 
+            var bytesLength = reader.ReadInt32();
+            var bytes = reader.ReadBytes(bytesLength);
+            
             float[] data;
             bool stereo;
             int freq;
             if (Path.GetExtension(asset.File) == ".wav")
             {
+                File.WriteAllBytes("TEMP_AUDIO_FILE", bytes);
+
                 try
                 {
-                    using var audioFileReader = new AudioFileReader(asset.File);
+                    using var audioFileReader = new AudioFileReader("TEMP_AUDIO_FILE");
                     data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
                     audioFileReader.Read(data, 0, data.Length);
                     stereo = audioFileReader.WaveFormat.Channels == 2;
@@ -104,10 +109,14 @@ public static class AudioManager
                     freq = 1;
                     stereo = false;
                 }
+
+                File.Delete("TEMP_AUDIO_FILE");
             }
             else if (Path.GetExtension(asset.File) == ".ogg")
             {
-                using var vorbisReader = new VorbisReader(asset.File);
+                using var stream = new MemoryStream(bytes);
+
+                using var vorbisReader = new VorbisReader(stream);
                 data = new float[vorbisReader.TotalSamples * vorbisReader.Channels]; // is this correct length?
                 vorbisReader.ReadSamples(data, 0, data.Length);
                 stereo = vorbisReader.Channels == 2;

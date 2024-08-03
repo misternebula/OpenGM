@@ -1558,7 +1558,7 @@ public static partial class ScriptResolver
 		// maybe this should be moved to RegisterAudioClip
 		using var reader = new VorbisReader(filename);
 		var data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
-		reader.ReadSamples(data, 0, data.Length);
+		reader.ReadSamples(data);
 		var stereo = reader.Channels == 2;
 		var freq = reader.SampleRate;
 
