@@ -102,14 +102,10 @@ public class CustomWindow : GameWindow
         KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
-        // TODO: should do this https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
-        // where it draws some stuff to application_surface, and then draws that as a quad to the screen
-        
-        GL.Clear(ClearBufferMask.ColorBufferBit);
         DrawManager.FixedUpdate();
-        SwapBuffers();
-        
         AudioManager.Update();
+        
+        SwapBuffers();
     }
 
     public static void Draw(GMTextJob textJob)

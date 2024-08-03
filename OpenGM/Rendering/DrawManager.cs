@@ -1,4 +1,6 @@
-﻿using OpenGM.VirtualMachine;
+﻿using OpenGM.IO;
+using OpenGM.VirtualMachine;
+using OpenTK.Graphics.OpenGL;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -159,11 +161,21 @@ public static class DrawManager
 
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
+        // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
+        
+        GL.Clear(ClearBufferMask.ColorBufferBit);
+
         if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
         }
 
+        // SurfaceManager.surface_set_target(SurfaceManager.application_surface);
+        
+        // GL.Clear(ClearBufferMask.ColorBufferBit);
+
+        // TODO: at some point this must be replaced by drawing each view
+        
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
         {
             return;
@@ -179,10 +191,22 @@ public static class DrawManager
             return;
         }
 
+        // SurfaceManager.surface_reset_target();
+        if (SurfaceManager.SurfaceStack.Count != 0)
+        {
+            DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
+            return;
+        }
+
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
             return;
         }
+
+        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            // 0, 0, CustomWindow.Instance.ClientSize.X, CustomWindow.Instance.ClientSize.Y);
+        // SurfaceManager.draw_surface(SurfaceManager.application_surface, 
+            // 0, 0);
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {

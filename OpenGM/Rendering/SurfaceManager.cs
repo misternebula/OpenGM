@@ -21,39 +21,45 @@ public static class SurfaceManager
 
     public static bool surface_exists(int surface) => _framebuffers.ContainsKey(surface);
 
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/96aa70d9ce66cdbf056747428a9902c2f57e9b25/scripts/functions/Function_Surface.js#L500
     public static bool surface_set_target(int surface)
     {
         if (!_framebuffers.ContainsKey(surface))
         {
-            throw new NotImplementedException("Surface does not exist!");
+            return false;
         }
 
         SurfaceStack.Push(surface);
         var buffer = _framebuffers[surface];
-        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         // future draws will draw to this fbo
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.Viewport(0, 0, GetSurfaceWidth(surface), GetSurfaceHeight(surface));
         return true;
     }
 
 	public static bool surface_reset_target()
     {
-        if (!SurfaceStack.TryPop(out var surface))
+        SurfaceStack.Pop();
+        if (SurfaceStack.TryPeek(out var surface))
         {
-            // this should eventually be application_surface, but we're not using that rn, so draw directly to the screen
-            // this does not fix the tensionbar thing. darn :(
-            // GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            return true;
-            // surface = application_surface;
+            var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+            GL.Viewport(0, 0, GetSurfaceWidth(surface), GetSurfaceHeight(surface));
         }
-        var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
-        // GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-		return true;
+        else
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            // ClientSize and FramebufferSize are the same
+            GL.Viewport(0, 0, CustomWindow.Instance.ClientSize.X, CustomWindow.Instance.ClientSize.Y);
+        }
+        return true;
 	}
 
 	public static int CreateSurface(int width, int height, int format)
     {
         // Generate framebuffer
         var buffer = GL.GenFramebuffer();
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
 
         // Generate texture to attach to framebuffer
@@ -73,7 +79,7 @@ public static class SurfaceManager
         }
 
         // Unbind framebuffer
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 
         _framebuffers.Add(_nextId, buffer);
 
@@ -84,9 +90,10 @@ public static class SurfaceManager
     {
         var buffer = _framebuffers[id];
         
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
         GL.DeleteTexture(textureId);
 
         GL.DeleteFramebuffer(buffer);
@@ -96,6 +103,7 @@ public static class SurfaceManager
     public static void ResizeSurface(int id, int w, int h)
     {
         var bufferId = _framebuffers[id];
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
         // delete existing texture if there is one
@@ -118,15 +126,16 @@ public static class SurfaceManager
             DebugLog.LogError($"ERROR: Framebuffer is not complete!");
         }
         
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
     }
 
     public static int GetSurfaceWidth(int id)
     {
         var bufferId = _framebuffers[id];
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -136,27 +145,32 @@ public static class SurfaceManager
     public static int GetSurfaceHeight(int id)
     {
         var bufferId = _framebuffers[id];
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return height;
     }
 
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Surface.js#L841
     // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L3763
     public static void draw_surface(int id, double x, double y)
+    {
+        draw_surface_stretched(id, x, y, GetSurfaceWidth(id), GetSurfaceHeight(id));
+    }
+
+    public static void draw_surface_stretched(int id, double x, double y, double w, double h)
     {
         var buffer = _framebuffers[id];
 
         // we drew into this fbo earlier, get its texture data
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-        var w = GetSurfaceWidth(id);
-        var h = GetSurfaceHeight(id);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 
         // draw rectangle with that texture
         // TODO: this draws nothing for the tension bar. fuck
