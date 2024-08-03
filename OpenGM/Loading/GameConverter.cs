@@ -808,26 +808,25 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.File = $"{asset.Name}.ogg";
-                    File.Copy(asset.File, Path.Combine(outputPath, asset.File), true);
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())
                 {
                     // embedded .wav
-                    asset.File = $"{asset.Name}.wav";
+                    asset.File = Path.Combine(outputPath, $"{asset.Name}.wav");
                     var embeddedAudio = data.EmbeddedAudio;
-                    File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
+                    File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
                 }
                 else
                 {
                     // .wav in some audio group file
-                    asset.File = $"{asset.Name}.wav";
+                    asset.File = Path.Combine(outputPath, $"{asset.Name}.wav");
 
                     var audioGroupPath = $"audiogroup{item.GroupID}.dat";
                     using var audioGroupStream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
                     using var audioGroupData = UndertaleIO.Read(audioGroupStream);
 
                     var embeddedAudio = audioGroupData.EmbeddedAudio;
-                    File.WriteAllBytes(Path.Combine(outputPath, asset.File), embeddedAudio[item.AudioID].Data);
+                    File.WriteAllBytes(asset.File, embeddedAudio[item.AudioID].Data);
                 }
             }
 

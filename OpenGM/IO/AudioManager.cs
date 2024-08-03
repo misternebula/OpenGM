@@ -80,7 +80,6 @@ public static class AudioManager
     {
         Console.Write($"Loading sounds...");
 
-        var soundsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Output", "Sounds");
         var length = stream.ReadLength();
         for (var i = 0; i < length; i++)
         {
@@ -93,7 +92,7 @@ public static class AudioManager
             {
                 try
                 {
-                    using var reader = new AudioFileReader(Path.Combine(soundsFolder, asset.File));
+                    using var reader = new AudioFileReader(asset.File);
                     data = new float[reader.Length * 8 / reader.WaveFormat.BitsPerSample]; // taken from owml
                     reader.Read(data, 0, data.Length);
                     stereo = reader.WaveFormat.Channels == 2;
@@ -108,7 +107,7 @@ public static class AudioManager
             }
             else if (Path.GetExtension(asset.File) == ".ogg")
             {
-                using var reader = new VorbisReader(Path.Combine(soundsFolder, asset.File));
+                using var reader = new VorbisReader(asset.File);
                 data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
                 reader.ReadSamples(data, 0, data.Length);
                 stereo = reader.Channels == 2;
