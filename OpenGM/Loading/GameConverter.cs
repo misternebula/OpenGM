@@ -8,6 +8,7 @@ using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 using OpenGM.IO;
 using System.Numerics;
+using System.Text;
 
 namespace OpenGM.Loading;
 
@@ -74,7 +75,7 @@ public static class GameConverter
                 asset.Name = code.Name.Content;
             }
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine($" Done!");
     }
@@ -423,7 +424,7 @@ public static class GameConverter
                 asset.CollisionMasks.Add(item.Data);
             }
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
 
         Console.WriteLine($" Done!");
@@ -614,7 +615,7 @@ public static class GameConverter
 
             asset.FileStorage = storage;
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine(" Done!");
     }
@@ -729,7 +730,7 @@ public static class GameConverter
                 asset.Layers.Add(layerasset);
             }
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine(" Done!");
     }
@@ -782,7 +783,7 @@ public static class GameConverter
                 fontAsset.entriesDict.Add(glyphAsset.characterIndex, glyphAsset);
             }
 
-            writer.Write(fontAsset);
+            writer.WriteMemoryPack(fontAsset);
         }
         Console.WriteLine(" Done!");
     }
@@ -831,7 +832,7 @@ public static class GameConverter
                 }
             }
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
         Console.WriteLine(" Done!");
     }
@@ -850,7 +851,7 @@ public static class GameConverter
             asset.Sprites = group.Sprites.Select(x => data.Sprites.IndexOf(x.Resource)).ToArray();
             asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
 
         Console.WriteLine(" Done!");
@@ -892,7 +893,7 @@ public static class GameConverter
                 Page = set.Texture.TexturePage.Name.Content
             };
 
-            writer.Write(asset);
+            writer.WriteMemoryPack(asset);
         }
 
         Console.WriteLine(" Done!");

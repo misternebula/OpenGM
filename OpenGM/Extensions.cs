@@ -17,14 +17,14 @@ public static class Extensions
 	// better safe than sorry
 	public static string FixCRLF(this string @this) => @this.Replace("\r\n", "\n");
 
-	public static T Read<T>(this BinaryReader @this)
+	public static T ReadMemoryPack<T>(this BinaryReader @this)
 	{
 		var length = @this.ReadInt32();
 		var bytes = @this.ReadBytes(length);
 		return MemoryPackSerializer.Deserialize<T>(bytes)!;
 	}
 
-	public static void Write<T>(this BinaryWriter @this, T value)
+	public static void WriteMemoryPack<T>(this BinaryWriter @this, T value)
 	{
 		var bytes = MemoryPackSerializer.Serialize(value);
 		@this.Write(bytes.Length);

@@ -83,7 +83,7 @@ public static class AudioManager
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<SoundAsset>();
+            var asset = reader.ReadMemoryPack<SoundAsset>();
 
             float[] data;
             bool stereo;

@@ -44,7 +44,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<VMScript>();
+            var asset = reader.ReadMemoryPack<VMScript>();
 
             if (asset.IsGlobalInit)
             {
@@ -98,7 +98,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<ObjectDefinition>();
+            var asset = reader.ReadMemoryPack<ObjectDefinition>();
             var storage = asset.FileStorage;
 
             asset.CreateScript = id2Script[storage.CreateScriptID];
@@ -165,7 +165,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<Room>();
+            var asset = reader.ReadMemoryPack<Room>();
 
             foreach (var layer in asset.Layers)
             {
@@ -214,7 +214,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<SpriteData>();
+            var asset = reader.ReadMemoryPack<SpriteData>();
 
             SpriteManager._spriteDict.Add(asset.AssetIndex, asset);
         }
@@ -228,7 +228,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<FontAsset>();
+            var asset = reader.ReadMemoryPack<FontAsset>();
 
             TextManager.FontAssets.Add(asset);
         }
@@ -261,7 +261,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<TextureGroup>();
+            var asset = reader.ReadMemoryPack<TextureGroup>();
 
             TexGroups.Add(asset.GroupName, asset);
         }
@@ -278,7 +278,7 @@ public static class GameLoader
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.Read<TileSet>();
+            var asset = reader.ReadMemoryPack<TileSet>();
 
 		    TileSets.Add(asset.AssetIndex, asset);
 	    }
