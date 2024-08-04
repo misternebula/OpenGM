@@ -39,8 +39,8 @@ public static class SurfaceManager
         GL.Viewport(0, 0, width, height);
         // UpdateDefaultCamera in html5
         var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadMatrix(ref matrix);
+        // GL.MatrixMode(MatrixMode.Projection);
+        // GL.LoadMatrix(ref matrix);
         return true;
     }
 
@@ -58,8 +58,8 @@ public static class SurfaceManager
             var height = GetSurfaceHeight(surface);
             GL.Viewport(0, 0, width, height);
             var matrix = Matrix4.CreateOrthographicOffCenter(x, x+width, y+height, y, 0, 1);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix);
+            // GL.MatrixMode(MatrixMode.Projection);
+            // GL.LoadMatrix(ref matrix);
         }
         else
         {
@@ -69,8 +69,8 @@ public static class SurfaceManager
             var height = CustomWindow.Instance.ClientSize.Y;
             GL.Viewport(0, 0, width, height);
             var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix);
+            // GL.MatrixMode(MatrixMode.Projection);
+            // GL.LoadMatrix(ref matrix);
         }
         return true;
 	}
