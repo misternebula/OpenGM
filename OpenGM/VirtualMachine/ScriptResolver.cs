@@ -3159,7 +3159,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? path_add(object?[] args)
+	public static object path_add(object?[] args)
 	{
 		return PathManager.PathAdd();
 	}
@@ -3187,9 +3187,9 @@ public static partial class ScriptResolver
 	public static object? path_add_point(object?[] args)
 	{
 		var id = args[0].Conv<int>();
-		var x = (float)args[1].Conv<double>();
-		var y = (float)args[2].Conv<double>();
-		var speed = (float)args[3].Conv<double>();
+		var x = args[1].Conv<float>();
+		var y = args[2].Conv<float>();
+		var speed = args[3].Conv<float>();
 
 		var path = PathManager.Paths[id];
 		PathManager.AddPoint(path, x, y, speed);
@@ -3200,13 +3200,13 @@ public static partial class ScriptResolver
 	public static object? draw_path(object?[] args)
 	{
 		var id = args[0].Conv<int>();
-		var x = args[1].Conv<double>();
-		var y = args[2].Conv<double>();
+		var x = args[1].Conv<float>();
+		var y = args[2].Conv<float>();
 		var absolute = args[3].Conv<bool>();
 
 		var path = PathManager.Paths[id];
 
-		PathManager.DrawPath(path, (float)x, (float)y, absolute);
+		PathManager.DrawPath(path, x, y, absolute);
 		return null;
 	}
 }

@@ -524,6 +524,10 @@ public static partial class VMExecutor
 		_ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
 	};
 
+	/// <summary>
+	/// custom cast function.
+	/// works with: all number types, string, bool, IList
+	/// </summary>
 	public static T Conv<T>(this object? @this) => (T)@this.Conv(typeof(T));
 	
 	private static object Conv(this object? @this, Type type)
@@ -558,7 +562,7 @@ public static partial class VMExecutor
 		}
 		else if (@this is int or long or short)
 		{
-			var l = Convert.ToInt64(@this); // can we cast instead?
+			var l = Convert.ToInt64(@this);
 
 			if (type == typeof(int)) return (int)l;
 			if (type == typeof(short)) return (short)l;
@@ -578,7 +582,7 @@ public static partial class VMExecutor
 			if (type == typeof(short)) return (short)(b ? 1 : 0);
 			
 			if (type == typeof(double)) return (double)(b ? 1 : 0);
-			if (type == typeof(float)) return (double)(b ? 1 : 0);
+			if (type == typeof(float)) return (float)(b ? 1 : 0);
 			
 			if (type == typeof(string)) return b ? "1" : "0"; // GM represents bools as integers
 		}
