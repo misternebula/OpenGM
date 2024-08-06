@@ -326,7 +326,7 @@ public static partial class ScriptResolver
 		{ "path_add_point", path_add_point},
 		{ "draw_path", draw_path},
 		{ "draw_sprite_pos", draw_sprite_pos },
-		{ "ds_lift_shuffle", ds_list_shuffle}
+		{ "ds_list_shuffle", ds_list_shuffle}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
