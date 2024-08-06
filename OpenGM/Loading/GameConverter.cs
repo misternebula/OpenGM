@@ -555,6 +555,11 @@ public static class GameConverter
 
             int GetCodeID(EventType type, int eventSubtype)
             {
+	            if (obj.Events.Count <= (int)type)
+	            {
+		            return -1; // Most likely UNDERTALE being exported, and type is Gesture/Precreate
+				}
+
                 var eventContainer = obj.Events[(int)type - 1]; // -1 because they have a None entry in the enum for some reason
 
                 if (eventContainer == null || eventContainer.Count <= eventSubtype)
@@ -645,6 +650,8 @@ public static class GameConverter
                 FollowsObject = data.GameObjects.IndexOf(room.Views[0].ObjectId)
             };
 
+            var encounteredGameobjects = new List<UndertaleRoom.GameObject>();
+
             foreach (var layer in room.Layers)
             {
                 var layerasset = new Layer
@@ -694,6 +701,7 @@ public static class GameConverter
                             PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
                         };
 
+                        encounteredGameobjects.Add(instance); 
                         layerasset.Elements.Add(objectAsset);
                     }
                 }
@@ -786,6 +794,34 @@ public static class GameConverter
 
                 asset.Layers.Add(layerasset);
             }
+
+            foreach (var instance in room.GameObjects)
+            {
+	            if (encounteredGameobjects.Contains(instance))
+	            {
+                    continue;
+	            }
+
+	            var objectAsset = new GameObject
+	            {
+		            Type = ElementType.Instance,
+		            Id = CurrentElementID++,
+		            X = instance.X,
+		            Y = instance.Y,
+		            DefinitionID = data.GameObjects.IndexOf(instance.ObjectDefinition),
+		            InstanceID = (int)instance.InstanceID,
+		            CreationCodeID = codes.IndexOf(instance.CreationCode),
+		            ScaleX = instance.ScaleX,
+		            ScaleY = instance.ScaleY,
+		            Color = (int)instance.Color,
+		            Rotation = instance.Rotation,
+		            PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
+	            };
+
+                asset.LooseObjects.Add(objectAsset);
+
+				// Gameobject does not appear in any layers. Probably dealing with UNDERTALE which doesn't have layers.
+			}
 
             writer.WriteMemoryPack(asset);
         }
@@ -901,6 +937,12 @@ public static class GameConverter
     {
         Console.Write($"Exporting texture groups...");
 
+        if (data.TextureGroupInfo == null)
+        {
+	        writer.Write(0);
+	        return;
+        }
+
         writer.Write(data.TextureGroupInfo.Count);
         foreach (var group in data.TextureGroupInfo)
         {
@@ -921,7 +963,13 @@ public static class GameConverter
     {
         Console.Write($"Exporting tile sets...");
 
-        writer.Write(data.Backgrounds.Count);
+        if (data.Backgrounds == null)
+        {
+	        writer.Write(0);
+	        return;
+        }
+
+		writer.Write(data.Backgrounds.Count);
         foreach (var set in data.Backgrounds)
         {
             var asset = new TileSet();
@@ -938,20 +986,23 @@ public static class GameConverter
             asset.FrameTime = (int)set.GMS2FrameLength;
             asset.TileIds = set.GMS2TileIds.Select(x => (int)x.ID).ToArray();
 
-            asset.Texture = new SpritePageItem
+            if (set.Texture != null)
             {
-                SourcePosX = set.Texture.SourceX,
-                SourcePosY = set.Texture.SourceY,
-                SourceSizeX = set.Texture.SourceWidth,
-                SourceSizeY = set.Texture.SourceHeight,
-                TargetPosX = set.Texture.TargetX,
-                TargetPosY = set.Texture.TargetY,
-                TargetSizeX = set.Texture.TargetWidth,
-                TargetSizeY = set.Texture.TargetHeight,
-                BSizeX = set.Texture.BoundingWidth,
-                BSizeY = set.Texture.BoundingHeight,
-                Page = set.Texture.TexturePage.Name.Content
-            };
+	            asset.Texture = new SpritePageItem
+	            {
+		            SourcePosX = set.Texture.SourceX,
+		            SourcePosY = set.Texture.SourceY,
+		            SourceSizeX = set.Texture.SourceWidth,
+		            SourceSizeY = set.Texture.SourceHeight,
+		            TargetPosX = set.Texture.TargetX,
+		            TargetPosY = set.Texture.TargetY,
+		            TargetSizeX = set.Texture.TargetWidth,
+		            TargetSizeY = set.Texture.TargetHeight,
+		            BSizeX = set.Texture.BoundingWidth,
+		            BSizeY = set.Texture.BoundingHeight,
+		            Page = set.Texture.TexturePage.Name.Content
+	            };
+			}
 
             writer.WriteMemoryPack(asset);
         }
