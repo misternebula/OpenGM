@@ -204,6 +204,16 @@ public static class RoomManager
 		}
 
 		var currentInstances = InstanceManager.instances.ToList();
+
+		if (FirstRoom)
+		{
+			FirstRoom = false;
+			foreach (var obj in currentInstances)
+			{
+				GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
+			}
+		}
+		
 		foreach (var obj in currentInstances)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);

@@ -49,6 +49,7 @@ internal class Entry
 			VMExecutor.ExecuteScript(item, null, null);
 		}
 
+		RoomManager.FirstRoom = true;
 		RoomManager.ChangeRoomAfterEvent(0);
 		RoomManager.ChangeToWaitingRoom();
 
