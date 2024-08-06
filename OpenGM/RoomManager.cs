@@ -193,12 +193,6 @@ public static class RoomManager
 			CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);
 		}
 
-		var currentInstances = InstanceManager.instances.ToList();
-		foreach (var obj in currentInstances)
-		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
-		}
-
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.PreCreate);
@@ -207,6 +201,12 @@ public static class RoomManager
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
 			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Create);
+		}
+
+		var currentInstances = InstanceManager.instances.ToList();
+		foreach (var obj in currentInstances)
+		{
+			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
 
 		VMScript? GetVMScriptFromCodeIndex(int codeIndex)
