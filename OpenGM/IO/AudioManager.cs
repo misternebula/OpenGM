@@ -50,7 +50,7 @@ public static class AudioManager
     private static ALDevice _device;
     private static ALContext _context;
 
-    public const int AudioChannelNum = 128;
+    public static int AudioChannelNum = 128;
 
     private static List<AudioInstance> _audioSources = new();
     private static Dictionary<int, AudioAsset> _audioClips = new();

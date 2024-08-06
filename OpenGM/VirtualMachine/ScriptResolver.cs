@@ -326,7 +326,15 @@ public static partial class ScriptResolver
 		{ "path_add_point", path_add_point},
 		{ "draw_path", draw_path},
 		{ "draw_sprite_pos", draw_sprite_pos },
-		{ "ds_list_shuffle", ds_list_shuffle}
+		{ "ds_list_shuffle", ds_list_shuffle},
+		{ "os_get_region",os_get_region},
+		{ "string_upper", string_upper},
+		{ "ds_map_set", ds_map_set},
+		{ "sprite_prefetch", sprite_prefetch},
+		{ "randomize", randomize},
+		{ "randomise", randomize},
+		{ "steam_initialised", steam_initialised},
+		{ "audio_channel_num", audio_channel_num}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3225,6 +3233,63 @@ public static partial class ScriptResolver
 		var path = PathManager.Paths[id];
 
 		PathManager.DrawPath(path, x, y, absolute);
+		return null;
+	}
+
+	public static object os_get_region(object?[] args)
+	{
+		// TODO : implement
+		return "GB";
+	}
+
+	public static object string_upper(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		// TODO : only do the 26 english alphabet letters
+		return str.ToUpper();
+	}
+
+	public static object? ds_map_set(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var key = args[1]!;
+		var value = args[2]!;
+
+		if (!_dsMapDict.ContainsKey(id))
+		{
+			return false;
+		}
+
+		var dict = _dsMapDict[id];
+		dict[key] = value;
+
+		return null;
+	}
+
+	public static object? sprite_prefetch(object?[] args)
+	{
+		// TODO : implement?
+		return 0;
+	}
+
+	public static object? randomize(object?[] args)
+	{
+		// todo : implement
+		return null;
+	}
+
+	public static object? steam_initialised(object?[] args)
+	{
+		// todo : implement
+		return false;
+	}
+
+	public static object? audio_channel_num(object?[] args)
+	{
+		var num = args[0].Conv<int>();
+
+		AudioManager.StopAllAudio();
+		AudioManager.AudioChannelNum = num;
 		return null;
 	}
 }
