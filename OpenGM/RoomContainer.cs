@@ -25,6 +25,7 @@ public class RoomContainer
 
 	public Dictionary<int, LayerContainer> Layers = new();
 	public List<DrawWithDepth> Tiles = new();
+	public List<GamemakerObject> LooseObjects = new();
 }
 
 public class LayerContainer

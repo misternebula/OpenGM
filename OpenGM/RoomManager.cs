@@ -20,6 +20,7 @@ public static class RoomManager
 
 	public static Dictionary<int, Room> RoomList = new();
 	public static bool RoomLoaded = false;
+	public static bool FirstRoom = false;
 
 	public static void ChangeToWaitingRoom()
 	{
@@ -76,6 +77,16 @@ public static class RoomManager
 
 					item.Destroy();
 				}
+			}
+
+			foreach (var obj in CurrentRoom.LooseObjects)
+			{
+				if (obj.persistent)
+				{
+					continue;
+				}
+
+				obj.Destroy();
 			}
 		}
 
@@ -191,6 +202,23 @@ public static class RoomManager
 			}
 
 			CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);
+		}
+
+		foreach (var item in CurrentRoom.RoomAsset.LooseObjects)
+		{
+			var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
+			var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+
+			newGM._createRan = true;
+			//newGM.depth = layer.LayerDepth;
+			newGM.image_xscale = item.ScaleX;
+			newGM.image_yscale = item.ScaleY;
+			newGM.image_blend = (int)item.Color;
+			newGM.image_angle = item.Rotation;
+
+			createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
+
+			CurrentRoom.LooseObjects.Add(newGM);
 		}
 
 		foreach (var (obj, pcc, cc) in createdObjects)

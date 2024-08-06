@@ -22,6 +22,8 @@ public partial class Room
 	public int FollowsObject;
 
 	public List<Layer> Layers = new();
+	public List<GameObject> LooseObjects = new();
+
 }
 
 [MemoryPackable]
