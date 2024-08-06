@@ -49,8 +49,8 @@ public enum EventType
 	KeyRelease,
 	Trigger,
 	CleanUp,
-	Gesture,
-	PreCreate
+	Gesture, // not in UNDERTALE
+	PreCreate // not in UNDERTALE
 }
 
 public enum VMOpcode
