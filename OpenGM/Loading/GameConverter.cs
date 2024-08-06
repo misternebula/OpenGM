@@ -21,7 +21,7 @@ public static class GameConverter
     {
         Console.WriteLine($"Converting game assets...");
         
-        using var stream = File.OpenWrite("data_OpenGM.win");
+        using var stream = File.OpenWrite("game/data_OpenGM.win");
         using var writer = new BinaryWriter(stream);
 
         // must match order of gameloader
@@ -866,7 +866,7 @@ public static class GameConverter
                 {
                     // external .ogg
                     asset.File = $"{asset.Name}.ogg";
-                    bytes = File.ReadAllBytes(asset.File);
+                    bytes = File.ReadAllBytes(Path.Combine("game", asset.File));
                 }
                 else if (item.GroupID == data.GetBuiltinSoundGroupID())
                 {

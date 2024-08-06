@@ -395,7 +395,7 @@ public static partial class ScriptResolver
 			throw new Exception("Cannot open a new .ini file while an old one is still open!");
 		}
 
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), name);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", name);
 
 		if (!File.Exists(filepath))
 		{
@@ -527,7 +527,7 @@ public static partial class ScriptResolver
 
 	public static object? ini_close(object?[] args)
 	{
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), _iniFile!.Name);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", _iniFile!.Name);
 		File.Delete(filepath);
 		var fileStream = new FileStream(filepath, FileMode.Append, FileAccess.Write);
 		var streamWriter = new StreamWriter(fileStream);
@@ -561,7 +561,7 @@ public static partial class ScriptResolver
 	public static object? file_text_open_read(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
 
 		DebugLog.Log($"file_text_open_read {filepath}");
 
@@ -601,7 +601,7 @@ public static partial class ScriptResolver
 		}
 
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
 
 		File.Delete(filepath);
 		var fileStream = new FileStream(filepath, FileMode.Create, FileAccess.Write);
@@ -655,7 +655,7 @@ public static partial class ScriptResolver
 	public static object file_exists(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
 		return File.Exists(filepath);
 	}
 
@@ -732,7 +732,7 @@ public static partial class ScriptResolver
 	public static object file_delete(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), fname);
+		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
 		File.Delete(filepath);
 		return true; // TODO : this should return false if this fails.
 	}
@@ -742,8 +742,8 @@ public static partial class ScriptResolver
 		var fname = args[0].Conv<string>();
 		var newname = args[1].Conv<string>();
 
-		fname = Path.Combine(Directory.GetCurrentDirectory(), fname);
-		newname = Path.Combine(Directory.GetCurrentDirectory(), newname);
+		fname = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
+		newname = Path.Combine(Directory.GetCurrentDirectory(), "game", newname);
 
 		if (File.Exists(newname))
 		{

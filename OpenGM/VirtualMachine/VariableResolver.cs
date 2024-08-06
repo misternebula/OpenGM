@@ -110,7 +110,7 @@ public static class VariableResolver
 
 	public static object get_working_directory()
 	{
-		return Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
+		return Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "game" + Path.DirectorySeparatorChar;
 	}
 
 	public static object get_fps()

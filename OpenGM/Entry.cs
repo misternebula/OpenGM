@@ -17,10 +17,10 @@ internal class Entry
 
 	static void Main(string[] args)
 	{
-		if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "data_OpenGM.win")))
+		if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "game", "data_OpenGM.win")))
 		{
 			Console.WriteLine($"Extracting game assets...");
-			var dataPath = @"data.win";
+			var dataPath = @"game/data.win";
 			using var stream = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
 			using var data = UndertaleIO.Read(stream);
 			GameConverter.ConvertGame(data);

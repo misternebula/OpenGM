@@ -17,7 +17,7 @@ public static class GameLoader
     {
         Console.WriteLine($"Loading game files...");
 
-        using var stream = File.OpenRead("data_OpenGM.win");
+        using var stream = File.OpenRead("game/data_OpenGM.win");
         using var reader = new BinaryReader(stream);
 
         // must match order of gameconverter
