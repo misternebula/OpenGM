@@ -54,7 +54,7 @@ public static class DrawManager
     {
         foreach (var item in items)
         {
-            if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded)
+            if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded && gm.visible)
             {
                 if (drawType == EventSubtypeDraw.Draw)
                 {
