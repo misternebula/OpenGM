@@ -122,9 +122,13 @@ public static partial class VMExecutor
 
 	public static void PushSelf(IStackContextSelf self, string varName)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
+		if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
 		{
-			Ctx.Stack.Push(gettersetter.getter(gm), VMType.v);
+			Ctx.Stack.Push(builtin_gettersetter.getter(), VMType.v);
+		}
+		else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfbuiltin_gettersetter) && self is GamemakerObject gm)
+		{
+			Ctx.Stack.Push(selfbuiltin_gettersetter.getter(gm), VMType.v);
 		}
 		else
 		{
@@ -134,9 +138,14 @@ public static partial class VMExecutor
 
 	public static void PushSelfArrayIndex(IStackContextSelf self, string varName, int index)
 	{
-		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
+		if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var bi_gettersetter))
 		{
-			var array = gettersetter.getter(gm).Conv<IList>();
+			var array = bi_gettersetter.getter().Conv<IList>();
+			Ctx.Stack.Push(array[index], VMType.v);
+		}
+		else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var bis_gettersetter) && self is GamemakerObject gm)
+		{
+			var array = bis_gettersetter.getter(gm).Conv<IList>();
 			Ctx.Stack.Push(array[index], VMType.v);
 		}
 		else
