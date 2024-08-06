@@ -56,6 +56,7 @@ public enum ElementType
 [MemoryPackUnion(0, typeof(GameObject))]
 [MemoryPackUnion(1, typeof(CLayerTilemapElement))]
 [MemoryPackUnion(2, typeof(CLayerBackgroundElement))]
+[MemoryPackUnion(3, typeof(CLayerTileElement))]
 public abstract partial class CLayerElementBase
 {
 	public ElementType Type;
@@ -101,8 +102,9 @@ public partial class CLayerBackgroundElement : CLayerElementBase
 }
 
 [MemoryPackable]
-public partial class GamemakerTile
+public partial class CLayerTileElement : CLayerElementBase
 {
+	public bool Visible;
 	public int X;
 	public int Y;
 	public int Definition;
@@ -110,8 +112,8 @@ public partial class GamemakerTile
 	public int SourceTop;
 	public int SourceWidth;
 	public int SourceHeight;
-	public int Depth;
-	public int InstanceID;
+	//public int Depth;
+	//public int InstanceID;
 	public float ScaleX;
 	public float ScaleY;
 	public int Color;

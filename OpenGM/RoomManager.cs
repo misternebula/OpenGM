@@ -162,6 +162,28 @@ public static class RoomManager
 
 					layerContainer.ElementsToDraw.Add(background);
 				}
+				else if (element.Type == ElementType.Tile)
+				{
+					var tile = (element as CLayerTileElement)!;
+
+					var newTile = new GMTile()
+					{
+						X = tile.X,
+						Y = tile.Y,
+						Definition = tile.Definition,
+						left = tile.SourceLeft,
+						top = tile.SourceTop,
+						width = tile.SourceWidth,
+						height = tile.SourceHeight,
+						depth = layer.LayerDepth,
+						instanceId = tile.Id, // todo : this is almost definitely very wrong
+						XScale = tile.ScaleX,
+						YScale = tile.ScaleY,
+						Color = tile.Color
+					};
+
+					layerContainer.ElementsToDraw.Add(newTile);
+				}
 				else
 				{
 					DebugLog.LogError($"Don't know how to load element type {element.Type}!");

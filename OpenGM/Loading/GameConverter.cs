@@ -721,6 +721,64 @@ public static class GameConverter
 
                     layerasset.Elements.Add(backgroundElement);
                 }
+                else if (layer.LayerType == UndertaleRoom.LayerType.Assets)
+                {
+                    var assetsData = layer.AssetsData;
+
+					if (assetsData.LegacyTiles != null)
+					{
+						foreach (var tile in assetsData.LegacyTiles)
+						{
+							var val = new CLayerTileElement();
+							val.Type = ElementType.Tile;
+                            val.Id = CurrentElementID++;
+							val.X = tile.X;
+                            val.Y = tile.Y;
+                            val.Definition = data.Sprites.IndexOf(tile.SpriteDefinition);
+                            val.SourceLeft = (int)tile.SourceX;
+                            val.SourceTop = (int)tile.SourceY;
+                            val.SourceWidth = (int)tile.Width;
+                            val.SourceHeight = (int)tile.Height;
+                            val.ScaleX = tile.ScaleX;
+                            val.ScaleY = tile.ScaleY;
+                            val.Color = (int)tile.Color;
+
+                            layerasset.Elements.Add(val);
+						}
+					}
+
+                    if (assetsData.NineSlices != null)
+                    {
+						foreach (var item in assetsData.NineSlices)
+						{
+							DebugLog.LogError($"Don't know how to handle Nine Slice {item.Name.Content}!!!!");
+						}
+					}
+
+                    if (assetsData.ParticleSystems != null)
+                    {
+	                    foreach (var item in assetsData.ParticleSystems)
+	                    {
+		                    DebugLog.LogError($"Don't know how to handle Particle System {item.Name.Content}!!!!");
+	                    }
+					}
+
+                    if (assetsData.Sequences != null)
+                    {
+	                    foreach (var item in assetsData.Sequences)
+	                    {
+		                    DebugLog.LogError($"Don't know how to handle Sequence {item.Name.Content}!!!!");
+	                    }
+                    }
+
+                    if (assetsData.Sprites != null)
+                    {
+	                    foreach (var item in assetsData.Sprites)
+	                    {
+		                    DebugLog.LogError($"Don't know how to handle Sprite {item.Name.Content}!!!!");
+	                    }
+                    }
+				}
                 else
                 {
                     DebugLog.LogError($"Don't know how to handle layer type {layer.LayerType}");
