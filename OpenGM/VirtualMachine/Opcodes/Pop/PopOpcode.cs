@@ -328,6 +328,17 @@ public static partial class VMExecutor
 					value = Ctx.Stack.Pop(instruction.TypeTwo);
 				}
 
+				if (id == GMConstants.global)
+				{
+					PopToGlobal(variableName, value);
+					return (ExecutionResult.Success, null);
+				}
+				else if (id == GMConstants.self)
+				{
+					PopToSelf(Ctx.Self, variableName, value);
+					return (ExecutionResult.Success, null);
+				}
+
 				PopToIndex(id, variableName, value);
 				return (ExecutionResult.Success, null);
 			}
