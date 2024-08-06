@@ -324,7 +324,9 @@ public static partial class ScriptResolver
 		{ "path_set_closed", path_set_closed},
 		{ "path_set_precision", path_set_precision},
 		{ "path_add_point", path_add_point},
-		{ "draw_path", draw_path}
+		{ "draw_path", draw_path},
+		{ "draw_sprite_pos", draw_sprite_pos },
+		{ "ds_lift_shuffle", ds_list_shuffle}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -840,6 +842,22 @@ public static partial class ScriptResolver
 
 		var list = _dsListDict[id];
 		list.AddRange(values!);
+		return null;
+	}
+
+	public static object? ds_list_shuffle(params object?[] args)
+	{
+		var id = args[0].Conv<int>();
+
+		if (!_dsListDict.ContainsKey(id))
+		{
+			return null;
+		}
+
+		var list = _dsListDict[id];
+
+		list.Shuffle();
+
 		return null;
 	}
 
