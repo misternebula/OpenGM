@@ -60,6 +60,7 @@ public static class VariableResolver
 		{ "os_type", (get_os_type, null) },
 		{ "application_surface", (get_application_surface, null) },
 		{ "argument_count", (get_argument_count, null) },
+		{ "argument", (get_argument, null) },
 		// { "room_persistent", (get_room_persistent, set_room_persistent)},
 		{ "undefined", (get_undefined, null) },
 		{ "view_current", (get_view_current, null)},
@@ -106,6 +107,7 @@ public static class VariableResolver
 		{ "yprevious", (get_yprevious, set_yprevious)},
 		{ "sprite_xoffset", (get_sprite_xoffset, null)},
 		{ "sprite_yoffset", (get_sprite_yoffset, null)},
+		{ "path_index", (get_path_index, null)}
 	};
 
 	public static object get_working_directory()
@@ -219,6 +221,7 @@ public static class VariableResolver
 	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().ToArray();
 
 	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>().Count;
+	public static object get_argument() => VMExecutor.Ctx.Locals["arguments"]!;
 
 	public static object? get_undefined() => null;
 
@@ -238,4 +241,6 @@ public static class VariableResolver
 
 	public static object get_sprite_xoffset(GamemakerObject instance) => instance.sprite_xoffset;
 	public static object get_sprite_yoffset(GamemakerObject instance) => instance.sprite_yoffset;
+
+	public static object get_path_index(GamemakerObject instance) => instance.path_index;
 }
