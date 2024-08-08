@@ -916,7 +916,7 @@ public static class GameConverter
                     // .wav in some audio group file
                     asset.File = $"{asset.Name}.wav";
 
-                    var audioGroupPath = Path.Combine("game", $"audiogroup{item.GroupID}.dat");
+                    var audioGroupPath = Path.Combine("game", $"game/audiogroup{item.GroupID}.dat");
                     using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
                     using var audioGroupData = UndertaleIO.Read(stream);
 

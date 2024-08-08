@@ -1588,6 +1588,8 @@ public static partial class ScriptResolver
 			return existingIndex;
 		}
 
+		filename = Path.Join("game", filename);
+
 		// maybe this should be moved to RegisterAudioClip
 		using var reader = new VorbisReader(filename);
 		var data = new float[reader.TotalSamples * reader.Channels]; // is this correct length?
