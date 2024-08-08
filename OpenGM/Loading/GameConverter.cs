@@ -21,7 +21,7 @@ public static class GameConverter
     {
         Console.WriteLine($"Converting game assets...");
         
-        using var stream = File.OpenWrite("game/data_OpenGM.win");
+        using var stream = File.OpenWrite(Path.Combine("game", "data_OpenGM.win"));
         using var writer = new BinaryWriter(stream);
 
         // must match order of gameloader
@@ -916,7 +916,7 @@ public static class GameConverter
                     // .wav in some audio group file
                     asset.File = $"{asset.Name}.wav";
 
-                    var audioGroupPath = $"audiogroup{item.GroupID}.dat";
+                    var audioGroupPath = Path.Combine("game", $"audiogroup{item.GroupID}.dat");
                     using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
                     using var audioGroupData = UndertaleIO.Read(stream);
 

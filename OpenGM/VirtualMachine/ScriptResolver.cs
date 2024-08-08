@@ -1577,6 +1577,7 @@ public static partial class ScriptResolver
 	public static object? audio_create_stream(object?[] args)
 	{
 		var filename = args[0].Conv<string>();
+		filename = Path.Combine("game", filename);
 
 		var assetName = Path.GetFileNameWithoutExtension(filename);
 		var existingIndex = AssetIndexManager.GetIndex(assetName);
