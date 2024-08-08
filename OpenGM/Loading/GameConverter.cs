@@ -555,13 +555,13 @@ public static class GameConverter
 
             int GetCodeID(EventType type, int eventSubtype)
             {
-	            if (obj.Events.Count <= (int)type)
-	            {
+	            if (obj.Events.Count <= (int)type - 1) // -1 because they have a None entry in the enum for some reason
+				{
+                    DebugLog.Log($"Ignoring {type} as obj only has {obj.Events.Count} events");
 		            return -1; // Most likely UNDERTALE being exported, and type is Gesture/Precreate
 				}
 
-                var eventContainer = obj.Events[(int)type - 1]; // -1 because they have a None entry in the enum for some reason
-
+                var eventContainer = obj.Events[(int)type - 1]; 
                 if (eventContainer == null || eventContainer.Count <= eventSubtype)
                 {
                     return -1;
