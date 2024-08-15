@@ -51,6 +51,10 @@ public class KeyboardHandler
         {
             CustomWindow.Instance.UpdateFrequency = 0.0; // This means fastest
         }
+        else if (state.IsKeyDown(Keys.F3))
+        {
+	        CustomWindow.Instance.UpdateFrequency = 2;
+        }
         else
         {
             CustomWindow.Instance.UpdateFrequency = Entry.GameSpeed;
