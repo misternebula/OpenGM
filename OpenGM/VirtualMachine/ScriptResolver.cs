@@ -334,7 +334,9 @@ public static partial class ScriptResolver
 		{ "randomize", randomize},
 		{ "randomise", randomize},
 		{ "steam_initialised", steam_initialised},
-		{ "audio_channel_num", audio_channel_num}
+		{ "audio_channel_num", audio_channel_num},
+		{ "is_undefined", is_undefined},
+		{ "collision_line", collision_line}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3292,6 +3294,16 @@ public static partial class ScriptResolver
 		AudioManager.StopAllAudio();
 		AudioManager.AudioChannelNum = num;
 		return null;
+	}
+
+	public static object? is_undefined(object?[] args)
+	{
+		return args[0] == null;
+	}
+
+	public static object? collision_line(object?[] args)
+	{
+		return false;
 	}
 }
 

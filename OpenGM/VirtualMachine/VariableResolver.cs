@@ -107,7 +107,8 @@ public static class VariableResolver
 		{ "yprevious", (get_yprevious, set_yprevious)},
 		{ "sprite_xoffset", (get_sprite_xoffset, null)},
 		{ "sprite_yoffset", (get_sprite_yoffset, null)},
-		{ "path_index", (get_path_index, null)}
+		{ "path_index", (get_path_index, null)},
+		{ "path_position", (get_path_position, set_path_position)}
 	};
 
 	public static object get_working_directory()
@@ -243,4 +244,7 @@ public static class VariableResolver
 	public static object get_sprite_yoffset(GamemakerObject instance) => instance.sprite_yoffset;
 
 	public static object get_path_index(GamemakerObject instance) => instance.path_index;
+
+	public static object get_path_position(GamemakerObject instance) => instance.path_position;
+	public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<double>();
 }

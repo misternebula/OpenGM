@@ -256,6 +256,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 	public bool Destroyed;
 
 	public int path_index = -1;
+	public double path_position = 0;
 
 	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
 	{
