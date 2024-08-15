@@ -251,66 +251,127 @@ public class CustomWindow : GameWindow
     public static void Draw(GMSpriteJob spriteJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
-
         GL.BindTexture(TextureTarget.Texture2D, id);
-
         GL.Begin(PrimitiveType.Quads);
-
         GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
 
-        var spriteWidth = (float)spriteJob.texture.TargetSizeX;
-        var spriteHeight = (float)spriteJob.texture.TargetSizeY;
-        var left = 0d;
-        var top = 0d;
+        // Gonna define some terminology here to make this easer
+        // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
+        // "Draw Area" is the part of the screen the actual data from the page is being drawn to - the target.
 
-        if (spriteJob is GMSpritePartJob partJob)
+        var fullSpriteLeft = spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X);
+        var fullSpriteTop = spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y);
+
+        var drawAreaLeft = fullSpriteLeft + (spriteJob.texture.TargetPosX * spriteJob.scale.X);
+        var drawAreaTop = fullSpriteTop + (spriteJob.texture.TargetPosY * spriteJob.scale.Y);
+        var drawAreaWidth = spriteJob.texture.TargetSizeX * spriteJob.scale.X;
+        var drawAreaHeight = spriteJob.texture.TargetSizeY * spriteJob.scale.Y;
+
+        var drawAreaTopLeft = new Vector2d(drawAreaLeft, drawAreaTop);
+        var drawAreaTopRight = new Vector2d(drawAreaLeft + drawAreaWidth, drawAreaTop);
+        var drawAreaBottomRight = new Vector2d(drawAreaLeft + drawAreaWidth, drawAreaTop + drawAreaHeight);
+        var drawAreaBottomLeft = new Vector2d(drawAreaLeft, drawAreaTop + drawAreaHeight);
+
+        var topLeftUV = new Vector2d(
+            (double)spriteJob.texture.SourcePosX / pageTexture.Width,
+            (double)spriteJob.texture.SourcePosY / pageTexture.Height);
+
+        var UVWidth = (double)spriteJob.texture.SourceSizeX / pageTexture.Width;
+        var UVHeight = (double)spriteJob.texture.SourceSizeY / pageTexture.Height;
+
+        var topRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y);
+        var bottomRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y + UVHeight);
+        var bottomLeftUV = new Vector2d(topLeftUV.X, topLeftUV.Y + UVHeight);
+
+        GL.TexCoord2(topLeftUV);
+        GL.Vertex2(drawAreaTopLeft);
+        GL.TexCoord2(topRightUV);
+        GL.Vertex2(drawAreaTopRight);
+        GL.TexCoord2(bottomRightUV);
+        GL.Vertex2(drawAreaBottomRight);
+        GL.TexCoord2(bottomLeftUV);
+        GL.Vertex2(drawAreaBottomLeft);
+        
+        GL.End();
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
+    public static void Draw(GMSpritePartJob partJob)
+    {
+        var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
+        GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.Begin(PrimitiveType.Quads);
+        GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
+
+        // "part area" is the whole section of the screen that is being written to - even if empty space is being written there.
+        // "draw area" is the actual part of the screen that is receiving data straight from the page
+
+        var partAreaLeft = partJob.screenPos.X;
+        var partAreaTop = partJob.screenPos.Y;
+        var partAreaRight = partAreaLeft + (partJob.width * partJob.scale.X);
+        var partAreaBottom = partAreaTop + (partJob.height * partJob.scale.Y);
+
+        var drawAreaLeft = partAreaLeft + (partJob.texture.TargetPosX - partJob.left);
+        var drawAreaTop = partAreaTop + (partJob.texture.TargetPosY - partJob.top);
+        var drawAreaRight = drawAreaLeft + partJob.texture.TargetSizeX * partJob.scale.X;
+        var drawAreaBottom = drawAreaTop + partJob.texture.TargetSizeY * partJob.scale.Y;
+
+        var currentDrawWidth = partJob.texture.TargetSizeX * partJob.scale.X;
+        var currentDrawHeight = partJob.texture.TargetSizeY * partJob.scale.Y;
+        var currentDrawLeft = 0d;
+        var currentDrawTop = 0d;
+
+        if (drawAreaRight > partAreaRight)
         {
-            spriteWidth = partJob.width;
-            spriteHeight = partJob.height;
-            left = partJob.left;
-            top = partJob.top;
+            var difference = drawAreaRight - partAreaRight;
+            drawAreaRight = partAreaRight;
+            currentDrawWidth -= difference;
         }
 
-        var topLeft = new Vector2d(
-	        spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X) + (spriteJob.texture.TargetPosX * spriteJob.scale.X),
-	        spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y) + (spriteJob.texture.TargetPosY * spriteJob.scale.Y));
-        var topRight = new Vector2d(topLeft.X + spriteWidth * spriteJob.scale.X, topLeft.Y);
-        var bottomRight = new Vector2d(topRight.X, topRight.Y + spriteHeight * spriteJob.scale.Y);
-        var bottomLeft = new Vector2d(topLeft.X, bottomRight.Y);
-
-        // in this house we dont use matrices
-        if (spriteJob.angle != 0)
+        if (drawAreaBottom > partAreaBottom)
         {
-            topLeft = topLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
-            topRight = topRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
-            bottomRight = bottomRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
-            bottomLeft = bottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+            var difference = drawAreaBottom - partAreaBottom;
+            drawAreaBottom = partAreaBottom;
+            currentDrawHeight -= difference;
         }
 
-        var uvTopLeftX = (spriteJob.texture.SourcePosX + left) / pageTexture.Width;
-        var uvTopLeftY = (spriteJob.texture.SourcePosY + top) / pageTexture.Height;
+        if (drawAreaLeft < partAreaLeft)
+        {
+            var difference = partAreaLeft - drawAreaLeft;
+            drawAreaLeft = partAreaLeft;
+            currentDrawWidth -= difference;
+            currentDrawLeft += difference;
+        }
 
-        var uvWidth = (double)spriteWidth / pageTexture.Width;
-        var uvHeight = (double)spriteHeight / pageTexture.Height;
+        if (drawAreaTop < partAreaTop)
+        {
+            var difference = partAreaTop - drawAreaTop;
+            drawAreaTop = partAreaTop;
+            currentDrawHeight -= difference;
+            currentDrawTop += difference;
+        }
 
-        // Top left
-        GL.TexCoord2(uvTopLeftX, uvTopLeftY);
-        GL.Vertex2(topLeft);
+        var topLeftUV = new Vector2d(
+            (partJob.texture.SourcePosX + currentDrawLeft) / pageTexture.Width,
+            (partJob.texture.SourcePosY + currentDrawTop) / pageTexture.Height);
 
-        // Top right
-        GL.TexCoord2(uvTopLeftX + uvWidth, uvTopLeftY);
-        GL.Vertex2(topRight);
+        var UVWidth = currentDrawWidth / pageTexture.Width;
+        var UVHeight = currentDrawHeight / pageTexture.Height;
 
-        // Bottom right
-        GL.TexCoord2(uvTopLeftX + uvWidth, uvTopLeftY + uvHeight);
-        GL.Vertex2(bottomRight);
+        var topRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y);
+        var bottomRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y + UVHeight);
+        var bottomLeftUV = new Vector2d(topLeftUV.X, topLeftUV.Y + UVHeight);
 
-        // Bottom left
-        GL.TexCoord2(uvTopLeftX, uvTopLeftY + uvHeight);
-        GL.Vertex2(bottomLeft);
+        GL.TexCoord2(topLeftUV);
+        GL.Vertex2(new Vector2d(drawAreaLeft, drawAreaTop));
+        GL.TexCoord2(topRightUV);
+        GL.Vertex2(new Vector2d(drawAreaRight, drawAreaTop));
+        GL.TexCoord2(bottomRightUV);
+        GL.Vertex2(new Vector2d(drawAreaRight, drawAreaBottom));
+        GL.TexCoord2(bottomLeftUV);
+        GL.Vertex2(new Vector2d(drawAreaLeft, drawAreaBottom));
 
         GL.End();
-
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
