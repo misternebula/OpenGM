@@ -66,7 +66,8 @@ public static class VariableResolver
 		{ "view_current", (get_view_current, null)},
 		{ "view_wport", (get_view_wport, set_view_wport)},
 		{ "view_hport", (get_view_hport, set_view_hport)},
-		{ "pointer_null", (get_pointer_null, null)}
+		{ "pointer_null", (get_pointer_null, null)},
+		{ "instance_count", (get_instance_count, null)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -247,4 +248,6 @@ public static class VariableResolver
 
 	public static object get_path_position(GamemakerObject instance) => instance.path_position;
 	public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<double>();
+
+	public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
 }
