@@ -458,6 +458,12 @@ public static partial class VMExecutor
 					}
 				}
 
+				if (id == GMConstants.other)
+				{
+					PushOther(variableName);
+					return (ExecutionResult.Success, null);
+				}
+
 				PushIndex(id, variableName);
 				return (ExecutionResult.Success, null);
 			}
