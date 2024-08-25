@@ -100,7 +100,7 @@ public static class DrawManager
     {
         //VariableResolver.GlobalVariables["debug"] = true;
 
-        var stepList = _drawObjects.OrderByDescending(x => x.instanceId);
+        var stepList = _drawObjects.OrderBy(x => x.instanceId);
 
         foreach (var item in stepList)
         {
