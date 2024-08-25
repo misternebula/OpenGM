@@ -374,4 +374,23 @@ public static class AudioManager
         AL.Source(source, ALSourcef.Gain, (float)volume);
         CheckALError();
     }
+
+    public static double GetClipLength(AudioAsset asset)
+    {
+        // TODO : should this account for offset? speed? idk!!!
+
+	    var buffer = asset.Clip;
+	    AL.GetBuffer(buffer, ALGetBufferi.Size, out var sizeInBytes);
+	    CheckALError();
+		AL.GetBuffer(buffer, ALGetBufferi.Channels, out var channelCount);
+		CheckALError();
+		AL.GetBuffer(buffer, ALGetBufferi.Bits, out var bitDepth);
+		CheckALError();
+		AL.GetBuffer(buffer, ALGetBufferi.Frequency, out var frequency);
+		CheckALError();
+
+		var numberOfBits = sizeInBytes * 8;
+		var sampleLength = numberOfBits / (channelCount * bitDepth);
+        return sampleLength / (double)frequency;
+    }
 }

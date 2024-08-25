@@ -336,7 +336,10 @@ public static partial class ScriptResolver
 		{ "steam_initialised", steam_initialised},
 		{ "audio_channel_num", audio_channel_num},
 		{ "is_undefined", is_undefined},
-		{ "collision_line", collision_line}
+		{ "collision_line", collision_line},
+		{ "object_get_name", object_get_name},
+		{ "audio_sound_length", audio_sound_length},
+		{ "draw_get_font", draw_get_font }
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3304,6 +3307,42 @@ public static partial class ScriptResolver
 	public static object? collision_line(object?[] args)
 	{
 		return false;
+	}
+
+	public static object object_get_name(object?[] args)
+	{
+		var obj = args[0].Conv<int>();
+		return InstanceManager.ObjectDefinitions[obj].Name;
+	}
+
+	public static object audio_sound_length(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		if (index < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var asset = AudioManager.GetAudioAsset(index);
+			return AudioManager.GetClipLength(asset);
+		}
+		else
+		{
+			var instance = AudioManager.GetAudioInstance(index);
+			if (instance != null)
+			{
+				return AudioManager.GetClipLength(instance.Asset);
+			}
+			return -1;
+		}
+	}
+
+	public static object draw_get_font(object?[] args)
+	{
+		if (TextManager.fontAsset == null)
+		{
+			return -1;
+		}
+
+		return TextManager.fontAsset.AssetIndex;
 	}
 }
 
