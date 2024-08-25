@@ -53,9 +53,30 @@ public static partial class VMExecutor
 
 			EnvironmentStack.Push(newCtx);
 		}
-		else if (id is GMConstants.self or GMConstants.global or GMConstants.all)
+		else if (id == GMConstants.self)
 		{
-			throw new NotImplementedException();
+			var stackArray = EnvironmentStack.ToArray();
+			// we just pushed null, so one above that is self
+			var instance = stackArray[1].GMSelf;
+
+			// TODO: how does return work??
+			var newCtx = new VMScriptExecutionContext
+			{
+				Self = instance,
+				ObjectDefinition = instance.Definition,
+				// TODO: why copy? is with statement a separate block?
+				Stack = new(currentContext.Stack),
+				Locals = new(currentContext.Locals),
+				ReturnValue = currentContext.ReturnValue,
+				EventType = currentContext.EventType,
+				EventIndex = currentContext.EventIndex,
+			};
+
+			EnvironmentStack.Push(newCtx);
+		}
+		else if (id is GMConstants.global or GMConstants.all)
+		{
+			throw new NotImplementedException($"Don't know how to pushenv {id}");
 		}
 		else if (id < 0)
 		{
