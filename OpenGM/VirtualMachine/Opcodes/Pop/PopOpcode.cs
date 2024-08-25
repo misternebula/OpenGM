@@ -127,6 +127,11 @@ public static partial class VMExecutor
 		}
 	}
 
+	public static void PopToBuiltIn(string varName, object? value)
+	{
+		VariableResolver.BuiltInVariables[varName].setter!(value);
+	}
+
 	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -167,6 +172,11 @@ public static partial class VMExecutor
 				var strIndex = variableName[8..]; // skip "argument"
 				var index = int.Parse(strIndex);
 				PopToArgument(index, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.BuiltIn)
+			{
+				PopToBuiltIn(variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 			else if (variableType == VariableType.Other)
