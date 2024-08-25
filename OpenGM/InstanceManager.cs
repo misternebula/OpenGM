@@ -50,7 +50,7 @@ public static class InstanceManager
 		return instances.Count(x => HasAssetInParents(x.Definition, obj));
 	}
 
-	private static bool HasAssetInParents(ObjectDefinition definition, int id)
+	public static bool HasAssetInParents(ObjectDefinition definition, int id)
 	{
 		var currentDefinition = definition;
 		while (currentDefinition != null)

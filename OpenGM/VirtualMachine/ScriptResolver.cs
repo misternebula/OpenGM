@@ -339,7 +339,16 @@ public static partial class ScriptResolver
 		{ "collision_line", collision_line},
 		{ "object_get_name", object_get_name},
 		{ "audio_sound_length", audio_sound_length},
-		{ "draw_get_font", draw_get_font }
+		{ "draw_get_font", draw_get_font },
+		{ "instance_nearest", instance_nearest},
+		{ "arcsin", arcsin},
+		{ "arccos", arccos},
+		{ "make_colour_rgb", make_color_rgb},
+		{ "make_color_rgb", make_color_rgb},
+		{ "draw_text_ext_transformed", draw_text_ext_transformed},
+		{ "draw_surface_ext", draw_surface_ext},
+		{ "path_end", path_end},
+		{ "dsin", dsin}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3343,6 +3352,114 @@ public static partial class ScriptResolver
 		}
 
 		return TextManager.fontAsset.AssetIndex;
+	}
+
+	public static object instance_nearest(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var obj = args[2].Conv<int>();
+
+		var id = GMConstants.noone;
+		var distance = 10000000000d;
+		foreach (var instance in InstanceManager.instances)
+		{
+			if (!InstanceManager.HasAssetInParents(instance.Definition, obj))
+			{
+				continue;
+			}
+
+			var dx = x - instance.x;
+			var dy = y - instance.y;
+			var dist = Math.Sqrt(dx * dx + dy * dy);
+			if (dist < distance)
+			{
+				id = instance.instanceId;
+				distance = dist;
+			}
+		}
+
+		return id;
+	}
+
+	public static object arcsin(object?[] args)
+	{
+		var x = args[0].Conv<double>(); // in radians
+
+		if (x < -1 || x > 1)
+		{
+			throw new NotSupportedException($"x is {x}");
+		}
+
+		return Math.Asin(x);
+	}
+
+	public static object arccos(object?[] args)
+	{
+		var x = args[0].Conv<double>(); // in radians
+
+		if (x < -1 || x > 1)
+		{
+			throw new NotSupportedException($"x is {x}");
+		}
+
+		return Math.Acos(x);
+	}
+
+	public static object make_color_rgb(object?[] args)
+	{
+		var r = args[0].Conv<int>();
+		var g = args[1].Conv<int>();
+		var b = args[2].Conv<int>();
+
+		return r | g << 8 | b << 16;
+	}
+
+	public static object? draw_text_ext_transformed(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var str = args[2].Conv<string>();
+		var sep = args[3].Conv<int>();
+		var w = args[4].Conv<int>(); // TODO : implement
+		var xscale = args[5].Conv<double>();
+		var yscale = args[6].Conv<double>();
+		var angle = args[7].Conv<double>();
+
+		CustomWindow.Draw(new GMTextJob()
+		{
+			screenPos = new Vector2d(x, y),
+			asset = TextManager.fontAsset,
+			angle = angle,
+			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			alpha = SpriteManager.DrawAlpha,
+			halign = TextManager.halign,
+			valign = TextManager.valign,
+			scale = new Vector2d(xscale, yscale),
+			sep = sep,
+			text = str
+		});
+
+		return null;
+	}
+
+	public static object? draw_surface_ext(object?[] args)
+	{
+		// TODO : implement
+
+		return null;
+	}
+
+	public static object? path_end(object?[] args)
+	{
+		VMExecutor.Ctx.GMSelf.path_index = -1;
+		return null;
+	}
+
+	public static object dsin(object?[] args)
+	{
+		var a = args[0].Conv<double>(); // degrees
+		return Math.Sin(a * CustomMath.Deg2Rad);
 	}
 }
 
