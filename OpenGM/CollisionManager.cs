@@ -772,7 +772,15 @@ public static class CollisionManager
 		current.x = x;
 		current.y = y;
 
-		var movedBox = colliders.Single(b => b.GMObject == current);
+		var movedBox = colliders.SingleOrDefault(b => b.GMObject == current);
+
+		if (movedBox == null)
+		{
+			DebugLog.LogError($"ERROR: Can't find collider for {current}!");
+			current.x = savedX;
+			current.y = savedY;
+			return null;
+		}
 
 		foreach (var checkBox in colliders)
 		{
