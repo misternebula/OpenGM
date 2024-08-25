@@ -283,7 +283,12 @@ public class CustomWindow : GameWindow
         var bottomRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y + UVHeight);
         var bottomLeftUV = new Vector2d(topLeftUV.X, topLeftUV.Y + UVHeight);
 
-        GL.TexCoord2(topLeftUV);
+        drawAreaTopLeft = drawAreaTopLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+        drawAreaTopRight = drawAreaTopRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+        drawAreaBottomRight = drawAreaBottomRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+        drawAreaBottomLeft = drawAreaBottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
+
+		GL.TexCoord2(topLeftUV);
         GL.Vertex2(drawAreaTopLeft);
         GL.TexCoord2(topRightUV);
         GL.Vertex2(drawAreaTopRight);
