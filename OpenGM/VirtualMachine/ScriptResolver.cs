@@ -348,7 +348,9 @@ public static partial class ScriptResolver
 		{ "draw_text_ext_transformed", draw_text_ext_transformed},
 		{ "draw_surface_ext", draw_surface_ext},
 		{ "path_end", path_end},
-		{ "dsin", dsin}
+		{ "dsin", dsin},
+		{ "sprite_exists", sprite_exists},
+		{ "event_perform", event_perform}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3460,6 +3462,21 @@ public static partial class ScriptResolver
 	{
 		var a = args[0].Conv<double>(); // degrees
 		return Math.Sin(a * CustomMath.Deg2Rad);
+	}
+
+	public static object sprite_exists(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		return SpriteManager._spriteDict.ContainsKey(index);
+	}
+
+	public static object? event_perform(object?[] args)
+	{
+		var type = args[0].Conv<int>();
+		var numb = args[0].Conv<int>();
+
+		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
+		return null;
 	}
 }
 
