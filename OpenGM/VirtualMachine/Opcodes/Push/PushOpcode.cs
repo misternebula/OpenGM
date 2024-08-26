@@ -48,6 +48,22 @@ public static partial class VMExecutor
 
 		assetIndex = -1;
 		var split = variableName.Split('.');
+
+		if (split.Length == 3)
+		{
+			// weird thing
+			var instanceId = GMConstants.FIRST_INSTANCE_ID + int.Parse(split[0]);
+			variableName = split[2];
+			if (split[1] != "[instance]self")
+			{
+				throw new NotImplementedException();
+			}
+
+			assetIndex = instanceId;
+			variableType = VariableType.Index;
+			return;
+		}
+
 		var context = split[0];
 		variableName = split[1];
 
