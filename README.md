@@ -23,6 +23,8 @@ The following games are used in development to test feature parity, and as such 
 The following games are either being worked on, or planned to be supported :
 - Undertale - Engine Version 1.0.0.1539
 
+Not every feature from these games may work, but the game will at least load and try to execute.
+
 ## Legal Stuff
 This project is covered by the MIT license. See [the license](LICENSE) for more information.
 
