@@ -379,6 +379,17 @@ public static partial class VMExecutor
 
 					//return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");
 				}
+				else if (variableType == VariableType.Global)
+				{
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+
+					if (instanceId == GMConstants.global)
+					{
+						PushGlobalArrayIndex(variableName, index);
+						return (ExecutionResult.Success, null);
+					}
+				}
 			}
 			else if (variablePrefix == VariablePrefix.ArrayPopAF)
 			{
