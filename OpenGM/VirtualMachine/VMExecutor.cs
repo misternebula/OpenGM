@@ -536,6 +536,8 @@ public static partial class VMExecutor
 
 		if (@this is null)
 		{
+			if (type == typeof(bool)) return false;
+
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
 		}
 
