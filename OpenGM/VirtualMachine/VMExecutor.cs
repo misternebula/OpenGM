@@ -536,6 +536,8 @@ public static partial class VMExecutor
 
 		if (@this is null)
 		{
+			// Bool is the only thing that undefined can be converted to
+			// (YYGetBool is the only function that checks for 0x5)
 			if (type == typeof(bool)) return false;
 
 			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
