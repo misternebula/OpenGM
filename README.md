@@ -13,6 +13,16 @@ This program aims to run Gamemaker Studio games, emulating the original games as
 5. Run the project.
 6. OpenGM should now extract all the game data and assets and export them into custom formats. If any errors occur during this stage, OpenGM currently does not support low-level features of the GameMaker version the game uses.
 
+## Supported Games
+Ideally, any Gamemaker game should work. However, it's impossible to support every single quirk of every single engine version.
+
+The following games are used in development to test feature parity, and as such OpenGM should support any game running on the same engine version as these games :
+- DELTARUNE Chapter 1 (SURVEY_PROGRAM) - Engine Version 2.0.6
+- DELTARUNE (Chapter 1 & 2 DEMO) - Engine Version 2022.1
+
+The following games are either being worked on, or planned to be supported :
+- Undertale - Engine Version 1.0.0.1539
+
 ## Legal Stuff
 This project is covered by the MIT license. See [the license](LICENSE) for more information.
 
