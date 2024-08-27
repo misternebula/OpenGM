@@ -61,6 +61,22 @@ public static class VariableResolver
 		{ "application_surface", (get_application_surface, null) },
 		{ "argument_count", (get_argument_count, null) },
 		{ "argument", (get_argument, null) },
+		{ "argument0", (get_argument_0, null) },
+		{ "argument1", (get_argument_1, null) },
+		{ "argument2", (get_argument_2, null) },
+		{ "argument3", (get_argument_3, null) },
+		{ "argument4", (get_argument_4, null) },
+		{ "argument5", (get_argument_5, null) },
+		{ "argument6", (get_argument_6, null) },
+		{ "argument7", (get_argument_7, null) },
+		{ "argument8", (get_argument_8, null) },
+		{ "argument9", (get_argument_9, null) },
+		{ "argument10", (get_argument_10, null) },
+		{ "argument11", (get_argument_11, null) },
+		{ "argument12", (get_argument_12, null) },
+		{ "argument13", (get_argument_13, null) },
+		{ "argument14", (get_argument_14, null) },
+		{ "argument15", (get_argument_15, null) },
 		// { "room_persistent", (get_room_persistent, set_room_persistent)},
 		{ "undefined", (get_undefined, null) },
 		{ "view_current", (get_view_current, null)},
@@ -224,6 +240,22 @@ public static class VariableResolver
 
 	public static object get_argument_count() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>().Count;
 	public static object get_argument() => VMExecutor.Ctx.Locals["arguments"]!;
+	public static object? get_argument_0() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[0];
+	public static object? get_argument_1() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[1];
+	public static object? get_argument_2() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[2];
+	public static object? get_argument_3() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[3];
+	public static object? get_argument_4() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[4];
+	public static object? get_argument_5() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[5];
+	public static object? get_argument_6() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[6];
+	public static object? get_argument_7() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[7];
+	public static object? get_argument_8() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[8];
+	public static object? get_argument_9() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[9];
+	public static object? get_argument_10() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[10];
+	public static object? get_argument_11() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[11];
+	public static object? get_argument_12() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[12];
+	public static object? get_argument_13() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[13];
+	public static object? get_argument_14() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[14];
+	public static object? get_argument_15() => VMExecutor.Ctx.Locals["arguments"].Conv<IList>()[15];
 
 	public static object? get_undefined() => null;
 
