@@ -437,12 +437,12 @@ public static partial class VMExecutor
 				
 				var (index, type) = Ctx.Stack.Peek();
 
-				if (index is int || type is VMType.i) // do we check type idk
+				if (index is int || type is VMType.i || type is VMType.e) // do we check type idk
 				{
 					break;
 				}
 
-				throw new Exception($"CHKINDEX failed - {index}");
+				throw new Exception($"CHKINDEX failed - {index} ({type})");
 			}
 			case VMOpcode.EXIT:
 				return (ExecutionResult.ReturnedValue, instruction.TypeOne switch
