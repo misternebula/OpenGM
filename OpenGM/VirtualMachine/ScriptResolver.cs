@@ -2589,7 +2589,8 @@ public static partial class ScriptResolver
 			valign = TextManager.valign,
 			sep = sep,
 			text = str,
-			screenPos = new Vector2d(x, y)
+			screenPos = new Vector2d(x, y),
+			scale = Vector2d.One
 		});
 
 		return null;
