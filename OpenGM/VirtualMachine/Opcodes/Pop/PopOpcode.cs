@@ -191,32 +191,32 @@ public static partial class VMExecutor
 
 			if (variablePrefix == VariablePrefix.Array)
 			{
+				int index;
+				int instanceId;
+				object? value;
+				if (instruction.TypeOne == VMType.v)
+				{
+					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					if (instanceId == GMConstants.stacktop)
+					{
+						instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					}
+					value = Ctx.Stack.Pop(instruction.TypeTwo);
+				}
+				else
+				{
+					value = Ctx.Stack.Pop(instruction.TypeTwo);
+					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					if (instanceId == GMConstants.stacktop)
+					{
+						instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+					}
+				}
+
 				if (variableType == VariableType.Self)
 				{
-					int index;
-					int instanceId;
-					object? value;
-					if (instruction.TypeOne == VMType.v)
-					{
-						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						if (instanceId == GMConstants.stacktop)
-						{
-							instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
-						}
-						value = Ctx.Stack.Pop(instruction.TypeTwo);
-					}
-					else
-					{
-						value = Ctx.Stack.Pop(instruction.TypeTwo);
-						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						if (instanceId == GMConstants.stacktop)
-						{
-							instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
-						}
-					}
-
 					if (instanceId == GMConstants.global)
 					{
 						PopToGlobalArray(variableName, index, value);
@@ -249,41 +249,25 @@ public static partial class VMExecutor
 							return (ExecutionResult.Success, null);
 						}
 					}
-
-					//return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, instanceId={instanceId}, value={value})");
 				}
 				else if (variableType == VariableType.Global)
 				{
-					int index;
-					int instanceId;
-					object? value;
-					if (instruction.TypeOne == VMType.v)
-					{
-						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						if (instanceId == GMConstants.stacktop)
-						{
-							instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
-						}
-						value = Ctx.Stack.Pop(instruction.TypeTwo);
-					}
-					else
-					{
-						value = Ctx.Stack.Pop(instruction.TypeTwo);
-						index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
-						if (instanceId == GMConstants.stacktop)
-						{
-							instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
-						}
-					}
-
 					if (instanceId == GMConstants.global)
 					{
 						PopToGlobalArray(variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
 				}
+				else if (variableType == VariableType.Local)
+				{
+					if (instanceId == GMConstants.local)
+					{
+						PopToLocalArray(variableName, index, value);
+						return (ExecutionResult.Success, null);
+					}
+				}
+
+				return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, instanceId={instanceId}, value={value})");
 			}
 		}
 		else if (variablePrefix == VariablePrefix.Stacktop)
