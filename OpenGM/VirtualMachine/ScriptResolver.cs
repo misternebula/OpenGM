@@ -350,7 +350,10 @@ public static partial class ScriptResolver
 		{ "path_end", path_end},
 		{ "dsin", dsin},
 		{ "sprite_exists", sprite_exists},
-		{ "event_perform", event_perform}
+		{ "event_perform", event_perform},
+		{ "gpu_set_blendenable", gpu_set_blendenable},
+		{ "dcos", dcos},
+		{ "sqr", sqr}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3477,6 +3480,36 @@ public static partial class ScriptResolver
 
 		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
 		return null;
+	}
+
+	public static object? gpu_set_blendenable(object?[] args)
+	{
+		var enable = args[0].Conv<bool>();
+
+		// TODO : is this right?
+
+		if (enable)
+		{
+			GL.Enable(EnableCap.Blend);
+		}
+		else
+		{
+			GL.Disable(EnableCap.Blend);
+		}
+
+		return null;
+	}
+
+	public static object sqr(object?[] args)
+	{
+		var val = args[0].Conv<double>();
+		return val * val;
+	}
+
+	public static object dcos(object?[] args)
+	{
+		var val = args[0].Conv<double>(); // degrees
+		return Math.Cos(val * CustomMath.Deg2Rad);
 	}
 }
 
