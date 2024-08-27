@@ -390,6 +390,17 @@ public static partial class VMExecutor
 						return (ExecutionResult.Success, null);
 					}
 				}
+				else if (variableType == VariableType.Local)
+				{
+					var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+
+					if (instanceId == GMConstants.local)
+					{
+						PushLocalArrayIndex(variableName, index);
+						return (ExecutionResult.Success, null);
+					}
+				}
 			}
 			else if (variablePrefix == VariablePrefix.ArrayPopAF)
 			{
