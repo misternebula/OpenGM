@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using OpenGM.Rendering;
 using System.Collections;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 
@@ -83,7 +84,8 @@ public static class VariableResolver
 		{ "view_wport", (get_view_wport, set_view_wport)},
 		{ "view_hport", (get_view_hport, set_view_hport)},
 		{ "pointer_null", (get_pointer_null, null)},
-		{ "instance_count", (get_instance_count, null)}
+		{ "instance_count", (get_instance_count, null)},
+		{ "current_time", (get_current_time, null)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -282,4 +284,6 @@ public static class VariableResolver
 	public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<double>();
 
 	public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
+
+	public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
 }

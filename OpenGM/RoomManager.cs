@@ -254,7 +254,7 @@ public static class RoomManager
 				return null;
 			}
 
-			return ScriptResolver.Scripts.Values.Single(x => x.AssetId == codeIndex);
+			return ScriptResolver.Scripts.Values.Single(x => x.CodeIndex == codeIndex);
 		}
 
 		foreach (var (obj, pcc, cc) in createdObjects)
@@ -262,7 +262,7 @@ public static class RoomManager
 			var preCreateCode = GetVMScriptFromCodeIndex(pcc);
 			if (preCreateCode != null)
 			{
-				VMExecutor.ExecuteScript(preCreateCode, obj, obj.Definition);
+				VMExecutor.ExecuteCode(preCreateCode.GetCode(), obj, obj.Definition);
 			}
 		}
 
@@ -271,7 +271,7 @@ public static class RoomManager
 			var createCode = GetVMScriptFromCodeIndex(cc);
 			if (createCode != null)
 			{
-				VMExecutor.ExecuteScript(createCode, obj, obj.Definition);
+				VMExecutor.ExecuteCode(createCode.GetCode(), obj, obj.Definition);
 			}
 		}
 		

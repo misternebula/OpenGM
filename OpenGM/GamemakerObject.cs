@@ -392,11 +392,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 		//Debug.Log($"Trying to execute {type} {otherData} on {obj.object_index} with definition {definition.name}");
 
-		bool TryExecute(VMScript? script)
+		bool TryExecute(VMCode? script)
 		{
 			if (script != null)
 			{
-				VMExecutor.ExecuteScript(script, obj, definition, type, otherData);
+				VMExecutor.ExecuteCode(script, obj, definition, type, otherData);
 				return true;
 			}
 			else if (definition.parent != null)
@@ -408,11 +408,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			return false;
 		}
 
-		bool TryExecuteDict<T>(Dictionary<T, VMScript> dict, T index) where T : notnull
+		bool TryExecuteDict<T>(Dictionary<T, VMCode> dict, T index) where T : notnull
 		{
 			if (dict.TryGetValue(index, out var script))
 			{
-				VMExecutor.ExecuteScript(script, obj, definition, type, otherData);
+				VMExecutor.ExecuteCode(script, obj, definition, type, otherData);
 				return true;
 			}
 			else if (definition.parent != null)
@@ -427,7 +427,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		switch (type)
 		{
 			case EventType.Create:
-				return TryExecute(definition.CreateScript);
+				return TryExecute(definition.CreateCode);
 			case EventType.Destroy:
 				return TryExecute(definition.DestroyScript);
 			case EventType.Alarm:

@@ -25,7 +25,7 @@ public static partial class ScriptResolver
 	public static Dictionary<string, VMScript> Scripts = new();
 	public static List<VMScript> GlobalInitScripts = new();
 
-	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
+	public static Dictionary<string, (VMCode script, int index)> ScriptFunctions = new Dictionary<string, (VMCode script, int index)>();
 
 	public static Dictionary<string, Func<object?[], object?>> BuiltInFunctions = new()
 	{
@@ -1883,16 +1883,16 @@ public static partial class ScriptResolver
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = Scripts.FirstOrDefault(x => x.Value.AssetId == scriptAssetId).Value;
+		var script = Scripts.FirstOrDefault(x => x.Value.AssetIndex == scriptAssetId).Value;
 
 		if (script == default)
 		{
-			(script, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
+			(var code, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
 
-			return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs, startingIndex: index);
+			return VMExecutor.ExecuteCode(code, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs, startingIndex: index);
 		}
 
-		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
+		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
 	}
 
 	public static object? draw_line_width(object?[] args)
@@ -2863,7 +2863,7 @@ public static partial class ScriptResolver
 		var obj = new GMLObject();
 
 		var (script, instructionIndex) = ScriptFunctions[ScriptFunctions.Keys.ToList()[constructorIndex]];
-		var ret = VMExecutor.ExecuteScript(script, obj, args: values, startingIndex: instructionIndex);
+		var ret = VMExecutor.ExecuteCode(script, obj, args: values, startingIndex: instructionIndex);
 
 		return obj;
 	}

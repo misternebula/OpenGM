@@ -9,6 +9,7 @@ using EventType = OpenGM.VirtualMachine.EventType;
 using OpenGM.IO;
 using System.Numerics;
 using System.Text;
+using System.Linq;
 
 namespace OpenGM.Loading;
 
@@ -26,7 +27,8 @@ public static class GameConverter
 
         // must match order of gameloader
         ExportAssetOrder(writer, data);
-        ConvertScripts(writer, data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        ConvertScripts(writer, data);
+        ConvertCode(writer, data, data.Code.Where(c => c.ParentEntry is null).ToList());
         ExportObjectDefinitions(writer, data);
         ExportRooms(writer, data);
         ConvertSprites(writer, data.Sprites);
@@ -39,20 +41,43 @@ public static class GameConverter
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    public static void ConvertScripts(BinaryWriter writer, UndertaleData data, List<UndertaleCode> codes)
+    public static void ConvertScripts(BinaryWriter writer, UndertaleData data)
     {
-        Console.Write($"Converting scripts...");
+	    var scripts = data.Scripts;
+
+	    Console.Write($"Converting scripts...");
+	    writer.Write(scripts.Count);
+	    foreach (var script in scripts)
+	    {
+		    var asset = new VMScript();
+		    asset.AssetIndex = scripts.IndexOf(script);
+		    asset.Name = script.Name.Content;
+
+		    if (script.Code != null)
+		    {
+			    asset.CodeIndex = data.Code.IndexOf(script.Code);
+		    }
+
+		    asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(script.Code);
+
+		    writer.WriteMemoryPack(asset);
+		}
+	    Console.WriteLine($" Done!");
+	}
+
+    public static void ConvertCode(BinaryWriter writer, UndertaleData data, List<UndertaleCode> codes)
+    {
+        Console.Write($"Converting code...");
         writer.Write(codes.Count);
         foreach (var code in codes)
         {
             var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
-            var asset = ConvertScript(asmFile);
+            var asset = ConvertAssembly(asmFile);
 
             asset.AssetId = codes.IndexOf(code);
-            asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(code);
 
-            if (code.Name.Content.StartsWith("gml_Object_"))
+            /*if (code.Name.Content.StartsWith("gml_Object_"))
             {
                 asset.Name = code.Name.Content.Substring("gml_Object_".Length);
             }
@@ -69,16 +94,16 @@ public static class GameConverter
                 asset.Name = code.Name.Content.Substring("gml_RoomCC_".Length);
             }
             else
-            {
+            {*/
                 asset.Name = code.Name.Content;
-            }
+            //}
 
             writer.WriteMemoryPack(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    public static VMScript ConvertScript(string asmFile)
+    public static VMCode ConvertAssembly(string asmFile)
     {
         var asmFileLines = asmFile.SplitLines();
 
@@ -99,7 +124,7 @@ public static class GameConverter
             }
         }
 
-        var asset = new VMScript();
+        var asset = new VMCode();
         asset.LocalVariables = localVariables;
 
         if (startLine == -1)
@@ -158,7 +183,7 @@ public static class GameConverter
 
                 var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
 
-                var instruction = new VMScriptInstruction
+                var instruction = new VMCodeInstruction
                 {
                     Raw = line,
                     Opcode = enumOperation,
@@ -573,7 +598,7 @@ public static class GameConverter
                 return action == null ? -1 : exportableCode.IndexOf(action.CodeId);
             }
 
-            storage.CreateScriptID = GetCodeID(EventType.Create, 0);
+            storage.CreateCodeID = GetCodeID(EventType.Create, 0);
             storage.DestroyScriptID = GetCodeID(EventType.Destroy, 0);
 
             storage.AlarmScriptIDs = new();

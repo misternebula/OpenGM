@@ -52,25 +52,35 @@ public static partial class VMExecutor
 	public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
 
 	// debug
-	public static Stack<VMScript> currentExecutingScript = new();
+	public static Stack<VMCode> currentExecutingScript = new();
 	public static bool VerboseStackLogs;
 	
 	// private static IList? _temporaryArrayStorage = null;
 
-	public static object? ExecuteScript(VMScript script, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
+	public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
 	{
-		if (script.Instructions.Count == 0)
+		if (code == null)
+		{
+			DebugLog.LogError($"Tried to run null code!");
+			return null;
+		}
+
+		if (code.Instructions.Count == 0)
 		{
 			return null;
 		}
 
-		if (VerboseStackLogs)
-		{
+		//if (VerboseStackLogs)
+		//{
 			//if (!script.IsGlobalInit)
 			//{
-			DebugLog.LogInfo($"------------------------------ {script.Name} ------------------------------ ");
+			var space = "   ";
+			var count = currentExecutingScript.Count;
+			var leftPadding = string.Concat(Enumerable.Repeat(space, count));
+
+			DebugLog.LogInfo($"{leftPadding}------------------------------ {code.Name} ------------------------------ ");
 			//}
-		}
+		//}
 
 		var newCtx = new VMScriptExecutionContext
 		{
@@ -83,7 +93,7 @@ public static partial class VMExecutor
 			EventIndex = eventIndex
 		};
 
-		foreach (var item in script.LocalVariables)
+		foreach (var item in code.LocalVariables)
 		{
 			newCtx.Locals.Add(item, null);
 		}
@@ -100,7 +110,7 @@ public static partial class VMExecutor
 		var instructionIndex = startingIndex;
 		var lastJumpedLabel = 0; // just for debugging
 
-		currentExecutingScript.Push(script);
+		currentExecutingScript.Push(code);
 
 		while (true)
 		{
@@ -109,7 +119,7 @@ public static partial class VMExecutor
 
 			try
 			{
-				(executionResult, data) = ExecuteInstruction(script.Instructions[instructionIndex]);
+				(executionResult, data) = ExecuteInstruction(code.Instructions[instructionIndex]);
 
 				if (VerboseStackLogs && Ctx != null)
 				{
@@ -131,7 +141,7 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.Failed)
 			{
-				DebugLog.LogError($"Execution of instruction {script.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {script.Name} failed : {data}");
+				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {code.Name} failed : {data}");
 
 				/*DebugLog.LogError($"--Stacktrace--");
 				foreach (var item in currentExecutingScript)
@@ -145,7 +155,7 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.Success)
 			{
-				if (instructionIndex == script.Instructions.Count - 1)
+				if (instructionIndex == code.Instructions.Count - 1)
 				{
 					// script finished!
 					break;
@@ -163,7 +173,7 @@ public static partial class VMExecutor
 			if (executionResult == ExecutionResult.JumpedToLabel)
 			{
 				var label = (int)data!;
-				instructionIndex = script.Labels[label];
+				instructionIndex = code.Labels[label];
 				lastJumpedLabel = label;
 				continue;
 			}
@@ -386,14 +396,14 @@ public static partial class VMExecutor
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(ExecuteScript(scriptName, Ctx.GMSelf, Ctx.ObjectDefinition, args: args), VMType.v);
+					Ctx.Stack.Push(ExecuteCode(scriptName.GetCode(), Ctx.GMSelf, Ctx.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
-					Ctx.Stack.Push(ExecuteScript(script, Ctx.GMSelf, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
+					Ctx.Stack.Push(ExecuteCode(script, Ctx.GMSelf, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
 					break;
 				}
 

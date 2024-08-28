@@ -8,7 +8,7 @@ public static class TestUtils
 {
 	public static object? ExecuteScript(string name, string asmFile)
 	{
-		var script = GameConverter.ConvertScript(asmFile);
+		var script = GameConverter.ConvertAssembly(asmFile);
 		script.Name = name;
 
 		if (script.IsGlobalInit)
@@ -26,7 +26,7 @@ public static class TestUtils
 		}
 
 		VMExecutor.VerboseStackLogs = true;
-		var result = VMExecutor.ExecuteScript(script, null);
+		var result = VMExecutor.ExecuteCode(script, null);
 		
 		DebugLog.Log($"result = {result ?? "null value"} ({result?.GetType().ToString() ?? "null type"})");
 		

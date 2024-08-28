@@ -47,7 +47,7 @@ internal class Entry
 
 		foreach (var item in ScriptResolver.GlobalInitScripts)
 		{
-			VMExecutor.ExecuteScript(item, null, null);
+			VMExecutor.ExecuteCode(item.GetCode(), null, null);
 		}
 
 		RoomManager.FirstRoom = true;
