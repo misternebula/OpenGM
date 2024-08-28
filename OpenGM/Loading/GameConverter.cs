@@ -557,7 +557,6 @@ public static class GameConverter
             {
 	            if (obj.Events.Count <= (int)type - 1) // -1 because they have a None entry in the enum for some reason
 				{
-                    DebugLog.Log($"Ignoring {type} as obj only has {obj.Events.Count} events");
 		            return -1; // Most likely UNDERTALE being exported, and type is Gesture/Precreate
 				}
 
