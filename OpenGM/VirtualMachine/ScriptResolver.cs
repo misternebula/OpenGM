@@ -353,7 +353,12 @@ public static partial class ScriptResolver
 		{ "event_perform", event_perform},
 		{ "gpu_set_blendenable", gpu_set_blendenable},
 		{ "dcos", dcos},
-		{ "sqr", sqr}
+		{ "sqr", sqr},
+		{ "action_move_to", action_move_to},
+		{ "action_kill_object", action_kill_object},
+		{ "instance_create", instance_create},
+		{ "joystick_exists", joystick_exists},
+		{ "keyboard_check_released", keyboard_check_released}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3511,6 +3516,72 @@ public static partial class ScriptResolver
 	{
 		var val = args[0].Conv<double>(); // degrees
 		return Math.Cos(val * CustomMath.Deg2Rad);
+	}
+
+	public static bool Action_Relative = false;
+
+	public static object? action_move_to(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+
+		if (Action_Relative)
+		{
+			x += VMExecutor.Ctx.GMSelf.x;
+			y += VMExecutor.Ctx.GMSelf.y;
+		}
+
+		VMExecutor.Ctx.GMSelf.x = x;
+		VMExecutor.Ctx.GMSelf.y = y;
+		return null;
+	}
+
+	public static object? action_kill_object(object?[] args)
+	{
+		return instance_destroy(args);
+	}
+
+	public static object? instance_create(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var obj = args[2].Conv<int>();
+
+		return InstanceManager.instance_create(x, y, obj);
+	}
+
+	public static object? joystick_exists(object?[] args) => false; // TODO : implement
+
+	public static object? keyboard_check_released(object?[] args)
+	{
+		var key = args[0].Conv<int>();
+
+		// from disassembly
+		switch (key)
+		{
+			case 0:
+			{
+				var result = true;
+				for (var i = 0; i <= 255; ++i)
+				{
+					result = KeyboardHandler.KeyReleased[i] != true && result;
+				}
+				return result;
+			}
+			case 1:
+			{
+				var result = false;
+				for (var i = 0; i <= 255; ++i)
+				{
+					result = KeyboardHandler.KeyReleased[i] || result;
+				}
+				return result;
+			}
+			case > 255:
+				return false;
+			default:
+				return KeyboardHandler.KeyReleased[key];
+		}
 	}
 }
 

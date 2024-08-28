@@ -32,6 +32,19 @@ public static class InstanceManager
 		instances.Add(obj);
 	}
 
+	public static int instance_create(double x, double y, int obj)
+	{
+		var definition = ObjectDefinitions[obj];
+
+		// is 0 depth right? no idea
+		var newGM = new GamemakerObject(definition, x, y, 0, _highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+
+		GamemakerObject.ExecuteScript(newGM, definition, EventType.PreCreate);
+		GamemakerObject.ExecuteScript(newGM, definition, EventType.Create);
+		newGM._createRan = true;
+		return newGM.instanceId;
+	}
+
 	public static int instance_create_depth(double x, double y, int depth, int obj)
 	{
 		var definition = ObjectDefinitions[obj];
