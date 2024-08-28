@@ -3,7 +3,7 @@
 namespace OpenGM.VirtualMachine;
 
 [MemoryPackable]
-public partial class VMScriptInstruction
+public partial class VMCodeInstruction
 {
 	public string Raw = null!;
 

@@ -185,7 +185,7 @@ public static partial class VMExecutor
 	}
 
 	// BUG: throws sometimes instead of returning ExecutionResult.Failure
-	public static (ExecutionResult result, object? data) ExecuteInstruction(VMScriptInstruction instruction)
+	public static (ExecutionResult result, object? data) ExecuteInstruction(VMCodeInstruction instruction)
 	{
 		if (VerboseStackLogs) DebugLog.LogInfo($" - {instruction.Raw}");
 

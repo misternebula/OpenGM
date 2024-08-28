@@ -132,7 +132,7 @@ public static partial class VMExecutor
 		VariableResolver.BuiltInVariables[varName].setter!(value);
 	}
 
-	public static (ExecutionResult, object?) DoPop(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoPop(VMCodeInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
 		{

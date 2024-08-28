@@ -5,7 +5,7 @@ namespace OpenGM.VirtualMachine;
 public static partial class VMExecutor
 {
 	// see https://github.com/UnderminersTeam/Underanalyzer/blob/main/Underanalyzer/Decompiler/AST/Nodes/BinaryNode.cs#L40
-	public static VMType GetMathReturnType(VMScriptInstruction instruction)
+	public static VMType GetMathReturnType(VMCodeInstruction instruction)
 	{
 		if (instruction.Opcode == VMOpcode.CMP)
 		{
@@ -37,7 +37,7 @@ public static partial class VMExecutor
 		};
 	}
 
-	public static (ExecutionResult, object?) ADD(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) ADD(VMCodeInstruction instruction)
 	{
 		var valTwo = Ctx.Stack.Pop(instruction.TypeOne);
 		var valOne = Ctx.Stack.Pop(instruction.TypeTwo);
@@ -60,7 +60,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) SUB(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) SUB(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
@@ -70,7 +70,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) MUL(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) MUL(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
@@ -80,7 +80,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) DIV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DIV(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
@@ -90,7 +90,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) REM(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) REM(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
@@ -100,7 +100,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) MOD(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) MOD(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
@@ -110,14 +110,14 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) NEG(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) NEG(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		Ctx.Stack.Push(-Ctx.Stack.Pop(instruction.TypeOne).Conv<double>(), retType);
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) AND(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) AND(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		// should other binary types handle ops?
@@ -128,7 +128,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) OR(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) OR(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<long>();
@@ -138,7 +138,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) XOR(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) XOR(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<long>();
@@ -148,7 +148,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) NOT(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) NOT(VMCodeInstruction instruction)
 	{
 		switch (instruction.TypeOne)
 		{
@@ -160,7 +160,7 @@ public static partial class VMExecutor
 				return (ExecutionResult.Success, null);
 		}
 	}
-	public static (ExecutionResult, object?) SHL(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) SHL(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		// is this the right order?
@@ -171,7 +171,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 	
-	public static (ExecutionResult, object?) SHR(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) SHR(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		// is this the right order?
