@@ -70,8 +70,8 @@ public static partial class VMExecutor
 			return null;
 		}
 
-		//if (VerboseStackLogs)
-		//{
+		if (VerboseStackLogs)
+		{
 			//if (!script.IsGlobalInit)
 			//{
 			var space = "   ";
@@ -80,7 +80,7 @@ public static partial class VMExecutor
 
 			DebugLog.LogInfo($"{leftPadding}------------------------------ {code.Name} ------------------------------ ");
 			//}
-		//}
+		}
 
 		var newCtx = new VMScriptExecutionContext
 		{
@@ -394,16 +394,16 @@ public static partial class VMExecutor
 					break;
 				}
 
-				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
-				{
-					Ctx.Stack.Push(ExecuteCode(scriptName.GetCode(), Ctx.GMSelf, Ctx.ObjectDefinition, args: args), VMType.v);
-					break;
-				}
-
 				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
 					Ctx.Stack.Push(ExecuteCode(script, Ctx.GMSelf, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
+					break;
+				}
+
+				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
+				{
+					Ctx.Stack.Push(ExecuteCode(scriptName.GetCode(), Ctx.GMSelf, Ctx.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 

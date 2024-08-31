@@ -28,10 +28,11 @@ public static class GameConverter
         // must match order of gameloader
         ExportAssetOrder(writer, data);
         ConvertScripts(writer, data);
-        ConvertCode(writer, data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        ConvertCode(writer, data, data.Code);
+        ExportGlobalInitCode(writer, data);
         ExportObjectDefinitions(writer, data);
         ExportRooms(writer, data);
-        ConvertSprites(writer, data.Sprites);
+        ConvertSprites(writer, data, data.Sprites);
         ExportFonts(writer, data);
         ExportPages(writer, data);
         ExportTextureGroups(writer, data);
@@ -58,14 +59,14 @@ public static class GameConverter
 			    asset.CodeIndex = data.Code.IndexOf(script.Code);
 		    }
 
-		    asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(script.Code);
+		    //asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(script.Code);
 
 		    writer.WriteMemoryPack(asset);
 		}
 	    Console.WriteLine($" Done!");
 	}
 
-    public static void ConvertCode(BinaryWriter writer, UndertaleData data, List<UndertaleCode> codes)
+    public static void ConvertCode(BinaryWriter writer, UndertaleData data, IList<UndertaleCode> codes)
     {
         Console.Write($"Converting code...");
         writer.Write(codes.Count);
@@ -103,6 +104,16 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
+    public static void ExportGlobalInitCode(BinaryWriter writer, UndertaleData data)
+    {
+        writer.Write(data.GlobalInitScripts.Count);
+
+        foreach (var item in data.GlobalInitScripts)
+        {
+            writer.Write(data.Code.IndexOf(item.Code));
+        }
+    }
+
     public static VMCode ConvertAssembly(string asmFile)
     {
         var asmFileLines = asmFile.SplitLines();
@@ -129,9 +140,9 @@ public static class GameConverter
 
         if (startLine == -1)
         {
-            // no code in file???
+			// no code in file???
 
-            asset.Instructions = new();
+			asset.Instructions = new();
             asset.Labels = new() { { 0, 0 } };
 
             return asset;
@@ -390,7 +401,7 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
-    public static void ConvertSprites(BinaryWriter writer, IList<UndertaleSprite> sprites)
+    public static void ConvertSprites(BinaryWriter writer, UndertaleData data, IList<UndertaleSprite> sprites)
     {
         Console.Write($"Converting sprites...");
         
@@ -494,7 +505,7 @@ public static class GameConverter
 
             // Write Code.
             streamWriter.AppendLine("@@code@@");
-            var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
+            var codes = data.Code.ToList();
             if (codes.Count > 0)
             {
                 foreach (UndertaleCode code in codes)
@@ -576,7 +587,7 @@ public static class GameConverter
             var storage = new ObjectDefinitionStorage();
             storage.ParentID = data.GameObjects.IndexOf(obj.ParentId);
 
-            var exportableCode = data.Code.Where(c => c.ParentEntry is null).ToList();
+            var exportableCode = data.Code.ToList();
 
             int GetCodeID(EventType type, int eventSubtype)
             {
@@ -654,7 +665,7 @@ public static class GameConverter
     {
         Console.Write($"Exporting rooms...");
 
-        var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
+        var codes = data.Code.ToList();
 
         writer.Write(data.Rooms.Count);
         foreach (var room in data.Rooms)
@@ -847,6 +858,29 @@ public static class GameConverter
 				// Gameobject does not appear in any layers. Probably dealing with UNDERTALE which doesn't have layers.
 			}
 
+            foreach (var tile in room.Tiles)
+            {
+                // TODO : check this doesnt include layer tiles??? it probably does ughhh
+
+                var tileAsset = new Tile()
+                {
+	                X = tile.X,
+	                Y = tile.Y,
+	                Definition = 0,
+	                SourceLeft = (int)tile.SourceX,
+	                SourceTop = (int)tile.SourceY,
+	                SourceHeight = (int)tile.Height,
+	                SourceWidth = (int)tile.Width,
+	                Depth = tile.TileDepth,
+	                InstanceID = (int)tile.InstanceID,
+	                ScaleX = tile.ScaleX,
+	                ScaleY = tile.ScaleY,
+	                Color = tile.Color
+                };
+
+                asset.Tiles.Add(tileAsset);
+            }
+
             writer.WriteMemoryPack(asset);
         }
         Console.WriteLine(" Done!");
@@ -1014,7 +1048,7 @@ public static class GameConverter
             {
 	            asset.Texture = new SpritePageItem
 	            {
-		            SourcePosX = set.Texture.SourceX,
+					SourcePosX = set.Texture.SourceX,
 		            SourcePosY = set.Texture.SourceY,
 		            SourceSizeX = set.Texture.SourceWidth,
 		            SourceSizeY = set.Texture.SourceHeight,

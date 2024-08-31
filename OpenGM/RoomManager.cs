@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
@@ -51,8 +52,8 @@ public static class RoomManager
 					continue;
 				}
 
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
 				instance.Destroy();
 				//Destroy(instance.gameObject);
@@ -101,8 +102,10 @@ public static class RoomManager
 
 	private static void OnRoomChanged()
 	{
+		DebugLog.Log($"Changing camera...");
 		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-		CustomWindow.Instance.SetPosition(0, 0);
+		CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
+		CustomWindow.Instance.UpdateInstanceFollow();
 
 		// html5 reuses the surface id, and makes surface_create deletes existing one, but we can just do that here
 		if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
@@ -116,6 +119,8 @@ public static class RoomManager
 
 		foreach (var layer in CurrentRoom.RoomAsset.Layers)
 		{
+			DebugLog.LogInfo($"Creating layer {layer.LayerName}...");
+
 			var layerContainer = new LayerContainer(layer);
 
 			foreach (var element in layer.Elements)
@@ -221,14 +226,37 @@ public static class RoomManager
 			CurrentRoom.LooseObjects.Add(newGM);
 		}
 
-		foreach (var (obj, pcc, cc) in createdObjects)
+		foreach (var item in CurrentRoom.RoomAsset.Tiles)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.PreCreate);
+			var newTile = new GMTile()
+			{
+				X = item.X,
+				Y = item.Y,
+				left = item.SourceLeft,
+				top = item.SourceTop,
+				width = item.SourceWidth,
+				height = item.SourceHeight,
+				depth = item.Depth,
+				instanceId = item.InstanceID,
+				XScale = item.ScaleX,
+				YScale = item.ScaleY,
+				Color = (int)item.Color,
+				Definition = 0
+			};
+
+			CurrentRoom.Tiles.Add(newTile);
 		}
 
+		DebugLog.LogInfo($"Calling PreCreate...");
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Create);
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.PreCreate);
+		}
+
+		DebugLog.LogInfo($"Calling Create...");
+		foreach (var (obj, pcc, cc) in createdObjects)
+		{
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
 		}
 
 		var currentInstances = InstanceManager.instances.ToList();
@@ -236,15 +264,17 @@ public static class RoomManager
 		if (FirstRoom)
 		{
 			FirstRoom = false;
+			DebugLog.LogInfo($"Calling GameStart...");
 			foreach (var obj in currentInstances)
 			{
-				GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
+				GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
 			}
 		}
-		
+
+		DebugLog.LogInfo($"Calling RoomStart...");
 		foreach (var obj in currentInstances)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
 
 		VMScript? GetVMScriptFromCodeIndex(int codeIndex)
@@ -257,6 +287,7 @@ public static class RoomManager
 			return ScriptResolver.Scripts.Values.Single(x => x.CodeIndex == codeIndex);
 		}
 
+		DebugLog.LogInfo($"Running pre-creation code...");
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
 			var preCreateCode = GetVMScriptFromCodeIndex(pcc);
@@ -266,6 +297,7 @@ public static class RoomManager
 			}
 		}
 
+		DebugLog.LogInfo($"Running creation code...");
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
 			var createCode = GetVMScriptFromCodeIndex(cc);
@@ -308,7 +340,7 @@ public static class RoomManager
 				continue;
 			}
 
-			GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+			GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
 		}
 	}
 

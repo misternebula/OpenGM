@@ -272,10 +272,10 @@ public static class VariableResolver
 	public static void set_view_hport(object? value) => ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
 
 	public static object get_view_xview() => ViewportManager.view_xview;
-	public static void set_view_xview(object? value) => ViewportManager.view_xview = value.Conv<IList>().Cast<int>().ToArray();
+	public static void set_view_xview(object? value) => ViewportManager.view_xview = value.Conv<IList>().Cast<double>().ToArray();
 
 	public static object get_view_yview() => ViewportManager.view_yview;
-	public static void set_view_yview(object? value) => ViewportManager.view_yview = value.Conv<IList>().Cast<int>().ToArray();
+	public static void set_view_yview(object? value) => ViewportManager.view_yview = value.Conv<IList>().Cast<double>().ToArray();
 
 	public static object get_view_wview() => ViewportManager.view_wview;
 	public static void set_view_wview(object? value) => ViewportManager.view_wview = value.Conv<IList>().Cast<int>().ToArray();

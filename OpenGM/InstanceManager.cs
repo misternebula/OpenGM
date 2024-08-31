@@ -39,8 +39,8 @@ public static class InstanceManager
 		// is 0 depth right? no idea
 		var newGM = new GamemakerObject(definition, x, y, 0, _highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-		GamemakerObject.ExecuteScript(newGM, definition, EventType.PreCreate);
-		GamemakerObject.ExecuteScript(newGM, definition, EventType.Create);
+		GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+		GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
 		newGM._createRan = true;
 		return newGM.instanceId;
 	}
@@ -51,8 +51,8 @@ public static class InstanceManager
 
 		var newGM = new GamemakerObject(definition, x, y, depth, _highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-		GamemakerObject.ExecuteScript(newGM, definition, EventType.PreCreate);
-		GamemakerObject.ExecuteScript(newGM, definition, EventType.Create);
+		GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+		GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
 		newGM._createRan = true;
 		return newGM.instanceId;
 	}

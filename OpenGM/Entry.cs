@@ -43,19 +43,28 @@ internal class Entry
 
 		window = new CustomWindow(gameSettings, nativeSettings, (uint)firstRoom.SizeX, (uint)firstRoom.SizeY);
 
+		DebugLog.LogInfo($"Binding page textures...");
 		PageManager.BindTextures();
 
-		Console.WriteLine($"Executing global scripts...");
+		DebugLog.LogInfo($"Executing global init scripts...");
 
-		foreach (var item in ScriptResolver.GlobalInitScripts)
+		foreach (var item in ScriptResolver.GlobalInit)
 		{
-			VMExecutor.ExecuteCode(item.GetCode(), null, null);
+			if (item == null)
+			{
+				continue;
+			}
+
+			VMExecutor.ExecuteCode(item, null);
 		}
+
+		DebugLog.LogInfo($"Changing to first room...");
 
 		RoomManager.FirstRoom = true;
 		RoomManager.ChangeRoomAfterEvent(0);
 		RoomManager.ChangeToWaitingRoom();
 
+		DebugLog.LogInfo($"Starting main loop...");
 		window.Run();
 
 		AudioManager.Dispose();

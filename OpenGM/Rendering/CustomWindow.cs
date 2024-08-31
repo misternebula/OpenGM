@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 using OpenTK.Core.Native;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -37,6 +38,8 @@ public class CustomWindow : GameWindow
         }
     }
 
+    public GamemakerObject? FollowInstance = null!;
+
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, uint width, uint height)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -63,7 +66,8 @@ public class CustomWindow : GameWindow
     protected override void OnLoad()
     {
         base.OnLoad();
-        UpdatePositionResolution();
+        DebugLog.LogInfo($"OnLoad()");
+		UpdatePositionResolution();
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
@@ -99,14 +103,62 @@ public class CustomWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        KeyboardHandler.UpdateMouseState(MouseState);
+        ViewportManager.UpdateViews();
+
+		KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
         DrawManager.FixedUpdate();
         AudioManager.Update();
-        
-        SwapBuffers();
+
+        UpdateInstanceFollow();
+
+		SwapBuffers();
     }
+
+    public void UpdateInstanceFollow()
+    {
+	    if (FollowInstance == null)
+	    {
+		    if (RoomManager.CurrentRoom.FollowObject == null)
+		    {
+			    return;
+			}
+
+		    FollowInstance = RoomManager.CurrentRoom.FollowObject;
+	    }
+
+	    var x = FollowInstance.x + (FollowInstance.sprite_width / 2);
+	    var y = FollowInstance.y + (FollowInstance.sprite_height / 2);
+
+	    var roomWidth = RoomManager.CurrentRoom.SizeX;
+        var roomHeight = RoomManager.CurrentRoom.SizeY;
+        var viewWidth = RoomManager.CurrentRoom.CameraWidth;
+        var viewHeight = RoomManager.CurrentRoom.CameraHeight;
+
+        x -= viewWidth / 2d;
+        y -= viewHeight / 2d;
+
+        if (y <= 0) // top of screen
+        {
+            y = 0;
+        }
+        else if (y >= roomHeight - viewHeight) // bottom of screen
+        {
+	        y = roomHeight - viewHeight;
+        }
+
+        if (x <= 0) // left of screen
+        {
+	        x = 0;
+        }
+        else if (x >= roomWidth - viewWidth) // right of screen
+        {
+	        x = roomWidth - viewWidth;
+        }
+
+        SetPosition(x, y);
+	}
 
     public static void Draw(GMTextJob textJob)
     {

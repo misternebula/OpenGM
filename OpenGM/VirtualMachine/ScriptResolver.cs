@@ -23,7 +23,7 @@ namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
 {
 	public static Dictionary<string, VMScript> Scripts = new();
-	public static List<VMScript> GlobalInitScripts = new();
+	public static List<VMCode?> GlobalInit = new();
 
 	public static Dictionary<string, (VMCode script, int index)> ScriptFunctions = new Dictionary<string, (VMCode script, int index)>();
 
@@ -358,7 +358,13 @@ public static partial class ScriptResolver
 		{ "action_kill_object", action_kill_object},
 		{ "instance_create", instance_create},
 		{ "joystick_exists", joystick_exists},
-		{ "keyboard_check_released", keyboard_check_released}
+		{ "keyboard_check_released", keyboard_check_released},
+		{ "ini_section_exists", ini_section_exists},
+		{ "keyboard_check_direct", keyboard_check_direct},
+		{ "collision_point", collision_point},
+		{ "action_move", action_move},
+		{ "action_set_alarm", action_set_alarm},
+		{ "action_set_friction", action_set_friction}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -410,7 +416,7 @@ public static partial class ScriptResolver
 			return null;
 		}
 
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
 		return null;
 	}
 
@@ -420,11 +426,13 @@ public static partial class ScriptResolver
 	{
 		var name = args[0].Conv<string>();
 
-		DebugLog.Log($"ini_open {name}");
-
 		if (_iniFile != null)
 		{
-			throw new Exception("Cannot open a new .ini file while an old one is still open!");
+			// Docs say this throws an error.
+			// C++ and HTML runners just save the old ini file and open the new one, with no error.
+			// I love Gamemaker.
+
+			ini_close(new object[0]);
 		}
 
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", name);
@@ -1558,9 +1566,8 @@ public static partial class ScriptResolver
 			instance = InstanceManager.FindByInstanceId(id);
 		}
 
-		//DebugLog.Log($"camera_set_view_target {instance}");
-
-		//GamemakerCamera.Instance.ObjectToFollow = instance;
+		DebugLog.Log($"camera_set_view_target {instance}");
+		CustomWindow.Instance.FollowInstance = instance;
 
 		return null;
 	}
@@ -1576,8 +1583,7 @@ public static partial class ScriptResolver
 		}
 
 		// TODO : this can apparently return either an instance id or object index????
-		return null;
-		// return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
+		return CustomWindow.Instance.FollowInstance == null ? -1 : CustomWindow.Instance.FollowInstance.instanceId;
 	}
 
 	public static object? camera_set_view_pos(object?[] args)
@@ -1717,7 +1723,6 @@ public static partial class ScriptResolver
 	public static object? audio_stop_sound(object?[] args)
 	{
 		var id = args[0].Conv<int>();
-		DebugLog.Log($"audio_stop_sound id:{id}");
 
 		if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1874,7 +1879,7 @@ public static partial class ScriptResolver
 	public static object? event_user(object?[] args)
 	{
 		var numb = args[0].Conv<int>();
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null;
 	}
 
@@ -3484,7 +3489,7 @@ public static partial class ScriptResolver
 		var type = args[0].Conv<int>();
 		var numb = args[0].Conv<int>();
 
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
 		return null;
 	}
 
@@ -3582,6 +3587,129 @@ public static partial class ScriptResolver
 			default:
 				return KeyboardHandler.KeyReleased[key];
 		}
+	}
+
+	public static object? ini_section_exists(object?[] args)
+	{
+		var section = args[0].Conv<string>();
+		return _iniFile!.Sections.Any(x => x.Name == section);
+	}
+
+	public static object? keyboard_check_direct(object?[] args)
+	{
+		var key = args[0].Conv<int>();
+		return KeyboardHandler.KeyboardCheckDirect(key);
+	}
+
+	public static object? collision_point(object?[] args)
+	{
+		return false;
+	}
+
+	public static object? action_move(object?[] args)
+	{
+		var dirString = args[0].Conv<string>();
+		var speed = args[1].Conv<double>();
+
+		/*
+		 * This function is weird.
+		 * dirString must be 9 characters long, and each character is a 1 or a 0.
+		 * Each character represents a direction. If multiple directions are set, a random one is picked.
+		 * Directions are as followed:
+		 * 0 - 225		Down-Left
+		 * 1 - 270		Down
+		 * 2 - 315		Down-Right
+		 * 3 - 180		Left
+		 * 4 - 0		Stop
+		 * 5 - 0		Right
+		 * 6 - 135		Up-Left
+		 * 7 - 90		Up
+		 * 8 - 45		Up-Right
+		 */
+
+		if (dirString.Length != 9)
+		{
+			throw new InvalidOperationException("dirString must be 9 characters long");
+		}
+
+		if (Action_Relative)
+		{
+			speed = VMExecutor.Ctx.GMSelf.speed + speed;
+		}
+
+		VMExecutor.Ctx.GMSelf.speed = speed;
+
+		int dir;
+		do
+		{
+			dir = (int)GMRandom.YYRandom(9);
+		} while (dirString[dir] != '1');
+
+		switch (dir)
+		{
+			case 0:
+				VMExecutor.Ctx.GMSelf.direction = 255;
+				break;
+			case 1:
+				VMExecutor.Ctx.GMSelf.direction = 270;
+				break;
+			case 2:
+				VMExecutor.Ctx.GMSelf.direction = 315;
+				break;
+			case 3:
+				VMExecutor.Ctx.GMSelf.direction = 180;
+				break;
+			case 4:
+				VMExecutor.Ctx.GMSelf.direction = 0;
+				VMExecutor.Ctx.GMSelf.speed = 0;
+				break;
+			case 5:
+				VMExecutor.Ctx.GMSelf.direction = 0;
+				break;
+			case 6:
+				VMExecutor.Ctx.GMSelf.direction = 135;
+				break;
+			case 7:
+				VMExecutor.Ctx.GMSelf.direction = 90;
+				break;
+			case 8:
+				VMExecutor.Ctx.GMSelf.direction = 56;
+				break;
+		}
+
+		return null;
+	}
+
+	public static object? action_set_alarm(object?[] args)
+	{
+		var value = args[0].Conv<int>();
+		var index = args[1].Conv<int>();
+
+		if (Action_Relative)
+		{
+			var curValue = VMExecutor.Ctx.GMSelf.alarm[index].Conv<int>();
+			if (curValue > -1)
+			{
+				VMExecutor.Ctx.GMSelf.alarm[index] = curValue + value;
+				return null;
+			}
+		}
+
+		VMExecutor.Ctx.GMSelf.alarm[index] = value;
+		return null;
+	}
+
+	public static object? action_set_friction(object?[] args)
+	{
+		var friction = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			friction += VMExecutor.Ctx.GMSelf.friction;
+		}
+
+		VMExecutor.Ctx.GMSelf.friction = friction;
+		return null;
 	}
 }
 

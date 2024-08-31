@@ -24,6 +24,7 @@ public static class GameLoader
         AssetIndexManager.LoadAssetIndexes(reader);
         LoadScripts(reader);
         LoadCode(reader);
+        LoadGlobalInitCode(reader);
         LoadObjects(reader);
         LoadRooms(reader);
         LoadSprites(reader);
@@ -43,15 +44,7 @@ public static class GameLoader
 	    for (var i = 0; i < length; i++)
 	    {
 		    var asset = reader.ReadMemoryPack<VMScript>();
-
-		    if (asset.IsGlobalInit)
-		    {
-			    ScriptResolver.GlobalInitScripts.Add(asset);
-		    }
-		    else
-		    {
-			    ScriptResolver.Scripts.Add(asset.Name, asset);
-		    }
+		    ScriptResolver.Scripts.Add(asset.Name, asset);
 		}
 	    Console.WriteLine($" Done!");
 	}
@@ -103,7 +96,17 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects(BinaryReader reader)
+    private static void LoadGlobalInitCode(BinaryReader reader)
+    {
+        var count = reader.ReadInt32();
+
+        for (int i = 0; i < count; i++)
+        {
+            ScriptResolver.GlobalInit.Add(Codes[reader.ReadInt32()]);
+        }
+    }
+
+	private static void LoadObjects(BinaryReader reader)
     {
         Console.Write($"Loading objects...");
 

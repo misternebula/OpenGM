@@ -22,6 +22,7 @@ public class RoomContainer
 	public bool Persistent => RoomAsset.Persistent;
 	public int SizeX => RoomAsset.SizeX;
 	public int SizeY => RoomAsset.SizeY;
+	public GamemakerObject? FollowObject => RoomAsset.FollowsObject == -1 ? null : InstanceManager.instances.FirstOrDefault(x => x.Definition.AssetId == RoomAsset.FollowsObject);
 
 	public Dictionary<int, LayerContainer> Layers = new();
 	public List<DrawWithDepth> Tiles = new();

@@ -370,7 +370,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 				_updateCounter = 0;
 				if (CustomMath.ApproxEqual(image_index + 1, SpriteManager.GetNumberOfFrames(sprite_index)))
 				{
-					ExecuteScript(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+					ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
 					image_index = 0;
 				}
 				else
@@ -381,27 +381,27 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		}
 	}
 
-	public static bool ExecuteScript(GamemakerObject obj, ObjectDefinition? definition, EventType type, int otherData = 0)
+	public static bool ExecuteEvent(GamemakerObject obj, ObjectDefinition? definition, EventType eventType, int eventNumber = 0)
 	{
 		if (definition == null)
 		{
-			DebugLog.LogError($"Tried to execute event {type} {otherData} on null definition! obj:{obj}");
+			DebugLog.LogError($"Tried to execute event {eventType} {eventNumber} on null definition! obj:{obj}");
 			//Debug.Break();
 			return false;
 		}
 
-		//Debug.Log($"Trying to execute {type} {otherData} on {obj.object_index} with definition {definition.name}");
+		//DebugLog.LogInfo($"Trying to execute {eventType} {eventNumber} on {obj.object_index} with definition {definition.Name}");
 
-		bool TryExecute(VMCode? script)
+		bool TryExecute(VMCode? code)
 		{
-			if (script != null)
+			if (code != null)
 			{
-				VMExecutor.ExecuteCode(script, obj, definition, type, otherData);
+				VMExecutor.ExecuteCode(code, obj, definition, eventType, eventNumber);
 				return true;
 			}
 			else if (definition.parent != null)
 			{
-				return ExecuteScript(obj, definition.parent, type, otherData);
+				return ExecuteEvent(obj, definition.parent, eventType, eventNumber);
 			}
 
 			// event not found, and no parent to check
@@ -412,36 +412,36 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		{
 			if (dict.TryGetValue(index, out var script))
 			{
-				VMExecutor.ExecuteCode(script, obj, definition, type, otherData);
+				VMExecutor.ExecuteCode(script, obj, definition, eventType, eventNumber);
 				return true;
 			}
 			else if (definition.parent != null)
 			{
-				return ExecuteScript(obj, definition.parent, type, otherData);
+				return ExecuteEvent(obj, definition.parent, eventType, eventNumber);
 			}
 
 			// event not found, and no parent to check
 			return false;
 		}
 
-		switch (type)
+		switch (eventType)
 		{
 			case EventType.Create:
 				return TryExecute(definition.CreateCode);
 			case EventType.Destroy:
 				return TryExecute(definition.DestroyScript);
 			case EventType.Alarm:
-				return TryExecuteDict(definition.AlarmScript, otherData);
+				return TryExecuteDict(definition.AlarmScript, eventNumber);
 			case EventType.Step:
-				return TryExecuteDict(definition.StepScript, (EventSubtypeStep)otherData);
+				return TryExecuteDict(definition.StepScript, (EventSubtypeStep)eventNumber);
 			case EventType.Collision:
-				return TryExecuteDict(definition.CollisionScript, otherData);
+				return TryExecuteDict(definition.CollisionScript, eventNumber);
 			// keyboard
 			// mouse
 			case EventType.Other:
-				return TryExecuteDict(definition.OtherScript, (EventSubtypeOther)otherData);
+				return TryExecuteDict(definition.OtherScript, (EventSubtypeOther)eventNumber);
 			case EventType.Draw:
-				return TryExecuteDict(definition.DrawScript, (EventSubtypeDraw)otherData);
+				return TryExecuteDict(definition.DrawScript, (EventSubtypeDraw)eventNumber);
 			// keypress
 			// keyrelease
 			// trigger
@@ -457,7 +457,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			case EventType.Keyboard:
 			case EventType.Mouse:
 			default:
-				DebugLog.LogError($"{type} not implemented!");
+				DebugLog.LogError($"{eventType} not implemented!");
 				return false;
 		}
 	}
@@ -472,7 +472,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 				if (alarm[i].Conv<int>() == 0)
 				{
-					ExecuteScript(this, Definition, EventType.Alarm, i);
+					ExecuteEvent(this, Definition, EventType.Alarm, i);
 
 					if (alarm[i].Conv<int>() == 0)
 					{

@@ -130,8 +130,8 @@ public static partial class ScriptResolver
 	{
 		if (args.Length == 0)
 		{
-			GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Destroy);
-			GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.CleanUp);
+			GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Destroy);
+			GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.CleanUp);
 			InstanceManager.instance_destroy(VMExecutor.Ctx.GMSelf);
 			return null;
 		}
@@ -153,10 +153,10 @@ public static partial class ScriptResolver
 			{
 				if (execute_event_flag)
 				{
-					GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
+					GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
 				}
 
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
 				InstanceManager.instance_destroy(instance);
 			}
@@ -168,10 +168,10 @@ public static partial class ScriptResolver
 
 			if (execute_event_flag)
 			{
-				GamemakerObject.ExecuteScript(instance!, instance!.Definition, EventType.Destroy);
+				GamemakerObject.ExecuteEvent(instance!, instance!.Definition, EventType.Destroy);
 			}
 
-			GamemakerObject.ExecuteScript(instance!, instance!.Definition, EventType.CleanUp);
+			GamemakerObject.ExecuteEvent(instance!, instance!.Definition, EventType.CleanUp);
 
 			InstanceManager.instance_destroy(instance);
 		}
