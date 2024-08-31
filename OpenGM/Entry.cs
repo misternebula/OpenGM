@@ -30,6 +30,8 @@ internal class Entry
 		AudioManager.Init();
 		GameLoader.LoadGame();
 
+		GMRandom.InitialiseRNG(0);
+
 		var firstRoom = RoomManager.RoomList[0];
 
 		var gameSettings = GameWindowSettings.Default;
