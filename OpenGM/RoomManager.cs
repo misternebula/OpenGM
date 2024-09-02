@@ -277,33 +277,33 @@ public static class RoomManager
 			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
 
-		VMScript? GetVMScriptFromCodeIndex(int codeIndex)
+		VMCode? GetCodeFromCodeIndex(int codeIndex)
 		{
 			if (codeIndex == -1)
 			{
 				return null;
 			}
 
-			return ScriptResolver.Scripts.Values.Single(x => x.CodeIndex == codeIndex);
+			return GameLoader.Codes[codeIndex];
 		}
 
 		DebugLog.LogInfo($"Running pre-creation code...");
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
-			var preCreateCode = GetVMScriptFromCodeIndex(pcc);
+			var preCreateCode = GetCodeFromCodeIndex(pcc);
 			if (preCreateCode != null)
 			{
-				VMExecutor.ExecuteCode(preCreateCode.GetCode(), obj, obj.Definition);
+				VMExecutor.ExecuteCode(preCreateCode, obj, obj.Definition);
 			}
 		}
 
 		DebugLog.LogInfo($"Running creation code...");
 		foreach (var (obj, pcc, cc) in createdObjects)
 		{
-			var createCode = GetVMScriptFromCodeIndex(cc);
+			var createCode = GetCodeFromCodeIndex(cc);
 			if (createCode != null)
 			{
-				VMExecutor.ExecuteCode(createCode.GetCode(), obj, obj.Definition);
+				VMExecutor.ExecuteCode(createCode, obj, obj.Definition);
 			}
 		}
 		
