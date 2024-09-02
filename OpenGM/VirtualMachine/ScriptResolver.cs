@@ -1566,7 +1566,6 @@ public static partial class ScriptResolver
 			instance = InstanceManager.FindByInstanceId(id);
 		}
 
-		DebugLog.Log($"camera_set_view_target {instance}");
 		CustomWindow.Instance.FollowInstance = instance;
 
 		return null;
@@ -2867,8 +2866,25 @@ public static partial class ScriptResolver
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		var (script, instructionIndex) = ScriptFunctions[ScriptFunctions.Keys.ToList()[constructorIndex]];
-		var ret = VMExecutor.ExecuteCode(script, obj, args: values, startingIndex: instructionIndex);
+		var code = GameLoader.Codes[constructorIndex]!;
+		var instructionIndex = 0;
+
+		if (code.ParentAssetId != -1)
+		{
+			// This should always be the case, I think?
+			// Not sure if non-anonymous functions or scripts can be used as constructors.
+			var parentCode = GameLoader.Codes[code.ParentAssetId]!;
+
+			if (parentCode.ParentAssetId != -1)
+			{
+				throw new NotImplementedException("multiple layers of nested functions??");
+			}
+
+			instructionIndex = parentCode.Functions.First(x => x.FunctionName == code.Name).InstructionIndex;
+			code = parentCode;
+		}
+
+		var ret = VMExecutor.ExecuteCode(code, obj, args: values, startingIndex: instructionIndex);
 
 		return obj;
 	}
@@ -3158,9 +3174,11 @@ public static partial class ScriptResolver
 		return x1 <= px && px < x2 && y1 <= py && py <= y2;
 	}
 
+	// TODO these actually return references to the self/other objects (see F_JSThis)
 	private static object This(object?[] args) => GMConstants.self;
 	private static object Other(object?[] args) => GMConstants.other;
 	// TODO what the fuck are these? apparently its JS stuff? see F_JSTryHook etc
+	// these are to do with breakpoints. probably not important. - neb
 	private static object? try_hook(object?[] args) => null;
 	private static object? try_unhook(object?[] args) => null;
 

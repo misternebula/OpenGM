@@ -77,27 +77,12 @@ public static class GameConverter
             var asset = ConvertAssembly(asmFile);
 
             asset.AssetId = codes.IndexOf(code);
+	        asset.Name = code.Name.Content;
 
-            /*if (code.Name.Content.StartsWith("gml_Object_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_Object_".Length);
-            }
-            else if (code.Name.Content.StartsWith("gml_Script_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_Script_".Length);
-            }
-            else if (code.Name.Content.StartsWith("gml_GlobalScript_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_GlobalScript_".Length);
-            }
-            else if (code.Name.Content.StartsWith("gml_RoomCC_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_RoomCC_".Length);
-            }
-            else
-            {*/
-                asset.Name = code.Name.Content;
-            //}
+	        if (code.ParentEntry != null)
+	        {
+		        asset.ParentAssetId = codes.IndexOf(code.ParentEntry);
+	        }
 
             writer.WriteMemoryPack(asset);
         }
