@@ -364,7 +364,8 @@ public static partial class ScriptResolver
 		{ "collision_point", collision_point},
 		{ "action_move", action_move},
 		{ "action_set_alarm", action_set_alarm},
-		{ "action_set_friction", action_set_friction}
+		{ "action_set_friction", action_set_friction},
+		{ "layer_get_id_at_depth", layer_get_id_at_depth}
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -3728,6 +3729,28 @@ public static partial class ScriptResolver
 
 		VMExecutor.Ctx.GMSelf.friction = friction;
 		return null;
+	}
+
+	public static object? layer_get_id_at_depth(object?[] args)
+	{
+		var depth = args[0].Conv<int>();
+
+		var retList = new List<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			if (layer.Depth == depth)
+			{
+				retList.Add(layer.ID);
+			}
+		}
+
+		if (retList.Count == 0)
+		{
+			retList.Add(-1);
+		}
+
+		return retList;
 	}
 }
 
