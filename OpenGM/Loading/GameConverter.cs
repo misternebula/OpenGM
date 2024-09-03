@@ -83,6 +83,10 @@ public static class GameConverter
 	        {
 		        asset.ParentAssetId = codes.IndexOf(code.ParentEntry);
 	        }
+	        else
+	        {
+		        asset.ParentAssetId = -1;
+	        }
 
             writer.WriteMemoryPack(asset);
         }
