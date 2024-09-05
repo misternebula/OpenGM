@@ -103,14 +103,17 @@ public static class RoomManager
 	private static void OnRoomChanged()
 	{
 		DebugLog.Log($"Changing camera...");
-		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-		CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
-		CustomWindow.Instance.UpdateInstanceFollow();
+		if (CustomWindow.Instance != null) // only null in tests.
+		{
+			CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
+			CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
+			CustomWindow.Instance.UpdateInstanceFollow();
 
-		// html5 reuses the surface id, and makes surface_create deletes existing one, but we can just do that here
-		if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
-			SurfaceManager.FreeSurface(SurfaceManager.application_surface);
-		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
+			// html5 reuses the surface id, and makes surface_create deletes existing one, but we can just do that here
+			if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
+				SurfaceManager.FreeSurface(SurfaceManager.application_surface);
+			SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
+		}
 
 		var createdObjects = new List<(GamemakerObject gm, int pcc, int cc)>();
 

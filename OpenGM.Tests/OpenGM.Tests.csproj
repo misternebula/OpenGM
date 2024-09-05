@@ -17,4 +17,10 @@
     <ProjectReference Include="..\OpenGM\OpenGM.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="UndertaleModLib">
+      <HintPath>..\OpenGM\lib\UndertaleModLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
