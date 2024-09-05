@@ -12,6 +12,10 @@ public partial class VMCode
 	public Dictionary<int, int> Labels = new();
 	public List<FunctionDefinition> Functions = new();
 	public List<VMCodeInstruction> Instructions = new();
+
+	public event Action OnCodeExecuted = () => { };
+
+	public void CodeExecuted() => OnCodeExecuted?.Invoke();
 }
 
 [MemoryPackable]

@@ -112,6 +112,8 @@ public static partial class VMExecutor
 
 		currentExecutingScript.Push(code);
 
+		code.CodeExecuted();
+
 		while (true)
 		{
 			ExecutionResult executionResult;
