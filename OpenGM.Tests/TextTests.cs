@@ -17,7 +17,7 @@ public class TextTests
 	{
 		var str = "123456789";
 
-		var fontPath = @"C:\Users\Henry\Documents\GitHub\GMRunner\OpenGM\bin\Debug\net8.0\Output\Fonts\fnt_main.json";
+		var fontPath = @"C:\Users\Henry\Documents\GitHub\GMRunner\OpenGM.Tests\fnt_main.json";
 		var text = File.ReadAllText(fontPath);
 		var asset = JsonConvert.DeserializeObject<FontAsset>(text)!;
 
@@ -34,7 +34,7 @@ public class TextTests
 	{
 		var str = "12345\n6789";
 
-		var fontPath = @"C:\Users\Henry\Documents\GitHub\GMRunner\OpenGM\bin\Debug\net8.0\Output\Fonts\fnt_main.json";
+		var fontPath = @"C:\Users\Henry\Documents\GitHub\GMRunner\OpenGM.Tests\fnt_main.json";
 		var text = File.ReadAllText(fontPath);
 		var asset = JsonConvert.DeserializeObject<FontAsset>(text)!;
 
@@ -50,7 +50,7 @@ public class TextTests
 	{
 		var str = "123456789";
 
-		var fontPath = @"C:\Users\Henry\Documents\GitHub\GMRunner\OpenGM\bin\Debug\net8.0\Output\Fonts\fnt_main.json";
+		var fontPath = @"C:\Users\Henry\Documents\GitHub\GMRunner\OpenGM.Tests\fnt_main.json";
 		var text = File.ReadAllText(fontPath);
 		var asset = JsonConvert.DeserializeObject<FontAsset>(text)!;
 
