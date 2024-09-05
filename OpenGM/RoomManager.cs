@@ -120,6 +120,25 @@ public static class RoomManager
 		InstanceManager.RoomChange();
 		CollisionManager.RoomChange();
 
+		void RunObjEvents(GamemakerObject obj, GameObject go)
+		{
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.PreCreate);
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
+			obj._createRan = true;
+
+			var preCreateCode = GetCodeFromCodeIndex(go.PreCreateCodeID);
+			if (preCreateCode != null)
+			{
+				VMExecutor.ExecuteCode(preCreateCode, obj, obj.Definition);
+			}
+
+			var createCode = GetCodeFromCodeIndex(go.CreationCodeID);
+			if (createCode != null)
+			{
+				VMExecutor.ExecuteCode(createCode, obj, obj.Definition);
+			}
+		}
+
 		foreach (var layer in CurrentRoom.RoomAsset.Layers)
 		{
 			DebugLog.LogInfo($"Creating layer {layer.LayerName}...");
@@ -137,7 +156,7 @@ public static class RoomManager
 					var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
 					var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-					newGM._createRan = true;
+					//newGM._createRan = true;
 					newGM.depth = layer.LayerDepth;
 					newGM.image_xscale = item.ScaleX;
 					newGM.image_yscale = item.ScaleY;
@@ -147,6 +166,8 @@ public static class RoomManager
 					createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
 
 					layerContainer.ElementsToDraw.Add(newGM);
+
+					RunObjEvents(newGM, item);
 				}
 				else if (element.Type == ElementType.Tilemap)
 				{
@@ -212,12 +233,13 @@ public static class RoomManager
 			CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);
 		}
 
+		DebugLog.LogInfo($"Creating loose objects...");
 		foreach (var item in CurrentRoom.RoomAsset.LooseObjects)
 		{
 			var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
 			var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-			newGM._createRan = true;
+			//newGM._createRan = true;
 			//newGM.depth = layer.LayerDepth;
 			newGM.image_xscale = item.ScaleX;
 			newGM.image_yscale = item.ScaleY;
@@ -227,8 +249,11 @@ public static class RoomManager
 			createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
 
 			CurrentRoom.LooseObjects.Add(newGM);
+
+			RunObjEvents(newGM, item);
 		}
 
+		DebugLog.LogInfo($"Creating loose tiles...");
 		foreach (var item in CurrentRoom.RoomAsset.Tiles)
 		{
 			var newTile = new GMTile()
@@ -248,18 +273,6 @@ public static class RoomManager
 			};
 
 			CurrentRoom.Tiles.Add(newTile);
-		}
-
-		DebugLog.LogInfo($"Calling PreCreate...");
-		foreach (var (obj, pcc, cc) in createdObjects)
-		{
-			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.PreCreate);
-		}
-
-		DebugLog.LogInfo($"Calling Create...");
-		foreach (var (obj, pcc, cc) in createdObjects)
-		{
-			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
 		}
 
 		var currentInstances = InstanceManager.instances.ToList();
@@ -288,26 +301,6 @@ public static class RoomManager
 			}
 
 			return GameLoader.Codes[codeIndex];
-		}
-
-		DebugLog.LogInfo($"Running pre-creation code...");
-		foreach (var (obj, pcc, cc) in createdObjects)
-		{
-			var preCreateCode = GetCodeFromCodeIndex(pcc);
-			if (preCreateCode != null)
-			{
-				VMExecutor.ExecuteCode(preCreateCode, obj, obj.Definition);
-			}
-		}
-
-		DebugLog.LogInfo($"Running creation code...");
-		foreach (var (obj, pcc, cc) in createdObjects)
-		{
-			var createCode = GetCodeFromCodeIndex(cc);
-			if (createCode != null)
-			{
-				VMExecutor.ExecuteCode(createCode, obj, obj.Definition);
-			}
 		}
 		
 		GC.Collect(); // gc on load boundary
