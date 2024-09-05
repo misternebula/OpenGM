@@ -162,8 +162,11 @@ public static class DrawManager
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
         // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
-        
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+
+        if (CustomWindow.Instance != null) // only false in tests
+        {
+	        GL.Clear(ClearBufferMask.ColorBufferBit);
+		}
 
         if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
