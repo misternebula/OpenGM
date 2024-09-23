@@ -115,7 +115,7 @@ public static class RoomManager
 			SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
 		}
 
-		var createdObjects = new List<(GamemakerObject gm, int pcc, int cc)>();
+		var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
 
 		InstanceManager.RoomChange();
 		CollisionManager.RoomChange();
@@ -163,11 +163,11 @@ public static class RoomManager
 					newGM.image_blend = (int)item.Color;
 					newGM.image_angle = item.Rotation;
 
-					createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
+					createdObjects.Add((newGM, item));
 
 					layerContainer.ElementsToDraw.Add(newGM);
 
-					RunObjEvents(newGM, item);
+					//RunObjEvents(newGM, item);
 				}
 				else if (element.Type == ElementType.Tilemap)
 				{
@@ -246,11 +246,17 @@ public static class RoomManager
 			newGM.image_blend = (int)item.Color;
 			newGM.image_angle = item.Rotation;
 
-			createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
+			createdObjects.Add((newGM, item));
 
 			CurrentRoom.LooseObjects.Add(newGM);
 
-			RunObjEvents(newGM, item);
+			//RunObjEvents(newGM, item);
+		}
+
+		// instance_exists will still return true for all objects even in Create of the first object.... ugh
+		foreach (var item in createdObjects)
+		{
+			RunObjEvents(item.gm, item.go);
 		}
 
 		DebugLog.LogInfo($"Creating loose tiles...");
