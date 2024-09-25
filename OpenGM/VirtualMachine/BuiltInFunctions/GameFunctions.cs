@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine;
 
@@ -165,6 +166,12 @@ public static partial class ScriptResolver
 		{
 			// instance id
 			var instance = InstanceManager.FindByInstanceId(id);
+
+			if (instance == null)
+			{
+				DebugLog.LogError($"Tried to run instance_destroy on an instanceId that no longer exists!!!");
+				return null;
+			}
 
 			if (execute_event_flag)
 			{
