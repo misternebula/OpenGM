@@ -126,13 +126,13 @@ public class Z_EventOrderTests
 		var expectedEventOrder = new List<string>
 		{
 			"100000:PreCreate",
-			"100000:Create",
 			"100000:PreCreation Code",
+			"100000:Create",
 			"100000:Creation Code",
 
 			"100001:PreCreate",
-			"100001:Create",
 			"100001:PreCreation Code",
+			"100001:Create",
 			"100001:Creation Code",
 
 			"100000:Game Start",

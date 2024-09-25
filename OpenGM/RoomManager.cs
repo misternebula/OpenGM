@@ -123,14 +123,15 @@ public static class RoomManager
 		void RunObjEvents(GamemakerObject obj, GameObject go)
 		{
 			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.PreCreate);
-			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
-			obj._createRan = true;
-
+			
 			var preCreateCode = GetCodeFromCodeIndex(go.PreCreateCodeID);
 			if (preCreateCode != null)
 			{
 				VMExecutor.ExecuteCode(preCreateCode, obj, obj.Definition);
 			}
+
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
+			obj._createRan = true;
 
 			var createCode = GetCodeFromCodeIndex(go.CreationCodeID);
 			if (createCode != null)
