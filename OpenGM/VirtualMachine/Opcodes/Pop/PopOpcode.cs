@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine;
 
@@ -330,6 +331,12 @@ public static partial class VMExecutor
 				else if (id == GMConstants.self)
 				{
 					PopToSelf(Ctx.Self, variableName, value);
+					return (ExecutionResult.Success, null);
+				}
+				else if (id == GMConstants.noone)
+				{
+					// uh what the fuck
+					DebugLog.LogWarning($"Tried to pop {value} into {variableName} on no object???");
 					return (ExecutionResult.Success, null);
 				}
 
