@@ -90,13 +90,20 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
+	// "a / b"		in GML is compiled to	"push.v a, push.v b, div.v.v"
+	// "a div b"	in GML is compiled to	"push.v a, push.v b, rem.v.v"
+	// "a % b"		in GML is compiled to	"push.v a, push.v b, mod.v.v"
+	// "a mod b"	in GML is compiled to	"push.v a, push.v b, mod.v.v"
+
 	public static (ExecutionResult, object?) REM(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
 		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
 		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
-		Ctx.Stack.Push(numOne % numTwo, retType);
+		var doubleResult = numOne / numTwo;
+
+		Ctx.Stack.Push(Math.Round(doubleResult, MidpointRounding.ToZero), retType);
 		return (ExecutionResult.Success, null);
 	}
 
