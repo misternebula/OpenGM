@@ -11,6 +11,12 @@ public static partial class ScriptResolver
 {
 	static Random rnd = new Random();
 
+	public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
+
+	public static object is_string(object?[] args) => args[0] is string;
+
+	public static object is_undefined(object?[] args) => args[0] is null;
+
 	public static object array_length_1d(object?[] args)
 	{
 		var array = args[0].Conv<IList>();
@@ -50,6 +56,12 @@ public static partial class ScriptResolver
 		return rnd.Next(n1, n2 + 1);
 	}
 
+	public static object? randomize(object?[] args)
+	{
+		// todo : implement
+		return null;
+	}
+
 	public static object abs(object?[] args)
 	{
 		var val = args[0].Conv<double>();
@@ -74,6 +86,13 @@ public static partial class ScriptResolver
 		return Math.Ceiling(n);
 	}
 
+	public static object sign(object?[] args)
+	{
+		// TODO : handle NaN somehow????
+		var n = args[0].Conv<double>();
+		return Math.Sign(n);
+	}
+
 	public static object sin(object?[] args)
 	{
 		var val = args[0].Conv<double>();
@@ -84,6 +103,62 @@ public static partial class ScriptResolver
 	{
 		var val = args[0].Conv<double>();
 		return Math.Cos(val);
+	}
+
+	public static object arcsin(object?[] args)
+	{
+		var x = args[0].Conv<double>(); // in radians
+
+		if (x < -1 || x > 1)
+		{
+			throw new NotSupportedException($"x is {x}");
+		}
+
+		return Math.Asin(x);
+	}
+
+	public static object arccos(object?[] args)
+	{
+		var x = args[0].Conv<double>(); // in radians
+
+		if (x < -1 || x > 1)
+		{
+			throw new NotSupportedException($"x is {x}");
+		}
+
+		return Math.Acos(x);
+	}
+
+	public static object dsin(object?[] args)
+	{
+		var a = args[0].Conv<double>(); // degrees
+		return Math.Sin(a * CustomMath.Deg2Rad);
+	}
+
+	public static object dcos(object?[] args)
+	{
+		var val = args[0].Conv<double>(); // degrees
+		return Math.Cos(val * CustomMath.Deg2Rad);
+	}
+
+	public static object degtorad(object?[] args)
+	{
+		var deg = args[0].Conv<double>();
+		return deg * double.Pi / 180;
+	}
+
+	public static object radtodeg(object?[] args)
+	{
+		var rad = args[0].Conv<double>();
+		return rad * 180 / double.Pi;
+	}
+
+	public static object power(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var n = args[1].Conv<double>();
+
+		return Math.Pow(x, n);
 	}
 
 	private static int realToInt(double value)
@@ -116,6 +191,40 @@ public static partial class ScriptResolver
 	public static object? choose(object?[] args)
 	{
 		return args[rnd.Next(0, args.Length)];
+	}
+
+	public static object? clamp(object?[] args)
+	{
+		var val = args[0].Conv<double>();
+		var min = args[1].Conv<double>();
+		var max = args[2].Conv<double>();
+
+		if (val <= min)
+		{
+			return min;
+		}
+
+		if (val >= max)
+		{
+			return max;
+		}
+
+		return val;
+	}
+
+	public static object? lerp(object?[] args)
+	{
+		var a = args[0].Conv<double>();
+		var b = args[1].Conv<double>();
+		var amt = args[2].Conv<double>();
+
+		return a + ((b - a) * amt);
+	}
+
+	public static object real(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		return str.Conv<double>();
 	}
 
 	public static object @string(params object?[] args)
@@ -224,6 +333,13 @@ public static partial class ScriptResolver
 		}
 	}
 
+	public static object ord(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+
+		return (int)Encoding.UTF8.GetBytes(str)[0];
+	}
+
 	public static object string_length(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -234,6 +350,23 @@ public static partial class ScriptResolver
 		}
 
 		return str.Length;
+	}
+
+	public static object string_pos(object?[] args)
+	{
+		var substr = args[0].Conv<string>();
+		var str = args[1].Conv<string>();
+
+		return str.IndexOf(substr) + 1;
+	}
+
+	public static object string_copy(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		var index = args[1].Conv<int>();
+		var count = args[2].Conv<int>();
+
+		return str.Substring(index - 1, count);
 	}
 
 	public static object string_char_at(object?[] args)
@@ -255,13 +388,13 @@ public static partial class ScriptResolver
 		return str[index - 1].ToString();
 	}
 
-	public static object string_copy(object?[] args)
+	public static object string_delete(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		var index = args[1].Conv<int>();
 		var count = args[2].Conv<int>();
 
-		return str.Substring(index - 1, count);
+		return str.Remove(index - 1, count);
 	}
 
 	public static object string_insert(object?[] args)
@@ -273,13 +406,18 @@ public static partial class ScriptResolver
 		return str.Insert(index - 1, substr);
 	}
 
-	public static object string_delete(object?[] args)
+	public static object string_lower(object?[] args)
 	{
 		var str = args[0].Conv<string>();
-		var index = args[1].Conv<int>();
-		var count = args[2].Conv<int>();
+		// TODO : only do the 26 english alphabet letters
+		return str.ToLower();
+	}
 
-		return str.Remove(index - 1, count);
+	public static object string_upper(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		// TODO : only do the 26 english alphabet letters
+		return str.ToUpper();
 	}
 
 	public static object string_replace_all(object?[] args)
@@ -301,14 +439,6 @@ public static partial class ScriptResolver
 		}
 
 		return text.Replace('#', '\n');
-	}
-
-	public static object string_pos(object?[] args)
-	{
-		var substr = args[0].Conv<string>();
-		var str = args[1].Conv<string>();
-
-		return str.IndexOf(substr) + 1;
 	}
 
 	public static object point_distance(object?[] args)
@@ -372,5 +502,28 @@ public static partial class ScriptResolver
 		}
 
 		return 180 + angle;
+	}
+
+	public static object? lengthdir_x(object?[] args)
+	{
+		var len = args[0].Conv<double>();
+		var dir = args[1].Conv<double>();
+
+		return len * Math.Cos(dir * CustomMath.Deg2Rad);
+	}
+
+	public static object? lengthdir_y(object?[] args)
+	{
+		var len = args[0].Conv<double>();
+		var dir = args[1].Conv<double>();
+
+		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
+	}
+
+	public static object? angle_difference(object?[] args)
+	{
+		var dest = args[0].Conv<double>();
+		var src = args[1].Conv<double>();
+		return CustomMath.Mod(dest - src + 180, 360) - 180;
 	}
 }
