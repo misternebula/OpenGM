@@ -492,7 +492,6 @@ public static partial class ScriptResolver
 		// layer_background_get_speed
 
 		{ "layer_tilemap_get_id", layer_tilemap_get_id },
-
 		{ "layer_tile_alpha", layer_tile_alpha },
 		#endregion
 
@@ -510,8 +509,6 @@ public static partial class ScriptResolver
 		
 		{ "object_get_sprite", object_get_sprite },
 		
-		{ "instance_find", instance_find },
-
 		{ "draw_arrow", draw_arrow },
 
 		{ "make_color_hsv", make_color_hsv },
@@ -522,7 +519,6 @@ public static partial class ScriptResolver
 		{ "draw_circle", draw_circle },
 		{ "draw_triangle", draw_triangle },
 		
-		{ "distance_to_object", distance_to_object },
 		{ "texturegroup_get_textures", texturegroup_get_textures},
 		{ "array_length", array_length},
 		{ "texture_prefetch", texture_prefetch},
@@ -580,7 +576,6 @@ public static partial class ScriptResolver
 		{ "game_get_speed", game_get_speed},
 		
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
-		{ "point_in_rectangle", point_in_rectangle},
 		{ "draw_surface", draw_surface},
 		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext},
 		{ "draw_triangle_color", draw_triangle_color},
@@ -602,13 +597,11 @@ public static partial class ScriptResolver
 		{ "object_get_name", object_get_name},
 		{ "audio_sound_length", audio_sound_length},
 		{ "draw_get_font", draw_get_font },
-		{ "instance_nearest", instance_nearest},
 		
 		{ "make_colour_rgb", make_color_rgb},
 		{ "make_color_rgb", make_color_rgb},
 		{ "draw_text_ext_transformed", draw_text_ext_transformed},
 		{ "draw_surface_ext", draw_surface_ext},
-		{ "path_end", path_end},
 		
 		{ "sprite_exists", sprite_exists},
 		{ "event_perform", event_perform},
