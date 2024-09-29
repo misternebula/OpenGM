@@ -33,7 +33,6 @@ public static class GMRandom
 	// (I've verified that this generates the same numbers as the C++ implementation)
 	public static uint YYRandom()
 	{
-
 		var a = State[Index];
 		var c = State[(Index - 3) & 15];
 		var b = a ^ c ^ (a << 16) ^ (c << 15);
@@ -46,6 +45,9 @@ public static class GMRandom
 		State[Index] = a ^ b ^ d ^ (a << 2) ^ (b << 18) ^ (c << 28);
 		return State[Index];
 	}
+
+	// Generates a random double from 0 to 1.
+	public static double fYYRandom() => (YYRandom() & 0x7fffffff) / 2147483647.0;
 
 	// Generates a random uint from 0 to n-1
 	public static uint YYRandom(int n)
