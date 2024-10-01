@@ -7,9 +7,9 @@ This program aims to run Gamemaker Studio games, emulating the original games as
 > [!IMPORTANT]  
 > A lot of this is temporary, since the project is (relatively) unfinished. A better way of loading games is planned.
 1. Build the project.
-2. Navigate to (or create) `\GMRunner\OpenGM\bin\game\`
+2. Navigate to (or create) `\OpenGM\OpenGM\bin\game\`
 3. Place all files and folders from the game folder into this folder.
-4. (Optional) Install OpenAL by following [these instructions](https://github.com/misternebula/OpenGM/blob/main/AudioManager.cs#L15-L18) (Windows only)
+4. Install OpenAL by following [these instructions](https://github.com/misternebula/OpenGM/blob/5430be5a8280ea9a1ec994355353439a88261744/OpenGM/IO/AudioManager.cs#L16-L19) (Windows only)
 5. Run the project.
 6. OpenGM should now convert the games `data.win` into a file named `data_OpenGM.win`. *This is not the same file format as the original file.* This file is a compressed file used to store intermediary data that OpenGM use.
 
