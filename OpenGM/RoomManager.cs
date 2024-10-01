@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
@@ -51,8 +52,8 @@ public static class RoomManager
 					continue;
 				}
 
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Destroy);
-				GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.CleanUp);
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
 				instance.Destroy();
 				//Destroy(instance.gameObject);
@@ -101,21 +102,48 @@ public static class RoomManager
 
 	private static void OnRoomChanged()
 	{
-		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-		CustomWindow.Instance.SetPosition(0, 0);
+		DebugLog.Log($"Changing camera...");
+		if (CustomWindow.Instance != null) // only null in tests.
+		{
+			CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
+			CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
+			//CustomWindow.Instance.UpdateInstanceFollow();
 
-		// html5 reuses the surface id, and makes surface_create deletes existing one, but we can just do that here
-		if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
-			SurfaceManager.FreeSurface(SurfaceManager.application_surface);
-		SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
+			// html5 reuses the surface id, and makes surface_create deletes existing one, but we can just do that here
+			if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
+				SurfaceManager.FreeSurface(SurfaceManager.application_surface);
+			SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
+		}
 
-		var createdObjects = new List<(GamemakerObject gm, int pcc, int cc)>();
+		var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
 
 		InstanceManager.RoomChange();
 		CollisionManager.RoomChange();
 
+		void RunObjEvents(GamemakerObject obj, GameObject go)
+		{
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.PreCreate);
+			
+			var preCreateCode = GetCodeFromCodeIndex(go.PreCreateCodeID);
+			if (preCreateCode != null)
+			{
+				VMExecutor.ExecuteCode(preCreateCode, obj, obj.Definition);
+			}
+
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
+			obj._createRan = true;
+
+			var createCode = GetCodeFromCodeIndex(go.CreationCodeID);
+			if (createCode != null)
+			{
+				VMExecutor.ExecuteCode(createCode, obj, obj.Definition);
+			}
+		}
+
 		foreach (var layer in CurrentRoom.RoomAsset.Layers)
 		{
+			DebugLog.LogInfo($"Creating layer {layer.LayerName}...");
+
 			var layerContainer = new LayerContainer(layer);
 
 			foreach (var element in layer.Elements)
@@ -129,16 +157,20 @@ public static class RoomManager
 					var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
 					var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-					newGM._createRan = true;
+					//newGM._createRan = true;
 					newGM.depth = layer.LayerDepth;
 					newGM.image_xscale = item.ScaleX;
 					newGM.image_yscale = item.ScaleY;
-					newGM.image_blend = (int)item.Color;
+					newGM.image_blend = item.Color;
 					newGM.image_angle = item.Rotation;
+					newGM.image_index = item.FrameIndex;
+					newGM.image_speed = item.ImageSpeed;
 
-					createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
+					createdObjects.Add((newGM, item));
 
 					layerContainer.ElementsToDraw.Add(newGM);
+
+					//RunObjEvents(newGM, item);
 				}
 				else if (element.Type == ElementType.Tilemap)
 				{
@@ -204,31 +236,54 @@ public static class RoomManager
 			CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);
 		}
 
+		DebugLog.LogInfo($"Creating loose objects...");
 		foreach (var item in CurrentRoom.RoomAsset.LooseObjects)
 		{
 			var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
 			var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-			newGM._createRan = true;
+			//newGM._createRan = true;
 			//newGM.depth = layer.LayerDepth;
 			newGM.image_xscale = item.ScaleX;
 			newGM.image_yscale = item.ScaleY;
 			newGM.image_blend = (int)item.Color;
 			newGM.image_angle = item.Rotation;
+			newGM.image_index = item.FrameIndex;
+			newGM.image_speed = item.ImageSpeed;
 
-			createdObjects.Add((newGM, item.PreCreateCodeID, item.CreationCodeID));
+			createdObjects.Add((newGM, item));
 
 			CurrentRoom.LooseObjects.Add(newGM);
+
+			//RunObjEvents(newGM, item);
 		}
 
-		foreach (var (obj, pcc, cc) in createdObjects)
+		// instance_exists will still return true for all objects even in Create of the first object.... ugh
+		foreach (var item in createdObjects)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.PreCreate);
+			RunObjEvents(item.gm, item.go);
 		}
 
-		foreach (var (obj, pcc, cc) in createdObjects)
+		DebugLog.LogInfo($"Creating loose tiles...");
+		foreach (var item in CurrentRoom.RoomAsset.Tiles)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Create);
+			var newTile = new GMTile()
+			{
+				X = item.X,
+				Y = item.Y,
+				left = item.SourceLeft,
+				top = item.SourceTop,
+				width = item.SourceWidth,
+				height = item.SourceHeight,
+				depth = item.Depth,
+				instanceId = item.InstanceID,
+				XScale = item.ScaleX,
+				YScale = item.ScaleY,
+				Color = (int)item.Color,
+				Definition = 0
+			};
+
+			CurrentRoom.Tiles.Add(newTile);
 		}
 
 		var currentInstances = InstanceManager.instances.ToList();
@@ -236,43 +291,27 @@ public static class RoomManager
 		if (FirstRoom)
 		{
 			FirstRoom = false;
+			DebugLog.LogInfo($"Calling GameStart...");
 			foreach (var obj in currentInstances)
 			{
-				GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
+				GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
 			}
 		}
-		
+
+		DebugLog.LogInfo($"Calling RoomStart...");
 		foreach (var obj in currentInstances)
 		{
-			GamemakerObject.ExecuteScript(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 		}
 
-		VMScript? GetVMScriptFromCodeIndex(int codeIndex)
+		VMCode? GetCodeFromCodeIndex(int codeIndex)
 		{
 			if (codeIndex == -1)
 			{
 				return null;
 			}
 
-			return ScriptResolver.Scripts.Values.Single(x => x.AssetId == codeIndex);
-		}
-
-		foreach (var (obj, pcc, cc) in createdObjects)
-		{
-			var preCreateCode = GetVMScriptFromCodeIndex(pcc);
-			if (preCreateCode != null)
-			{
-				VMExecutor.ExecuteScript(preCreateCode, obj, obj.Definition);
-			}
-		}
-
-		foreach (var (obj, pcc, cc) in createdObjects)
-		{
-			var createCode = GetVMScriptFromCodeIndex(cc);
-			if (createCode != null)
-			{
-				VMExecutor.ExecuteScript(createCode, obj, obj.Definition);
-			}
+			return GameLoader.Codes[codeIndex];
 		}
 		
 		GC.Collect(); // gc on load boundary
@@ -308,7 +347,7 @@ public static class RoomManager
 				continue;
 			}
 
-			GamemakerObject.ExecuteScript(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+			GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
 		}
 	}
 

@@ -23,54 +23,236 @@ namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
 {
 	public static Dictionary<string, VMScript> Scripts = new();
-	public static List<VMScript> GlobalInitScripts = new();
+	public static List<VMCode?> GlobalInit = new();
 
-	public static Dictionary<string, (VMScript script, int index)> ScriptFunctions = new Dictionary<string, (VMScript script, int index)>();
+	public static Dictionary<string, (VMCode script, int index)> ScriptFunctions = new Dictionary<string, (VMCode script, int index)>();
 
 	public static Dictionary<string, Func<object?[], object?>> BuiltInFunctions = new()
 	{
 		#region Game
+		//{ "move_random", move_random },
+		//{ "place_free", place_free },
+		//{ "place_empty", place_empty },
 		{ "place_meeting", place_meeting },
+		//{ "place_snapped", place_snapped },
+		//{ "move_snap", move_snap },
 		{ "move_towards_point", move_towards_point },
+		//{ "move_contact", move_contact },
+		//{ "move_contact_solid", move_contact_solid },
+		//{ "move_contact_all", move_contact_all },
+		//{ "move_outside_solid", move_outside_solid },
+		//{ "move_outside_all", move_outside_all },
+		//{ "move_bounce", move_bounce },
+		//{ "move_bounce_solid", move_bounce_solid },
+		//{ "move_bounce_all", move_bounce_all },
+		//{ "move_wrap", move_wrap },
+		//{ "motion_set", motion_set },
+		//{ "motion_add", motion_add },
 		{ "distance_to_point", distance_to_point },
+		{ "distance_to_object", distance_to_object },
+		//{ "path_start", path_start },
+		{ "path_end", path_end },
+		//{ "mp_linear_step", mp_linear_step },
+		//{ "mp_linear_path", mp_linear_path },
+		//{ "mp_linear_step_object", mp_linear_step_object },
+		//{ "mp_linear_path_object", mp_linear_path_object },
+		//{ "mp_potential_settings", mp_potential_settings },
+		//{ "mp_potential_step", mp_potential_step },
+		//{ "mp_potential_path", mp_potential_path },
+		//{ "mp_potential_step_object", mp_potential_step_object },
+		//{ "mp_potential_path_object", mp_potential_path_object },
+		//{ "mp_grid_create", mp_grid_create },
+		//{ "mp_grid_destroy", mp_grid_destroy },
+		//{ "mp_grid_clear_all", mp_grid_clear_all },
+		//{ "mp_grid_clear_cell", mp_grid_clear_cell },
+		//{ "mp_grid_clear_rectangle", mp_grid_clear_rectangle },
+		//{ "mp_grid_add_cell", mp_grid_add_cell },
+		//{ "mp_grid_get_cell", mp_grid_get_cell },
+		//{ "mp_grid_add_rectangle", mp_grid_add_rectangle },
+		//{ "mp_grid_add_instances", mp_grid_add_instances },
+		//{ "mp_grid_path", mp_grid_path },
+		//{ "mp_grid_draw", mp_grid_draw },
+		//{ "mp_grid_to_ds_grid", mp_grid_to_ds_grid },
+		{ "collision_point", collision_point },
+		//{ "collision_point_list", collision_point_list },
 		{ "collision_rectangle", collision_rectangle },
+		//{ "collision_rectangle_list", collision_rectangle_list },
+		//{ "collision_circle", collision_circle },
+		//{ "collision_circle_list", collision_circle_list },
+		//{ "collision_ellipse", collision_ellipse },
+		//{ "collision_ellipse_list", collision_ellipse_list },
+		{ "collision_line", collision_line },
+		//{ "collision_line_list", collision_line_list },
+		{ "instance_find", instance_find },
 		{ "instance_exists", instance_exists },
 		{ "instance_number", instance_number },
+		//{ "instance_position", instance_position },
+		//{ "instance_position_list", instance_position_list },
+		{ "instance_nearest", instance_nearest },
+		//{ "instance_furthest", instance_furthest },
+		//{ "instance_place", instance_place },
+		//{ "instance_place_list", instance_place_list },
 		{ "instance_create_depth", instance_create_depth },
+		//{ "instance_create_layer", instance_create_layer },
+		//{ "instance_copy", instance_copy },
+		//{ "instance_change", instance_change },
 		{ "instance_destroy", instance_destroy },
+		//{ "instance_sprite", instance_sprite },
+		//{ "position_empty", position_empty },
+		//{ "position_meeting", position_meeting },
+		//{ "position_destroy", position_destroy },
+		//{ "position_change", position_change },
+		//{ "instance_id_get", instance_id_get },
+		//{ "instance_deactivate_all", instance_deactivate_all },
+		//{ "instance_deactivate_object", instance_deactivate_object },
+		//{ "instance_deactivate_region", instance_deactivate_region },
+		//{ "instance_activate_all", instance_activate_all },
+		//{ "instance_activate_object", instance_activate_object },
+		//{ "instance_activate_region", instance_activate_region },
+		//{ "instance_deactivate_region_special", instance_deactivate_region_special },
 		{ "room_goto", room_goto },
 		{ "room_goto_previous", room_goto_previous },
 		{ "room_goto_next", room_goto_next },
 		{ "room_previous", room_previous },
 		{ "room_next", room_next },
+		//{ "room_restart", room_restart },
+		//{ "game_end", game_end },
+		//{ "game_restart", game_restart },
+		//{ "game_load", game_load },
+		//{ "game_save", game_save },
+		//{ "game_save_buffer", game_save_buffer },
+		//{ "game_load_buffer", game_load_buffer },
+		//{ "transition_define", transition_define },
+		//{ "transition_exists", transition_exists },
+		//{ "sleep", sleep },
+		{ "point_in_rectangle", point_in_rectangle },
+		//{ "point_in_circle", point_in_circle },
+		//{ "rectangle_in_rectangle", rectangle_in_rectangle },
+		//{ "rectangle_in_triangle", rectangle_in_triangle },
+		//{ "rectangle_in_circle", rectangle_in_circle },
 		#endregion
 
 		#region Math
+		//{ "is_bool", is_bool },
+		{ "is_real", is_real },
+		{ "is_string", is_string },
+		//{ "is_array", is_array },
+		{ "is_undefined", is_undefined},
+		//{ "is_int32", is_int32 },
+		//{ "is_int64", is_int64 },
+		//{ "is_ptr", is_ptr },
+		//{ "is_vec3", is_vec3 },
+		//{ "is_vec4", is_vec4 },
+		//{ "is_matrix", is_matrix },
+		//{ "typeof", typeof },
 		{ "array_length_1d", array_length_1d },
+		//{ "array_length_2d", array_length_2d },
+		//{ "array_height_2d", array_height_2d },
+		//{ "array_get", array_get },
+		//{ "array_set", array_set },
+		//{ "array_set_pre", array_set_pre },
+		//{ "array_set_post", array_set_post },
+		//{ "array_get_2D", array_get_2D },
+		//{ "array_set_2D", array_set_2D },
+		//{ "array_set_2D_pre", array_set_2D_pre },
+		//{ "array_set_2D_post", array_set_2D_post },
+		//{ "array_equals", array_equals },
+		//{ "array_create", array_create },
+		//{ "array_copy", array_copy },
 		{ "random", random },
 		{ "random_range", random_range },
 		{ "irandom", irandom },
 		{ "irandom_range", irandom_range },
-		{ "abs", abs },
+		//{ "random_use_old_version", random_use_old_version },
+		//{ "random_set_seed", random_set_seed },
+		//{ "random_get_seed", random_get_seed },
+		{ "randomize", randomize},
+		{ "randomise", randomize},
+		//
 		{ "round", round },
 		{ "floor", floor },
 		{ "ceil", ceil },
+		{ "sign", sign},
+		//{ "frac", frac },
+		//{ "sqrt", sqrt },
+		// 
+		//
+		//{ "ln", ln },
+		//{ "log2", log2 },
+		//{ "log10", log10 },
 		{ "sin", sin },
 		{ "cos", cos },
+		//{ "tan", tan },
+		{ "arcsin", arcsin},
+		{ "arccos", arccos},
+		//{ "arctan", arctan },
+		//{ "arctan2", arctan2 },
+		{ "dsin", dsin},
+		{ "dcos", dcos},
+		//{ "dtan", dtan },
+		//{ "darcsin", darcsin },
+		//{ "darccos", darccos },
+		//{ "darctan", darctan },
+		//{ "darctan2", darctan2 },
+		{ "degtorad", degtorad },
+		{ "radtodeg", radtodeg},
+		{ "power", power},
+		//{ "logn", logn },
 		{ "min", min },
 		{ "max", max },
+		//{ "min3", min3 },
+		//{ "max3", max3 },
+		//{ "mean", mean },
+		//{ "median", median },
 		{ "choose", choose },
+		{ "clamp", clamp },
+		{ "lerp", lerp },
+		{ "real", real },
+		//{ "bool", bool },
 		{ "string", @string },
+		//{ "int64", int64 },
+		// 
+		//{ "string_format", string_format },
+		// 
+		//{ "ansi_char", ansi_char },
+		{ "ord", ord},
 		{ "string_length", string_length },
 		{ "string_pos", string_pos },
 		{ "string_copy", string_copy },
 		{ "string_char_at", string_char_at },
+		//{ "string_ord_at", string_ord_at },
+		//{ "string_byte_length", string_byte_length },
+		//{ "string_byte_at", string_byte_at },
+		//{ "string_set_byte_at", string_set_byte_at },
 		{ "string_delete", string_delete },
 		{ "string_insert", string_insert },
+		{ "string_lower", string_lower },
+		{ "string_upper", string_upper},
+		//{ "string_repeat", string_repeat },
+		//{ "string_letters", string_letters },
+		//{ "string_digits", string_digits },
+		//{ "string_lettersdigits", string_lettersdigits },
+		//{ "string_replace", string_replace },
 		{ "string_replace_all", string_replace_all },
+		//{ "string_string_count", string_string_count },
 		{ "string_hash_to_newline", string_hash_to_newline },
 		{ "point_distance", point_distance },
 		{ "point_direction", point_direction },
+		{ "lengthdir_x", lengthdir_x },
+		{ "lengthdir_y", lengthdir_y },
+		//{ "point_distance_3d", point_distance_3d },
+		//{ "dot_product", dot_product },
+		//{ "dot_product_normalised", dot_product_normalised },
+		//{ "dot_product_normalized", dot_product_normalized },
+		//{ "dot_product_3d", dot_product_3d },
+		//{ "dot_product_3d_normalised", dot_product_3d_normalised },
+		//{ "dot_product_3d_normalized", dot_product_3d_normalized },
+		//{ "math_set_epsilon", math_set_epsilon },
+		//{ "math_get_epsilon", math_get_epsilon },
+		{ "angle_difference", angle_difference },
+
+		{ "abs", abs },
+		
 		#endregion
 
 		#region Graphic
@@ -191,6 +373,48 @@ public static partial class ScriptResolver
 		{ "gamepad_axis_value", gamepad_axis_value },
 		#endregion
 
+		#region Buffer
+
+		//{ "buffer_create", buffer_create },
+		{ "buffer_delete", buffer_delete},
+		//{ "buffer_write", buffer_write },
+		{ "buffer_read", buffer_read },
+		//{ "buffer_poke", buffer_poke },
+		//{ "buffer_peek", buffer_peek },
+		//{ "buffer_seek", buffer_seek },
+		//{ "buffer_save", buffer_save },
+		//{ "buffer_save_ext", buffer_save_ext },
+		{ "buffer_load", buffer_load },
+		//{ "buffer_load_ext", buffer_load_ext },
+		//{ "buffer_load_partial", buffer_load_partial },
+		//{ "buffer_save_async", buffer_save_async },
+		//{ "buffer_load_async", buffer_load_async },
+		//{ "buffer_async_group_begin", buffer_async_group_begin },
+		//{ "buffer_async_group_end", buffer_async_group_end },
+		//{ "buffer_async_group_option", buffer_async_group_option },
+		//{ "buffer_copy", buffer_copy },
+		//{ "buffer_exists", buffer_exists },
+		//{ "buffer_get_type", buffer_get_type },
+		//{ "buffer_get_alignment", buffer_get_alignment },
+		//{ "buffer_fill", buffer_fill },
+		//{ "buffer_resize", buffer_resize },
+		//{ "buffer_md5", buffer_md5 },
+		//{ "buffer_sha1", buffer_sha1 },
+		//{ "buffer_base64_encode", buffer_base64_encode },
+		//{ "buffer_base64_decode", buffer_base64_decode },
+		//{ "buffer_base64_decode_ext", buffer_base64_decode_ext },
+		//{ "buffer_sizeof", buffer_sizeof },
+		//{ "buffer_get_address", buffer_get_address },
+		//{ "buffer_get_surface", buffer_get_surface },
+		//{ "buffer_set_surface", buffer_set_surface },
+		//{ "buffer_create_from_vertex_buffer", buffer_create_from_vertex_buffer },
+		//{ "buffer_create_from_vertex_buffer_ext", buffer_create_from_vertex_buffer_ext },
+		//{ "buffer_copy_from_vertex_buffer", buffer_copy_from_vertex_buffer },
+		//{ "buffer_compress", buffer_compress },
+		//{ "buffer_decompress", buffer_decompress },
+
+		#endregion
+
 		#region YoYo
 		{ "@@NewGMLArray@@", NewGMLArray },
 		{ "@@NewGMLObject@@", NewGMLObject },
@@ -201,7 +425,74 @@ public static partial class ScriptResolver
 		#endregion
 
 		#region Layer
+		{ "layer_get_id", layer_get_id },
+		{ "layer_get_id_at_depth", layer_get_id_at_depth},
+		{ "layer_get_depth", layer_get_depth },
+		{ "layer_create", layer_create },
+		// layer_destroy
+		// layer_destroy_instances
+		// layer_add_instance
+		// layer_has_instance
+		{ "layer_set_visible", layer_set_visible},
+		// layer_get_visible
+		// layer_exists
+		{ "layer_x", layer_x },
+		{ "layer_y", layer_y },
+		{ "layer_get_x", layer_get_x },
+		{ "layer_get_y", layer_get_y },
+		{ "layer_hspeed", layer_hspeed },
+		{ "layer_vspeed", layer_vspeed },
+		{ "layer_get_hspeed", layer_get_hspeed },
+		{ "layer_get_vspeed", layer_get_vspeed },
+		// layer_script_begin
+		// layer_script_end
+		// layer_shader
+		// layer_get_script_begin
+		// layer_get_script_end
+		// layer_get_shader
+		// layer_set_target_room
+		// layer_get_target_room
+		// layer_reset_target_room
+		{ "layer_get_all", layer_get_all },
+		{ "layer_get_all_elements", layer_get_all_elements },
+		{ "layer_get_name", layer_get_name },
+		{ "layer_depth", layer_depth },
+		// layer_get_element_layer
+		{ "layer_get_element_type", layer_get_element_type },
+		// layer_element_move
 		{ "layer_force_draw_depth", layer_force_draw_depth },
+		// layer_is_draw_depth_forced
+		// layer_get_forced_depth
+		// layer_background_get_id
+		// layer_background_exists
+		// layer_background_create
+		// layer_background_destroy
+		// layer_background_visible
+		// layer_background_htiled
+		// layer_background_vtiled
+		// layer_background_xscale
+		// layer_background_yscale
+		// layer_background_stretch
+		// layer_background_blend
+		// layer_background_alpha
+		// layer_background_index
+		// layer_background_speed
+		// layer_background_sprite
+		// layer_background_change
+		// layer_background_get_visible
+		// layer_background_get_sprite
+		// layer_background_get_htiled
+		// layer_background_get_vtiled
+		// layer_background_get_xscale
+		// layer_background_get_yscale
+		// layer_background_get_stretch
+		// layer_background_get_blend
+		// layer_background_get_alpha
+		// layer_background_get_index
+		// layer_background_get_speed
+
+		{ "layer_tilemap_get_id", layer_tilemap_get_id },
+		{ "layer_tile_alpha", layer_tile_alpha },
 		#endregion
 
 		#region Camera
@@ -215,45 +506,19 @@ public static partial class ScriptResolver
 		{ "view_get_camera", view_get_camera },
 		#endregion
 
-		{ "lengthdir_x", lengthdir_x },
-		{ "lengthdir_y", lengthdir_y },
+		
 		{ "object_get_sprite", object_get_sprite },
-		{ "layer_get_all", layer_get_all },
-		{ "layer_get_all_elements", layer_get_all_elements },
-		{ "layer_get_depth", layer_get_depth },
-		{ "layer_tile_alpha", layer_tile_alpha },
-		{ "layer_get_element_type", layer_get_element_type },
-		{ "layer_get_name", layer_get_name },
-		{ "layer_create", layer_create },
-		{ "layer_x", layer_x },
-		{ "layer_y", layer_y },
-		{ "layer_get_x", layer_get_x },
-		{ "layer_get_y", layer_get_y },
-		{ "layer_hspeed", layer_hspeed },
-		{ "layer_vspeed", layer_vspeed },
-		{ "layer_get_hspeed", layer_get_hspeed },
-		{ "layer_get_vspeed", layer_get_vspeed },
-		/*{ "layer_background_create", layer_background_create },
-		{ "layer_background_visible", layer_background_visible },
-		{ "layer_background_htiled", layer_background_htiled },
-		{ "layer_background_vtiled", layer_background_vtiled },
-		{ "layer_background_xscale", layer_background_xscale },
-		{ "layer_background_yscale", layer_background_yscale },
-		{ "layer_background_stretch", layer_background_stretch },
-		{ "layer_background_blend", layer_background_blend },
-		{ "layer_background_alpha", layer_background_alpha },
-		{ "layer_background_exists", layer_background_exists },*/
-		{ "layer_depth", layer_depth },
-		{ "real", real },
-		{ "instance_find", instance_find },
+		
 		{ "draw_arrow", draw_arrow },
+
 		{ "make_color_hsv", make_color_hsv },
 		{ "make_colour_hsv", make_color_hsv },
+
 		{ "gpu_set_blendmode", gpu_set_blendmode},
+
 		{ "draw_circle", draw_circle },
 		{ "draw_triangle", draw_triangle },
-		{ "angle_difference", angle_difference },
-		{ "distance_to_object", distance_to_object },
+		
 		{ "texturegroup_get_textures", texturegroup_get_textures},
 		{ "array_length", array_length},
 		{ "texture_prefetch", texture_prefetch},
@@ -264,31 +529,25 @@ public static partial class ScriptResolver
 		{ "os_get_language", os_get_language},
 		{ "surface_resize", surface_resize },
 		{ "surface_exists", surface_exists },
-		{ "lerp", lerp },
-		{ "clamp", clamp },
+		
 		{ "gamepad_button_check_pressed", gamepad_button_check_pressed},
 		{ "sprite_create_from_surface", sprite_create_from_surface},
 		{ "sprite_set_offset", sprite_set_offset },
 		{ "gamepad_get_device_count", gamepad_get_device_count},
 		{ "draw_text_ext", draw_text_ext },
-		{ "ord", ord},
+		
 		{ "texture_flush", texture_flush},
 		{ "room_get_name", room_get_name},
-		{ "buffer_load", buffer_load },
-		{ "buffer_read", buffer_read },
-		{ "buffer_delete", buffer_delete},
-		{ "is_string", is_string },
-		{ "is_real", is_real },
-		{ "string_lower", string_lower },
+		
+		
 		{ "sprite_get_xoffset", sprite_get_xoffset },
 		{ "sprite_get_yoffset", sprite_get_yoffset },
-		{ "degtorad", degtorad },
-		{ "radtodeg", radtodeg},
-		{ "sign", sign},
+		
 		{ "sprite_get_width", sprite_get_width},
 		{ "sprite_get_height", sprite_get_height},
 		{ "variable_instance_set", variable_instance_set},
 		{ "chr", chr},
+
 		{ "date_current_datetime", date_current_datetime},
 		{ "date_get_year", date_get_year},
 		{ "date_get_month", date_get_month},
@@ -298,14 +557,15 @@ public static partial class ScriptResolver
 		{ "date_get_hour", date_get_hour},
 		{ "date_get_minute", date_get_minute},
 		{ "date_get_second", date_get_second},
+
 		{ "mouse_check_button_pressed", mouse_check_button_pressed},
-		{ "layer_set_visible", layer_set_visible},
+		
 		{ "draw_line_width_color", draw_line_width_color},
 		{ "surface_create", surface_create },
 		{ "surface_set_target", surface_set_target },
 		{ "draw_clear_alpha", draw_clear_alpha },
-		{ "layer_get_id", layer_get_id },
-		{ "layer_tilemap_get_id", layer_tilemap_get_id },
+		
+		
 		{ "draw_tilemap", draw_tilemap},
 		{ "surface_reset_target", surface_reset_target },
 		{ "surface_free", surface_free },
@@ -314,9 +574,8 @@ public static partial class ScriptResolver
 		{ "draw_ellipse", draw_ellipse },
 		{ "variable_instance_exists", variable_instance_exists},
 		{ "game_get_speed", game_get_speed},
-		{ "power", power},
+		
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
-		{ "point_in_rectangle", point_in_rectangle},
 		{ "draw_surface", draw_surface},
 		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext},
 		{ "draw_triangle_color", draw_triangle_color},
@@ -328,32 +587,41 @@ public static partial class ScriptResolver
 		{ "draw_sprite_pos", draw_sprite_pos },
 		{ "ds_list_shuffle", ds_list_shuffle},
 		{ "os_get_region",os_get_region},
-		{ "string_upper", string_upper},
+		
 		{ "ds_map_set", ds_map_set},
 		{ "sprite_prefetch", sprite_prefetch},
-		{ "randomize", randomize},
-		{ "randomise", randomize},
+		
 		{ "steam_initialised", steam_initialised},
 		{ "audio_channel_num", audio_channel_num},
-		{ "is_undefined", is_undefined},
-		{ "collision_line", collision_line},
+		
 		{ "object_get_name", object_get_name},
 		{ "audio_sound_length", audio_sound_length},
 		{ "draw_get_font", draw_get_font },
-		{ "instance_nearest", instance_nearest},
-		{ "arcsin", arcsin},
-		{ "arccos", arccos},
+		
 		{ "make_colour_rgb", make_color_rgb},
 		{ "make_color_rgb", make_color_rgb},
 		{ "draw_text_ext_transformed", draw_text_ext_transformed},
 		{ "draw_surface_ext", draw_surface_ext},
-		{ "path_end", path_end},
-		{ "dsin", dsin},
+		
 		{ "sprite_exists", sprite_exists},
 		{ "event_perform", event_perform},
 		{ "gpu_set_blendenable", gpu_set_blendenable},
-		{ "dcos", dcos},
-		{ "sqr", sqr}
+
+		{ "sqr", sqr},
+
+		{ "action_move_to", action_move_to},
+		{ "action_kill_object", action_kill_object},
+		{ "instance_create", instance_create},
+		{ "joystick_exists", joystick_exists},
+		{ "keyboard_check_released", keyboard_check_released},
+		{ "ini_section_exists", ini_section_exists},
+		{ "keyboard_check_direct", keyboard_check_direct},
+
+		{ "action_move", action_move},
+		{ "action_set_alarm", action_set_alarm},
+		{ "action_set_friction", action_set_friction},
+
+		
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
 
@@ -405,7 +673,7 @@ public static partial class ScriptResolver
 			return null;
 		}
 
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
 		return null;
 	}
 
@@ -415,11 +683,13 @@ public static partial class ScriptResolver
 	{
 		var name = args[0].Conv<string>();
 
-		DebugLog.Log($"ini_open {name}");
-
 		if (_iniFile != null)
 		{
-			throw new Exception("Cannot open a new .ini file while an old one is still open!");
+			// Docs say this throws an error.
+			// C++ and HTML runners just save the old ini file and open the new one, with no error.
+			// I love Gamemaker.
+
+			ini_close(new object[0]);
 		}
 
 		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", name);
@@ -1553,9 +1823,7 @@ public static partial class ScriptResolver
 			instance = InstanceManager.FindByInstanceId(id);
 		}
 
-		//DebugLog.Log($"camera_set_view_target {instance}");
-
-		//GamemakerCamera.Instance.ObjectToFollow = instance;
+		CustomWindow.Instance.FollowInstance = instance;
 
 		return null;
 	}
@@ -1571,8 +1839,7 @@ public static partial class ScriptResolver
 		}
 
 		// TODO : this can apparently return either an instance id or object index????
-		return null;
-		// return GamemakerCamera.Instance.ObjectToFollow == null ? -1 : GamemakerCamera.Instance.ObjectToFollow.instanceId;
+		return CustomWindow.Instance.FollowInstance == null ? -1 : CustomWindow.Instance.FollowInstance.instanceId;
 	}
 
 	public static object? camera_set_view_pos(object?[] args)
@@ -1712,7 +1979,6 @@ public static partial class ScriptResolver
 	public static object? audio_stop_sound(object?[] args)
 	{
 		var id = args[0].Conv<int>();
-		DebugLog.Log($"audio_stop_sound id:{id}");
 
 		if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -1869,7 +2135,7 @@ public static partial class ScriptResolver
 	public static object? event_user(object?[] args)
 	{
 		var numb = args[0].Conv<int>();
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null;
 	}
 
@@ -1878,16 +2144,16 @@ public static partial class ScriptResolver
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = Scripts.FirstOrDefault(x => x.Value.AssetId == scriptAssetId).Value;
+		var script = Scripts.FirstOrDefault(x => x.Value.AssetIndex == scriptAssetId).Value;
 
 		if (script == default)
 		{
-			(script, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
+			(var code, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
 
-			return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs, startingIndex: index);
+			return VMExecutor.ExecuteCode(code, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs, startingIndex: index);
 		}
 
-		return VMExecutor.ExecuteScript(script, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
+		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
 	}
 
 	public static object? draw_line_width(object?[] args)
@@ -1900,7 +2166,8 @@ public static partial class ScriptResolver
 			
 		CustomWindow.Draw(new GMLineJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			col1 = SpriteManager.DrawColor.ABGRToCol4(),
+			col2 = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,
 			start = new Vector2((float)x1, (float)y1),
 			end = new Vector2((float)x2, (float)y2),
@@ -1934,21 +2201,7 @@ public static partial class ScriptResolver
 		return SpriteManager.GetNumberOfFrames(index);
 	}
 
-	public static object? lengthdir_x(object?[] args)
-	{
-		var len = args[0].Conv<double>();
-		var dir = args[1].Conv<double>();
-
-		return len * Math.Cos(dir * CustomMath.Deg2Rad);
-	}
-
-	public static object? lengthdir_y(object?[] args)
-	{
-		var len = args[0].Conv<double>();
-		var dir = args[1].Conv<double>();
-
-		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
-	}
+	
 
 	public static object object_get_sprite(object?[] args)
 	{
@@ -1967,11 +2220,7 @@ public static partial class ScriptResolver
 		return RoomManager.CurrentRoom.Layers[layer_id].Name;
 	}
 
-	public static object real(object?[] args)
-	{
-		var str = args[0].Conv<string>();
-		return str.Conv<double>();
-	}
+	
 
 	private static object layer_get_depth(object?[] args)
 	{
@@ -2131,39 +2380,7 @@ public static partial class ScriptResolver
 		return newLayerId;
 	}
 
-	private static object instance_find(object?[] args)
-	{
-		var obj = args[0].Conv<int>();
-		var n = args[1].Conv<int>();
-
-		/*
-		 * todo : this is really fucked.
-		 * "You specify the object that you want to find the instance of and a number,
-		 * and if there is an instance at that position in the instance list then the function
-		 * returns the id of that instance, and if not it returns the special keyword noone.
-		 * You can also use the keyword all to iterate through all the instances in a room,
-		 * as well as a parent object to iterate through all the instances that are part of
-		 * that parent / child hierarchy, and you can even specify an instance (if you have its id)
-		 * as a check to see if it actually exists in the current room."
-		 */
-
-		if (obj == GMConstants.all)
-		{
-			return InstanceManager.instances.ElementAt(n).instanceId;
-		}
-		else if (obj >= GMConstants.FIRST_INSTANCE_ID)
-		{
-			// is an instance id
-			// todo : implement
-		}
-		else
-		{
-			// is an object index
-			return InstanceManager.instances.Where(x => x.object_index == obj).ElementAt(n).instanceId;
-		}
-
-		return GMConstants.noone;
-	}
+	
 
 	private static object? draw_arrow(object?[] args)
 	{
@@ -2423,36 +2640,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? angle_difference(object?[] args)
-	{
-		var dest = args[0].Conv<double>();
-		var src = args[1].Conv<double>();
-		return CustomMath.Mod(dest - src + 180, 360) - 180;
-	}
+	
 
-	public static object distance_to_object(object?[] args)
-	{
-		var obj = args[0].Conv<int>();
-
-		GamemakerObject objToCheck = null!;
-
-		if (obj == GMConstants.other)
-		{
-			// todo - what the fuck does this mean gamemaker!? WHAT DO YOU WANT FROM ME
-		}
-		else if (obj < GMConstants.FIRST_INSTANCE_ID)
-		{
-			// object index
-			objToCheck = InstanceManager.FindByAssetId(obj).First();
-		}
-		else
-		{
-			// instance id
-			objToCheck = InstanceManager.FindByInstanceId(obj)!;
-		}
-
-		return CollisionManager.DistanceToObject(VMExecutor.Ctx.GMSelf, objToCheck);
-	}
+	
 
 	public static object texturegroup_get_textures(object?[] args)
 	{
@@ -2513,33 +2703,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? lerp(object?[] args)
-	{
-		var a = args[0].Conv<double>();
-		var b = args[1].Conv<double>();
-		var amt = args[2].Conv<double>();
+	
 
-		return a + ((b - a) * amt);
-	}
-
-	public static object? clamp(object?[] args)
-	{
-		var val = args[0].Conv<double>();
-		var min = args[1].Conv<double>();
-		var max = args[2].Conv<double>();
-
-		if (val <= min)
-		{
-			return min;
-		}
-
-		if (val >= max)
-		{
-			return max;
-		}
-
-		return val;
-	}
+	
 
 	public static object gamepad_button_check_pressed(object?[] args)
 	{
@@ -2596,12 +2762,7 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object ord(object?[] args)
-	{
-		var str = args[0].Conv<string>();
-
-		return (int)Encoding.UTF8.GetBytes(str)[0];
-	}
+	
 
 	public static object room_get_name(object?[] args)
 	{
@@ -2635,15 +2796,11 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object is_string(object?[] args) => args[0] is string;
+	
 
-	public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
+	
 
-	public static object string_lower(object?[] args)
-	{
-		var str = args[0].Conv<string>();
-		return str.ToLower();
-	}
+	
 
 	public static object sprite_get_xoffset(object?[] args)
 	{
@@ -2659,24 +2816,9 @@ public static partial class ScriptResolver
 		return sprite.OriginY;
 	}
 
-	public static object degtorad(object?[] args)
-	{
-		var deg = args[0].Conv<double>();
-		return deg * double.Pi / 180;
-	}
+	
 
-	public static object radtodeg(object?[] args)
-	{
-		var rad = args[0].Conv<double>();
-		return rad * 180 / double.Pi;
-	}
-
-	public static object sign(object?[] args)
-	{
-		// TODO : handle NaN somehow????
-		var n = args[0].Conv<double>();
-		return Math.Sign(n);
-	}
+	
 
 	public static object sprite_get_width(object?[] args)
 	{
@@ -2857,8 +2999,25 @@ public static partial class ScriptResolver
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		var (script, instructionIndex) = ScriptFunctions[ScriptFunctions.Keys.ToList()[constructorIndex]];
-		var ret = VMExecutor.ExecuteScript(script, obj, args: values, startingIndex: instructionIndex);
+		var code = GameLoader.Codes[constructorIndex]!;
+		var instructionIndex = 0;
+
+		if (code.ParentAssetId != -1)
+		{
+			// This should always be the case, I think?
+			// Not sure if non-anonymous functions or scripts can be used as constructors.
+			var parentCode = GameLoader.Codes[code.ParentAssetId]!;
+
+			if (parentCode.ParentAssetId != -1)
+			{
+				throw new NotImplementedException("multiple layers of nested functions??");
+			}
+
+			instructionIndex = parentCode.Functions.First(x => x.FunctionName == code.Name).InstructionIndex;
+			code = parentCode;
+		}
+
+		var ret = VMExecutor.ExecuteCode(code, obj, args: values, startingIndex: instructionIndex);
 
 		return obj;
 	}
@@ -3105,13 +3264,7 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object power(object?[] args)
-	{
-		var x = args[0].Conv<double>();
-		var n = args[1].Conv<double>();
-
-		return Math.Pow(x, n);
-	}
+	
 
 	public static object audio_sound_get_track_position(object?[] args)
 	{
@@ -3136,21 +3289,13 @@ public static partial class ScriptResolver
 		}
 	}
 
-	public static object point_in_rectangle(object?[] args)
-	{
-		var px = args[0].Conv<double>();
-		var py = args[1].Conv<double>();
-		var x1 = args[2].Conv<double>();
-		var y1 = args[3].Conv<double>();
-		var x2 = args[4].Conv<double>();
-		var y2 = args[5].Conv<double>();
+	
 
-		return x1 <= px && px < x2 && y1 <= py && py <= y2;
-	}
-
+	// TODO these actually return references to the self/other objects (see F_JSThis)
 	private static object This(object?[] args) => GMConstants.self;
 	private static object Other(object?[] args) => GMConstants.other;
 	// TODO what the fuck are these? apparently its JS stuff? see F_JSTryHook etc
+	// these are to do with breakpoints. probably not important. - neb
 	private static object? try_hook(object?[] args) => null;
 	private static object? try_unhook(object?[] args) => null;
 
@@ -3263,12 +3408,7 @@ public static partial class ScriptResolver
 		return "GB";
 	}
 
-	public static object string_upper(object?[] args)
-	{
-		var str = args[0].Conv<string>();
-		// TODO : only do the 26 english alphabet letters
-		return str.ToUpper();
-	}
+	
 
 	public static object? ds_map_set(object?[] args)
 	{
@@ -3293,11 +3433,7 @@ public static partial class ScriptResolver
 		return 0;
 	}
 
-	public static object? randomize(object?[] args)
-	{
-		// todo : implement
-		return null;
-	}
+	
 
 	public static object? steam_initialised(object?[] args)
 	{
@@ -3314,15 +3450,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? is_undefined(object?[] args)
-	{
-		return args[0] == null;
-	}
+	
 
-	public static object? collision_line(object?[] args)
-	{
-		return false;
-	}
+	
 
 	public static object object_get_name(object?[] args)
 	{
@@ -3360,57 +3490,9 @@ public static partial class ScriptResolver
 		return TextManager.fontAsset.AssetIndex;
 	}
 
-	public static object instance_nearest(object?[] args)
-	{
-		var x = args[0].Conv<double>();
-		var y = args[1].Conv<double>();
-		var obj = args[2].Conv<int>();
+	
 
-		var id = GMConstants.noone;
-		var distance = 10000000000d;
-		foreach (var instance in InstanceManager.instances)
-		{
-			if (!InstanceManager.HasAssetInParents(instance.Definition, obj))
-			{
-				continue;
-			}
-
-			var dx = x - instance.x;
-			var dy = y - instance.y;
-			var dist = Math.Sqrt(dx * dx + dy * dy);
-			if (dist < distance)
-			{
-				id = instance.instanceId;
-				distance = dist;
-			}
-		}
-
-		return id;
-	}
-
-	public static object arcsin(object?[] args)
-	{
-		var x = args[0].Conv<double>(); // in radians
-
-		if (x < -1 || x > 1)
-		{
-			throw new NotSupportedException($"x is {x}");
-		}
-
-		return Math.Asin(x);
-	}
-
-	public static object arccos(object?[] args)
-	{
-		var x = args[0].Conv<double>(); // in radians
-
-		if (x < -1 || x > 1)
-		{
-			throw new NotSupportedException($"x is {x}");
-		}
-
-		return Math.Acos(x);
-	}
+	
 
 	public static object make_color_rgb(object?[] args)
 	{
@@ -3456,17 +3538,9 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	public static object? path_end(object?[] args)
-	{
-		VMExecutor.Ctx.GMSelf.path_index = -1;
-		return null;
-	}
+	
 
-	public static object dsin(object?[] args)
-	{
-		var a = args[0].Conv<double>(); // degrees
-		return Math.Sin(a * CustomMath.Deg2Rad);
-	}
+	
 
 	public static object sprite_exists(object?[] args)
 	{
@@ -3479,7 +3553,7 @@ public static partial class ScriptResolver
 		var type = args[0].Conv<int>();
 		var numb = args[0].Conv<int>();
 
-		GamemakerObject.ExecuteScript(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
 		return null;
 	}
 
@@ -3507,10 +3581,214 @@ public static partial class ScriptResolver
 		return val * val;
 	}
 
-	public static object dcos(object?[] args)
+	
+
+	public static bool Action_Relative = false;
+
+	public static object? action_move_to(object?[] args)
 	{
-		var val = args[0].Conv<double>(); // degrees
-		return Math.Cos(val * CustomMath.Deg2Rad);
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+
+		if (Action_Relative)
+		{
+			x += VMExecutor.Ctx.GMSelf.x;
+			y += VMExecutor.Ctx.GMSelf.y;
+		}
+
+		VMExecutor.Ctx.GMSelf.x = x;
+		VMExecutor.Ctx.GMSelf.y = y;
+		return null;
+	}
+
+	public static object? action_kill_object(object?[] args)
+	{
+		return instance_destroy(args);
+	}
+
+	public static object? instance_create(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var obj = args[2].Conv<int>();
+
+		return InstanceManager.instance_create(x, y, obj);
+	}
+
+	public static object? joystick_exists(object?[] args) => false; // TODO : implement
+
+	public static object? keyboard_check_released(object?[] args)
+	{
+		var key = args[0].Conv<int>();
+
+		// from disassembly
+		switch (key)
+		{
+			case 0:
+			{
+				var result = true;
+				for (var i = 0; i <= 255; ++i)
+				{
+					result = KeyboardHandler.KeyReleased[i] != true && result;
+				}
+				return result;
+			}
+			case 1:
+			{
+				var result = false;
+				for (var i = 0; i <= 255; ++i)
+				{
+					result = KeyboardHandler.KeyReleased[i] || result;
+				}
+				return result;
+			}
+			case > 255:
+				return false;
+			default:
+				return KeyboardHandler.KeyReleased[key];
+		}
+	}
+
+	public static object? ini_section_exists(object?[] args)
+	{
+		var section = args[0].Conv<string>();
+		return _iniFile!.Sections.Any(x => x.Name == section);
+	}
+
+	public static object? keyboard_check_direct(object?[] args)
+	{
+		var key = args[0].Conv<int>();
+		return KeyboardHandler.KeyboardCheckDirect(key);
+	}
+
+	
+
+	public static object? action_move(object?[] args)
+	{
+		var dirString = args[0].Conv<string>();
+		var speed = args[1].Conv<double>();
+
+		/*
+		 * This function is weird.
+		 * dirString must be 9 characters long, and each character is a 1 or a 0.
+		 * Each character represents a direction. If multiple directions are set, a random one is picked.
+		 * Directions are as followed:
+		 * 0 - 225		Down-Left
+		 * 1 - 270		Down
+		 * 2 - 315		Down-Right
+		 * 3 - 180		Left
+		 * 4 - 0		Stop
+		 * 5 - 0		Right
+		 * 6 - 135		Up-Left
+		 * 7 - 90		Up
+		 * 8 - 45		Up-Right
+		 */
+
+		if (dirString.Length != 9)
+		{
+			throw new InvalidOperationException("dirString must be 9 characters long");
+		}
+
+		if (Action_Relative)
+		{
+			speed = VMExecutor.Ctx.GMSelf.speed + speed;
+		}
+
+		VMExecutor.Ctx.GMSelf.speed = speed;
+
+		int dir;
+		do
+		{
+			dir = (int)GMRandom.YYRandom(9);
+		} while (dirString[dir] != '1');
+
+		switch (dir)
+		{
+			case 0:
+				VMExecutor.Ctx.GMSelf.direction = 255;
+				break;
+			case 1:
+				VMExecutor.Ctx.GMSelf.direction = 270;
+				break;
+			case 2:
+				VMExecutor.Ctx.GMSelf.direction = 315;
+				break;
+			case 3:
+				VMExecutor.Ctx.GMSelf.direction = 180;
+				break;
+			case 4:
+				VMExecutor.Ctx.GMSelf.direction = 0;
+				VMExecutor.Ctx.GMSelf.speed = 0;
+				break;
+			case 5:
+				VMExecutor.Ctx.GMSelf.direction = 0;
+				break;
+			case 6:
+				VMExecutor.Ctx.GMSelf.direction = 135;
+				break;
+			case 7:
+				VMExecutor.Ctx.GMSelf.direction = 90;
+				break;
+			case 8:
+				VMExecutor.Ctx.GMSelf.direction = 56;
+				break;
+		}
+
+		return null;
+	}
+
+	public static object? action_set_alarm(object?[] args)
+	{
+		var value = args[0].Conv<int>();
+		var index = args[1].Conv<int>();
+
+		if (Action_Relative)
+		{
+			var curValue = VMExecutor.Ctx.GMSelf.alarm[index].Conv<int>();
+			if (curValue > -1)
+			{
+				VMExecutor.Ctx.GMSelf.alarm[index] = curValue + value;
+				return null;
+			}
+		}
+
+		VMExecutor.Ctx.GMSelf.alarm[index] = value;
+		return null;
+	}
+
+	public static object? action_set_friction(object?[] args)
+	{
+		var friction = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			friction += VMExecutor.Ctx.GMSelf.friction;
+		}
+
+		VMExecutor.Ctx.GMSelf.friction = friction;
+		return null;
+	}
+
+	public static object? layer_get_id_at_depth(object?[] args)
+	{
+		var depth = args[0].Conv<int>();
+
+		var retList = new List<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			if (layer.Depth == depth)
+			{
+				retList.Add(layer.ID);
+			}
+		}
+
+		if (retList.Count == 0)
+		{
+			retList.Add(-1);
+		}
+
+		return retList;
 	}
 }
 

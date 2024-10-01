@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using OpenGM.Rendering;
 using System.Collections;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 
@@ -82,8 +83,13 @@ public static class VariableResolver
 		{ "view_current", (get_view_current, null)},
 		{ "view_wport", (get_view_wport, set_view_wport)},
 		{ "view_hport", (get_view_hport, set_view_hport)},
+		{ "view_xview", (get_view_xview, set_view_xview)},
+		{ "view_yview", (get_view_yview, set_view_yview)},
+		{ "view_wview", (get_view_wview, set_view_wview)},
+		{ "view_hview", (get_view_hview, set_view_hview)},
 		{ "pointer_null", (get_pointer_null, null)},
-		{ "instance_count", (get_instance_count, null)}
+		{ "instance_count", (get_instance_count, null)},
+		{ "current_time", (get_current_time, null)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -265,6 +271,18 @@ public static class VariableResolver
 	public static object get_view_hport() => ViewportManager.view_hport;
 	public static void set_view_hport(object? value) => ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
 
+	public static object get_view_xview() => ViewportManager.view_xview;
+	public static void set_view_xview(object? value) => ViewportManager.view_xview = value.Conv<IList>().Cast<double>().ToArray();
+
+	public static object get_view_yview() => ViewportManager.view_yview;
+	public static void set_view_yview(object? value) => ViewportManager.view_yview = value.Conv<IList>().Cast<double>().ToArray();
+
+	public static object get_view_wview() => ViewportManager.view_wview;
+	public static void set_view_wview(object? value) => ViewportManager.view_wview = value.Conv<IList>().Cast<int>().ToArray();
+
+	public static object get_view_hview() => ViewportManager.view_hview;
+	public static void set_view_hview(object? value) => ViewportManager.view_hview = value.Conv<IList>().Cast<int>().ToArray();
+
 	public static object? get_pointer_null() => null;
 
 	public static object get_xprevious(GamemakerObject instance) => instance.xprevious;
@@ -282,4 +300,6 @@ public static class VariableResolver
 	public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<double>();
 
 	public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
+
+	public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
 }

@@ -8,25 +8,16 @@ public static class TestUtils
 {
 	public static object? ExecuteScript(string name, string asmFile)
 	{
-		var script = GameConverter.ConvertScript(asmFile);
-		script.Name = name;
+		var code = GameConverter.ConvertAssembly(asmFile);
+		code.Name = name;
 
-		if (script.IsGlobalInit)
+		foreach (var func in code.Functions)
 		{
-			ScriptResolver.GlobalInitScripts.Add(script);
-		}
-		else
-		{
-			ScriptResolver.Scripts.Add(script.Name, script);
-		}
-
-		foreach (var func in script.Functions)
-		{
-			ScriptResolver.ScriptFunctions.Add(func.FunctionName, (script, func.InstructionIndex));
+			ScriptResolver.ScriptFunctions.Add(func.FunctionName, (code, func.InstructionIndex));
 		}
 
 		VMExecutor.VerboseStackLogs = true;
-		var result = VMExecutor.ExecuteScript(script, null);
+		var result = VMExecutor.ExecuteCode(code, null);
 		
 		DebugLog.Log($"result = {result ?? "null value"} ({result?.GetType().ToString() ?? "null type"})");
 		

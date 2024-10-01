@@ -32,37 +32,37 @@ public partial class ObjectDefinition
 	public ObjectDefinition? parent;
 
 	[MemoryPackIgnore]
-	public VMScript? CreateScript;
+	public VMCode? CreateCode;
 	[MemoryPackIgnore]
-	public VMScript? DestroyScript;
+	public VMCode? DestroyScript;
 
 	[MemoryPackIgnore]
-	public Dictionary<int, VMScript> AlarmScript = new();
+	public Dictionary<int, VMCode> AlarmScript = new();
 	[MemoryPackIgnore]
-	public Dictionary<EventSubtypeStep, VMScript> StepScript = new();
+	public Dictionary<EventSubtypeStep, VMCode> StepScript = new();
 	[MemoryPackIgnore]
-	public Dictionary<int, VMScript> CollisionScript = new();
+	public Dictionary<int, VMCode> CollisionScript = new();
 	//keyboard
 	//mouse
 	[MemoryPackIgnore]
-	public Dictionary<EventSubtypeOther, VMScript> OtherScript = new();
+	public Dictionary<EventSubtypeOther, VMCode> OtherScript = new();
 	[MemoryPackIgnore]
-	public Dictionary<EventSubtypeDraw, VMScript> DrawScript = new();
+	public Dictionary<EventSubtypeDraw, VMCode> DrawScript = new();
 	//keypress
 	//keyrelease
 	//trigger
 	[MemoryPackIgnore]
-	public VMScript? CleanUpScript;
+	public VMCode? CleanUpScript;
 	//gesture
 	[MemoryPackIgnore]
-	public VMScript? PreCreateScript;
+	public VMCode? PreCreateScript;
 }
 
 [MemoryPackable]
 public partial class ObjectDefinitionStorage
 {
 	public int ParentID;
-	public int CreateScriptID;
+	public int CreateCodeID;
 	public int DestroyScriptID;
 	public Dictionary<int, int> AlarmScriptIDs = new();
 	public Dictionary<EventSubtypeStep, int> StepScriptIDs = new();

@@ -23,6 +23,8 @@ public static class GameLoader
         // must match order of gameconverter
         AssetIndexManager.LoadAssetIndexes(reader);
         LoadScripts(reader);
+        LoadCode(reader);
+        LoadGlobalInitCode(reader);
         LoadObjects(reader);
         LoadRooms(reader);
         LoadSprites(reader);
@@ -37,23 +39,30 @@ public static class GameLoader
 
     private static void LoadScripts(BinaryReader reader)
     {
-        Console.Write($"Loading scripts...");
+	    Console.Write($"Loading scripts...");
+		var length = reader.ReadInt32();
+	    for (var i = 0; i < length; i++)
+	    {
+		    var asset = reader.ReadMemoryPack<VMScript>();
+		    ScriptResolver.Scripts.Add(asset.Name, asset);
+		}
+	    Console.WriteLine($" Done!");
+	}
+
+    public static Dictionary<int, VMCode?> Codes = new();
+
+    private static void LoadCode(BinaryReader reader)
+    {
+        Console.Write($"Loading code...");
 
         var allUsedFunctions = new HashSet<string>();
 
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
-            var asset = reader.ReadMemoryPack<VMScript>();
+            var asset = reader.ReadMemoryPack<VMCode>();
 
-            if (asset.IsGlobalInit)
-            {
-                ScriptResolver.GlobalInitScripts.Add(asset);
-            }
-            else
-            {
-                ScriptResolver.Scripts.Add(asset.Name, asset);
-            }
+            Codes.Add(asset.AssetId, asset);
 
             foreach (var func in asset.Functions)
             {
@@ -87,12 +96,22 @@ public static class GameLoader
         Console.WriteLine($" Done!");
     }
 
-    private static void LoadObjects(BinaryReader reader)
+    private static void LoadGlobalInitCode(BinaryReader reader)
+    {
+        var count = reader.ReadInt32();
+
+        for (int i = 0; i < count; i++)
+        {
+            ScriptResolver.GlobalInit.Add(Codes[reader.ReadInt32()]);
+        }
+    }
+
+	private static void LoadObjects(BinaryReader reader)
     {
         Console.Write($"Loading objects...");
 
         // dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
-        var id2Script = ScriptResolver.Scripts.Values.ToDictionary(x => x.AssetId, x => (VMScript?)x);
+        var id2Script = Codes;
         id2Script[-1] = null;
 
         var length = reader.ReadInt32();
@@ -101,7 +120,7 @@ public static class GameLoader
             var asset = reader.ReadMemoryPack<ObjectDefinition>();
             var storage = asset.FileStorage;
 
-            asset.CreateScript = id2Script[storage.CreateScriptID];
+            asset.CreateCode = id2Script[storage.CreateCodeID];
             asset.DestroyScript = id2Script[storage.DestroyScriptID];
 
             foreach (var (subtype, codeId) in storage.AlarmScriptIDs)

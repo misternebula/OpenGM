@@ -61,8 +61,22 @@ public class KeyboardHandler
         }
     }
 
+    public static bool KeyboardCheckDirect(int key)
+    {
+        // TODO : work out how this is different? tried using GetAsyncKeyState and it didnt work
+        if (key < 256)
+        {
+            return KeyDown[key];
+        }
+
+        return false;
+    }
+
     private static bool IsKeyDown(int key) => ((ushort)GetKeyState(key) & 0x8000) != 0;
 
     [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
     private static extern short GetKeyState(int keyCode);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
+    private static extern short GetAsyncKeyState(int keyCode);
 }

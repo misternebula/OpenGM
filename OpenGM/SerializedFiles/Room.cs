@@ -1,6 +1,7 @@
 ﻿using MemoryPack;
 using Newtonsoft.Json;
 using OpenGM.Rendering;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
@@ -23,7 +24,7 @@ public partial class Room
 
 	public List<Layer> Layers = new();
 	public List<GameObject> LooseObjects = new();
-
+	public List<Tile> Tiles = new();
 }
 
 [MemoryPackable]
@@ -38,6 +39,23 @@ public partial class Layer
 	public bool IsVisible;
 	public string LayerName = null!;
 	public List<CLayerElementBase> Elements = new();
+}
+
+[MemoryPackable]
+public partial class Tile
+{
+	public int X;
+	public int Y;
+	public int Definition;
+	public int SourceLeft;
+	public int SourceTop;
+	public int SourceWidth;
+	public int SourceHeight;
+	public int Depth;
+	public int InstanceID;
+	public float ScaleX;
+	public float ScaleY;
+	public uint Color;
 }
 
 public enum ElementType

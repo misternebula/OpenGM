@@ -5,7 +5,7 @@ namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {
-	public static (ExecutionResult, object?) PUSHENV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) PUSHENV(VMCodeInstruction instruction)
 	{
 		var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
 
@@ -159,7 +159,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Success, null);
 	}
 
-	public static (ExecutionResult, object?) POPENV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) POPENV(VMCodeInstruction instruction)
 	{
 		var currentInstance = EnvironmentStack.Pop();
 		var nextInstance = Ctx;

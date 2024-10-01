@@ -1,22 +1,14 @@
 ﻿using MemoryPack;
+using OpenGM.Loading;
 
 namespace OpenGM.VirtualMachine;
 
 [MemoryPackable]
 public partial class VMScript
 {
-	public int AssetId;
+	public int AssetIndex;
 	public string Name = null!;
-	public bool IsGlobalInit;
-	public List<string> LocalVariables = null!;
-	public Dictionary<int, int> Labels = new();
-	public List<FunctionDefinition> Functions = new();
-	public List<VMScriptInstruction> Instructions = new();
-}
+	public int CodeIndex = -1;
 
-[MemoryPackable]
-public partial class FunctionDefinition
-{
-	public int InstructionIndex;
-	public string FunctionName = null!;
+	public VMCode? GetCode() => CodeIndex == -1 ? null : GameLoader.Codes[CodeIndex];
 }

@@ -37,7 +37,7 @@ public static class DrawManager
         {
             if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded)
             {
-                GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Step, (int)stepType);
+                GamemakerObject.ExecuteEvent(gm, gm.Definition, EventType.Step, (int)stepType);
             }
         }
 
@@ -79,7 +79,7 @@ public static class DrawManager
                     }
                 }
 
-                GamemakerObject.ExecuteScript(gm, gm.Definition, EventType.Draw, (int)drawType);
+                GamemakerObject.ExecuteEvent(gm, gm.Definition, EventType.Draw, (int)drawType);
             }
             else if (drawType == EventSubtypeDraw.Draw)
             {
@@ -142,7 +142,7 @@ public static class DrawManager
                     if (collide != null)
                     {
                         VMExecutor.EnvironmentStack.Push(new VMScriptExecutionContext() { Self = collide, ObjectDefinition = collide.Definition, Stack = new() });
-                        GamemakerObject.ExecuteScript(gmo, gmo.Definition, EventType.Collision, id);
+                        GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
                         VMExecutor.EnvironmentStack.Pop();
                     }
                 }
@@ -162,8 +162,11 @@ public static class DrawManager
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
         // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
-        
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+
+        if (CustomWindow.Instance != null) // only false in tests
+        {
+	        GL.Clear(ClearBufferMask.ColorBufferBit);
+		}
 
         if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {

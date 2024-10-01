@@ -228,7 +228,7 @@ public static partial class VMExecutor
 		}
 	}
 
-	public static (ExecutionResult, object?) DoPush(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
 	{
 		switch (instruction.TypeOne)
 		{
@@ -276,7 +276,7 @@ public static partial class VMExecutor
 		return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
 	}
 
-	public static (ExecutionResult, object?) DoPushV(VMScriptInstruction instruction)
+	public static (ExecutionResult, object?) DoPushV(VMCodeInstruction instruction)
 	{
 		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
 

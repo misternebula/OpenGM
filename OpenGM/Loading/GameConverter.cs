@@ -9,6 +9,7 @@ using EventType = OpenGM.VirtualMachine.EventType;
 using OpenGM.IO;
 using System.Numerics;
 using System.Text;
+using System.Linq;
 
 namespace OpenGM.Loading;
 
@@ -26,10 +27,12 @@ public static class GameConverter
 
         // must match order of gameloader
         ExportAssetOrder(writer, data);
-        ConvertScripts(writer, data, data.Code.Where(c => c.ParentEntry is null).ToList());
+        ConvertScripts(writer, data);
+        ConvertCode(writer, data, data.Code);
+        ExportGlobalInitCode(writer, data);
         ExportObjectDefinitions(writer, data);
         ExportRooms(writer, data);
-        ConvertSprites(writer, data.Sprites);
+        ConvertSprites(writer, data, data.Sprites);
         ExportFonts(writer, data);
         ExportPages(writer, data);
         ExportTextureGroups(writer, data);
@@ -39,46 +42,68 @@ public static class GameConverter
         GC.Collect(); // gc after doing a buncha loading
     }
 
-    public static void ConvertScripts(BinaryWriter writer, UndertaleData data, List<UndertaleCode> codes)
+    public static void ConvertScripts(BinaryWriter writer, UndertaleData data)
     {
-        Console.Write($"Converting scripts...");
+	    var scripts = data.Scripts;
+
+	    Console.Write($"Converting scripts...");
+	    writer.Write(scripts.Count);
+	    foreach (var script in scripts)
+	    {
+		    var asset = new VMScript();
+		    asset.AssetIndex = scripts.IndexOf(script);
+		    asset.Name = script.Name.Content;
+
+		    if (script.Code != null)
+		    {
+			    asset.CodeIndex = data.Code.IndexOf(script.Code);
+		    }
+
+		    //asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(script.Code);
+
+		    writer.WriteMemoryPack(asset);
+		}
+	    Console.WriteLine($" Done!");
+	}
+
+    public static void ConvertCode(BinaryWriter writer, UndertaleData data, IList<UndertaleCode> codes)
+    {
+        Console.Write($"Converting code...");
         writer.Write(codes.Count);
         foreach (var code in codes)
         {
             var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
 
-            var asset = ConvertScript(asmFile);
+            var asset = ConvertAssembly(asmFile);
 
             asset.AssetId = codes.IndexOf(code);
-            asset.IsGlobalInit = data.GlobalInitScripts.Select(x => x.Code).Contains(code);
+	        asset.Name = code.Name.Content;
 
-            if (code.Name.Content.StartsWith("gml_Object_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_Object_".Length);
-            }
-            else if (code.Name.Content.StartsWith("gml_Script_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_Script_".Length);
-            }
-            else if (code.Name.Content.StartsWith("gml_GlobalScript_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_GlobalScript_".Length);
-            }
-            else if (code.Name.Content.StartsWith("gml_RoomCC_"))
-            {
-                asset.Name = code.Name.Content.Substring("gml_RoomCC_".Length);
-            }
-            else
-            {
-                asset.Name = code.Name.Content;
-            }
+	        if (code.ParentEntry != null)
+	        {
+		        asset.ParentAssetId = codes.IndexOf(code.ParentEntry);
+	        }
+	        else
+	        {
+		        asset.ParentAssetId = -1;
+	        }
 
             writer.WriteMemoryPack(asset);
         }
         Console.WriteLine($" Done!");
     }
 
-    public static VMScript ConvertScript(string asmFile)
+    public static void ExportGlobalInitCode(BinaryWriter writer, UndertaleData data)
+    {
+        writer.Write(data.GlobalInitScripts.Count);
+
+        foreach (var item in data.GlobalInitScripts)
+        {
+            writer.Write(data.Code.IndexOf(item.Code));
+        }
+    }
+
+    public static VMCode ConvertAssembly(string asmFile)
     {
         var asmFileLines = asmFile.SplitLines();
 
@@ -99,14 +124,14 @@ public static class GameConverter
             }
         }
 
-        var asset = new VMScript();
+        var asset = new VMCode();
         asset.LocalVariables = localVariables;
 
         if (startLine == -1)
         {
-            // no code in file???
+			// no code in file???
 
-            asset.Instructions = new();
+			asset.Instructions = new();
             asset.Labels = new() { { 0, 0 } };
 
             return asset;
@@ -158,7 +183,7 @@ public static class GameConverter
 
                 var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
 
-                var instruction = new VMScriptInstruction
+                var instruction = new VMCodeInstruction
                 {
                     Raw = line,
                     Opcode = enumOperation,
@@ -365,7 +390,7 @@ public static class GameConverter
         Console.WriteLine($" Done!");
     }
 
-    public static void ConvertSprites(BinaryWriter writer, IList<UndertaleSprite> sprites)
+    public static void ConvertSprites(BinaryWriter writer, UndertaleData data, IList<UndertaleSprite> sprites)
     {
         Console.Write($"Converting sprites...");
         
@@ -469,7 +494,7 @@ public static class GameConverter
 
             // Write Code.
             streamWriter.AppendLine("@@code@@");
-            var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
+            var codes = data.Code.ToList();
             if (codes.Count > 0)
             {
                 foreach (UndertaleCode code in codes)
@@ -551,13 +576,12 @@ public static class GameConverter
             var storage = new ObjectDefinitionStorage();
             storage.ParentID = data.GameObjects.IndexOf(obj.ParentId);
 
-            var exportableCode = data.Code.Where(c => c.ParentEntry is null).ToList();
+            var exportableCode = data.Code.ToList();
 
             int GetCodeID(EventType type, int eventSubtype)
             {
 	            if (obj.Events.Count <= (int)type - 1) // -1 because they have a None entry in the enum for some reason
 				{
-                    DebugLog.Log($"Ignoring {type} as obj only has {obj.Events.Count} events");
 		            return -1; // Most likely UNDERTALE being exported, and type is Gesture/Precreate
 				}
 
@@ -574,7 +598,7 @@ public static class GameConverter
                 return action == null ? -1 : exportableCode.IndexOf(action.CodeId);
             }
 
-            storage.CreateScriptID = GetCodeID(EventType.Create, 0);
+            storage.CreateCodeID = GetCodeID(EventType.Create, 0);
             storage.DestroyScriptID = GetCodeID(EventType.Destroy, 0);
 
             storage.AlarmScriptIDs = new();
@@ -630,7 +654,7 @@ public static class GameConverter
     {
         Console.Write($"Exporting rooms...");
 
-        var codes = data.Code.Where(c => c.ParentEntry is null).ToList();
+        var codes = data.Code.ToList();
 
         writer.Write(data.Rooms.Count);
         foreach (var room in data.Rooms)
@@ -698,6 +722,8 @@ public static class GameConverter
                             ScaleY = instance.ScaleY,
                             Color = (int)instance.Color,
                             Rotation = instance.Rotation,
+                            FrameIndex = instance.ImageIndex,
+                            ImageSpeed = instance.ImageSpeed,
                             PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
                         };
 
@@ -815,13 +841,38 @@ public static class GameConverter
 		            ScaleY = instance.ScaleY,
 		            Color = (int)instance.Color,
 		            Rotation = instance.Rotation,
-		            PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
+		            FrameIndex = instance.ImageIndex,
+		            ImageSpeed = instance.ImageSpeed,
+					PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
 	            };
 
                 asset.LooseObjects.Add(objectAsset);
 
 				// Gameobject does not appear in any layers. Probably dealing with UNDERTALE which doesn't have layers.
 			}
+
+            foreach (var tile in room.Tiles)
+            {
+                // TODO : check this doesnt include layer tiles??? it probably does ughhh
+
+                var tileAsset = new Tile()
+                {
+	                X = tile.X,
+	                Y = tile.Y,
+	                Definition = 0,
+	                SourceLeft = (int)tile.SourceX,
+	                SourceTop = (int)tile.SourceY,
+	                SourceHeight = (int)tile.Height,
+	                SourceWidth = (int)tile.Width,
+	                Depth = tile.TileDepth,
+	                InstanceID = (int)tile.InstanceID,
+	                ScaleX = tile.ScaleX,
+	                ScaleY = tile.ScaleY,
+	                Color = tile.Color
+                };
+
+                asset.Tiles.Add(tileAsset);
+            }
 
             writer.WriteMemoryPack(asset);
         }
@@ -990,7 +1041,7 @@ public static class GameConverter
             {
 	            asset.Texture = new SpritePageItem
 	            {
-		            SourcePosX = set.Texture.SourceX,
+					SourcePosX = set.Texture.SourceX,
 		            SourcePosY = set.Texture.SourceY,
 		            SourceSizeX = set.Texture.SourceWidth,
 		            SourceSizeY = set.Texture.SourceHeight,
