@@ -17,8 +17,8 @@ This program aims to run Gamemaker Studio games, emulating the original games as
 Ideally, any Gamemaker game should work. However, it's impossible to support every single quirk of every single engine version.
 
 The following games are used in development to test feature parity, and as such OpenGM should support any game running on the same engine version as these games :
-- DELTARUNE Chapter 1 (SURVEY_PROGRAM) - Engine Version 2.0.6
 - DELTARUNE (Chapter 1 & 2 DEMO) - Engine Version 2022.1
+- DELTARUNE Chapter 1 (SURVEY_PROGRAM) - Engine Version 2.0.6
 
 The following games are either being worked on, or planned to be supported :
 - Undertale - Engine Version 1.0.0.1539
@@ -28,4 +28,4 @@ Not every feature from these games may work, but the game will at least load and
 ## Legal Stuff
 This project is covered by the MIT license. See [the license](LICENSE) for more information.
 
-No closed-source code has been used in this project. Any code taken from public open-source GameMaker repositories has had its source marked.
+Parts of the [HTML runner](https://github.com/YoYoGames/GameMaker-HTML5) have been used as reference for how to implement certain functionality.
