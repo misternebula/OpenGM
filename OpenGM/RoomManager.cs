@@ -161,8 +161,10 @@ public static class RoomManager
 					newGM.depth = layer.LayerDepth;
 					newGM.image_xscale = item.ScaleX;
 					newGM.image_yscale = item.ScaleY;
-					newGM.image_blend = (int)item.Color;
+					newGM.image_blend = item.Color;
 					newGM.image_angle = item.Rotation;
+					newGM.image_index = item.FrameIndex;
+					newGM.image_speed = item.ImageSpeed;
 
 					createdObjects.Add((newGM, item));
 
@@ -246,6 +248,8 @@ public static class RoomManager
 			newGM.image_yscale = item.ScaleY;
 			newGM.image_blend = (int)item.Color;
 			newGM.image_angle = item.Rotation;
+			newGM.image_index = item.FrameIndex;
+			newGM.image_speed = item.ImageSpeed;
 
 			createdObjects.Add((newGM, item));
 

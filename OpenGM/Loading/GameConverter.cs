@@ -722,6 +722,8 @@ public static class GameConverter
                             ScaleY = instance.ScaleY,
                             Color = (int)instance.Color,
                             Rotation = instance.Rotation,
+                            FrameIndex = instance.ImageIndex,
+                            ImageSpeed = instance.ImageSpeed,
                             PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
                         };
 
@@ -839,7 +841,9 @@ public static class GameConverter
 		            ScaleY = instance.ScaleY,
 		            Color = (int)instance.Color,
 		            Rotation = instance.Rotation,
-		            PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
+		            FrameIndex = instance.ImageIndex,
+		            ImageSpeed = instance.ImageSpeed,
+					PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
 	            };
 
                 asset.LooseObjects.Add(objectAsset);

@@ -14,5 +14,7 @@ public partial class GameObject : CLayerElementBase
 	public float ScaleY;
 	public int Color;
 	public float Rotation;
+	public int FrameIndex;
+	public float ImageSpeed;
 	public int PreCreateCodeID;
 }
