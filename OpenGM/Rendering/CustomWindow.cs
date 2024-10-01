@@ -115,7 +115,8 @@ public class CustomWindow : GameWindow
         DrawManager.FixedUpdate();
         AudioManager.Update();
 
-        UpdateInstanceFollow();
+		//UpdateInstanceFollow();
+
 		foreach (var item in DebugJobs)
 		{
 			Draw(item);
