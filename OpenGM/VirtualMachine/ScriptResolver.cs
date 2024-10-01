@@ -2166,7 +2166,8 @@ public static partial class ScriptResolver
 			
 		CustomWindow.Draw(new GMLineJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			col1 = SpriteManager.DrawColor.ABGRToCol4(),
+			col2 = SpriteManager.DrawColor.ABGRToCol4(),
 			alpha = SpriteManager.DrawAlpha,
 			start = new Vector2((float)x1, (float)y1),
 			end = new Vector2((float)x2, (float)y2),
