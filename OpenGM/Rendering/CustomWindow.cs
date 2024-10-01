@@ -6,6 +6,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System.Drawing;
 using UndertaleModLib.Decompiler;
 
 namespace OpenGM.Rendering;
@@ -13,6 +14,9 @@ public class CustomWindow : GameWindow
 {
     public static CustomWindow Instance { get; private set; } = null!;
 
+    public static List<GMBaseJob> DebugJobs = new();
+
+    // Size of the Window
     public uint Width;
     public uint Height;
 
@@ -112,6 +116,12 @@ public class CustomWindow : GameWindow
         AudioManager.Update();
 
         UpdateInstanceFollow();
+		foreach (var item in DebugJobs)
+		{
+			Draw(item);
+		}
+
+        DebugJobs.Clear();
 
 		SwapBuffers();
     }
@@ -159,6 +169,33 @@ public class CustomWindow : GameWindow
 
         SetPosition(x, y);
 	}
+
+    public static void Draw(GMBaseJob baseJob)
+    {
+	    switch (baseJob)
+	    {
+		    case GMTextJob textJob:
+			    Draw(textJob);
+			    return;
+		    case GMSpritePartJob spritePartJob:
+			    Draw(spritePartJob);
+			    return;
+		    case GMSpriteJob spriteJob:
+			    Draw(spriteJob);
+			    return;
+		    case GMLineJob lineJob:
+			    Draw(lineJob);
+			    return;
+		    case GMLinesJob linesJob:
+			    Draw(linesJob);
+			    return;
+		    case GMPolygonJob polygonJob:
+			    Draw(polygonJob);
+			    return;
+		    default:
+			    throw new NotImplementedException($"Don't know how to draw {baseJob}");
+	    }
+    }
 
     public static void Draw(GMTextJob textJob)
     {
