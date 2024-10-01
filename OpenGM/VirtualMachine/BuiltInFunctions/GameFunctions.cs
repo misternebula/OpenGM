@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenGM.IO;
+using OpenGM.Rendering;
+using OpenTK.Mathematics;
 
 namespace OpenGM.VirtualMachine;
 
 public static partial class ScriptResolver
 {
+	public static bool DrawCollisionChecks = false;
+
 	public static object place_meeting(object?[] args)
 	{
 		var x = args[0].Conv<double>();
@@ -132,7 +137,60 @@ public static partial class ScriptResolver
 
 	public static object? collision_line(object?[] args)
 	{
-		throw new NotImplementedException();
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var obj = args[4].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var prec = args[5].Conv<bool>();
+		var notme = args[6].Conv<bool>();
+
+		if (obj < 0)
+		{
+			throw new NotImplementedException($"{obj} given to collision_line!");
+		}
+
+		if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instances = InstanceManager.FindByAssetId(obj);
+
+			foreach (var instance in instances)
+			{
+				if (instance == VMExecutor.Ctx.GMSelf && notme)
+				{
+					continue;
+				}
+
+				var col = CollisionManager.colliders.Single(b => b.GMObject == instance);
+
+				if (CollisionManager.CheckColliderAgainstLine(col, new Vector2d(x1, y1), new Vector2d(x2, y2), prec))
+				{
+					return instance.instanceId;
+				}
+			}
+
+			return GMConstants.noone;
+		}
+		else
+		{
+			var instance = InstanceManager.FindByInstanceId(obj);
+
+			if (instance == null)
+			{
+				return GMConstants.noone;
+			}
+
+			if (instance == VMExecutor.Ctx.GMSelf && notme)
+			{
+				return GMConstants.noone;
+			}
+
+			var col = CollisionManager.colliders.Single(b => b.GMObject == instance);
+
+			return CollisionManager.CheckColliderAgainstLine(col, new Vector2d(x1, y1), new Vector2d(x2, y2), prec)
+				? instance.instanceId
+				: GMConstants.noone;
+		}
 	}
 
 	private static object instance_find(object?[] args)

@@ -3,6 +3,7 @@ using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using System.Collections;
+using System.Drawing;
 using UndertaleModLib.Models;
 
 namespace OpenGM;
@@ -111,7 +112,7 @@ public static class CollisionManager
 	/// <summary>
 	/// Checks the collision of a single object at a certain position. 
 	/// </summary>
-	public static bool CheckColliderAtPoint(ColliderClass col, Vector2 position, bool precise)
+	public static bool CheckColliderAgainstPoint(ColliderClass col, Vector2 position, bool precise)
 	{
 		if (col.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
 		{
@@ -141,7 +142,7 @@ public static class CollisionManager
 		}
 	}
 
-	public static bool CheckColliderWithRectagle(ColliderClass collider, Vector2d v1, Vector2d v2, bool precise)
+	public static bool CheckColliderAgainstRectangle(ColliderClass collider, Vector2d v1, Vector2d v2, bool precise)
 	{
 		// Collisions here have to cover the center of pixels
 
@@ -154,6 +155,45 @@ public static class CollisionManager
 		                           && right > collider.BBox.left + 0.5
 		                           && top < collider.BBox.bottom - 0.5
 		                           && bottom > collider.BBox.top + 0.5;
+
+		if (ScriptResolver.DrawCollisionChecks)
+		{
+			var color = Color4.Red;
+			var outline = true;
+			if (boundingBoxesCollide)
+			{
+				color = Color4.Green;
+				outline = false;
+			}
+
+			CustomWindow.DebugJobs.Add(new GMPolygonJob()
+			{
+				alpha = 1,
+				blend = color,
+				Outline = outline,
+				Vertices = new Vector2d[]
+				{
+					new(collider.BBox.left, collider.BBox.top),
+					new(collider.BBox.right, collider.BBox.top),
+					new(collider.BBox.right, collider.BBox.bottom),
+					new(collider.BBox.left, collider.BBox.bottom)
+				}
+			});
+
+			CustomWindow.DebugJobs.Add(new GMPolygonJob()
+			{
+				alpha = 1,
+				blend = color,
+				Outline = outline,
+				Vertices = new Vector2d[]
+				{
+					new(left, top),
+					new(right, top),
+					new(right, bottom),
+					new(left, bottom)
+				}
+			});
+		}
 
 		if (collider.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
 		{
@@ -323,6 +363,45 @@ public static class CollisionManager
 	{
 		var boxesOverlap = DoBoxesOverlap(a, b);
 
+		if (ScriptResolver.DrawCollisionChecks)
+		{
+			var color = Color4.Red;
+			var outline = true;
+			if (boxesOverlap)
+			{
+				color = Color4.Green;
+				outline = false;
+			}
+
+			CustomWindow.DebugJobs.Add(new GMPolygonJob()
+			{
+				alpha = 1,
+				blend = color,
+				Outline = outline,
+				Vertices = new Vector2d[]
+				{
+					new(a.BBox.left, a.BBox.top),
+					new(a.BBox.right, a.BBox.top),
+					new(a.BBox.right, a.BBox.bottom),
+					new(a.BBox.left, a.BBox.bottom)
+				}
+			});
+
+			CustomWindow.DebugJobs.Add(new GMPolygonJob()
+			{
+				alpha = 1,
+				blend = color,
+				Outline = outline,
+				Vertices = new Vector2d[]
+				{
+					new(b.BBox.left, b.BBox.top),
+					new(b.BBox.right, b.BBox.top),
+					new(b.BBox.right, b.BBox.bottom),
+					new(b.BBox.left, b.BBox.bottom)
+				}
+			});
+		}
+
 		// TODO : This feels like RotatedRect should be counted as precise, but the docs are vauge. Check in GameMaker.
 
 		if ((a.SepMasks == UndertaleSprite.SepMaskType.Precise && b.SepMasks == UndertaleSprite.SepMaskType.Precise)
@@ -400,6 +479,50 @@ public static class CollisionManager
 			// check bounding boxes
 			return boxesOverlap;
 		}
+	}
+
+	public static bool CheckColliderAgainstLine(ColliderClass col, Vector2d start, Vector2d end, bool precise)
+	{
+		// Simple checks - check if line entirely outside bbox
+
+		if ((start.Y < col.BBox.top && end.Y < col.BBox.top) // line is entirely above bbox
+			|| (start.Y > col.BBox.bottom && end.Y > col.BBox.bottom) // line is entirely below bbox
+			|| (start.X < col.BBox.left && end.X < col.BBox.left) // line is entirely to the left of bbox
+		    || (start.X > col.BBox.right && end.X > col.BBox.right)) // line is entirely to the right of bbox
+		{
+			return false;
+		}
+
+		// Line *could* intersect bbox. Test if it does with the slab method
+
+		var low = new Vector2d(col.BBox.left, col.BBox.top);
+		var high = new Vector2d(col.BBox.right, col.BBox.bottom);
+
+		var rayDirection = end - start;
+
+		var xlow = (low.X - start.X) / rayDirection.X;
+		var ylow = (low.Y - start.Y) / rayDirection.Y;
+		var xhigh = (high.X - start.X) / rayDirection.X;
+		var yhigh = (high.Y - start.Y) / rayDirection.Y;
+
+		var xclose = CustomMath.Min(xlow, xhigh);
+		var yclose = CustomMath.Min(ylow, yhigh);
+		var xfar = CustomMath.Max(xlow, xhigh);
+		var yfar = CustomMath.Max(ylow, yhigh);
+
+		var close = CustomMath.Max(xclose, yclose);
+		var far = CustomMath.Max(xfar, yfar);
+
+		var intersectsWithBBox = close <= far && (close >= 0);
+
+		if (!intersectsWithBBox)
+		{
+			return false;
+		}
+
+		DebugLog.Log($"Collision detected");
+
+		return true;
 	}
 
 	public static void RoomChange()
@@ -703,7 +826,7 @@ public static class CollisionManager
 				continue;
 			}
 
-			var collision = CheckColliderWithRectagle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
+			var collision = CheckColliderAgainstRectangle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
 
 			if (collision)
 			{
@@ -740,7 +863,7 @@ public static class CollisionManager
 				continue;
 			}
 
-			var collision = CheckColliderWithRectagle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
+			var collision = CheckColliderAgainstRectangle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
 
 			if (collision)
 			{
