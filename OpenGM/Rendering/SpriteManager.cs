@@ -46,7 +46,8 @@ public static class SpriteManager
     {
         var subimages = _spriteDict[id].Textures;
         index %= subimages.Count;
-        return subimages[CustomMath.FloorToInt((float)index)];
+        var floored = CustomMath.FloorToInt(index);
+		return subimages[floored];
     }
 
     public static void DrawSprite(int name, double index, double x, double y)

@@ -289,8 +289,6 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		CollisionManager.UnregisterCollider(this);
 	}
 
-	private int _updateCounter;
-
 	public sealed override void Draw()
 	{
 		if (!_createRan || !RoomManager.RoomLoaded)
@@ -358,26 +356,32 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			var playbackType = asset.PlaybackSpeedType;
 			var playbackSpeed = asset.PlaybackSpeed * image_speed;
 
-			_updateCounter++;
-
-			var deltaTime = 1 / 30f;
-			var shouldIncrement = playbackType == AnimSpeedType.FramesPerSecond
-				? _updateCounter >= 1f / (deltaTime / (1f / playbackSpeed))
-				: _updateCounter >= 1f / playbackSpeed;
-
-			if (shouldIncrement)
+			if (playbackType == AnimSpeedType.FramesPerGameFrame)
 			{
-				_updateCounter = 0;
-				if (CustomMath.ApproxEqual(image_index + 1, SpriteManager.GetNumberOfFrames(sprite_index)))
-				{
-					ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-					image_index = 0;
-				}
-				else
-				{
-					image_index++;
-				}
+				image_index += playbackSpeed;
 			}
+			else
+			{
+				image_index += playbackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
+			}
+
+			var number = SpriteManager.GetNumberOfFrames(sprite_index);
+
+			if (image_index < number)
+			{
+				if (image_index >= 0)
+				{
+					return;
+				}
+
+				image_index += number;
+			}
+			else
+			{
+				image_index -= number;
+			}
+
+			ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
 		}
 	}
 

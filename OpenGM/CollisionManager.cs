@@ -551,8 +551,9 @@ public static class CollisionManager
 		int colIndex = 0;
 		byte[] byteData;
 
-		if (spriteAsset.CollisionMasks.Count - 1 < (int)sprite.image_index)
+		if (spriteAsset.CollisionMasks.Count - 1 < (int)sprite.image_index || sprite.image_index < 0)
 		{
+			// this is dumb, but its because image_index is updated directly when handling animation wrapping around
 			byteData = spriteAsset.CollisionMasks[0];
 			colIndex = 0;
 		}
