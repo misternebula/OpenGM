@@ -3553,7 +3553,7 @@ public static partial class ScriptResolver
 		var type = args[0].Conv<int>();
 		var numb = args[0].Conv<int>();
 
-		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type, numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type + 1, numb);
 		return null;
 	}
 
