@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenGM.VirtualMachine;
 
@@ -114,7 +110,8 @@ public static partial class ScriptResolver
 	public static object? randomize(object?[] args)
 	{
 		// todo : implement
-		throw new NotImplementedException();
+		//throw new NotImplementedException();
+		return 0;
 	}
 
 	public static object abs(object?[] args)
@@ -420,6 +417,14 @@ public static partial class ScriptResolver
 		var str = args[0].Conv<string>();
 		var index = args[1].Conv<int>();
 		var count = args[2].Conv<int>();
+
+		var maxLength = str.Length - (index - 1);
+
+		// no idea if this is what GM does, but i THINK it is
+		if (count > maxLength)
+		{
+			count = maxLength;
+		}
 
 		return str.Substring(index - 1, count);
 	}
