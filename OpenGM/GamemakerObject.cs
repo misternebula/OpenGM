@@ -88,6 +88,16 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 			if (margins != Vector4.Zero)
 			{
+				var spriteAsset = mask_id == -1
+					? SpriteManager.GetSpriteAsset(sprite_index)
+					: SpriteManager.GetSpriteAsset(mask_id);
+
+				if (spriteAsset != null && spriteAsset.CollisionMasks.Count == 1 && CollisionManager.colliders.Any(x => x.GMObject == this))
+				{
+					// Don't regenerate collider when theres only one mask, dummy
+					return;
+				}
+
 				CollisionManager.RegisterCollider(this, margins);
 			}
 		}
