@@ -472,27 +472,31 @@ public class CustomWindow : GameWindow
 
     public static void Draw(GMLineJob lineJob)
     {
-        var startToEndGradient = new Vector2(lineJob.end.X - lineJob.start.X, lineJob.end.Y - lineJob.start.Y);
-        var perpendicularGradient = new Vector2(startToEndGradient.Y, -startToEndGradient.X);
-        perpendicularGradient = Vector2.Normalize(perpendicularGradient);
+        // platform pixel adjustment
+        lineJob.x1 += 1;
+        lineJob.y1 += 1;
+        lineJob.x2 += 1;
+        lineJob.y2 += 1;
 
-        var p1 = lineJob.start + perpendicularGradient * (lineJob.width / 2f);
-        var p2 = lineJob.start - perpendicularGradient * (lineJob.width / 2f);
-        var p3 = lineJob.end - perpendicularGradient * (lineJob.width / 2f);
-        var p4 = lineJob.end + perpendicularGradient * (lineJob.width / 2f);
+		var width = lineJob.x2 - lineJob.x1;
+        var height = lineJob.y2 - lineJob.y1;
+        var length = MathF.Sqrt((width * width) + (height * height));
+
+        width = lineJob.width * 0.5f * width / length;
+        height = lineJob.width * 0.5f * height / length;
 
         GL.Begin(PrimitiveType.Polygon);
 
         GL.Color4(lineJob.col1);
-        GL.Vertex2(p1);
-        GL.Vertex2(p2);
+        GL.Vertex2(lineJob.x1 - height, lineJob.y1 + width);
         GL.Color4(lineJob.col2);
-        GL.Vertex2(p3);
-        GL.Vertex2(p4);
-        GL.Color4(lineJob.col1);
+		GL.Vertex2(lineJob.x2 - height, lineJob.y2 + width);
+		GL.Vertex2(lineJob.x2 + height, lineJob.y2 - width);
+		GL.Color4(lineJob.col1);
+		GL.Vertex2(lineJob.x1 + height, lineJob.y1 - width);
 
-        GL.End();
-    }
+		GL.End();
+	}
 
     public static void Draw(GMLinesJob linesJob)
     {
@@ -537,9 +541,11 @@ public class CustomWindow : GameWindow
 
 public class GMLineJob : GMBaseJob
 {
-    public Vector2 start;
-    public Vector2 end;
-    public int width = 1;
+	public float x1;
+	public float y1;
+	public float x2;
+	public float y2;
+    public float width = 1;
     public Color4 col1;
     public Color4 col2;
 }

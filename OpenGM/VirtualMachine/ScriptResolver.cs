@@ -2168,9 +2168,10 @@ public static partial class ScriptResolver
 		{
 			col1 = SpriteManager.DrawColor.ABGRToCol4(),
 			col2 = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
-			start = new Vector2((float)x1, (float)y1),
-			end = new Vector2((float)x2, (float)y2),
+			x1 = (float)x1,
+			y1 = (float)y1,
+			x2 = (float)x2,
+			y2 = (float)y2,
 			width = w
 		});
 
@@ -2406,8 +2407,10 @@ public static partial class ScriptResolver
 				blend = SpriteManager.DrawColor.ABGRToCol4(),
 				alpha = SpriteManager.DrawAlpha,
 				width = 1,
-				start = new Vector2((float)x1, (float)y1),
-				end = new Vector2((float)x2, (float)y2)
+				x1 = (float)x1,
+				y1 = (float)y1,
+				x2 = (float)x2,
+				y2 = (float)y2
 			});
 
 			// draw head of arrow
@@ -3053,15 +3056,17 @@ public static partial class ScriptResolver
 		var y1 = args[1].Conv<double>();
 		var x2 = args[2].Conv<double>();
 		var y2 = args[3].Conv<double>();
-		var width = args[4].Conv<int>();
+		var width = args[4].Conv<double>();
 		var col1 = args[5].Conv<int>();
-		var col2 = args[5].Conv<int>();
+		var col2 = args[6].Conv<int>();
 
 		CustomWindow.Draw(new GMLineJob()
 		{
-			start = new Vector2((float)x1, (float)y1),
-			end = new Vector2((float)x2, (float)y2),
-			width = width,
+			x1 = (float)x1,
+			y1 = (float)y1,
+			x2 = (float)x2,
+			y2 = (float)y2,
+			width = (float)width,
 			col1 = col1.ABGRToCol4(),
 			col2 = col2.ABGRToCol4()
 		});
