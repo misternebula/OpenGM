@@ -54,6 +54,9 @@ public static class GameLoader
     private static void LoadScripts(BinaryReader reader)
     {
 	    Console.Write($"Loading scripts...");
+
+	    ScriptResolver.Scripts.Clear();
+
 		var length = reader.ReadInt32();
 	    for (var i = 0; i < length; i++)
 	    {
@@ -70,8 +73,10 @@ public static class GameLoader
         Console.Write($"Loading code...");
 
         var allUsedFunctions = new HashSet<string>();
+        ScriptResolver.ScriptFunctions.Clear();
+        Codes.Clear();
 
-        var length = reader.ReadInt32();
+		var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<VMCode>();
@@ -122,7 +127,9 @@ public static class GameLoader
 
     private static void LoadGlobalInitCode(BinaryReader reader)
     {
-        var count = reader.ReadInt32();
+	    ScriptResolver.GlobalInit.Clear();
+
+		var count = reader.ReadInt32();
 
         for (int i = 0; i < count; i++)
         {
@@ -134,8 +141,10 @@ public static class GameLoader
     {
         Console.Write($"Loading objects...");
 
-        // dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
-        var id2Script = Codes;
+        InstanceManager.ObjectDefinitions.Clear();
+
+		// dictionary makes noticeable performance improvement. maybe move to ScriptResolver if the optimization is needed elsewhere
+		var id2Script = Codes;
         id2Script[-1] = null;
 
         var length = reader.ReadInt32();
@@ -205,7 +214,9 @@ public static class GameLoader
     {
         Console.Write($"Loading rooms...");
 
-        var length = reader.ReadInt32();
+        RoomManager.RoomList.Clear();
+
+		var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<Room>();
@@ -254,7 +265,9 @@ public static class GameLoader
     {
         Console.Write($"Loading sprites...");
 
-        var length = reader.ReadInt32();
+        SpriteManager._spriteDict.Clear();
+
+		var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<SpriteData>();
@@ -268,7 +281,9 @@ public static class GameLoader
     {
         Console.Write($"Loading Fonts...");
 
-        var length = reader.ReadInt32();
+        TextManager.FontAssets.Clear();
+
+		var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<FontAsset>();
@@ -282,9 +297,12 @@ public static class GameLoader
     {
         Console.Write($"Loading Texture Pages...");
 
-        //StbImage.stbi_set_flip_vertically_on_load(1);
+        PageManager.UnbindTextures();
+        PageManager.TexturePages.Clear();
 
-        var length = reader.ReadInt32();
+		//StbImage.stbi_set_flip_vertically_on_load(1);
+
+		var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var pageName = reader.ReadString();
@@ -304,6 +322,8 @@ public static class GameLoader
     {
         Console.Write($"Loading Texture Groups...");
 
+        TexGroups.Clear();
+
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
@@ -321,7 +341,9 @@ public static class GameLoader
     {
 	    Console.Write($"Loading Tile Sets...");
 
-        var length = reader.ReadInt32();
+	    TileSets.Clear();
+
+		var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<TileSet>();

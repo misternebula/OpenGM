@@ -4,6 +4,7 @@ using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using System.Collections;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using UndertaleModLib.Models;
 
 namespace OpenGM;
@@ -109,10 +110,56 @@ public static class CollisionManager
 		};
 	}
 
+	public static (Vector2d a, Vector2d b, Vector2d c, Vector2d d) RotateBoxAroundPoint(BBox box, Vector2d point, double angle)
+	{
+		var bbv1 = new Vector2d(box.left, box.top);
+		var bbv2 = new Vector2d(box.right, box.top);
+		var bbv3 = new Vector2d(box.right, box.bottom);
+		var bbv4 = new Vector2d(box.left, box.bottom);
+
+		return (
+			bbv1.RotateAroundPoint(point, angle),
+			bbv2.RotateAroundPoint(point, angle),
+			bbv3.RotateAroundPoint(point, angle),
+			bbv4.RotateAroundPoint(point, angle)
+		);
+	}
+
+	public static (Vector2d a, Vector2d b, Vector2d c, Vector2d d) RotateBoxAroundPoint(double left, double right, double top, double bottom, Vector2d point, double angle)
+	{
+		var bbv1 = new Vector2d(left, top);
+		var bbv2 = new Vector2d(right, top);
+		var bbv3 = new Vector2d(right, bottom);
+		var bbv4 = new Vector2d(left, bottom);
+
+		return (
+			bbv1.RotateAroundPoint(point, angle),
+			bbv2.RotateAroundPoint(point, angle),
+			bbv3.RotateAroundPoint(point, angle),
+			bbv4.RotateAroundPoint(point, angle)
+		);
+	}
+
+	public static bool CollisionPoint(GamemakerObject self, double x, double y, bool prec)
+	{
+		var collider = colliders.First(x => x.GMObject == self);
+		var bbox = collider.BBox;
+		if (	x < bbox.right + 1
+		    &&	y < bbox.bottom + 1
+			&&	bbox.left <= x
+		    &&	bbox.top <= y 
+		    /*&& ((*(byte*)&this->m_InstFlags & 1) == 0)*/) // TODO : what is this ughhhh
+		{
+			return CheckColliderAgainstPoint(collider, new Vector2d(x, y), prec);
+		}
+
+		return false;
+	}
+
 	/// <summary>
 	/// Checks the collision of a single object at a certain position. 
 	/// </summary>
-	public static bool CheckColliderAgainstPoint(ColliderClass col, Vector2 position, bool precise)
+	public static bool CheckColliderAgainstPoint(ColliderClass col, Vector2d position, bool precise)
 	{
 		if (col.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
 		{
@@ -223,17 +270,7 @@ public static class CollisionManager
 			var bright = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale);
 			var bbottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale);
 
-			// co-ords of verts of unrotated bbox
-			var bbv1 = new Vector2d(bleft, btop);
-			var bbv2 = new Vector2d(bright, btop);
-			var bbv3 = new Vector2d(bright, bbottom);
-			var bbv4 = new Vector2d(bleft, bbottom);
-
-			// rotate co-ords
-			bbv1 = bbv1.RotateAroundPoint(pos, gm.image_angle);
-			bbv2 = bbv2.RotateAroundPoint(pos, gm.image_angle);
-			bbv3 = bbv3.RotateAroundPoint(pos, gm.image_angle);
-			bbv4 = bbv4.RotateAroundPoint(pos, gm.image_angle);
+			var (bbv1, bbv2, bbv3, bbv4) = RotateBoxAroundPoint(bleft, btop, bright, bbottom, pos, gm.image_angle);
 
 			// -- GET CORNERS OF RECTANGLE --
 			var rv1 = v1;
@@ -405,7 +442,7 @@ public static class CollisionManager
 		// TODO : This feels like RotatedRect should be counted as precise, but the docs are vauge. Check in GameMaker.
 
 		if ((a.SepMasks == UndertaleSprite.SepMaskType.Precise && b.SepMasks == UndertaleSprite.SepMaskType.Precise)
-		    || a.SepMasks != b.SepMasks) // TODO: what the fuck is this, why is this here
+		    /*|| a.SepMasks != b.SepMasks*/) // TODO: what the fuck is this, why is this here
 		{
 			// check precise collision masks
 
@@ -544,7 +581,29 @@ public static class CollisionManager
 
 		if (spriteAsset.CollisionMasks == null || spriteAsset.CollisionMasks.Count == 0)
 		{
-			DebugLog.LogError($"No collision masks defined for {spriteAsset.Name}!");
+			//DebugLog.LogError($"No collision masks defined for {spriteAsset.Name} collisionMasks null : {spriteAsset.CollisionMasks == null}");
+
+			if (colliders.Any(x => x.GMObject == sprite))
+			{
+				var collider = colliders.Single(x => x.GMObject == sprite);
+				collider.Margins = margins;
+				collider.SepMasks = spriteAsset.SepMasks;
+				collider.BoundingBoxMode = spriteAsset.BBoxMode;
+				collider.Origin = spriteAsset.Origin;
+				collider.spriteAssetName = spriteAsset.Name;
+			}
+			else
+			{
+				colliders.Add(new ColliderClass(sprite)
+				{
+					Margins = margins,
+					SepMasks = spriteAsset.SepMasks,
+					BoundingBoxMode = spriteAsset.BBoxMode,
+					Origin = spriteAsset.Origin
+				});
+			}
+			
+
 			return;
 		}
 

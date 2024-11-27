@@ -2,6 +2,7 @@
 using OpenGM.Rendering;
 using System.Collections;
 using System.Diagnostics;
+using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine;
 
@@ -89,7 +90,8 @@ public static class VariableResolver
 		{ "view_hview", (get_view_hview, set_view_hview)},
 		{ "pointer_null", (get_pointer_null, null)},
 		{ "instance_count", (get_instance_count, null)},
-		{ "current_time", (get_current_time, null)}
+		{ "current_time", (get_current_time, null)},
+		{ "debug_mode", (get_debug_mode, null)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -136,7 +138,7 @@ public static class VariableResolver
 
 	public static object get_working_directory()
 	{
-		return Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "game" + Path.DirectorySeparatorChar;
+		return Entry.DataWinFolder + Path.DirectorySeparatorChar;
 	}
 
 	public static object get_fps()
@@ -193,7 +195,12 @@ public static class VariableResolver
 	public static void set_image_speed(GamemakerObject instance, object? value) => instance.image_speed = value.Conv<double>();
 
 	public static object get_visible(GamemakerObject instance) => instance.visible;
-	public static void set_visible(GamemakerObject instance, object? value) => instance.visible = value.Conv<bool>();
+
+	public static void set_visible(GamemakerObject instance, object? value)
+	{
+		DebugLog.Log($"Setting {instance.instanceId} ({instance.Definition.Name}) to {value.Conv<bool>()}");
+		instance.visible = value.Conv<bool>();
+	}
 
 	public static object get_image_alpha(GamemakerObject instance) => instance.image_alpha;
 	public static void set_image_alpha(GamemakerObject instance, object? value) => instance.image_alpha = value.Conv<double>();
@@ -302,4 +309,6 @@ public static class VariableResolver
 	public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
 
 	public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
+
+	public static object get_debug_mode() => false;
 }

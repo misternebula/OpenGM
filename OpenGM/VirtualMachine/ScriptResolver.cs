@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Text;
 using UndertaleModLib.Decompiler;
@@ -18,6 +19,7 @@ using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
 using System.IO;
+using String = System.String;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
@@ -329,6 +331,10 @@ public static partial class ScriptResolver
 
 		#region 3D
 		{ "gpu_set_fog", gpu_set_fog },
+		{ "gpu_set_colorwriteenable", gpu_set_colourwriteenable},
+		{ "gpu_set_colourwriteenable", gpu_set_colourwriteenable},
+		{ "gpu_set_alphatestenable", gpu_set_alphatestenable},
+		{ "gpu_set_alphatestref", gpu_set_alphatestref},
 		#endregion
 
 		#region Misc
@@ -336,6 +342,9 @@ public static partial class ScriptResolver
 		{ "event_user", event_user },
 		{ "show_debug_message", show_debug_message },
 		{ "variable_global_exists", variable_global_exists },
+		{ "variable_instance_exists", variable_instance_exists},
+		{ "variable_instance_get", variable_instance_get},
+		{ "variable_instance_set", variable_instance_set},
 		#endregion
 
 		#region DS
@@ -344,8 +353,21 @@ public static partial class ScriptResolver
 		{ "ds_list_add", ds_list_add },
 		{ "ds_map_create", ds_map_create },
 		{ "ds_map_destroy", ds_map_destroy },
+		// ds_map_clear
+		// ds_map_copy
 		{ "ds_map_size", ds_map_size },
+		// ds_map_empty
 		{ "ds_map_add", ds_map_add },
+		// ds_map_set
+		// ds_map_set_pre
+		// ds_map_set_post
+		// ds_map_add_list
+		// ds_map_add_map
+		// ds_map_replace
+		// ds_map_replace_list
+		// ds_map_replace_map
+		// ds_map_delete
+		{ "ds_map_exists", ds_map_exists},
 		{ "ds_map_find_value", ds_map_find_value },
 		#endregion
 
@@ -545,7 +567,7 @@ public static partial class ScriptResolver
 		
 		{ "sprite_get_width", sprite_get_width},
 		{ "sprite_get_height", sprite_get_height},
-		{ "variable_instance_set", variable_instance_set},
+		
 		{ "chr", chr},
 
 		{ "date_current_datetime", date_current_datetime},
@@ -572,7 +594,7 @@ public static partial class ScriptResolver
 		{ "draw_rectangle_colour", draw_rectangle_colour },
 		{ "draw_rectangle_color", draw_rectangle_colour },
 		{ "draw_ellipse", draw_ellipse },
-		{ "variable_instance_exists", variable_instance_exists},
+		
 		{ "game_get_speed", game_get_speed},
 		
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
@@ -620,6 +642,15 @@ public static partial class ScriptResolver
 		{ "action_move", action_move},
 		{ "action_set_alarm", action_set_alarm},
 		{ "action_set_friction", action_set_friction},
+		{ "sprite_delete", sprite_delete},
+		
+		{ "window_enable_borderless_fullscreen", window_enable_borderless_fullscreen},
+		{ "parameter_count", parameter_count},
+		{ "game_change", game_change},
+		{ "parameter_string", parameter_string},
+		{ "string_split", string_split},
+		{ "ds_list_size", ds_list_size},
+		{ "ds_list_find_value", ds_list_find_value}
 
 		
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
@@ -692,7 +723,7 @@ public static partial class ScriptResolver
 			ini_close(new object[0]);
 		}
 
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", name);
+		var filepath = Path.Combine(Entry.DataWinFolder, name);
 
 		if (!File.Exists(filepath))
 		{
@@ -824,7 +855,7 @@ public static partial class ScriptResolver
 
 	public static object? ini_close(object?[] args)
 	{
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", _iniFile!.Name);
+		var filepath = Path.Combine(Entry.DataWinFolder, _iniFile!.Name);
 		File.Delete(filepath);
 		var fileStream = new FileStream(filepath, FileMode.Append, FileAccess.Write);
 		var streamWriter = new StreamWriter(fileStream);
@@ -858,7 +889,7 @@ public static partial class ScriptResolver
 	public static object? file_text_open_read(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
+		var filepath = Path.Combine(Entry.DataWinFolder, fname);
 
 		DebugLog.Log($"file_text_open_read {filepath}");
 
@@ -898,7 +929,7 @@ public static partial class ScriptResolver
 		}
 
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
+		var filepath = Path.Combine(Entry.DataWinFolder, fname);
 
 		File.Delete(filepath);
 		var fileStream = new FileStream(filepath, FileMode.Create, FileAccess.Write);
@@ -952,7 +983,7 @@ public static partial class ScriptResolver
 	public static object file_exists(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
+		var filepath = Path.Combine(Entry.DataWinFolder, fname);
 		return File.Exists(filepath);
 	}
 
@@ -1029,7 +1060,7 @@ public static partial class ScriptResolver
 	public static object file_delete(object?[] args)
 	{
 		var fname = args[0].Conv<string>();
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
+		var filepath = Path.Combine(Entry.DataWinFolder, fname);
 		File.Delete(filepath);
 		return true; // TODO : this should return false if this fails.
 	}
@@ -1039,8 +1070,8 @@ public static partial class ScriptResolver
 		var fname = args[0].Conv<string>();
 		var newname = args[1].Conv<string>();
 
-		fname = Path.Combine(Directory.GetCurrentDirectory(), "game", fname);
-		newname = Path.Combine(Directory.GetCurrentDirectory(), "game", newname);
+		fname = Path.Combine(Entry.DataWinFolder, fname);
+		newname = Path.Combine(Entry.DataWinFolder, newname);
 
 		if (File.Exists(newname))
 		{
@@ -1156,6 +1187,35 @@ public static partial class ScriptResolver
 		list.Shuffle();
 
 		return null;
+	}
+
+	public static object? ds_list_find_value(params object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var pos = args[1].Conv<int>();
+
+		/*
+		 * TODO - this shit:
+		 * Note that if you give a position that is outside of the given list size (i.e.: position 11 in a 10 value list)
+		 * then the function may return undefined or 0.
+		 * This is because when you create the list, internally the first few entries in the list
+		 * are set to 0 to minimize performance issues when initially adding items to the list
+		 * (although the ds_list_size() function will still return 0 on a newly created list).
+		 */
+
+		if (!_dsListDict.ContainsKey(id))
+		{
+			return null;
+		}
+
+		var list = _dsListDict[id];
+
+		if (id >= list.Count)
+		{
+			return null;
+		}
+
+		return list[id];
 	}
 
 	public static object? ds_map_find_value(object?[] args)
@@ -1863,7 +1923,7 @@ public static partial class ScriptResolver
 	public static object? audio_create_stream(object?[] args)
 	{
 		var filename = args[0].Conv<string>();
-		filename = Path.Combine("game", filename);
+		filename = Path.Combine(Entry.DataWinFolder, filename);
 
 		var assetName = Path.GetFileNameWithoutExtension(filename);
 		var existingIndex = AssetIndexManager.GetIndex(assetName);
@@ -2651,9 +2711,12 @@ public static partial class ScriptResolver
 	{
 		var tex_id = args[0].Conv<string>();
 
-		var asset = GameLoader.TexGroups[tex_id];
+		if (!GameLoader.TexGroups.TryGetValue(tex_id, out var texGroup))
+		{
+			return Array.Empty<string>();
+		}
 
-		return asset.TexturePages;
+		return texGroup.TexturePages;
 	}
 
 	public static object? texture_prefetch(object?[] args)
@@ -3037,7 +3100,12 @@ public static partial class ScriptResolver
 		LayerContainer layer;
 		if (layer_value is string s)
 		{
-			layer = RoomManager.CurrentRoom.Layers.First(x => x.Value.Name == s).Value;
+			layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
+			if (layer == null)
+			{
+				DebugLog.Log($"layer_set_visible() - could not find specified layer in current room");
+				return null;
+			}
 		}
 		else
 		{
@@ -3125,6 +3193,12 @@ public static partial class ScriptResolver
 	public static object layer_tilemap_get_id(object?[] args)
 	{
 		var layer_id = args[0].Conv<int>();
+
+		if (!RoomManager.CurrentRoom.Layers.ContainsKey(layer_id))
+		{
+			DebugLog.Log($"layer_tilemap_get_id() - specified tilemap not found");
+			return -1;
+		}
 
 		var layer = RoomManager.CurrentRoom.Layers[layer_id];
 
@@ -3294,11 +3368,9 @@ public static partial class ScriptResolver
 		}
 	}
 
-	
+	private static object This(object?[] args) => VMExecutor.Ctx.GMSelf.instanceId;
+	private static object Other(object?[] args) => VMExecutor.EnvironmentStack.ToArray()[1].GMSelf.instanceId;
 
-	// TODO these actually return references to the self/other objects (see F_JSThis)
-	private static object This(object?[] args) => GMConstants.self;
-	private static object Other(object?[] args) => GMConstants.other;
 	// TODO what the fuck are these? apparently its JS stuff? see F_JSTryHook etc
 	// these are to do with breakpoints. probably not important. - neb
 	private static object? try_hook(object?[] args) => null;
@@ -3403,7 +3475,15 @@ public static partial class ScriptResolver
 
 		var path = PathManager.Paths[id];
 
-		PathManager.DrawPath(path, x, y, absolute);
+		if (absolute)
+		{
+			PathManager.DrawPath(path, 0, 0, absolute);
+		}
+		else
+		{
+			PathManager.DrawPath(path, x, y, absolute);
+		}
+		
 		return null;
 	}
 
@@ -3794,6 +3874,166 @@ public static partial class ScriptResolver
 		}
 
 		return retList;
+	}
+
+	public static object? gpu_set_colourwriteenable(object?[] args)
+	{
+		bool r;
+		bool g;
+		bool b;
+		bool a;
+
+		if (args.Length == 4)
+		{
+			r = args[0].Conv<bool>();
+			g = args[1].Conv<bool>();
+			b = args[2].Conv<bool>();
+			a = args[3].Conv<bool>();
+		}
+		else
+		{
+			var array = args[0].Conv<IList>();
+			r = array[0].Conv<bool>();
+			g = array[1].Conv<bool>();
+			b = array[2].Conv<bool>();
+			a = array[3].Conv<bool>();
+		}
+
+		GL.ColorMask(r, g, b, a);
+		return null;
+	}
+
+	private static float AlphaRef = 0;
+
+	public static object? gpu_set_alphatestenable(object?[] args)
+	{
+		var enabled = args[0].Conv<bool>();
+
+		if (enabled)
+		{
+			GL.AlphaFunc(AlphaFunction.Greater, AlphaRef);
+		}
+		else
+		{
+			GL.AlphaFunc(AlphaFunction.Always, AlphaRef);
+		}
+
+		return null;
+	}
+
+	public static object? gpu_set_alphatestref(object?[] args)
+	{
+		var alphaRef = args[0].Conv<int>();
+		AlphaRef = alphaRef / 255f;
+		return null;
+	}
+
+	public static object? variable_instance_get(object?[] args)
+	{
+		var instanceId = args[0].Conv<int>();
+		var name = args[1].Conv<string>();
+
+		var instance = InstanceManager.FindByInstanceId(instanceId);
+
+		if (instance == null)
+		{
+			return null;
+		}
+
+		return instance.SelfVariables.TryGetValue(name, out var value) ? value : null;
+	}
+
+	public static object? ds_map_exists(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+		var key = args[1].Conv<string>();
+
+		if (!_dsMapDict.ContainsKey(id))
+		{
+			return false;
+		}
+
+		var dict = _dsMapDict[id];
+		return dict.ContainsKey(key);
+	}
+
+	public static object? sprite_delete(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		// TODO : implement
+		return true;
+	}
+
+	public static object? window_enable_borderless_fullscreen(object?[] args)
+	{
+		// todo : implement
+		return null;
+	}
+
+	public static object? parameter_count(object?[] args)
+	{
+		return Entry.LaunchParameters.Length;
+	}
+
+	public static object? game_change(object?[] args)
+	{
+		var working_directory = args[0].Conv<string>();
+		var launch_parameters = args[1].Conv<string>();
+
+		var winLocation = Path.Combine(Directory.GetCurrentDirectory(), "game" + working_directory, "data.win");
+		DebugLog.LogInfo($"game_change path:{winLocation} launch_parameters:{launch_parameters}");
+
+		Entry.LoadGame(winLocation, launch_parameters.Split(" "));
+
+		return null;
+	}
+
+	public static object? parameter_string(object?[] args)
+	{
+		var n = args[0].Conv<int>();
+		return Entry.LaunchParameters[n - 1];
+	}
+
+	public static object? string_split(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		var delimiter = args[1].Conv<string>();
+
+		var remove_empty = false;
+		if (args.Length > 2)
+		{
+			remove_empty = args[2].Conv<bool>();
+		}
+
+		var max_splits = -1;
+		if (args.Length > 3)
+		{
+			max_splits = args[3].Conv<int>();
+		}
+
+		var option = remove_empty ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None;
+
+		var splits = str.Split(delimiter, option);
+
+		if (max_splits != -1)
+		{
+			throw new NotImplementedException();
+		}
+
+		return splits;
+	}
+
+	public static object? ds_list_size(object?[] args)
+	{
+		var id = args[0].Conv<int>();
+
+		if (!_dsListDict.ContainsKey(id))
+		{
+			DebugLog.LogError($"Data structure with index {id} does not exist.");
+			return 0;
+		}
+
+		return _dsListDict[id].Count;
 	}
 }
 

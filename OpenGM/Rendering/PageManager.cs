@@ -6,6 +6,23 @@ public static class PageManager
 {
     public static Dictionary<string, (ImageResult image, int id)> TexturePages = new();
 
+    public static void UnbindTextures()
+    {
+	    if (TexturePages.Count == 0 || CustomWindow.Instance == null)
+	    {
+		    return;
+	    }
+
+	    Console.Write("Unbinding textures...");
+
+	    GL.BindTexture(TextureTarget.Texture2D, 0);
+
+		foreach (var item in TexturePages)
+	    {
+            GL.DeleteTexture(item.Value.id);
+	    }
+	}
+
     public static void BindTextures()
     {
         Console.Write("Binding textures...");

@@ -107,7 +107,37 @@ public static partial class ScriptResolver
 
 	public static object? collision_point(object?[] args)
 	{
-		throw new NotImplementedException();
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+		var prec = args[3].Conv<bool>();
+		var notme = args[4].Conv<bool>();
+
+		if (obj == -3)
+		{
+			throw new NotImplementedException($"{obj} given to collision_point!");
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// asset id
+		}
+		else
+		{
+			// instance id
+			if (!notme || VMExecutor.Ctx.GMSelf.instanceId != obj)
+			{
+				var testObj = InstanceManager.FindByInstanceId(obj);
+				if (testObj != null)
+				{
+					if (CollisionManager.CollisionPoint(testObj, x, y, prec))
+					{
+						return testObj;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	public static object collision_rectangle(object?[] args)

@@ -35,13 +35,13 @@ public static class BufferManager
 		var buffer = Buffers[bufferIndex];
 
 		// TODO : what happens if the filename is already taken? overwritten? error? find out
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", filename);
+		var filepath = Path.Combine(Entry.DataWinFolder, filename);
 		File.WriteAllBytes(filepath, buffer.Data);
 	}
 
 	public static int LoadBuffer(string filename)
 	{
-		var filepath = Path.Combine(Directory.GetCurrentDirectory(), "game", filename);
+		var filepath = Path.Combine(Entry.DataWinFolder, filename);
 
 		if (!File.Exists(filepath))
 		{
