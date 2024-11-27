@@ -47,6 +47,12 @@ public static class SpriteManager
         var subimages = _spriteDict[id].Textures;
         index %= subimages.Count;
         var floored = CustomMath.FloorToInt(index);
+
+        if (floored < 0)
+        {
+	        throw new NotImplementedException();
+        }
+
 		return subimages[floored];
     }
 
