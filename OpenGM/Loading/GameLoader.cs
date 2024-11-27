@@ -12,12 +12,26 @@ namespace OpenGM.Loading;
 public static class GameLoader
 {
     public static bool DebugDumpFunctions = false;
+
+    private static List<VMCode> _replacementVMCodes = new();
     
     public static void LoadGame()
     {
         Console.WriteLine($"Loading game files...");
 
-        using var stream = File.OpenRead(Path.Combine("game", "data_OpenGM.win"));
+        _replacementVMCodes.Clear();
+
+		var replacementFolder = Path.Combine(Directory.GetCurrentDirectory(), "game", "replacement_scripts");
+        if (Directory.Exists(replacementFolder))
+        {
+	        var replacementScripts = Directory.GetFiles(replacementFolder, "*.json");
+	        foreach (var replacementScript in replacementScripts)
+	        {
+		        _replacementVMCodes.Add(JsonConvert.DeserializeObject<VMCode>(File.ReadAllText(replacementScript))!);
+	        }
+		}
+
+        using var stream = File.OpenRead(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
         using var reader = new BinaryReader(stream);
 
         // must match order of gameconverter
@@ -61,6 +75,16 @@ public static class GameLoader
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<VMCode>();
+
+            if (_replacementVMCodes.Any(x => x.Name == asset.Name))
+            {
+                DebugLog.Log($"Replacing {asset.Name} with custom script...");
+	            var assetID = asset.AssetId;
+	            var parentAssetID = asset.ParentAssetId;
+	            asset = _replacementVMCodes.First(x => x.Name == asset.Name);
+                asset.AssetId = assetID;
+                asset.ParentAssetId = parentAssetID;
+            }
 
             Codes.Add(asset.AssetId, asset);
 
