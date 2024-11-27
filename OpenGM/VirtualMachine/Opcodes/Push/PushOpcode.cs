@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -115,13 +116,13 @@ public static partial class VMExecutor
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = Ctx.Locals[varName].Conv<IList>();
+		var array = CurrentCall.Locals[varName].Conv<IList>();
 		Ctx.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocal(string varName)
 	{
-		Ctx.Stack.Push(Ctx.Locals[varName], VMType.v);
+		Ctx.Stack.Push(CurrentCall.Locals[varName], VMType.v);
 	}
 
 	public static void PushBuiltin(string varName)
@@ -148,7 +149,24 @@ public static partial class VMExecutor
 		}
 		else
 		{
-			Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
+			if (self.SelfVariables.ContainsKey(varName))
+			{
+				Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
+			}
+			else
+			{
+				if (self is GamemakerObject gmo)
+				{
+					DebugLog.LogError($"Variable {varName} doesn't exist in {gmo.instanceId} {gmo.Definition.Name}, pushing undefined.");
+				}
+				else
+				{
+					DebugLog.LogError($"Variable {varName} doesn't exist in non-GMO self, pushing undefined.");
+				}
+
+				self.SelfVariables[varName] = null;
+				Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
+			}
 		}
 	}
 
@@ -173,7 +191,7 @@ public static partial class VMExecutor
 
 	public static void PushArgument(int index)
 	{
-		var arguments = Ctx.Locals["arguments"].Conv<IList>();
+		var arguments = CurrentCall.Locals["arguments"].Conv<IList>();
 
 		if (index >= arguments.Count)
 		{
@@ -198,7 +216,15 @@ public static partial class VMExecutor
 		else
 		{
 			// Instance Id
-			var asset = InstanceManager.FindByInstanceId(assetId)!; // lets hope its not null
+			var asset = InstanceManager.FindByInstanceId(assetId);
+
+			if (asset == null)
+			{
+				DebugLog.LogError($"Tried to push variable {varName} from instanceid {assetId}, which doesnt exist!!");
+				Ctx.Stack.Push(null, VMType.v);
+				return;
+			}
+
 			PushSelf(asset, varName);
 		}
 	}
@@ -424,11 +450,11 @@ public static partial class VMExecutor
 					else if (instanceId == GMConstants.local)
 					{
 						VariableResolver.ArraySet(index, new List<object?>(),
-							() => Ctx.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
-							array => Ctx.Locals[variableName] = array,
+							() => CurrentCall.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
+							array => CurrentCall.Locals[variableName] = array,
 							onlyGrow: true);
 
-						var array = Ctx.Locals[variableName].Conv<IList>();
+						var array = CurrentCall.Locals[variableName].Conv<IList>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
@@ -461,7 +487,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						var array = Ctx.Locals[variableName].Conv<IList>();
+						var array = CurrentCall.Locals[variableName].Conv<IList>();
 						Ctx.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}

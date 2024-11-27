@@ -19,7 +19,8 @@ public static partial class VMExecutor
 
 	public static void PopToLocal(string varName, object? value)
 	{
-		Ctx.Locals[varName] = value;
+		//Ctx.Locals[varName] = value;
+		CurrentCall.Locals[varName] = value;
 	}
 
 	public static void PopToGlobalArray(string varName, int index, object? value)
@@ -36,8 +37,8 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index,
 			value,
-			() => Ctx.Locals.TryGetValue(varName, out var array) ? array as IList : null,
-			array => Ctx.Locals[varName] = array);
+			() => CurrentCall.Locals.TryGetValue(varName, out var array) ? array as IList : null,
+			array => CurrentCall.Locals[varName] = array);
 	}
 
 	public static void PopToSelf(IStackContextSelf self, string varName, object? value)
@@ -97,7 +98,7 @@ public static partial class VMExecutor
 
 	public static void PopToArgument(int index, object? value)
 	{
-		var args = (object?[])Ctx.Locals["arguments"].Conv<IList>();
+		var args = (object?[])CurrentCall.Locals["arguments"].Conv<IList>();
 
 		if (index >= args.Length)
 		{
@@ -105,7 +106,7 @@ public static partial class VMExecutor
 		}
 		
 		args[index] = value;
-		Ctx.Locals["arguments"] = args;
+		CurrentCall.Locals["arguments"] = args;
 	}
 
 	public static void PopToOther(string varName, object? value)

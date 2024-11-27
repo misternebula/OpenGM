@@ -45,7 +45,7 @@ public static partial class VMExecutor
 				ObjectDefinition = instance.Definition,
 				// TODO: why copy? is with statement a separate block?
 				Stack = new(currentContext.Stack),
-				Locals = new(currentContext.Locals),
+				//Locals = new(currentContext.Locals),
 				ReturnValue = currentContext.ReturnValue,
 				EventType = currentContext.EventType,
 				EventIndex = currentContext.EventIndex,
@@ -66,7 +66,7 @@ public static partial class VMExecutor
 				ObjectDefinition = instance.Definition,
 				// TODO: why copy? is with statement a separate block?
 				Stack = new(currentContext.Stack),
-				Locals = new(currentContext.Locals),
+				//Locals = new(currentContext.Locals),
 				ReturnValue = currentContext.ReturnValue,
 				EventType = currentContext.EventType,
 				EventIndex = currentContext.EventIndex,
@@ -116,7 +116,7 @@ public static partial class VMExecutor
 					ObjectDefinition = instance.Definition,
 					// TODO: why copy? is with statement a separate block?
 					Stack = new(currentContext.Stack),
-					Locals = new(currentContext.Locals),
+					//Locals = new(currentContext.Locals),
 					ReturnValue = currentContext.ReturnValue,
 					EventType = currentContext.EventType,
 					EventIndex = currentContext.EventIndex,
@@ -147,7 +147,7 @@ public static partial class VMExecutor
 				ObjectDefinition = instance.Definition,
 				// TODO: why copy? is with statement a separate block?
 				Stack = new(currentContext.Stack),
-				Locals = new(currentContext.Locals),
+				//Locals = new(currentContext.Locals),
 				ReturnValue = currentContext.ReturnValue,
 				EventType = currentContext.EventType,
 				EventIndex = currentContext.EventIndex,

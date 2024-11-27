@@ -14,7 +14,7 @@ public class VMScriptExecutionContext
 	public GamemakerObject GMSelf => (GamemakerObject)Self;
 	public ObjectDefinition? ObjectDefinition;
 	public DataStack Stack = null!;
-	public Dictionary<string, object?> Locals = null!;
+	//public Dictionary<string, object?> Locals = null!;
 	public object? ReturnValue;
 	public EventType EventType;
 	public int EventIndex;
@@ -43,6 +43,19 @@ public class VMScriptExecutionContext
 	}
 }
 
+public class VMCall
+{
+	public VMCode Code = null!;
+	public VMScriptExecutionContext Ctx = null!;
+	public Dictionary<string, object?> Locals = new();
+
+	public VMCall(VMCode code, VMScriptExecutionContext ctx)
+	{
+		Code = code;
+		Ctx = ctx;
+	}
+}
+
 public static partial class VMExecutor
 {
 	public static Stack<VMScriptExecutionContext> EnvironmentStack = new();
@@ -52,7 +65,8 @@ public static partial class VMExecutor
 	public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
 
 	// debug
-	public static Stack<VMCode> currentExecutingScript = new();
+	public static Stack<VMCall> CallStack = new();
+	public static VMCall CurrentCall => CallStack.Peek();
 	public static bool VerboseStackLogs;
 	
 	// private static IList? _temporaryArrayStorage = null;
@@ -75,7 +89,7 @@ public static partial class VMExecutor
 			//if (!script.IsGlobalInit)
 			//{
 			var space = "   ";
-			var count = currentExecutingScript.Count;
+			var count = CallStack.Count;
 			var leftPadding = string.Concat(Enumerable.Repeat(space, count));
 
 			DebugLog.LogInfo($"{leftPadding}------------------------------ {code.Name} ------------------------------ ");
@@ -87,22 +101,11 @@ public static partial class VMExecutor
 			Self = obj!,
 			ObjectDefinition = objectDefinition,
 			Stack = new(),
-			Locals = new(),
+			//Locals = new(),
 			ReturnValue = null,
 			EventType = eventType,
 			EventIndex = eventIndex
 		};
-
-		foreach (var item in code.LocalVariables)
-		{
-			newCtx.Locals.Add(item, null);
-		}
-
-		if (args != null)
-		{
-			// conv should be able to handle list to array via casting to IList
-			newCtx.Locals["arguments"] = args;
-		}
 
 		// Make the current object the current instance
 		EnvironmentStack.Push(newCtx);
@@ -110,7 +113,19 @@ public static partial class VMExecutor
 		var instructionIndex = startingIndex;
 		var lastJumpedLabel = 0; // just for debugging
 
-		currentExecutingScript.Push(code);
+		var call = new VMCall(code, newCtx);
+		CallStack.Push(call);
+
+		foreach (var item in code.LocalVariables)
+		{
+			call.Locals.Add(item, null);
+		}
+
+		if (args != null)
+		{
+			// conv should be able to handle list to array via casting to IList
+			call.Locals["arguments"] = args;
+		}
 
 		code.CodeExecuted();
 
@@ -145,11 +160,11 @@ public static partial class VMExecutor
 			{
 				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {code.Name} failed : {data}");
 
-				/*DebugLog.LogError($"--Stacktrace--");
-				foreach (var item in currentExecutingScript)
+				DebugLog.LogError($"--Stacktrace--");
+				foreach (var item in CallStack)
 				{
-					DebugLog.LogError($" - {item.Name}");
-				}*/
+					DebugLog.LogError($" - {item.Code.Name}");
+				}
 
 				//Debug.Break();
 				break;
@@ -191,7 +206,19 @@ public static partial class VMExecutor
 		var returnValue = Ctx!.ReturnValue;
 		EnvironmentStack.Pop();
 
-		currentExecutingScript.Pop();
+		CallStack.Pop();
+
+		if (VerboseStackLogs)
+		{
+			//if (!script.IsGlobalInit)
+			//{
+			var space = "   ";
+			var count = CallStack.Count;
+			var leftPadding = string.Concat(Enumerable.Repeat(space, count));
+
+			DebugLog.LogInfo($"{leftPadding}-#-#-#-#-#-#-#-#-#-#-#-#-#-#-- {code.Name} --#-#-#-#-#-#-#-#-#-#-#-#-#-#- ");
+			//}
+		}
 
 		return returnValue;
 	}
@@ -552,7 +579,7 @@ public static partial class VMExecutor
 			// (YYGetBool is the only function that checks for 0x5)
 			if (type == typeof(bool)) return false;
 
-			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{currentExecutingScript.First().Name}");
+			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{CallStack.First().Code.Name}");
 		}
 
 		if (@this.GetType() == type)
