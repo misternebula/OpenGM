@@ -55,8 +55,15 @@ public static class AudioManager
     private static List<AudioInstance> _audioSources = new();
     private static Dictionary<int, AudioAsset> _audioClips = new();
 
+    private static bool _inited;
+
     public static void Init()
     {
+	    if (_inited)
+	    {
+		    return;
+	    }
+
         _device = ALC.OpenDevice(null);
         CheckALCError();
         _context = ALC.CreateContext(_device, new ALContextAttributes());
@@ -70,6 +77,9 @@ public static class AudioManager
         CheckALError();
         Console.WriteLine(AL.Get(ALGetString.Extensions));
         CheckALError();
+
+        _inited = true;
+
     }
 
     /// <summary>

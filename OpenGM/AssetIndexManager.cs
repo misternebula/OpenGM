@@ -24,6 +24,9 @@ public static class AssetIndexManager
 	{
 		Console.Write($"Loading asset order...");
 
+		AssetList.Clear();
+		NameToIndex.Clear();
+
 		var lines = reader.ReadString().SplitLines();
 		var headerLineNumber = 0;
 		AssetType currentAssetType = 0;
