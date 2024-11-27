@@ -233,13 +233,25 @@ public static partial class ScriptResolver
 		 * "You specify the object that you want to find the instance of and a number,
 		 * and if there is an instance at that position in the instance list then the function
 		 * returns the id of that instance, and if not it returns the special keyword noone.
+		 *
 		 * You can also use the keyword all to iterate through all the instances in a room,
 		 * as well as a parent object to iterate through all the instances that are part of
 		 * that parent / child hierarchy, and you can even specify an instance (if you have its id)
 		 * as a check to see if it actually exists in the current room."
 		 */
 
-		if (obj == GMConstants.all)
+		if (obj == GMConstants.self)
+		{
+			return VMExecutor.Ctx.GMSelf.instanceId;
+		}
+		else if (obj == GMConstants.other)
+		{
+			var stackArray = VMExecutor.EnvironmentStack.ToArray();
+			var instance = stackArray[1].GMSelf;
+
+			return instance.instanceId;
+		}
+		else if (obj == GMConstants.all)
 		{
 			return InstanceManager.instances.ElementAt(n).instanceId;
 		}
@@ -252,7 +264,15 @@ public static partial class ScriptResolver
 		else
 		{
 			// is an object index
-			return InstanceManager.instances.Where(x => x.object_index == obj).ElementAt(n).instanceId;
+			var instances = InstanceManager.instances.Where(x => x.object_index == obj).ToArray();
+
+			if (n >= instances.Length)
+			{
+				return GMConstants.noone;
+			}
+
+			var instance = instances[n];
+			return instance.instanceId;
 		}
 
 		//return GMConstants.noone;
