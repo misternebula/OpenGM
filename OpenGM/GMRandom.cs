@@ -47,7 +47,7 @@ public static class GMRandom
 	}
 
 	// Generates a random double from 0 to 1.
-	public static double fYYRandom() => (YYRandom() & 0x7fffffff) / 2147483647.0;
+	public static double fYYRandom() => (YYRandom() & 0x7fffffff) / (float)int.MaxValue;
 
 	// Generates a random uint from 0 to n-1
 	public static uint YYRandom(int n)
