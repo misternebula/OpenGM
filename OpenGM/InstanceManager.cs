@@ -105,6 +105,11 @@ public static class InstanceManager
 
 	public static GamemakerObject? FindByInstanceId(int instanceId)
 	{
+		if (instanceId == GMConstants.self)
+		{
+			return VMExecutor.Ctx.GMSelf;
+		}
+
 		if (instanceId < GMConstants.FIRST_INSTANCE_ID)
 		{
 			throw new Exception($"Tried to find instance by asset id {instanceId}");
