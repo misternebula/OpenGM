@@ -164,6 +164,12 @@ public static partial class VMExecutor
 					DebugLog.LogError($"Variable {varName} doesn't exist in non-GMO self, pushing undefined.");
 				}
 
+				DebugLog.LogError($"--Stacktrace--");
+				foreach (var item in CallStack)
+				{
+					DebugLog.LogError($" - {item.Code.Name}");
+				}
+
 				self.SelfVariables[varName] = null;
 				Ctx.Stack.Push(self.SelfVariables[varName], VMType.v);
 			}
