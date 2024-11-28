@@ -75,25 +75,34 @@ public static partial class VMExecutor
 
 	public static void PopToIndex(int assetId, string varName, object? value)
 	{
-		GamemakerObject? instance;
 		if (assetId < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// Asset Index
-			instance = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId);
+			var instances = InstanceManager.FindByAssetId(assetId);
+
+			foreach (var instance in instances)
+			{
+				if (instance == null)
+				{
+					throw new NotImplementedException();
+				}
+
+				PopToSelf(instance, varName, value);
+			}
 		}
 		else
 		{
 			// Instance Id
-			instance = InstanceManager.FindByInstanceId(assetId);
-		}
+			var instance = InstanceManager.FindByInstanceId(assetId);
 
-		if (instance == null)
-		{
-			throw new NotImplementedException();
-		}
+			if (instance == null)
+			{
+				throw new NotImplementedException();
+			}
 
-		// TODO : double check this is always self. might be local as well????
-		PopToSelf(instance, varName, value);
+			// TODO : double check this is always self. might be local as well????
+			PopToSelf(instance, varName, value);
+		}
 	}
 
 	public static void PopToArgument(int index, object? value)
