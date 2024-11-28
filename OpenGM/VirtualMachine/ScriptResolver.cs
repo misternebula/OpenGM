@@ -92,7 +92,7 @@ public static partial class ScriptResolver
 		//{ "instance_position_list", instance_position_list },
 		{ "instance_nearest", instance_nearest },
 		//{ "instance_furthest", instance_furthest },
-		//{ "instance_place", instance_place },
+		{ "instance_place", instance_place },
 		//{ "instance_place_list", instance_place_list },
 		{ "instance_create_depth", instance_create_depth },
 		//{ "instance_create_layer", instance_create_layer },
@@ -4034,6 +4034,36 @@ public static partial class ScriptResolver
 		}
 
 		return _dsListDict[id].Count;
+	}
+
+	public static object instance_place(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+
+		if (obj < 0)
+		{
+			throw new NotImplementedException($"{obj} given to place_meeting");
+		}
+
+		GamemakerObject? collide;
+
+		if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			collide = CollisionManager.instance_place_assetid(x, y, obj, VMExecutor.Ctx.GMSelf);
+		}
+		else
+		{
+			collide = CollisionManager.instance_place_instanceid(x, y, obj, VMExecutor.Ctx.GMSelf);
+		}
+
+		if (collide == null)
+		{
+			return GMConstants.noone;
+		}
+
+		return collide.instanceId;
 	}
 }
 
