@@ -195,12 +195,7 @@ public static class VariableResolver
 	public static void set_image_speed(GamemakerObject instance, object? value) => instance.image_speed = value.Conv<double>();
 
 	public static object get_visible(GamemakerObject instance) => instance.visible;
-
-	public static void set_visible(GamemakerObject instance, object? value)
-	{
-		DebugLog.Log($"Setting {instance.instanceId} ({instance.Definition.Name}) to {value.Conv<bool>()}");
-		instance.visible = value.Conv<bool>();
-	}
+	public static void set_visible(GamemakerObject instance, object? value) => instance.visible = value.Conv<bool>();
 
 	public static object get_image_alpha(GamemakerObject instance) => instance.image_alpha;
 	public static void set_image_alpha(GamemakerObject instance, object? value) => instance.image_alpha = value.Conv<double>();
