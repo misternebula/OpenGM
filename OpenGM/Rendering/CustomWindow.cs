@@ -300,6 +300,13 @@ public class CustomWindow : GameWindow
                     {
                         c1 = c2 = c3 = c4 = new Color4(textJob.blend.R, textJob.blend.G, textJob.blend.B, (float)textJob.alpha);
                     }
+                    else
+                    {
+	                    c1.A = (float)textJob.alpha;
+	                    c2.A = (float)textJob.alpha;
+	                    c3.A = (float)textJob.alpha;
+	                    c4.A = (float)textJob.alpha;
+					}
 
 
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
