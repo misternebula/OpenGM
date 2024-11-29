@@ -176,7 +176,7 @@ public static partial class ScriptResolver
 		{ "ceil", ceil },
 		{ "sign", sign},
 		//{ "frac", frac },
-		//{ "sqrt", sqrt },
+		{ "sqrt", sqrt },
 		// 
 		//
 		//{ "ln", ln },
@@ -2920,7 +2920,7 @@ public static partial class ScriptResolver
 		// TODO : "This character depends on the current drawing fonts character set code page and if no font is set, it will use the default code page for the machine."
 		// what the fuck does this mean
 
-		var currentFont = TextManager.fontAsset;
+		/*var currentFont = TextManager.fontAsset;
 
 		if (currentFont.entriesDict.ContainsKey(val))
 		{
@@ -2929,7 +2929,9 @@ public static partial class ScriptResolver
 		else
 		{
 			throw new NotImplementedException();
-		}
+		}*/
+
+		return Convert.ToChar(val).ToString();
 	}
 
 	// basically copied from https://github.com/YoYoGames/GameMaker-HTML5/blob/965f410a6553dd8e2418006ebeda5a86bd55dba2/scripts/functions/Function_Date.js
@@ -4102,12 +4104,25 @@ public static partial class ScriptResolver
 		return false;
 	}
 
-	public static object path_start(object?[] args)
+	public static object? path_start(object?[] args)
 	{
 		var path = args[0].Conv<int>();
 		var speed = args[1].Conv<double>();
-		var endaction = args[2].Conv<int>();
+		var endaction = (PathEndAction)args[2].Conv<int>();
 		var absolute = args[3].Conv<bool>();
+
+		VMExecutor.Ctx.GMSelf.AssignPath(path, speed, 1, 0, absolute, endaction);
+
+		return null;
+	}
+
+	public static object sqrt(object?[] args)
+	{
+		var val = args[0].Conv<double>();
+
+		// TODO : Docs say that values [-epsilon,0) are set to 0, probably added in newer GM versions
+
+		return Math.Sqrt(val);
 	}
 }
 

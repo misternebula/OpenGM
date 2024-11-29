@@ -267,6 +267,13 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 	public int path_index = -1;
 	public double path_position = 0;
+	public double path_previousposition;
+	public PathEndAction path_endaction;
+	public double path_speed;
+	public double path_scale;
+	public double path_xstart;
+	public double path_ystart;
+	public double path_orientation;
 
 	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
 	{
@@ -306,59 +313,18 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			return;
 		}
 
-		/*var collider = CollisionManager.colliders.FirstOrDefault(x => x.GMObject == this);
-		if (collider != null && (object_index == 331 || object_index == 81 || object_index == 336))
-		{
-			CustomWindow.DebugRenderJobs.Add(new GMPolygonJob()
-			{
-				blend = Color4.Yellow,
-				alpha = 1,
-				Outline = true,
-				Vertices = new[]
-				{
-					new Vector2((float)x + (float)(margins.X * image_xscale), (float)y + (float)(margins.W * image_yscale)),
-					new Vector2((float)x + (float)((margins.Y + 1) * image_xscale), (float)y + (float)(margins.W * image_yscale)),
-					new Vector2((float)x + (float)((margins.Y + 1) * image_xscale), (float)y + (float)((margins.Z + 1) * image_yscale)),
-					new Vector2((float)x + (float)(margins.X * image_xscale), (float)y + (float)((margins.Z + 1) * image_yscale))
-				}
-			});
-		}*/
+		AdaptSpeed();
 
-		if (friction != 0)
+		if (AdaptPath())
 		{
-			if (speed > 0)
-			{
-				if (speed - friction < 0)
-				{
-					speed = 0;
-				}
-				else
-				{
-					speed -= friction;
-				}
-			}
-			else if (speed < 0)
-			{
-				if (speed + friction > 0)
-				{
-					speed = 0;
-				}
-				else
-				{
-					speed += friction;
-				}
-			}
+			ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
 		}
 
-		if (gravity != 0)
+		if (hspeed != 0 && vspeed != 0)
 		{
-			//vspeed += gravity;
-			vspeed += -Math.Sin(CustomMath.Deg2Rad * gravity_direction) * gravity;
-			hspeed += Math.Cos(CustomMath.Deg2Rad * gravity_direction) * gravity;
+			x += hspeed;
+			y += vspeed;
 		}
-
-		x += hspeed;
-		y += vspeed;
 
 		var asset = SpriteManager.GetSpriteAsset(sprite_index);
 		if (asset != null)
@@ -535,5 +501,207 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		}
 
 		return 180 + angle;
+	}
+
+	public void AdaptSpeed()
+	{
+		if (friction != 0)
+		{
+			var newSpeed = speed > 0
+				? speed - friction
+				: speed + friction;
+
+			if (speed > 0 && newSpeed < 0)
+			{
+				speed = 0;
+			}
+			else if (speed < 0 && newSpeed > 0)
+			{
+				speed = 0;
+			}
+			else if (speed != 0)
+			{
+				speed = newSpeed;
+			}
+		}
+
+		if (gravity != 0)
+		{
+			vspeed -= Math.Sin(CustomMath.Deg2Rad * gravity_direction) * gravity;
+			hspeed += Math.Cos(CustomMath.Deg2Rad * gravity_direction) * gravity;
+		}
+	}
+
+	public void AssignPath(int pathIndex, double pathSpeed, double pathScale, double pathOrientation, bool absolute, PathEndAction endAction)
+	{
+		path_index = -1;
+
+		if (pathIndex < 0)
+		{
+			return;
+		}
+
+		var path = PathManager.Paths[pathIndex];
+
+		if (path == null)
+		{
+			return;
+		}
+
+		if (path.length <= 0)
+		{
+			return;
+		}
+
+		if (pathScale < 0)
+		{
+			return;
+		}
+
+		path_index = pathIndex;
+
+		path_speed = pathSpeed;
+		if (path_speed >= 0)
+		{
+			path_position = 0;
+		}
+		else
+		{
+			path_position = 1;
+		}
+
+		path_previousposition = path_position;
+		path_scale = pathScale;
+
+		path_orientation = pathOrientation;
+		path_endaction = endAction;
+
+		if (absolute)
+		{
+			x = path.XPosition(path_speed);
+			y = path.YPosition(path_speed);
+
+			path_xstart = path.XPosition(0);
+			path_ystart = path.YPosition(0);
+		}
+		else
+		{
+			path_xstart = x;
+			path_ystart = y;
+		}
+	}
+
+	public bool AdaptPath()
+	{
+		if (path_index < 0)
+		{
+			return false;
+		}
+
+		var path = PathManager.Paths[path_index];
+		if (path == null)
+		{
+			return false;
+		}
+
+		if (path.length <= 0)
+		{
+			return false;
+		}
+
+		var atPathEnd = false;
+		var orient = path_orientation * Math.PI / 180.0;
+
+		var point = PathManager.GetPosition(path, path_position);
+		var sp = point.speed;
+
+		sp /= (100 * path_scale); // scale speed
+		path_position += path_speed * sp / path.length; // increase position
+
+		var point0 = PathManager.GetPosition(path, 0);
+
+		if (path_position >= 1 || path_position <= 0)
+		{
+			atPathEnd = path_speed != 0;
+			switch (path_endaction)
+			{
+				case PathEndAction.path_action_stop:
+					// TODO : why is this check not in the default case?
+					if (path_speed != 0)
+					{
+						path_position = 1;
+						path_index = -1;
+					}
+
+					break;
+				case PathEndAction.path_action_restart:
+					if (path_position < 0)
+					{
+						path_position++;
+					}
+					else
+					{
+						path_position--;
+					}
+
+					break;
+				case PathEndAction.path_action_continue:
+					var point1 = PathManager.GetPosition(path, 1);
+					var dx = point1.x - point0.x;
+					var dy = point1.y - point0.y;
+
+					var xdif = path_scale * ((dx * Math.Cos(orient)) + (dy * Math.Sin(orient)));
+					var ydif = path_scale * ((dy * Math.Cos(orient)) - (dx * Math.Sin(orient)));
+
+					if (path_position < 0)
+					{
+						path_xstart -= xdif;
+						path_ystart -= ydif;
+						path_position++;
+					}
+					else
+					{
+						path_xstart += xdif;
+						path_ystart += ydif;
+						path_position--;
+					}
+
+					break;
+				case PathEndAction.path_action_reverse:
+					if (path_position < 0)
+					{
+						path_position = -path_position;
+						path_speed = Math.Abs(path_speed);
+					}
+					else
+					{
+						path_position = 2 - path_position;
+						path_speed = -Math.Abs(path_speed);
+					}
+
+					break;
+				default:
+					path_position = 1;
+					path_index = -1;
+					break;
+			}
+		}
+
+		point = PathManager.GetPosition(path, path_position);
+		var xx = point.x - point0.x;
+		var yy = point.y - point0.y;
+
+		var newx = path_xstart + path_scale * ((xx * Math.Cos(orient)) + (yy * Math.Sin(orient)));
+		var newy = path_ystart + path_scale * ((yy * Math.Cos(orient)) - (xx * Math.Sin(orient)));
+
+		// trick to set the direction
+		hspeed = newx - x;
+		vspeed = newy - y;
+		speed = 0;
+
+		x = newx;
+		y = newy;
+
+		return atPathEnd;
 	}
 }

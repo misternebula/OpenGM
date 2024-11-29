@@ -133,7 +133,9 @@ public static class VariableResolver
 		{ "sprite_xoffset", (get_sprite_xoffset, null)},
 		{ "sprite_yoffset", (get_sprite_yoffset, null)},
 		{ "path_index", (get_path_index, null)},
-		{ "path_position", (get_path_position, set_path_position)}
+		{ "path_position", (get_path_position, set_path_position)},
+		{ "path_speed", (get_path_speed, set_path_speed)},
+		{ "path_scale", (get_path_scale, set_path_scale)}
 	};
 
 	public static object get_working_directory()
@@ -300,6 +302,12 @@ public static class VariableResolver
 
 	public static object get_path_position(GamemakerObject instance) => instance.path_position;
 	public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<double>();
+
+	public static object get_path_speed(GamemakerObject instance) => instance.path_speed;
+	public static void set_path_speed(GamemakerObject instance, object? value) => instance.path_speed = value.Conv<double>();
+
+	public static object get_path_scale(GamemakerObject instance) => instance.path_scale;
+	public static void set_path_scale(GamemakerObject instance, object? value) => instance.path_scale = value.Conv<double>();
 
 	public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
 

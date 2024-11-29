@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
 using static UndertaleModLib.Compiler.Compiler.Parser.ExpressionConstant;
 
@@ -24,7 +25,7 @@ public static class PathManager
 		return number;
 	}
 
-	public static void AddPoint(CPath path, float x, float y, float speed)
+	public static void AddPoint(CPath path, double x, double y, double speed)
 	{
 		var point = new PathPoint()
 		{
@@ -56,6 +57,8 @@ public static class PathManager
 	public static void ComputeLinear(CPath path)
 	{
 		path.intcount = 0;
+		Array.Resize(ref path.intpoints, path.intcount);
+
 		if (path.count <= 0)
 		{
 			return;
@@ -74,16 +77,17 @@ public static class PathManager
 		}
 	}
 
-	public static void AddInternalPoint(CPath path, float x, float y, float speed)
+	public static void AddInternalPoint(CPath path, double x, double y, double speed)
 	{
 		path.intcount++;
+		Array.Resize(ref path.intpoints, path.intcount);
 		var point = new InternalPoint()
 		{
 			x = x,
 			y = y,
 			speed = speed
 		};
-		path.intpoints.Add(point);
+		path.intpoints[path.intcount - 1] = point;
 	}
 
 	public static void ComputeLength(CPath path)
@@ -94,7 +98,7 @@ public static class PathManager
 			return;
 		}
 
-		static float Sqr(float n) => n * n;
+		static double Sqr(double n) => n * n;
 
 		path.intpoints[0].l = 0;
 		for (var i = 1; i < path.intcount; i++)
@@ -103,7 +107,7 @@ public static class PathManager
 		}
 	}
 
-	public static void DrawPath(CPath path, float x, float y, bool absolute)
+	public static void DrawPath(CPath path, double x, double y, bool absolute)
 	{
 		var xoff = x;
 		var yoff = y;
@@ -142,8 +146,9 @@ public static class PathManager
 		});
 	}
 
-	public static InternalPoint GetPosition(CPath path, float index)
+	public static InternalPoint GetPosition(CPath path, double index)
 	{
+		// easy cases
 		if (path.intcount <= 0)
 		{
 			return new InternalPoint() { x = 0, y = 0, speed = 0};
@@ -151,17 +156,20 @@ public static class PathManager
 
 		if ((path.intcount == 1) || (path.length == 0) || (index <= 0))
 		{
-			return path.intpoints[0];
+			return path.intpoints[0]; // Just return the actual point- DO NOT MODIFY!!
 		}
 
 		if (index >= 1)
 		{
-			return path.intpoints[path.intcount - 1];
+			return path.intpoints[path.intcount - 1]; // Just return the actual point- DO NOT MODIFY!!
 		}
 
+		// get the right interval
 		var l = path.length * index;
 		var pos = 0;
 
+		// MJD = looks slow.... whatever it is...
+		// TODO: Use binary search ???
 		while ((pos < path.intcount - 2) && (l >= path.intpoints[pos + 1].l))
 		{
 			pos++;
@@ -172,18 +180,18 @@ public static class PathManager
 		l = l - pNode.l;
 		var w = path.intpoints[pos + 1].l - pNode.l;
 
+		var returnNode = new InternalPoint() { x = 0, y = 0, speed = 100 };
+
 		if (w != 0)
 		{
 			pos++;
-			return new InternalPoint()
-			{
-				x = pNode.x + l * (path.intpoints[pos].x - pNode.x) / w,
-				y = pNode.y + l * (path.intpoints[pos].y - pNode.y) / w,
-				speed = pNode.speed + l * (path.intpoints[pos].speed - pNode.speed) / w
-			};
+			returnNode.x = pNode.x + l * (path.intpoints[pos].x - pNode.x) / w;
+			returnNode.y = pNode.y + l * (path.intpoints[pos].y - pNode.y) / w;
+			returnNode.speed = pNode.speed + l * (path.intpoints[pos].speed - pNode.speed) / w;
+			pNode = returnNode;
 		}
 
-		return new InternalPoint() { x = 0, y = 0, speed = 100 };
+		return pNode;
 	}
 }
 
@@ -191,25 +199,32 @@ public class CPath(string name)
 {
 	string name = name;
 
-	public List<PathPoint> points = new();
-	public List<InternalPoint> intpoints = new();
 	public int count = 0;
+	public List<PathPoint> points = new();
+
+	public int intcount = 0;
+	public InternalPoint[] intpoints = null!;
+	
 	public int kind = 0;
 	public bool closed = true;
 	public int precision = 4;
-	public int intcount = 0;
+	
 	public float length;
 	public float time;
-}
 
-public class PathPoint
-{
-	public float x;
-	public float y;
-	public float speed;
+	public double XPosition(double position) => PathManager.GetPosition(this, position).x;
+	public double YPosition(double position) => PathManager.GetPosition(this, position).y;
 }
 
 public class InternalPoint : PathPoint
 {
 	public float l;
+}
+
+public enum PathEndAction
+{
+	path_action_stop,
+	path_action_restart,
+	path_action_continue,
+	path_action_reverse
 }

@@ -47,6 +47,7 @@ public static class GameLoader
         LoadTextureGroups(reader);
         LoadTileSets(reader);
         AudioManager.LoadSounds(reader);
+        LoadPaths(reader);
         
         GC.Collect(); // gc after doing a buncha loading
     }
@@ -352,5 +353,32 @@ public static class GameLoader
 	    }
 
 	    Console.WriteLine($" Done!");
+	}
+
+	private static void LoadPaths(BinaryReader reader)
+	{
+		Console.Write($"Loading paths...");
+		PathManager.Paths.Clear();
+
+		var length = reader.ReadInt32();
+		for (var i = 0; i < length; i++)
+		{
+			var asset = reader.ReadMemoryPack<GMPath>();
+
+			var path = new CPath(asset.Name);
+            // TODO : smooth????
+			path.closed = asset.IsClosed;
+			path.precision = asset.Precision;
+
+			foreach (var point in asset.Points)
+			{
+                path.points.Add(point);
+			}
+            path.count = path.points.Count;
+
+            PathManager.ComputeInternal(path);
+
+            PathManager.Paths.Add(PathManager.Paths.Count, path);
+		}
 	}
 }
