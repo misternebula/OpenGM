@@ -52,7 +52,7 @@ public static partial class ScriptResolver
 		//{ "motion_add", motion_add },
 		{ "distance_to_point", distance_to_point },
 		{ "distance_to_object", distance_to_object },
-		//{ "path_start", path_start },
+		{ "path_start", path_start },
 		{ "path_end", path_end },
 		//{ "mp_linear_step", mp_linear_step },
 		//{ "mp_linear_path", mp_linear_path },
@@ -650,7 +650,9 @@ public static partial class ScriptResolver
 		{ "parameter_string", parameter_string},
 		{ "string_split", string_split},
 		{ "ds_list_size", ds_list_size},
-		{ "ds_list_find_value", ds_list_find_value}
+		{ "ds_list_find_value", ds_list_find_value},
+		{ "array_push", array_push},
+		{ "object_is_ancestor", object_is_ancestor}
 
 		
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
@@ -4064,6 +4066,48 @@ public static partial class ScriptResolver
 		}
 
 		return collide.instanceId;
+	}
+
+	public static object? array_push(object?[] args)
+	{
+		var variable = args[0].Conv<IList>();
+		for (var i = 1; i < args.Length; i++)
+		{
+			// TODO : is variable actually a reference to the stored array, or is it just a value copy?
+			variable.Add(args[i]);
+		}
+
+		return null;
+	}
+
+	public static object object_is_ancestor(object?[] args)
+	{
+		var obj = args[0].Conv<int>();
+		var par = args[1].Conv<int>();
+
+		var objDef = InstanceManager.ObjectDefinitions[obj];
+		var parDef = InstanceManager.ObjectDefinitions[par];
+
+		var currentParent = objDef;
+		while (currentParent != null)
+		{
+			if (currentParent.AssetId == parDef.AssetId)
+			{
+				return true;
+			}
+
+			currentParent = currentParent.parent;
+		}
+
+		return false;
+	}
+
+	public static object path_start(object?[] args)
+	{
+		var path = args[0].Conv<int>();
+		var speed = args[1].Conv<double>();
+		var endaction = args[2].Conv<int>();
+		var absolute = args[3].Conv<bool>();
 	}
 }
 
