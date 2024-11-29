@@ -164,6 +164,16 @@ public static partial class VMExecutor
 		var currentInstance = EnvironmentStack.Pop();
 		var nextInstance = Ctx;
 
+		if (instruction.Drop)
+		{
+			while (currentInstance != null)
+			{
+				currentInstance = EnvironmentStack.Pop();
+			}
+
+			return (ExecutionResult.Success, null);
+		}
+
 		// no instances pushed
 		if (currentInstance == null)
 		{
