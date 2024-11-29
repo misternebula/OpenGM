@@ -29,9 +29,10 @@ internal class GMTilesLayer : DrawWithDepth
 
 	public override void Draw()
 	{
-		if (_timing.Elapsed.Microseconds >= _tileSet.FrameTime)
+		if (_timing.Elapsed.TotalMicroseconds >= _tileSet.FrameTime)
 		{
 			_currentFrame++;
+			_timing.Restart();
 			if (_currentFrame >= _tileSet.FramesPerTile)
 			{
 				_currentFrame = 0;
