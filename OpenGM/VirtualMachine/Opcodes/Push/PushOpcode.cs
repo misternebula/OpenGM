@@ -239,6 +239,13 @@ public static partial class VMExecutor
 	{
 		var stackArray = EnvironmentStack.ToArray();
 
+		if (stackArray.Length == 1)
+		{
+			// "other" refers to self outside of "with" and collision events
+			PushSelf(stackArray[0].Self, varName);
+			return;
+		}
+
 		if (stackArray.Contains(null))
 		{
 			// iterate backwards until we find the null value
