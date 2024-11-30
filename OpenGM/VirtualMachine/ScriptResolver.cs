@@ -2909,6 +2909,15 @@ public static partial class ScriptResolver
 		var value = args[2];
 
 		var instance = InstanceManager.FindByInstanceId(instanceId)!;
+
+		if (VariableResolver.BuiltInSelfVariables.TryGetValue(name, out var getset))
+		{
+			var (getter, setter) = getset;
+			setter?.Invoke(instance, value);
+
+			return null;
+		}
+
 		instance.SelfVariables[name] = value;
 		return null;
 	}
@@ -3942,6 +3951,12 @@ public static partial class ScriptResolver
 		if (instance == null)
 		{
 			return null;
+		}
+
+		if (VariableResolver.BuiltInSelfVariables.ContainsKey(name))
+		{
+			var (getter, setter) = VariableResolver.BuiltInSelfVariables[name];
+			return getter(instance);
 		}
 
 		return instance.SelfVariables.TryGetValue(name, out var value) ? value : null;
