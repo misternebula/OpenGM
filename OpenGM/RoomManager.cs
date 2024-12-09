@@ -259,6 +259,28 @@ public static class RoomManager
 
 					layerContainer.ElementsToDraw.Add(newTile);
 				}
+				else if (element.Type == ElementType.Sprite)
+				{
+					var sprite = (element as CLayerSpriteElement)!;
+
+					var newSprite = new GMSprite(sprite)
+					{
+						Definition = sprite.Definition,
+						X = sprite.X,
+						Y = sprite.Y,
+						XScale = sprite.ScaleX,
+						YScale = sprite.ScaleY,
+						Color = sprite.Color,
+						AnimationSpeed = sprite.AnimationSpeed,
+						AnimationSpeedType = sprite.AnimationSpeedType,
+						FrameIndex = sprite.FrameIndex,
+						Rotation = sprite.Rotation,
+						instanceId = sprite.Id,
+						depth = layer.LayerDepth
+					};
+
+					layerContainer.ElementsToDraw.Add(newSprite);
+				}
 				else
 				{
 					DebugLog.LogError($"Don't know how to load element type {element.Type}!");

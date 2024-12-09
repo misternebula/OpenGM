@@ -13,6 +13,7 @@ using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
 using static UndertaleModLib.Models.UndertaleRoom;
+using static UndertaleModLib.Models.UndertaleBackground;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
@@ -673,10 +674,31 @@ public static partial class ScriptResolver
 		{ "draw_healthbar", draw_healthbar},
 		{ "path_set_kind", path_set_kind},
 		{ "path_exists", path_exists},
-		{ "audio_sound_get_gain", audio_sound_get_gain}
+		{ "audio_sound_get_gain", audio_sound_get_gain},
+		{ "layer_sprite_get_sprite", layer_sprite_get_sprite},
+		{ "layer_sprite_get_x", layer_sprite_get_x},
+		{ "layer_sprite_get_y", layer_sprite_get_y},
+		{ "layer_sprite_get_xscale", layer_sprite_get_xscale},
+		{ "layer_sprite_get_yscale", layer_sprite_get_yscale},
+		{ "layer_sprite_get_speed", layer_sprite_get_speed},
+		{ "layer_sprite_get_index", layer_sprite_get_index},
+		{ "layer_sprite_destroy", layer_sprite_destroy},
+		{ "draw_clear", draw_clear}
+		
 		
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
+
+	public static object? draw_clear(object?[] args)
+	{
+		var col = args[0].Conv<int>();
+		var colour = col.ABGRToCol4();
+		colour.A = 0f;
+		GL.ClearColor(colour);
+		GL.Clear(ClearBufferMask.ColorBufferBit);
+		GL.ClearColor(0, 0, 0, 0);
+		return null;
+	}
 
 	public static object? audio_sound_get_gain(object?[] args)
 	{
@@ -4675,6 +4697,160 @@ public static partial class ScriptResolver
 	public static object? game_restart(object?[] args)
 	{
 		RoomManager.New_Room = GMConstants.ROOM_RESTARTGAME;
+		return null;
+	}
+
+	public static object? layer_sprite_get_sprite(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.Definition;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	public static object? layer_sprite_get_x(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.X;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? layer_sprite_get_y(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.Y;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? layer_sprite_get_xscale(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.XScale;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? layer_sprite_get_yscale(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.YScale;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? layer_sprite_get_index(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.FrameIndex;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	public static object? layer_sprite_get_speed(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					return sprite.AnimationSpeed;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	public static object? layer_sprite_destroy(object?[] args)
+	{
+		var element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			DrawWithDepth? elementToDestroy = null;
+
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMSprite sprite && sprite.Element.Id == element_id)
+				{
+					elementToDestroy = element;
+				}
+			}
+
+			if (elementToDestroy == null)
+			{
+				continue;
+			}
+
+			layer.Value.ElementsToDraw.Remove(elementToDestroy);
+			elementToDestroy.Destroy();
+		}
+
 		return null;
 	}
 }

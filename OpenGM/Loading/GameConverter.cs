@@ -453,11 +453,6 @@ public static class GameConverter
 			foreach (var item in sprite.CollisionMasks)
 			{
 				asset.CollisionMasks.Add(item.Data);
-
-				if (sprite.Name.Content == "spr_pipis_egg")
-				{
-					DebugLog.Log($"PIPIS");
-				}
 			}
 
 			writer.WriteMemoryPack(asset);
@@ -823,7 +818,23 @@ public static class GameConverter
 					{
 						foreach (var item in assetsData.Sprites)
 						{
-							DebugLog.LogError($"Don't know how to handle Sprite {item.Name.Content}!!!!");
+							var val = new CLayerSpriteElement();
+
+							val.Type = ElementType.Sprite;
+							val.Id = CurrentElementID++;
+							val.Name = item.Name.Content;
+							val.Definition = data.Sprites.IndexOf(item.Sprite);
+							val.X = item.X;
+							val.Y = item.Y;
+							val.ScaleX = item.ScaleX;
+							val.ScaleY = item.ScaleY;
+							val.Color = (int)item.Color;
+							val.AnimationSpeed = item.AnimationSpeed;
+							val.AnimationSpeedType = item.AnimationSpeedType;
+							val.FrameIndex = item.FrameIndex;
+							val.Rotation = item.Rotation;
+
+							layerasset.Elements.Add(val);
 						}
 					}
 				}

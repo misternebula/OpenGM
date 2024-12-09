@@ -77,6 +77,7 @@ public enum ElementType
 [MemoryPackUnion(1, typeof(CLayerTilemapElement))]
 [MemoryPackUnion(2, typeof(CLayerBackgroundElement))]
 [MemoryPackUnion(3, typeof(CLayerTileElement))]
+[MemoryPackUnion(4, typeof(CLayerSpriteElement))]
 public abstract partial class CLayerElementBase
 {
 	public ElementType Type;
@@ -137,6 +138,21 @@ public partial class CLayerTileElement : CLayerElementBase
 	public float ScaleX;
 	public float ScaleY;
 	public int Color;
+}
+
+[MemoryPackable]
+public partial class CLayerSpriteElement : CLayerElementBase
+{
+	public int Definition;
+	public int X;
+	public int Y;
+	public double ScaleX;
+	public double ScaleY;
+	public int Color;
+	public double AnimationSpeed;
+	public AnimationSpeedType AnimationSpeedType;
+	public double FrameIndex;
+	public double Rotation;
 }
 
 // not serialized
