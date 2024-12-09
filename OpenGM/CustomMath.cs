@@ -104,9 +104,6 @@ public static class CustomMath
 
 	public static Vector2d RotateAroundPoint(this Vector2d p, Vector2d pivot, double angleAntiClockwise)
 	{
-		// todo : maybe work out the actual formula for (+y = south) so we dont have to invert the angle
-		// turns out gamemaker also just inverts the angle :p (see PreciseCollisionPoint) - neb
-
 		var sin = Math.Sin(Deg2Rad * -angleAntiClockwise);
 		var cos = Math.Cos(Deg2Rad * -angleAntiClockwise);
 
