@@ -85,6 +85,7 @@ public static partial class VMExecutor
 		{
 			// asset id
 			var instances = InstanceManager.FindByAssetId(id);
+			instances.Reverse();
 
 			// dont run anything if no instances
 			if (instances.Count == 0)
