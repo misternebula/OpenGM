@@ -105,7 +105,10 @@ public static class CollisionManager
 				return false;
 			}
 
-			// TODO : check for marked
+			if (instance.Marked)
+			{
+				return false;
+			}
 
 			if (!instance.Active)
 			{
@@ -164,7 +167,10 @@ public static class CollisionManager
 				return false;
 			}
 
-			// TODO : check for marked
+			if (instance.Marked)
+			{
+				return false;
+			}
 
 			if (!instance.Active)
 			{
@@ -223,7 +229,10 @@ public static class CollisionManager
 				return false;
 			}
 
-			// TODO : check for marked
+			if (instance.Marked)
+			{
+				return false;
+			}
 
 			if (!instance.Active)
 			{
@@ -287,7 +296,10 @@ public static class CollisionManager
 				return false;
 			}
 
-			// TODO : check for marked
+			if (instance.Marked)
+			{
+				return false;
+			}
 
 			if (!instance.Active)
 			{
@@ -554,7 +566,10 @@ public static class CollisionManager
 
 	public static bool Collision_Line(GamemakerObject self, double x1, double x2, double y1, double y2, bool precise)
 	{
-		// TODO : check marked;
+		if (self.Marked)
+		{
+			return false;
+		}
 
 		if (self.bbox_dirty)
 		{
