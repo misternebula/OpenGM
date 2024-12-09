@@ -20,8 +20,9 @@ internal class Entry
 
 	static void Main(string[] args)
 	{
-		Directory.CreateDirectory("game");
-		var defaultPath = Path.Combine("game", "data.win");
+		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
+		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
+		var defaultPath = Path.Combine(exeLocation, "game", "data.win");
 		LoadGame(defaultPath, args);
 	}
 

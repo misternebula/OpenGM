@@ -4255,7 +4255,7 @@ public static partial class ScriptResolver
 		var working_directory = args[0].Conv<string>();
 		var launch_parameters = args[1].Conv<string>();
 
-		var winLocation = Path.Combine(Directory.GetCurrentDirectory(), "game" + working_directory, "data.win");
+		var winLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "game" + working_directory, "data.win");
 		DebugLog.LogInfo($"game_change path:{winLocation} launch_parameters:{launch_parameters}");
 
 		Entry.LoadGame(winLocation, launch_parameters.Split(" "));
