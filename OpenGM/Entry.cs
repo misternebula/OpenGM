@@ -39,13 +39,14 @@ internal class Entry
 			GameConverter.ConvertGame(data);
 		}
 
-		CollisionManager.colliders.Clear();
+		//CollisionManager.colliders.Clear();
 
 		AudioManager.Init();
 		GameLoader.LoadGame();
 
 		VMExecutor.EnvironmentStack.Clear();
 		VMExecutor.CallStack.Clear();
+		InstanceManager.instances.Clear();
 
 		GMRandom.InitialiseRNG(0);
 
@@ -85,7 +86,7 @@ internal class Entry
 		DebugLog.LogInfo($"Changing to first room...");
 
 		RoomManager.FirstRoom = true;
-		RoomManager.ChangeRoomAfterEvent(0);
+		RoomManager.New_Room = 0;
 		RoomManager.ChangeToWaitingRoom();
 
 		DebugLog.LogInfo($"Starting main loop...");

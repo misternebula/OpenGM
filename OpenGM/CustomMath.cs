@@ -10,21 +10,45 @@ public static class CustomMath
 
 	public static double Min(params double[] values)
 	{
+		if (values.Length == 2)
+		{
+			// Avoid expensive LINQ query in most common situation
+			return values[0] < values[1] ? values[0] : values[1];
+		}
+
 		return values.Min();
 	}
 
 	public static int Min(params int[] values)
 	{
+		if (values.Length == 2)
+		{
+			// Avoid expensive LINQ query in most common situation
+			return values[0] < values[1] ? values[0] : values[1];
+		}
+
 		return values.Min();
 	}
 
 	public static double Max(params double[] values)
 	{
+		if (values.Length == 2)
+		{
+			// Avoid expensive LINQ query in most common situation
+			return values[0] > values[1] ? values[0] : values[1];
+		}
+
 		return values.Max();
 	}
 
 	public static int Max(params int[] values)
 	{
+		if (values.Length == 2)
+		{
+			// Avoid expensive LINQ query in most common situation
+			return values[0] > values[1] ? values[0] : values[1];
+		}
+
 		return values.Max();
 	}
 

@@ -33,4 +33,15 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="scripts\gml_GlobalScript_scr_debug.gml" />
+    <None Remove="scripts\gml_GlobalScript_scr_gameover.gml" />
+    <None Remove="scripts\gml_Object_obj_caradventure_car_enemy_Create_0.gml" />
+    <None Remove="scripts\gml_Object_obj_holemouse_Collision_obj_caterpillarchara.gml" />
+    <None Remove="scripts\gml_Object_obj_mouseSpawnSwitch_Step_0.gml" />
+    <None Remove="scripts\gml_Object_obj_noelle_scared_Alarm_0.gml" />
+    <None Remove="scripts\gml_Object_obj_noelle_scared_Collision_obj_holemouse.gml" />
+    <None Remove="scripts\gml_Object_obj_noelle_scared_Step_0.gml" />
+  </ItemGroup>
+
 </Project>

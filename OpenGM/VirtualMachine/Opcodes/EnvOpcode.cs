@@ -34,15 +34,11 @@ public static partial class VMExecutor
 		}
 		else if (id == GMConstants.other)
 		{
-			var stackArray = EnvironmentStack.ToArray();
-			// we just pushed null, so one above that is self, and the one above THAT is other
-			var instance = stackArray[2].GMSelf;
-			
 			// TODO: how does return work??
 			var newCtx = new VMScriptExecutionContext
 			{
-				Self = instance,
-				ObjectDefinition = instance.Definition,
+				Self = Other.Self,
+				ObjectDefinition = Other.ObjectDefinition,
 				// TODO: why copy? is with statement a separate block?
 				Stack = new(currentContext.Stack),
 				//Locals = new(currentContext.Locals),
@@ -55,15 +51,11 @@ public static partial class VMExecutor
 		}
 		else if (id == GMConstants.self)
 		{
-			var stackArray = EnvironmentStack.ToArray();
-			// we just pushed null, so one above that is self
-			var instance = stackArray[1].GMSelf;
-
 			// TODO: how does return work??
 			var newCtx = new VMScriptExecutionContext
 			{
-				Self = instance,
-				ObjectDefinition = instance.Definition,
+				Self = Self.Self,
+				ObjectDefinition = Self.ObjectDefinition,
 				// TODO: why copy? is with statement a separate block?
 				Stack = new(currentContext.Stack),
 				//Locals = new(currentContext.Locals),

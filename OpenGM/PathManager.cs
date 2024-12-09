@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ public static class PathManager
 	{
 		if (path.kind == 1)
 		{
-			throw new NotImplementedException("AAAAAA CURVED PATH AAAAAAA");
+			ComputeCurved(path);
 		}
 		else
 		{
@@ -74,6 +75,77 @@ public static class PathManager
 		{
 			var point = path.points[0];
 			AddInternalPoint(path, point.x, point.y, point.speed);
+		}
+	}
+
+	public static void ComputeCurved(CPath path)
+	{
+		var i = 0;
+		var n = 0;
+		path.intcount = 0;
+		Array.Resize(ref path.intpoints, path.intcount);
+
+		if (path.count <= 0)
+		{
+			return;
+		}
+
+		if (!path.closed)
+		{
+			AddInternalPoint(path, path.points[0].x, path.points[0].y, path.points[0].speed);
+		}
+
+		if (path.closed)
+		{
+			n = path.count - 1;
+		}
+		else
+		{
+			n = path.count - 3;
+		}
+
+		for (i = 0; i <= n; i++)
+		{
+			var point1 = path.points[i % path.count];
+			var point2 = path.points[(i + 1) % path.count];
+			var point3 = path.points[(i + 2) % path.count];
+			HandlePiece(path, path.precision,
+				(point1.x + point2.x) / 2.0, (point1.y + point2.y) / 2.0, (point1.speed + point2.speed) / 2.0,
+				point2.x, point2.y, point2.speed,
+				(point2.x + point3.x) / 2.0, (point2.y + point3.y) / 2.0, (point2.speed + point3.speed) / 2.0
+			);
+		}
+
+		if (!path.closed)
+		{
+			AddInternalPoint(path, path.points[path.count - 1].x, path.points[path.count - 1].y, path.points[path.count - 1].speed);
+		}
+		else
+		{
+			AddInternalPoint(path, path.intpoints[0].x, path.intpoints[0].y, path.intpoints[0].speed);
+		}
+	}
+
+	public static void HandlePiece(CPath path, int precision, double x1, double y1, double s1, double x2, double y2, double s2, double x3, double y3, double s3)
+	{
+		if (precision == 0)
+		{
+			return;
+		}
+
+		var mx = (x1 + x2 + x2 + x3) / 4.0;
+		var my = (y1 + y2 + y2 + y3) / 4.0;
+		var ms = (s1 + s2 + s2 + s3) / 4.0;
+
+		if (Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2) > 16.0)
+		{
+			HandlePiece(path, precision - 1, x1, y1, s1, (x2 + x1) / 2.0, (y2 + y1) / 2.0, (s2 + s1) / 2.0, mx, my, ms);
+		}
+
+		AddInternalPoint(path, mx, my, ms);
+		if (Math.Pow(x2 - x3, 2) + Math.Pow(y2 - y3, 2) > 16.0)
+		{
+			HandlePiece(path, precision - 1, mx, my, ms, (x3 + x2) / 2.0, (y3 + y2) / 2.0, (s3 + s2) / 2.0, x3, y3, s3);
 		}
 	}
 

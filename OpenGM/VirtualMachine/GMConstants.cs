@@ -16,4 +16,9 @@ public static class GMConstants
 	// fuck you -10 to -14 doesnt exist either!!!
 	public const int argument = -15;
 	public const int @static = -16;
+
+	public const int ROOM_ENDOFGAME = -100;
+	public const int ROOM_RESTARTGAME = -200;
+	public const int ROOM_LOADGAME = -300;
+	public const int ROOM_ABORTGAME = -400;
 }

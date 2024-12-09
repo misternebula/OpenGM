@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine;
 
 namespace OpenGM;
 public class RoomContainer
@@ -22,11 +23,24 @@ public class RoomContainer
 	public bool Persistent => RoomAsset.Persistent;
 	public int SizeX => RoomAsset.SizeX;
 	public int SizeY => RoomAsset.SizeY;
-	public GamemakerObject? FollowObject => RoomAsset.FollowsObject == -1 ? null : InstanceManager.instances.FirstOrDefault(x => x.Definition.AssetId == RoomAsset.FollowsObject);
+	public GamemakerObject? FollowObject => RoomAsset.FollowsObject == -1 ? null : InstanceManager.instances.FirstOrDefault(x => x.Value.Definition.AssetId == RoomAsset.FollowsObject).Value;
 
 	public Dictionary<int, LayerContainer> Layers = new();
 	public List<DrawWithDepth> Tiles = new();
 	public List<GamemakerObject> LooseObjects = new();
+
+	public LayerContainer GetLayer(object? layer_id)
+	{
+		if (layer_id is string s)
+		{
+			return Layers.FirstOrDefault(x => x.Value.Name == s).Value;
+		}
+		else
+		{
+			var id = layer_id.Conv<int>();
+			return RoomManager.CurrentRoom.Layers[id];
+		}
+	}
 }
 
 public class LayerContainer

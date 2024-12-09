@@ -17,6 +17,19 @@ public static partial class ScriptResolver
 		return array.Count;
 	}
 
+	public static object array_height_2d(object?[] args)
+	{
+		var array = args[0].Conv<IList>();
+		return array.Count;
+	}
+
+	public static object array_length_2d(object?[] args)
+	{
+		var array = args[0].Conv<IList>();
+		var index0 = array[0];
+		return (index0 as IList)!.Count;
+	}
+
 	public static object array_length(object?[] args)
 	{
 		var array = args[0].Conv<IList>();
@@ -417,6 +430,11 @@ public static partial class ScriptResolver
 		var str = args[0].Conv<string>();
 		var index = args[1].Conv<int>();
 		var count = args[2].Conv<int>();
+
+		if (index < 1)
+		{
+			index = 1;
+		}
 
 		var maxLength = str.Length - (index - 1);
 

@@ -2,9 +2,7 @@
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
-using System.Collections;
-using System.Drawing;
-using System.Drawing.Drawing2D;
+using OpenGM.SerializedFiles;
 using UndertaleModLib.Models;
 
 namespace OpenGM;
@@ -32,45 +30,28 @@ public class BBox
 	public double bottom;
 }
 
-public class ColliderClass
-{
-	public GamemakerObject GMObject;
-
-	public string spriteAssetName = null!;
-	public int collisionMaskIndex;
-
-	public Vector2i Origin;
-
-	public ColliderClass(GamemakerObject obj)
-	{
-		GMObject = obj;
-		Origin = SpriteManager.GetSpriteOrigin(GMObject.sprite_index);
-	}
-
-	public Vector4 Margins;
-
-	public BBox BBox => CollisionManager.CalculateBoundingBox(GMObject);
-
-	public Vector2d Scale => new(GMObject.image_xscale, GMObject.image_yscale);
-
-	public UndertaleSprite.SepMaskType SepMasks;
-	public int BoundingBoxMode;
-	public bool[,] CollisionMask = null!;
-
-	public bool[,] CachedRotatedMask = null!;
-	public Vector2i CachedRotatedMaskOffset;
-}
-
 public static class CollisionManager
 {
-	public static List<ColliderClass> colliders = new();
-
 	public static BBox CalculateBoundingBox(GamemakerObject gm)
 	{
+		gm.bbox_dirty = false;
 		// TODO : This is called a LOT. This needs to be as optimized as possible.
 
 		var pos = new Vector2d(gm.x, gm.y);
-		var origin = SpriteManager.GetSpriteOrigin(gm.sprite_index);
+
+		var index = gm.sprite_index;
+		if (index == -1)
+		{
+			index = gm.mask_index;
+		}
+
+		if (index == -1)
+		{
+			// trying to generate a bounding box for an object with no sprites... uh oh!
+			return new BBox();
+		}
+
+		var origin = SpriteManager.GetSpriteOrigin(index);
 
 		var left = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
 		var top = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
@@ -110,965 +91,1145 @@ public static class CollisionManager
 		};
 	}
 
-	public static (Vector2d a, Vector2d b, Vector2d c, Vector2d d) RotateBoxAroundPoint(BBox box, Vector2d point, double angle)
+	public static int Command_CollisionRectangle(GamemakerObject self, double x1, double y1, double x2, double y2, int obj, bool precise, bool notme)
 	{
-		var bbv1 = new Vector2d(box.left, box.top);
-		var bbv2 = new Vector2d(box.right, box.top);
-		var bbv3 = new Vector2d(box.right, box.bottom);
-		var bbv4 = new Vector2d(box.left, box.bottom);
-
-		return (
-			bbv1.RotateAroundPoint(point, angle),
-			bbv2.RotateAroundPoint(point, angle),
-			bbv3.RotateAroundPoint(point, angle),
-			bbv4.RotateAroundPoint(point, angle)
-		);
-	}
-
-	public static (Vector2d a, Vector2d b, Vector2d c, Vector2d d) RotateBoxAroundPoint(double left, double right, double top, double bottom, Vector2d point, double angle)
-	{
-		var bbv1 = new Vector2d(left, top);
-		var bbv2 = new Vector2d(right, top);
-		var bbv3 = new Vector2d(right, bottom);
-		var bbv4 = new Vector2d(left, bottom);
-
-		return (
-			bbv1.RotateAroundPoint(point, angle),
-			bbv2.RotateAroundPoint(point, angle),
-			bbv3.RotateAroundPoint(point, angle),
-			bbv4.RotateAroundPoint(point, angle)
-		);
-	}
-
-	public static bool CollisionPoint(GamemakerObject self, double x, double y, bool prec)
-	{
-		var collider = colliders.First(x => x.GMObject == self);
-		var bbox = collider.BBox;
-		if (	x < bbox.right + 1
-		    &&	y < bbox.bottom + 1
-			&&	bbox.left <= x
-		    &&	bbox.top <= y 
-		    /*&& ((*(byte*)&this->m_InstFlags & 1) == 0)*/) // TODO : what is this ughhhh
+		bool IsValid(GamemakerObject? instance)
 		{
-			return CheckColliderAgainstPoint(collider, new Vector2d(x, y), prec);
+			if (instance == null)
+			{
+				return false;
+			}
+
+			if (notme && instance == self)
+			{
+				return false;
+			}
+
+			// TODO : check for marked
+
+			if (!instance.Active)
+			{
+				return false;
+			}
+
+			return Collision_Rectangle(instance, x1, y1, x2, y2, precise);
+		}
+
+		if (obj == GMConstants.all)
+		{
+			foreach (var instance in InstanceManager.instances.Values)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj);
+
+			if (IsValid(instance))
+			{
+				return instance!.instanceId;
+			}
+		}
+
+		return GMConstants.noone;
+	}
+
+	public static int Command_CollisionPoint(GamemakerObject self, double x, double y, int obj, bool precise, bool notme)
+	{
+		bool IsValid(GamemakerObject? instance)
+		{
+			if (instance == null)
+			{
+				return false;
+			}
+
+			if (notme && instance == self)
+			{
+				return false;
+			}
+
+			// TODO : check for marked
+
+			if (!instance.Active)
+			{
+				return false;
+			}
+
+			return Collision_Point(instance, x, y, precise);
+		}
+
+		if (obj == GMConstants.all)
+		{
+			foreach (var instance in InstanceManager.instances.Values)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj);
+
+			if (IsValid(instance))
+			{
+				return instance!.instanceId;
+			}
+		}
+
+		return GMConstants.noone;
+	}
+
+	public static int Command_InstancePlace(GamemakerObject self, double x, double y, int obj)
+	{
+		var prevX = self.x;
+		var prevY = self.y;
+		self.x = x;
+		self.y = y;
+
+		bool IsValid(GamemakerObject? instance)
+		{
+			if (instance == null)
+			{
+				return false;
+			}
+
+			// TODO : check for marked
+
+			if (!instance.Active)
+			{
+				return false;
+			}
+
+			return Collision_Instance(self, instance, true);
+		}
+
+		var returnValue = GMConstants.noone;
+
+		if (obj == GMConstants.all)
+		{
+			foreach (var instance in InstanceManager.instances.Values)
+			{
+				if (IsValid(instance))
+				{
+					returnValue = instance.instanceId;
+				}
+			}
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				if (IsValid(instance))
+				{
+					returnValue = instance.instanceId;
+				}
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj);
+
+			if (IsValid(instance))
+			{
+				returnValue = instance!.instanceId;
+			}
+		}
+
+		self.x = prevX;
+		self.y = prevY;
+		
+		return returnValue;
+	}
+
+	public static int Command_CollisionLine(GamemakerObject self, double x1, double y1, double x2, double y2, int obj, bool precise, bool notme)
+	{
+		bool IsValid(GamemakerObject? instance)
+		{
+			if (instance == null)
+			{
+				return false;
+			}
+
+			if (notme && instance == self)
+			{
+				return false;
+			}
+
+			// TODO : check for marked
+
+			if (!instance.Active)
+			{
+				return false;
+			}
+
+			return Collision_Line(instance, x1, y1, x2, y2, precise);
+		}
+
+		if (obj == GMConstants.all)
+		{
+			foreach (var instance in InstanceManager.instances.Values)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj);
+
+			if (IsValid(instance))
+			{
+				return instance!.instanceId;
+			}
+		}
+
+		return GMConstants.noone;
+	}
+
+	public static bool Collision_Rectangle(GamemakerObject self, double x1, double y1, double x2, double y2, bool precise)
+	{
+		if (self.bbox_dirty)
+		{
+			self.bbox = CalculateBoundingBox(self);
+		}
+
+		var addition = 0d; // TODO : should be 1.0 if compat collision is enabled
+
+		var bl = CustomMath.Min(x1, x2);
+		var br = CustomMath.Max(x1, x2);
+		var bt = CustomMath.Min(y1, y2);
+		var bb = CustomMath.Max(y1, y2);
+
+		if (bl >= self.bbox_right + addition)
+		{
+			return false;
+		}
+
+		if (br < self.bbox_left)
+		{
+			return false;
+		}
+
+		if (bt >= self.bbox_bottom + addition)
+		{
+			return false;
+		}
+
+		if (bb < self.bbox_top)
+		{
+			return false;
+		}
+
+		var index = self.mask_index;
+		if (index < 0)
+		{
+			index = self.sprite_index;
+		}
+
+		var spriteData = SpriteManager.GetSpriteAsset(index);
+
+		if (spriteData == null || spriteData.Textures.Count == 0)
+		{
+			return false;
+		}
+
+		if (spriteData.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			var collided = SeparatingAxisCollisionBox(self, x1, y1, x2, y2);
+			return collided;
+		}
+
+		if (precise && spriteData.SepMasks == UndertaleSprite.SepMaskType.Precise)
+		{
+			return PreciseCollisionRectangle(spriteData, CustomMath.FloorToInt(self.image_index), self.bbox, self.x, self.y, self.image_xscale, self.image_yscale, self.image_angle, new BBox()
+			{
+				left = CustomMath.Min(x1, x2),
+				top = CustomMath.Min(y1, y2),
+				right = CustomMath.Max(x1, x2),
+				bottom = CustomMath.Max(y1, y2)
+			});
+		}
+
+		// TODO : only do this if compat collision is off
+		{
+			var l = CustomMath.Max(bl, self.bbox_left);
+			var t = CustomMath.Max(bt, self.bbox_top);
+			var r = CustomMath.Min(br, self.bbox_right);
+			var b = CustomMath.Min(bb, self.bbox_bottom);
+
+			if (CustomMath.FloorToInt(l + 0.5) == CustomMath.FloorToInt(r + 0.5))
+			{
+				return false;
+			}
+
+			if (CustomMath.FloorToInt(t + 0.5) == CustomMath.FloorToInt(b + 0.5))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public static bool Collision_Point(GamemakerObject self, double x, double y, bool precise)
+	{
+		if (self.bbox_dirty)
+		{
+			self.bbox = CalculateBoundingBox(self);
+		}
+
+		var addition = -1e-05; // TODO : should be 1.0 if compat collision is enabled
+
+		if (x >= self.bbox_right + addition
+			|| x < self.bbox_left
+			|| y >= self.bbox_bottom + addition
+			|| y < self.bbox_top) // TODO : there's 2 instflags checks here too
+		{
+			return false; 
+		}
+
+		var index = self.mask_index;
+		if (index < 0)
+		{
+			index = self.sprite_index;
+		}
+
+		var spriteData = SpriteManager.GetSpriteAsset(index);
+
+		if (spriteData == null || spriteData.Textures.Count == 0)
+		{
+			return false;
+		}
+
+		if (spriteData.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			return SeparatingAxisCollisionPoint(self, x, y);
+		}
+
+		if (precise && spriteData.SepMasks == UndertaleSprite.SepMaskType.Precise)
+		{
+			// TODO : x/y values should be rounded. work out EXACTLY how they're rounded!
+			return PreciseCollisionPoint(spriteData, CustomMath.FloorToInt(self.image_index), self.x, self.y, self.image_xscale, self.image_yscale, self.image_angle, x, y);
+		}
+
+		// AABB - We already know they intersect!
+		return true;
+	}
+
+	public static bool Collision_Instance(GamemakerObject self, GamemakerObject other, bool precise)
+	{
+		if (self == other)
+		{
+			return false;
+		}
+
+		// check if both object have been marked
+
+		if (self.bbox_dirty)
+		{
+			self.bbox = CalculateBoundingBox(self);
+		}
+
+		if (other.bbox_dirty)
+		{
+			other.bbox = CalculateBoundingBox(self);
+		}
+
+		var addition = 1f; // TODO : should be 0 if compat collision is enabled
+
+		if (self.bbox_left >= (other.bbox_right + addition)
+		    || (self.bbox_right + addition) <= other.bbox_left
+		    || self.bbox_top >= (other.bbox_bottom + addition)
+		    || (self.bbox_bottom + addition) <= other.bbox_top)
+		{
+			// Bounding boxes don't even intersect.
+			return false;
+		}
+		 
+		var index = self.mask_index;
+		if (index < 0)
+		{
+			index = self.sprite_index;
+		}
+
+		var selfSprite = SpriteManager.GetSpriteAsset(index);
+
+		if (selfSprite == null || selfSprite.Textures.Count == 0)
+		{
+			return false;
+		}
+
+		index = other.mask_index;
+		if (index < 0)
+		{
+			index = other.sprite_index;
+		}
+
+		var otherSprite = SpriteManager.GetSpriteAsset(index);
+
+		if (otherSprite == null || otherSprite.Textures.Count == 0)
+		{
+			return false;
+		}
+
+		if (selfSprite.SepMasks == UndertaleSprite.SepMaskType.RotatedRect || otherSprite.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			return SeparatingAxisCollision(self, other);
+		}
+
+		if (precise && (selfSprite.SepMasks == UndertaleSprite.SepMaskType.Precise || otherSprite.SepMasks == UndertaleSprite.SepMaskType.Precise))
+		{
+			return PreciseCollision(
+				selfSprite, CustomMath.FloorToInt(self.image_index), self.bbox, self.x, self.y, self.image_xscale, self.image_yscale, self.image_angle,
+				otherSprite, CustomMath.FloorToInt(other.image_index), other.bbox, other.x, other.y, other.image_xscale, other.image_yscale, other.image_angle);
+		}
+
+		// TODO : only do this if compat collision is off
+		{
+			var l = CustomMath.Max(self.bbox_left, other.bbox_left);
+			var t = CustomMath.Max(self.bbox_top, other.bbox_top);
+			var r = CustomMath.Min(self.bbox_right, other.bbox_right);
+			var b = CustomMath.Min(self.bbox_bottom, other.bbox_bottom);
+
+			if (CustomMath.FloorToInt(l + 0.5) == CustomMath.FloorToInt(r + 0.5))
+			{
+				return false;
+			}
+
+			if (CustomMath.FloorToInt(t + 0.5) == CustomMath.FloorToInt(b + 0.5))
+			{
+				return false;
+			}
+		}
+
+		// AABB - We already know they intersect!
+		return true;
+	}
+
+	public static bool Collision_Line(GamemakerObject self, double x1, double x2, double y1, double y2, bool precise)
+	{
+		// TODO : check marked;
+
+		if (self.bbox_dirty)
+		{
+			self.bbox = CalculateBoundingBox(self);
+		}
+
+		var i_bbox = self.bbox;
+		if (CustomMath.Min(x1, x2) >= i_bbox.right + 1)
+		{
+			return false;
+		}
+
+		if (CustomMath.Max(x1, x2) < i_bbox.left)
+		{
+			return false;
+		}
+
+		if (CustomMath.Min(y1, y2) >= i_bbox.bottom + 1)
+		{
+			return false;
+		}
+
+		if (CustomMath.Max(y1, y2) < i_bbox.top)
+		{
+			return false;
+		}
+
+		if (x2 < x1)
+		{
+			(x1, x2) = (x2, x1);
+			(y2, y1) = (y1, y2);
+		}
+
+		if (x1 < i_bbox.left)
+		{
+			y1 += (i_bbox.left - x1) * (y2 - y1) / (x2 - x1);
+			x1 = i_bbox.left;
+		}
+
+		if (x2 > (i_bbox.right + 1))
+		{
+			y2 += (i_bbox.right + 1 - x2) * (y2 - y1) / (x2 - x1);
+			x2 = i_bbox.right + 1;
+		}
+
+		if ((y1 < i_bbox.top) && (y2 < i_bbox.top))
+		{
+			return false;
+		}
+
+		if ((y1 >= i_bbox.bottom + 1) && (y2 >= i_bbox.bottom + 1))
+		{
+			return false;
+		}
+
+		var index = self.mask_index;
+		if (index < 0)
+		{
+			index = self.sprite_index;
+		}
+
+		var spriteData = SpriteManager.GetSpriteAsset(index);
+
+		if (spriteData == null || spriteData.Textures.Count == 0)
+		{
+			return false;
+		}
+
+		if (spriteData.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			return SeparatingAxisCollisionLine(self, x1, y1, x2, y2);
+		}
+
+		if (precise && spriteData.SepMasks == UndertaleSprite.SepMaskType.Precise)
+		{
+			throw new NotImplementedException();
+		}
+
+		return true;
+	}
+
+	#region Precise Mask Checks
+
+	public static bool PreciseCollision(
+		SpriteData sprite1, int _img1, BBox _bb1, double _x1, double _y1, double _scale1x, double _scale1y, double _angle1,
+		SpriteData sprite2, int _img2, BBox _bb2, double _x2, double _y2, double _scale2x, double _scale2y, double _angle2)
+	{
+		if (sprite1 == null || sprite2 == null)
+		{
+			return false;
+		}
+
+		if (sprite1.Textures.Count <= 0)
+			return false;
+		if (sprite2.Textures.Count <= 0)
+			return false;
+
+		if (sprite1.CollisionMasks.Count > 0)
+			_img1 = _img1 % sprite1.CollisionMasks.Count;
+		if (_img1 < 0)
+		{
+			_img1 = _img1 + sprite1.CollisionMasks.Count;
+		}
+
+		if (sprite2.CollisionMasks.Count > 0)
+			_img2 = _img2 % sprite2.CollisionMasks.Count;
+
+		if (_img2 < 0)
+		{
+			_img2 = _img2 + sprite2.CollisionMasks.Count;
+		}
+
+		_scale1x = 1.0 / _scale1x;
+		_scale1y = 1.0 / _scale1y;
+		_scale2x = 1.0 / _scale2x;
+		_scale2y = 1.0 / _scale2y;
+
+		var l = CustomMath.Max(_bb1.left, _bb2.left);
+
+		l = Math.Floor(l) + 0.5;
+
+		var r = CustomMath.Min(_bb1.right, _bb2.right);
+		var t = CustomMath.Max(_bb1.top, _bb2.top);
+
+		t = Math.Floor(t) + 0.5;
+		var b = CustomMath.Min(_bb1.bottom, _bb2.bottom);
+
+
+		var leftedge = sprite1.MarginLeft;
+		var rightedge = sprite1.MarginRight + 1.0;
+		var topedge = sprite1.MarginTop;
+		var bottomedge = sprite1.MarginBottom + 1.0;
+
+		if (sprite1.SepMasks == UndertaleSprite.SepMaskType.Precise)
+		{
+			if (leftedge < 0)
+				leftedge = 0;
+			if (rightedge > sprite1.Width)
+				rightedge = sprite1.Width;
+
+			if (topedge < 0)
+				topedge = 0;
+			if (bottomedge > sprite1.Height)
+				bottomedge = sprite1.Height;
+		}
+
+		var sleftedge = sprite2.MarginLeft;
+		var srightedge = sprite2.MarginRight + 1.0;
+		var stopedge = sprite2.MarginTop;
+		var sbottomedge = sprite2.MarginBottom + 1.0;
+
+		if (sprite2.SepMasks == UndertaleSprite.SepMaskType.Precise)
+		{
+			if (sleftedge < 0)
+				sleftedge = 0;
+			if (srightedge > sprite2.Width)
+				srightedge = sprite2.Width;
+
+			if (stopedge < 0)
+				stopedge = 0;
+			if (sbottomedge > sprite2.Height)
+				sbottomedge = sprite2.Height;
+		}
+
+		var hasrot1 = false;
+		var hasrot2 = false;
+
+		if (_angle1 > CustomMath.Epsilon || _angle1 < -CustomMath.Epsilon)
+			hasrot1 = true;
+		if (_angle2 > CustomMath.Epsilon || _angle2 < -CustomMath.Epsilon)
+			hasrot2 = true;
+
+		if (!hasrot1 && !hasrot2)
+		{
+			var du1 = _scale1x;
+			var du2 = _scale2x;
+			var u1 = ((l - _x1) * _scale1x + sprite1.OriginX);
+			var u2 = ((l - _x2) * _scale2x + sprite2.OriginX);
+			for (var i = l; i < r; i += 1.0, u1 += du1, u2 += du2)
+			{
+				if ((u1 < leftedge) || (u1 >= rightedge))
+					continue;
+
+				if ((u2 < sleftedge) || (u2 >= srightedge))
+					continue;
+
+				var u1i = CustomMath.FloorToInt(u1);
+				var u2i = CustomMath.FloorToInt(u2);
+
+				for (var j = t; j < b; j += 1.0)
+				{
+					if (sprite1.SepMasks == UndertaleSprite.SepMaskType.Precise)
+					{
+						var v1 = ((j - _y1) * _scale1y + sprite1.OriginY);
+
+						if ((v1 < topedge) || (v1 >= bottomedge))
+							continue;
+
+						//if (sprite1.maskcreated)
+							if (!ColMaskSet(sprite1, u1i, CustomMath.FloorToInt(v1), sprite1.CollisionMasks[_img1]))
+								continue;
+					}
+
+					if (sprite2.SepMasks == UndertaleSprite.SepMaskType.Precise)
+					{
+						var v2 = ((j - _y2) * _scale2y + sprite2.OriginY);
+
+
+						if ((v2 < stopedge) || (v2 >= sbottomedge))
+							continue;
+						//if (sprite2.maskcreated)
+						//{
+							if (!ColMaskSet(sprite2, u2i, CustomMath.FloorToInt(v2), sprite2.CollisionMasks[_img2]))
+								continue;
+						//}
+					}
+
+					return true;
+				}
+			}
+		}
+		else
+		{
+			var ss1 = 0d;
+			var cc1 = 0d;
+			var ss2 = 0d;
+			var cc2 = 0d;
+			var u1 = 0d;
+			var u2 = 0d;
+			var v1 = 0d;
+			var v2 = 0d;
+
+			if (hasrot1)
+			{
+				ss1 = Math.Sin(-_angle1 * Math.PI / 180.0);
+				cc1 = Math.Cos(-_angle1 * Math.PI / 180.0);
+			}
+
+			if (hasrot2)
+			{
+				ss2 = Math.Sin(-_angle2 * Math.PI / 180.0);
+				cc2 = Math.Cos(-_angle2 * Math.PI / 180.0);
+			}
+
+			for (var i = l; i < r; i += 1.0)
+			{
+				if (!hasrot1)
+				{
+					u1 = ((i - _x1) * _scale1x + sprite1.OriginX);
+					if ((u1 < leftedge) || (u1 >= rightedge))
+						continue;
+				}
+
+				if (!hasrot2)
+				{
+					u2 = ((i - _x2) * _scale2x + sprite2.OriginX);
+					if ((u2 < sleftedge) || (u2 >= srightedge))
+						continue;
+				}
+
+				for (var j = t; j < b; j += 1.0)
+				{
+					if (hasrot1)
+					{
+						u1 = ((cc1 * (i - _x1) + ss1 * (j - _y1)) * _scale1x + sprite1.OriginX);
+						if ((u1 < leftedge) || (u1 >= rightedge))
+							continue;
+						v1 = ((cc1 * (j - _y1) - ss1 * (i - _x1)) * _scale1y + sprite1.OriginY);
+					}
+					else
+					{
+						v1 = ((j - _y1) * _scale1y + sprite1.OriginY);
+					}
+
+					if ((v1 < topedge) || (v1 >= bottomedge))
+						continue;
+					if (sprite1.SepMasks == UndertaleSprite.SepMaskType.Precise)
+					{
+						//if (sprite1.maskcreated)
+						//{
+							if (!ColMaskSet(sprite1, CustomMath.FloorToInt(u1), CustomMath.FloorToInt(v1), sprite1.CollisionMasks[_img1]))
+								continue;
+						//}
+					}
+
+					if (hasrot2)
+					{
+						u2 = ((cc2 * (i - _x2) + ss2 * (j - _y2)) * _scale2x + sprite2.OriginX);
+						if ((u2 < sleftedge) || (u2 >= srightedge))
+							continue;
+						v2 = ((cc2 * (j - _y2) - ss2 * (i - _x2)) * _scale2y + sprite2.OriginY);
+					}
+					else
+					{
+						v2 = ((j - _y2) * _scale2y + sprite2.OriginY);
+					}
+
+					if ((v2 < stopedge) || (v2 >= sbottomedge))
+						continue;
+					if (sprite2.SepMasks == UndertaleSprite.SepMaskType.Precise)
+					{
+						//if (sprite2.maskcreated)
+						//{
+							if (!ColMaskSet(sprite2, CustomMath.FloorToInt(u2), CustomMath.FloorToInt(v2), sprite2.CollisionMasks[_img2]))
+								continue;
+						//}
+					}
+					return true;
+				}
+			}
 		}
 
 		return false;
 	}
 
-	/// <summary>
-	/// Checks the collision of a single object at a certain position. 
-	/// </summary>
-	public static bool CheckColliderAgainstPoint(ColliderClass col, Vector2d position, bool precise)
+	public static bool PreciseCollisionPoint(SpriteData sprite, int imageIndex, double x, double y, double xscale, double yscale, double angle, double _x, double _y)
 	{
-		if (col.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
+		if (sprite.Textures.Count == 0)
 		{
-			// Easiest collision. "precise" does not affect anything. Just check if pixel is inside bounding box.
-
-			return position.X < col.BBox.right
-			       && position.X > col.BBox.left
-			       && position.Y < col.BBox.bottom
-			       && position.Y > col.BBox.top;
+			return false;
 		}
-		else if (col.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+
+		imageIndex %= sprite.CollisionMasks.Count;
+		if (imageIndex < 0)
 		{
-			// Check inside rotated bounding box. "precise" does not affect anything.
+			imageIndex += sprite.CollisionMasks.Count;
+		}
 
-			throw new NotImplementedException();
+		x -= 0.5;
+		y -= 0.5;
 
-			// return false;
+		int xx;
+		int yy;
+
+		if (Math.Abs(angle) < 0.0001)
+		{
+			xx = CustomMath.FloorToInt((_x - x) / xscale + sprite.OriginX);
+			yy = CustomMath.FloorToInt((_y - y) / yscale + sprite.OriginY);
 		}
 		else
 		{
-			// Precise collision, my behated. If "precise" is true, we have to rotate the collision mask and other funky stuff.
-			// If "precise" is false, then this is the same as AxisAlignedRect.
-
-			throw new NotImplementedException();
-
-			// return false;
+			var ss = Math.Sin(-angle * Math.PI / 180.0);
+			var cc = Math.Cos(-angle * Math.PI / 180.0);
+			xx = CustomMath.FloorToInt((cc * (_x - x) + ss * (_y - y)) / xscale + sprite.OriginX);
+			yy = CustomMath.FloorToInt((cc * (_y - y) - ss * (_x - x)) / yscale + sprite.OriginY);
 		}
+
+		return ColMaskSet(sprite, xx, yy, sprite.CollisionMasks[imageIndex]);
 	}
 
-	public static bool CheckColliderAgainstRectangle(ColliderClass collider, Vector2d v1, Vector2d v2, bool precise)
+	public static bool PreciseCollisionRectangle(SpriteData sprite, int imageIndex, BBox bbox, double x, double y, double xscale, double yscale, double angle, BBox rr)
 	{
-		// Collisions here have to cover the center of pixels
-
-		var left = v1.X;
-		var top = v1.Y;
-		var right = v2.X;
-		var bottom = v2.Y;
-
-		var boundingBoxesCollide = left < collider.BBox.right - 0.5 
-		                           && right > collider.BBox.left + 0.5
-		                           && top < collider.BBox.bottom - 0.5
-		                           && bottom > collider.BBox.top + 0.5;
-
-		if (ScriptResolver.DrawCollisionChecks)
+		imageIndex %= sprite.CollisionMasks.Count;
+		if (imageIndex < 0)
 		{
-			var color = Color4.Red;
-			var outline = true;
-			if (boundingBoxesCollide)
-			{
-				color = Color4.Green;
-				outline = false;
-			}
-
-			CustomWindow.DebugJobs.Add(new GMPolygonJob()
-			{
-				alpha = 1,
-				blend = color,
-				Outline = outline,
-				Vertices = new Vector2d[]
-				{
-					new(collider.BBox.left, collider.BBox.top),
-					new(collider.BBox.right, collider.BBox.top),
-					new(collider.BBox.right, collider.BBox.bottom),
-					new(collider.BBox.left, collider.BBox.bottom)
-				}
-			});
-
-			CustomWindow.DebugJobs.Add(new GMPolygonJob()
-			{
-				alpha = 1,
-				blend = color,
-				Outline = outline,
-				Vertices = new Vector2d[]
-				{
-					new(left, top),
-					new(right, top),
-					new(right, bottom),
-					new(left, bottom)
-				}
-			});
+			imageIndex += sprite.CollisionMasks.Count;
 		}
 
-		if (collider.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
-		{
-			// Easiest collision. "precise" does not affect anything. Just check if rectangles intersect..
+		var l = CustomMath.Max(bbox.left, rr.left);
+		var r = CustomMath.Min(bbox.right, rr.right);
+		var t = CustomMath.Max(bbox.top, rr.top);
+		var b = CustomMath.Min(bbox.bottom, rr.bottom);
 
-			return boundingBoxesCollide;
+		x -= 0.5;
+		y -= 0.5;
+
+		if ((xscale == 1) && (yscale == 1) && (Math.Abs(angle) < 0.0001))
+		{
+			for (var i = l; i <= r; i++)
+			{
+				for (var j = t; j <= b; j++)
+				{
+					var xx = CustomMath.FloorToInt(i - x + sprite.OriginX);
+					var yy = CustomMath.FloorToInt(j - y + sprite.OriginY);
+					if ((xx < 0) || (xx >= sprite.Width))
+						continue;
+					if ((yy < 0) || (yy >= sprite.Height))
+						continue;
+					if (ColMaskSet(sprite, xx, yy, sprite.CollisionMasks[imageIndex]))
+						return true;
+				}
+			}
 		}
-		else if (collider.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		else
 		{
-			// Check inside rotated bounding box. "precise" does not affect anything.
-
-			// TODO: this seems to be placed incorrectly? double check this math
-
-			if (!boundingBoxesCollide)
+			var ss = Math.Sin(-angle * Math.PI / 180.0);
+			var cc = Math.Cos(-angle * Math.PI / 180.0);
+			var onescalex = 1.0 / xscale;
+			var onescaley = 1.0 / yscale;
+			for (var i = l; i <= r; i++)
 			{
-				return false;
-			}
-
-			// -- GET CORNERS OF ROTATED BOUNDING BOX --
-
-			var gm = collider.GMObject;
-			var pos = new Vector2d(gm.x, gm.y);
-			var origin = SpriteManager.GetSpriteOrigin(gm.sprite_index);
-
-			var bleft = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
-			var btop = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
-			var bright = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale);
-			var bbottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale);
-
-			var (bbv1, bbv2, bbv3, bbv4) = RotateBoxAroundPoint(bleft, btop, bright, bbottom, pos, gm.image_angle);
-
-			// -- GET CORNERS OF RECTANGLE --
-			var rv1 = v1;
-			var rv2 = new Vector2d(v2.X, v1.Y);
-			var rv3 = v2;
-			var rv4 = new Vector2d(v1.X, v2.Y);
-
-			// -- GET NORMALS --
-
-			var rNormals = new Vector2[] { new(0, -1), new(1, 0), new(0, 1), new(-1, 0) };
-
-			var bbv12 = Vector2d.Normalize(bbv2 - bbv1);
-			var bbv23 = Vector2d.Normalize(bbv3 - bbv2);
-			var bbv34 = Vector2d.Normalize(bbv4 - bbv3);
-			var bbv41 = Vector2d.Normalize(bbv1 - bbv4);
-
-			var bbNormals = new Vector2d[] { new(bbv12.Y, -bbv12.X), new(bbv23.Y, -bbv23.X), new(bbv34.Y, -bbv34.X), new(bbv41.Y, -bbv41.X) };
-
-			// https://gamedev.stackexchange.com/a/60225
-
-			static void SATtest(Vector2d axis, Vector2d[] verts, out double minAlong, out double maxAlong)
-			{
-				minAlong = double.MaxValue;
-				maxAlong = -double.MaxValue;
-				foreach (var vert in verts)
+				for (var j = t; j <= b; j++)
 				{
-					var dotVal = Vector2d.Dot(vert, axis);
-					if (dotVal < minAlong)
-					{
-						minAlong = dotVal;
-					}
-					if (dotVal > maxAlong)
-					{
-						maxAlong = dotVal;
-					}
+					var xx = CustomMath.FloorToInt((cc * (i - x) + ss * (j - y)) * onescalex + sprite.OriginX);
+					var yy = CustomMath.FloorToInt((cc * (j - y) - ss * (i - x)) * onescaley + sprite.OriginY);
+					if ((xx < 0) || (xx >= sprite.Width))
+						continue;
+					if ((yy < 0) || (yy >= sprite.Height))
+						continue;
+					if (ColMaskSet(sprite, xx, yy, sprite.CollisionMasks[imageIndex]))
+						return true;
 				}
 			}
+		}
 
-			static bool overlaps(double min1, double max1, double min2, double max2)
-			{
-				return isBetweenOrdered(min2, min1, max1) || isBetweenOrdered(min1, min2, max2);
-			}
+		return false;
+	}
 
-			static bool isBetweenOrdered(double val, double lowerBound, double upperBound)
-			{
-				return lowerBound <= val && val <= upperBound;
-			}
+	public static bool ColMaskSet(SpriteData sprite, int u, int v, byte[] pMaskBase)
+	{
+		// TODO : this changed in 2024.6. commenting out code to make it work how it used to do
 
-			var rVerts = new Vector2d[] { rv1, rv2, rv3, rv4 };
-			var bbVerts = new Vector2d[] { bbv1, bbv2, bbv3, bbv4 };
+		//if ((u < sprite.MarginLeft) || (u > sprite.MarginRight))
+		//	return false;
+		//if ((v < sprite.MarginTop) || (v > sprite.MarginBottom))
+		//	return false;
 
-			foreach (var norm in rNormals)
-			{
-				SATtest(norm, rVerts, out var shape1Min, out var shape1Max);
-				SATtest(norm, bbVerts, out var shape2Min, out var shape2Max);
-				if (!overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
-				{
-					return false;
-				}
-			}
+		//u -= sprite.MarginLeft;
+		//v -= sprite.MarginTop;
 
-			foreach (var norm in bbNormals)
-			{
-				SATtest(norm, rVerts, out var shape1Min, out var shape1Max);
-				SATtest(norm, bbVerts, out var shape2Min, out var shape2Max);
-				if (!overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
-				{
-					return false;
-				}
-			}
+		//var bwidth = sprite.MarginRight - sprite.MarginLeft + 1;
+		var bwidth = sprite.Width;
+		var mwidth = (bwidth + 7) >> 3;
+		var ouroff = u >> 3;
 
+		if (v * mwidth + ouroff >= pMaskBase.Length)
+		{
+			DebugLog.LogWarning($"Index out of bounds - {sprite.Name} u:{u} v:{v} margins:{sprite.Margins} pMaskBase length:{pMaskBase.Length}");
+			return false;
+		}
+
+		var mask = pMaskBase[v * mwidth + ouroff];
+
+		var ourbit = 7 - (u & 7);
+
+		if ((mask & (1 << ourbit)) != 0)
+		{
 			return true;
 		}
 		else
 		{
-			// Precise collision, my behated. If "precise" is true, we have to rotate the collision mask and other funky stuff.
-			// If "precise" is false, then this is the same as AxisAlignedRect.
-
-			if (!precise)
-			{
-				return boundingBoxesCollide;
-			}
-
-			if (!boundingBoxesCollide)
-			{
-				return false;
-			}
-
-			var checkRotatedMask = collider.CachedRotatedMask;
-			var checkOffset = collider.CachedRotatedMaskOffset;
-			var checkMaskHeight = checkRotatedMask.GetLength(0);
-			var checkMaskLength = checkRotatedMask.GetLength(1);
-
-			// iterate through every pixel in the object's rotated mask
-			for (var row = 0; row < checkMaskHeight; row++)
-			{
-				for (var col = 0; col < checkMaskLength; col++)
-				{
-					// if it's false, dont even both checking the position
-					if (checkRotatedMask[row, col] == false)
-					{
-						continue;
-					}
-
-					// Get the world space position of the center of this pixel
-					var currentPixelPos = new Vector2d(
-						collider.GMObject.x + checkOffset.X + col + 0.5f,
-						collider.GMObject.y + checkOffset.Y + row + 0.5f
-						);
-
-					// Check if position is inside rectangle
-					if (currentPixelPos.X < right
-					    && currentPixelPos.X > left
-					    && currentPixelPos.Y > top
-					    && currentPixelPos.Y < bottom)
-					{
-						return true;
-					}
-				}
-			}
-
 			return false;
 		}
 	}
 
-	public static bool CheckColliderAgainstCollider(ColliderClass a, ColliderClass b)
+	#endregion
+
+	#region Separating Axis Collision Tests
+
+	public static bool SeparatingAxisCollision(GamemakerObject self, GamemakerObject other)
 	{
-		var boxesOverlap = DoBoxesOverlap(a, b);
+		var p1 = getPoints(self);
+		var p2 = getPoints(other);
 
-		if (ScriptResolver.DrawCollisionChecks)
-		{
-			var color = Color4.Red;
-			var outline = true;
-			if (boxesOverlap)
-			{
-				color = Color4.Green;
-				outline = false;
-			}
-
-			CustomWindow.DebugJobs.Add(new GMPolygonJob()
-			{
-				alpha = 1,
-				blend = color,
-				Outline = outline,
-				Vertices = new Vector2d[]
-				{
-					new(a.BBox.left, a.BBox.top),
-					new(a.BBox.right, a.BBox.top),
-					new(a.BBox.right, a.BBox.bottom),
-					new(a.BBox.left, a.BBox.bottom)
-				}
-			});
-
-			CustomWindow.DebugJobs.Add(new GMPolygonJob()
-			{
-				alpha = 1,
-				blend = color,
-				Outline = outline,
-				Vertices = new Vector2d[]
-				{
-					new(b.BBox.left, b.BBox.top),
-					new(b.BBox.right, b.BBox.top),
-					new(b.BBox.right, b.BBox.bottom),
-					new(b.BBox.left, b.BBox.bottom)
-				}
-			});
-		}
-
-		// TODO : This feels like RotatedRect should be counted as precise, but the docs are vauge. Check in GameMaker.
-
-		if ((a.SepMasks == UndertaleSprite.SepMaskType.Precise && b.SepMasks == UndertaleSprite.SepMaskType.Precise)
-		    /*|| a.SepMasks != b.SepMasks*/) // TODO: what the fuck is this, why is this here
-		{
-			// check precise collision masks
-
-			if (!boxesOverlap)
-			{
-				return false;
-			}
-
-			if (a.CachedRotatedMask == null)
-			{
-				(a.CachedRotatedMask, a.CachedRotatedMaskOffset) = RotateMask(a.CollisionMask, a.GMObject.image_angle, a.Origin.X, a.Origin.Y, a.Scale.X, a.Scale.Y);
-			}
-
-			if (b.CachedRotatedMask == null)
-			{
-				(b.CachedRotatedMask, b.CachedRotatedMaskOffset) = RotateMask(b.CollisionMask, b.GMObject.image_angle, b.Origin.X, b.Origin.Y, b.Scale.X, b.Scale.Y);
-			}
-
-			var currentRotatedMask = a.CachedRotatedMask;
-			var currentOffset = a.CachedRotatedMaskOffset;
-			var checkRotatedMask = b.CachedRotatedMask;
-			var checkOffset = b.CachedRotatedMaskOffset;
-
-			var currentMaskHeight = currentRotatedMask.GetLength(0);
-			var currentMaskLength = currentRotatedMask.GetLength(1);
-			var checkMaskHeight = checkRotatedMask.GetLength(0);
-			var checkMaskLength = checkRotatedMask.GetLength(1);
-
-			// iterate through every pixel in the current object's rotated mask
-			for (var row = 0; row < currentMaskHeight; row++)
-			{
-				for (var col = 0; col < currentMaskLength; col++)
-				{
-					// if it's false, dont even both checking the value of the other mask
-					if (currentRotatedMask[row, col] == false)
-					{
-						continue;
-					}
-
-					// Get the world space position of the center of this pixel
-					var currentPixelPos = new Vector2d(a.GMObject.x + currentOffset.X + col + 0.5f, a.GMObject.y + currentOffset.Y + row + 0.5f);
-
-					// Get the world space position of the top-left of the other rotated mask
-					var checkMaskTopLeft = new Vector2d(b.GMObject.x + checkOffset.X, b.GMObject.y + checkOffset.Y);
-
-					var placeInOtherMask = currentPixelPos - checkMaskTopLeft;
-
-					var snappedToGrid = new Vector2i((int)Math.Floor(placeInOtherMask.X), (int)Math.Floor(placeInOtherMask.Y));
-
-					if (snappedToGrid.X < 0 || snappedToGrid.X >= checkMaskLength)
-					{
-						continue;
-					}
-
-					if (snappedToGrid.Y < 0 || snappedToGrid.Y >= checkMaskHeight)
-					{
-						continue;
-					}
-
-					if (checkRotatedMask[snappedToGrid.Y, snappedToGrid.X])
-					{
-						return true;
-					}
-				}
-			}
-
-			return false;
-		}
-		else
-		{
-			// check bounding boxes
-			return boxesOverlap;
-		}
+		return sa_checkCollision(p1, p2);
 	}
 
-	public static bool CheckColliderAgainstLine(ColliderClass col, Vector2d start, Vector2d end, bool precise)
+	public static bool SeparatingAxisCollisionPoint(GamemakerObject self, double x, double y)
 	{
-		// Simple checks - check if line entirely outside bbox
+		var points = getPoints(self);
+		var point = new Vector2d(x, y);
+		return sa_checkCollisionPoint(points, point);
+	}
 
-		if ((start.Y < col.BBox.top && end.Y < col.BBox.top) // line is entirely above bbox
-			|| (start.Y > col.BBox.bottom && end.Y > col.BBox.bottom) // line is entirely below bbox
-			|| (start.X < col.BBox.left && end.X < col.BBox.left) // line is entirely to the left of bbox
-		    || (start.X > col.BBox.right && end.X > col.BBox.right)) // line is entirely to the right of bbox
+	public static bool SeparatingAxisCollisionBox(GamemakerObject self, double x1, double y1, double x2, double y2)
+	{
+		var p1 = getPoints(self);
+		var p2 = new Vector2d[4]
 		{
-			return false;
+			new(x1, y1),
+			new(x2, y1),
+			new(x1, y2),
+			new(x2, y2)
+		};
+
+		return sa_checkCollision(p1, p2);
+	}
+
+	public static bool SeparatingAxisCollisionLine(GamemakerObject self, double x1, double y1, double x2, double y2)
+	{
+		var p1 = getPoints(self);
+		var p2 = getPointsLine(x1, y1, x2, y2);
+
+		return sa_checkCollisionLine(p1, p2);
+	}
+
+	public static Vector2d[] getPoints(GamemakerObject self)
+	{
+		var spriteIndex = (self.mask_index >= 0)
+			? self.mask_index 
+			: self.sprite_index;
+		var spriteData = SpriteManager.GetSpriteAsset(spriteIndex);
+
+		if (spriteData == null)
+		{
+			throw new NotImplementedException();
 		}
 
-		// Line *could* intersect bbox. Test if it does with the slab method
+		// base on sprite bbox, and these can't change, so will always be in order, left<right and top<bottom
+		var xmin = self.image_xscale * (spriteData.MarginLeft - spriteData.OriginX);
+		var xmax = self.image_xscale * (spriteData.MarginRight - spriteData.OriginX + 1);
 
-		var low = new Vector2d(col.BBox.left, col.BBox.top);
-		var high = new Vector2d(col.BBox.right, col.BBox.bottom);
+		var ymin = self.image_yscale * (spriteData.MarginTop - spriteData.OriginY);
+		var ymax = self.image_yscale * (spriteData.MarginBottom - spriteData.OriginY + 1);
 
-		var rayDirection = end - start;
+		var cc = Math.Cos(-self.image_angle * Math.PI / 180.0);
+		var ss = Math.Sin(-self.image_angle * Math.PI / 180.0);
 
-		var xlow = (low.X - start.X) / rayDirection.X;
-		var ylow = (low.Y - start.Y) / rayDirection.Y;
-		var xhigh = (high.X - start.X) / rayDirection.X;
-		var yhigh = (high.Y - start.Y) / rayDirection.Y;
+		// factor out "common" calculations...
+		var cc_xmax = cc * xmax;
+		var cc_xmin = cc * xmin;
+		var ss_ymax = ss * ymax;
+		var ss_ymin = ss * ymin;
+		var cc_ymax = cc * ymax;
+		var cc_ymin = cc * ymin;
+		var ss_xmax = ss * xmax;
+		var ss_xmin = ss * xmin;
 
-		var xclose = CustomMath.Min(xlow, xhigh);
-		var yclose = CustomMath.Min(ylow, yhigh);
-		var xfar = CustomMath.Max(xlow, xhigh);
-		var yfar = CustomMath.Max(ylow, yhigh);
+		var rv = new Vector2d[4];
+		var ix = self.x - 0.5;
+		var iy = self.y - 0.5;
 
-		var close = CustomMath.Max(xclose, yclose);
-		var far = CustomMath.Max(xfar, yfar);
+		rv[0] = new Vector2d(ix + cc_xmin - ss_ymin, iy + cc_ymin + ss_xmin);
+		rv[1] = new Vector2d(ix + cc_xmax - ss_ymin, iy + cc_ymin + ss_xmax);
+		rv[2] = new Vector2d(ix + cc_xmax - ss_ymax, iy + cc_ymax + ss_xmax);
+		rv[3] = new Vector2d(ix + cc_xmin - ss_ymax, iy + cc_ymax + ss_xmin);
 
-		var intersectsWithBBox = close <= far && (close >= 0);
+		return rv;
+	}
 
-		if (!intersectsWithBBox)
+	public static Vector2d[] getPointsLine(double x1, double y1, double x2, double y2)
+	{
+		var ret = new Vector2d[2];
+		ret[0] = new Vector2d(x1, y1);
+		ret[1] = new Vector2d(x2, y2);
+
+		return ret;
+	}
+
+	public static bool sa_checkCollision(Vector2d[] p1, Vector2d[] p2)
+	{
+		var p1Axes = sa_getAxes(p1);
+		var p2Axes = sa_getAxes(p2);
+
+		for (var i = 0; i < 2; ++i)
 		{
-			return false;
+			var p1Proj = sa_getProjection(p1, p1Axes[i]);
+			var p2Proj = sa_getProjection(p2, p1Axes[i]);
+
+			var gap_present = ((p1Proj.max <= p2Proj.min) || (p2Proj.max <= p1Proj.min));
+
+			if (gap_present)
+				return false;
 		}
 
-		DebugLog.Log($"Collision detected");
+		for (var i = 0; i < 2; ++i)
+		{
+			var p1Proj = sa_getProjection(p1, p2Axes[i]);
+			var p2Proj = sa_getProjection(p2, p2Axes[i]);
+
+			var gap_present = ((p1Proj.max <= p2Proj.min) || (p2Proj.max <= p1Proj.min));
+
+			if (gap_present)
+				return false;
+		}
 
 		return true;
 	}
 
-	public static void RoomChange()
+	public static bool sa_checkCollisionPoint(Vector2d[] p1, Vector2d p2)
 	{
-		colliders = colliders.Where(x => x.GMObject != null && x.GMObject.persistent).ToList();
+		var p1Axes = sa_getAxes(p1);
+
+		for (var i = 0; i < 2; ++i)
+		{
+			var (min, max) = sa_getProjection(p1, p1Axes[i]);
+			var p2Proj = p2.X * p1Axes[i].X + p2.Y * p1Axes[i].Y;
+
+			var gap_present = ((max <= p2Proj) || (p2Proj <= min));
+
+			if (gap_present)
+				return false;
+		}
+
+		return true;
 	}
 
-	public static void RegisterCollider(GamemakerObject sprite, Vector4 margins)
+	public static bool sa_checkCollisionLine(Vector2d[] p1, Vector2d[] p2)
 	{
-		var spriteAsset = sprite.mask_id == -1
-			? SpriteManager.GetSpriteAsset(sprite.sprite_index)
-			: SpriteManager.GetSpriteAsset(sprite.mask_id);
+		var p1Axes = sa_getAxes(p1);
+		var p2Axis = sa_getAxesLine(p2);
 
-		if (spriteAsset == null)
+		for (var i = 0; i < 2; ++i)
 		{
-			DebugLog.LogError($"Couldn't find sprite for {(sprite.mask_id == -1 ? sprite.sprite_index : sprite.mask_id)}! (for obj {sprite.object_index})");
-			return;
+			var p1Proj = sa_getProjection(p1, p1Axes[i]);
+			var p2Proj = sa_getProjectionLine(p2, p1Axes[i]);
+
+			var gap_present = ((p1Proj.max <= p2Proj.min) || (p2Proj.max <= p1Proj.min));
+
+			if (gap_present)
+				return false;
 		}
 
-		if (spriteAsset.CollisionMasks == null || spriteAsset.CollisionMasks.Count == 0)
 		{
-			//DebugLog.LogError($"No collision masks defined for {spriteAsset.Name} collisionMasks null : {spriteAsset.CollisionMasks == null}");
+			var p1Proj = sa_getProjection(p1, p2Axis);
+			var p2Proj = sa_getProjectionLine(p2, p2Axis);
 
-			if (colliders.Any(x => x.GMObject == sprite))
-			{
-				var collider = colliders.Single(x => x.GMObject == sprite);
-				collider.Margins = margins;
-				collider.SepMasks = spriteAsset.SepMasks;
-				collider.BoundingBoxMode = spriteAsset.BBoxMode;
-				collider.Origin = spriteAsset.Origin;
-				collider.spriteAssetName = spriteAsset.Name;
-			}
-			else
-			{
-				colliders.Add(new ColliderClass(sprite)
-				{
-					Margins = margins,
-					SepMasks = spriteAsset.SepMasks,
-					BoundingBoxMode = spriteAsset.BBoxMode,
-					Origin = spriteAsset.Origin
-				});
-			}
-			
+			var gap_present = ((p1Proj.max <= p2Proj.min) || (p2Proj.max <= p1Proj.min));
 
-			return;
+			if (gap_present)
+				return false;
 		}
 
-		int colIndex = 0;
-		byte[] byteData;
-
-		if (spriteAsset.CollisionMasks.Count - 1 < (int)sprite.image_index || sprite.image_index < 0)
-		{
-			// this is dumb, but its because image_index is updated directly when handling animation wrapping around
-			byteData = spriteAsset.CollisionMasks[0];
-			colIndex = 0;
-		}
-		else
-		{
-			byteData = spriteAsset.CollisionMasks[(int)sprite.image_index];
-			colIndex = (int)sprite.image_index;
-		}
-
-		var collisionMask = new bool[spriteAsset.Height, spriteAsset.Width];
-
-		var newByteArray = new byte[byteData.Length];
-
-		for (int i = 0; i < byteData.Length; i++)
-		{
-			// https://softwarejuancarlos.com/2013/05/05/byte_bits_reverse/
-			byte result = 0x00;
-			for (var mask = 0x80; Convert.ToInt32(mask) > 0; mask >>= 1)
-			{
-				result = (byte)(result >> 1);
-				var tempbyte = (byte)(byteData[i] & mask);
-				if (tempbyte != 0x00)
-				{
-					result = (byte)(result | 0x80);
-				}
-			}
-			newByteArray[i] = result;
-		}
-
-		byteData = newByteArray;
-
-		var bitArray = new BitArray(byteData);
-
-		// Collision mask is stored in a fucked format.
-		// The byte array stored each pixel of the mask in its bits.
-		// The pixels are defined from the top left, running along the row, until it loops back around to the start of the next row.
-		// If a row ends mid-way through a byte, the rest of the byte is 0-ed out. The next byte starts the new row.
-		// The bits in each byte need to be reversed first. For some fucking reason.
-
-		var index = 0;
-		for (var i = 0; i < spriteAsset.Height; i++)
-		{
-			for (var j = 0; j < spriteAsset.Width; j++)
-			{
-				var val = bitArray[index++];
-				collisionMask[i, j] = val;
-			}
-
-			if (index % 8 == 0)
-			{
-				continue;
-			}
-
-			// need to align to the next multiple of 8
-			var nextMultiple = ((index / 8) + 1) * 8;
-			var difference = nextMultiple - index;
-			index += difference;
-		}
-
-		if (colliders.Any(x => x.GMObject == sprite))
-		{
-			var collider = colliders.Single(x => x.GMObject == sprite);
-			collider.Margins = margins;
-			collider.SepMasks = spriteAsset.SepMasks;
-			collider.BoundingBoxMode = spriteAsset.BBoxMode;
-			collider.CollisionMask = collisionMask;
-			collider.Origin = spriteAsset.Origin;
-
-			if (collider.spriteAssetName != spriteAsset.Name
-			    || collider.collisionMaskIndex != colIndex)
-			{
-				UpdateRotationMask(sprite);
-			}
-
-			collider.spriteAssetName = spriteAsset.Name;
-			collider.collisionMaskIndex = colIndex;
-			return;
-		}
-
-		colliders.Add(new ColliderClass(sprite)
-		{
-			Margins = margins,
-			SepMasks = spriteAsset.SepMasks,
-			BoundingBoxMode = spriteAsset.BBoxMode,
-			CollisionMask = collisionMask,
-			Origin = spriteAsset.Origin
-		});
-		UpdateRotationMask(sprite);
+		return true;
 	}
 
-	public static void UnregisterCollider(GamemakerObject sprite)
+	public static Vector2d[] sa_getAxes(Vector2d[] points)
 	{
-		colliders.RemoveAll(x => x.GMObject == sprite || x.GMObject.Destroyed);
+		var ret = new Vector2d[2];
+
+		for (var i = 0; i < 2; ++i)
+		{
+			var axis = points[i + 1] - points[i];
+			ret[i] = axis.Normalized();
+		}
+
+		return ret;
 	}
 
-	public static void UpdateRotationMask(GamemakerObject obj)
+	public static Vector2d sa_getAxesLine(Vector2d[] points)
 	{
-		var collider = colliders.SingleOrDefault(x => x.GMObject == obj);
+		var axis = points[1] - points[0];
+		axis = axis.Normalized();
 
-		if (collider == null)
-		{
-			DebugLog.LogWarning($"No collider found for {obj.instanceId} ({obj.object_index})");
-			return;
-		}
-
-		if (collider.SepMasks != UndertaleSprite.SepMaskType.Precise)
-		{
-			return;
-		}
-
-		(collider.CachedRotatedMask, collider.CachedRotatedMaskOffset) = RotateMask(collider.CollisionMask, collider.GMObject.image_angle, collider.Origin.X, collider.Origin.Y, collider.Scale.X, collider.Scale.Y);
+		return new Vector2d(-axis.Y, axis.X);
 	}
 
-	public static (bool[,] buffer, Vector2i topLeftOffset) RotateMask(bool[,] mask, double angle, int pivotX, int pivotY, double xScale, double yScale)
+	public static (double min, double max) sa_getProjection(Vector2d[] points, Vector2d axis)
 	{
-		/*
-		 * Nearest-Neighbour algorithm for rotating a collision mask.
-		 * Assume that the given mask is positioned at (0, 0), and that the given pivot is relative to (0, 0).
-		 * We need to return the rotated mask in a new buffer, and where the top left of the new mask is, relative to (0, 0).
-		 */
+		var newProj = points[0].X * axis.X + points[0].Y * axis.Y;
+		var min = newProj;
+		var max = newProj;
 
-		var maskWidth = mask.GetLength(1);
-		var maskHeight = mask.GetLength(0);
-
-		/*
-		 * The maths on these two functions took me a few hours and a lot of graph paper to work out.
-		 *
-		 * Rotating a point (x, y) around pivot (Px, Py) by angle θ can be found by solving this matrix equation R :
-		 *
-		 * [ x' ]    [ 1 0 Px ]  [ cosθ -sinθ 0 ]  [ 1 0 -Px ]  [ x ]
-		 * [ y' ] =  [ 0 1 Py ]  [ sinθ  cosθ 0 ]  [ 0 1 -Py ]  [ y ]
-		 * [ 1  ]    [ 0 0 1  ]  [  0	  0   1 ]  [ 0 0  1  ]  [ 1 ]
-		 *
-		 * Scaling a point (x, y) around pivot (Px, Py) by scale factor (Sx, Sy) can be found by solving this matrix equation S :
-		 *
-		 * [ x' ]    [ 1 0 Px ]  [ Sx 0  0 ]  [ 1 0 -Px ]  [ x ]
-		 * [ y' ] =  [ 0 1 Py ]  [ 0  Sy 0 ]  [ 0 1 -Py ]  [ y ]
-		 * [ 1  ]    [ 0 0 1  ]  [ 0  0  1 ]  [ 0 0  1  ]  [ 1 ]
-		 *
-		 * To scale then rotate, substitute (x', y') from S as the values of (x, y) into R.
-		 * To rotate then scale, substitute (x', y') from R as the values of (x, y) into S.
-		 */
-
-		static void ScaleThenRotatePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double xPrime, out double yPrime)
+		for (var i = 1; i < 4; ++i)
 		{
-			var sin = Math.Sin(CustomMath.Deg2Rad * -theta);
-			var cos = Math.Cos(CustomMath.Deg2Rad * -theta);
+			newProj = points[i].X * axis.X + axis.Y * points[i].Y;
 
-			(x, y) = (x - pivotX, y - pivotY); // translate matrix
-			(x, y) = (x * scaleX, y * scaleY); // scale matrix
-			(x, y) = (x * cos - y * sin, x * sin + y * cos); // rotate matrix
-			(xPrime, yPrime) = (x + pivotX, y + pivotY); // translate matrix
+			if (newProj < min)
+				min = newProj;
+			else if (newProj > max)
+				max = newProj;
 		}
 
-		static void RotateThenScalePoint(double x, double y, int pivotX, int pivotY, double scaleX, double scaleY, double theta, out double xPrime, out double yPrime)
-		{
-			var sin = Math.Sin(CustomMath.Deg2Rad * -theta);
-			var cos = Math.Cos(CustomMath.Deg2Rad * -theta);
-
-			(x, y) = (x - pivotX, y - pivotY); // translate matrix
-			(x, y) = (x * cos - y * sin, x * sin + y * cos); // rotate matrix
-			(x, y) = (x * scaleX, y * scaleY); // scale matrix
-			(xPrime, yPrime) = (x + pivotX, y + pivotY); // translate matrix
-		}
-
-		// Calculate where the corners of the given mask will be when rotated.
-		ScaleThenRotatePoint(0, 0, pivotX, pivotY, xScale, yScale, angle, out var newTLx, out var newTLy);
-		ScaleThenRotatePoint(maskWidth, 0, pivotX, pivotY, xScale, yScale, angle, out var newTRx, out var newTRy);
-		ScaleThenRotatePoint(0, maskHeight, pivotX, pivotY, xScale, yScale, angle, out var newBLx, out var newBLy);
-		ScaleThenRotatePoint(maskWidth, maskHeight, pivotX, pivotY, xScale, yScale, angle, out var newBRx, out var newBRy);
-
-		// Calculate where the edges of the bounding box will be.
-		var fMinX = CustomMath.Min(newTLx, newTRx, newBLx, newBRx);
-		var fMaxX = CustomMath.Max(newTLx, newTRx, newBLx, newBRx);
-		var fMinY = CustomMath.Min(newTLy, newTRy, newBLy, newBRy);
-		var fMaxY = CustomMath.Max(newTLy, newTRy, newBLy, newBRy);
-
-		// Get the minimum-sized bounding box in pixels.
-		var iMinX = CustomMath.FloorToInt(fMinX);
-		var iMaxX = CustomMath.CeilToInt(fMaxX);
-		var iMinY = CustomMath.FloorToInt(fMinY);
-		var iMaxY = CustomMath.CeilToInt(fMaxY);
-
-		var bbWidth = iMaxX - iMinX;
-		var bbHeight = iMaxY - iMinY;
-		var returnBuffer = new bool[bbHeight, bbWidth];
-
-		// For each pixel in the return buffer...
-		for (var row = 0; row < bbHeight; row++)
-		{
-			for (var col = 0; col < bbWidth; col++)
-			{
-				// Get the position of the center of this pixel
-				var pixelCenterX = iMinX + col + 0.5f;
-				var pixelCenterY = iMinY + row + 0.5f;
-
-				// Rotate the center position backwards around the pivot to get a position in the original mask.
-				RotateThenScalePoint(pixelCenterX, pixelCenterY, pivotX, pivotY, 1 / xScale, 1 / yScale, -angle, out var centerRotatedX, out var centerRotatedY);
-
-				// Force this position to be an (int, int), so we can sample the original mask.
-				var snappedToGridX = CustomMath.FloorToInt(centerRotatedX);
-				var snappedToGridY = CustomMath.FloorToInt(centerRotatedY);
-
-				if (snappedToGridX < 0 ||
-				    snappedToGridX > maskWidth - 1 ||
-				    snappedToGridY < 0 ||
-				    snappedToGridY > maskHeight - 1)
-				{
-					// Sampling position is outside the original mask.
-					continue;
-				}
-
-				try
-				{
-					returnBuffer[row, col] = mask[snappedToGridY, snappedToGridX];
-				}
-				catch (IndexOutOfRangeException)
-				{
-					DebugLog.LogError($"Mask size : ({mask.GetLength(0)}, {mask.GetLength(1)}) snappedToGrid.y:{snappedToGridY} snappedToGrid.x:{snappedToGridX}");
-				}
-			}
-		}
-
-		return (returnBuffer, new Vector2i(iMinX - pivotX , iMinY - pivotY));
+		return (min, max);
 	}
 
-	public static int collision_rectangle_assetid(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, int assetId, bool precise, bool notme, GamemakerObject current)
+	public static (double min, double max) sa_getProjectionLine(Vector2d[] points, Vector2d axis)
 	{
-		// swap values if needed
+		var newProj = points[0].X * axis.X + points[0].Y * axis.Y;
 
-		if (bottomRightX < topLeftX)
+		var min = newProj;
+		var max = newProj;
+
+		for (var i = 1; i< 2; ++i)
 		{
-			(bottomRightX, topLeftX) = (topLeftX, bottomRightX);
+			newProj = points[i].X * axis.X + axis.Y * points[i].Y;
+
+			if (newProj<min)
+				min = newProj;
+			else if (newProj > max)
+				max = newProj;
 		}
 
-		if (topLeftY > bottomRightY)
-		{
-			(bottomRightY, topLeftY) = (topLeftY, bottomRightY);
-		}
-
-		// sanity check
-		colliders.RemoveAll(x => x.GMObject == null);
-
-		foreach (var checkBox in colliders)
-		{
-			// Check if this or any parent matches
-			if (checkBox.GMObject.Definition.AssetId != assetId)
-			{
-				var currentDefinition = checkBox.GMObject.Definition.parent;
-				var matches = false;
-				while (currentDefinition != null)
-				{
-					if (currentDefinition.AssetId == assetId)
-					{
-						matches = true;
-						break;
-					}
-
-					currentDefinition = currentDefinition.parent;
-				}
-
-				if (!matches)
-				{
-					continue;
-				}
-			}
-
-			// Check if testing object is current object
-			if (notme && checkBox.GMObject == current)
-			{
-				continue;
-			}
-
-			var collision = CheckColliderAgainstRectangle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
-
-			if (collision)
-			{
-				return (int)checkBox.GMObject.instanceId;
-			}
-		}
-
-		return GMConstants.noone;
+		return (min, max);
 	}
 
-	public static int collision_rectangle_instanceid(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY, int instanceId, bool precise, bool notme, GamemakerObject current)
-	{
-		if (bottomRightX < topLeftX)
-		{
-			(bottomRightX, topLeftX) = (topLeftX, bottomRightX);
-		}
-
-		if (topLeftY > bottomRightY)
-		{
-			(bottomRightY, topLeftY) = (topLeftY, bottomRightY);
-		}
-
-		colliders.RemoveAll(x => x.GMObject == null);
-
-		foreach (var checkBox in colliders)
-		{
-			if (checkBox.GMObject.instanceId != instanceId)
-			{
-				continue;
-			}
-
-			if (notme && checkBox.GMObject == current)
-			{
-				continue;
-			}
-
-			var collision = CheckColliderAgainstRectangle(checkBox, new Vector2d(topLeftX, topLeftY), new Vector2d(bottomRightX, bottomRightY), precise);
-
-			if (collision)
-			{
-				return (int)checkBox.GMObject.instanceId;
-			}
-		}
-
-		return GMConstants.noone;
-	}
-
-	public static bool place_meeting_assetid(double x, double y, int assetId, GamemakerObject current)
-	{
-		return instance_place_assetid(x, y, assetId, current) != null;
-	}
-
-	public static bool place_meeting_instanceid(double x, double y, int instanceId, GamemakerObject current)
-	{
-		return instance_place_instanceid(x, y, instanceId, current) != null;
-	}
-
-	public static GamemakerObject? instance_place_assetid(double x, double y, int assetId, GamemakerObject current)
-	{
-		// gamemaker floors the x/y coords
-		x = Math.Floor(x);
-		y = Math.Floor(y);
-
-		var savedX = current.x;
-		var savedY = current.y;
-		current.x = x;
-		current.y = y;
-
-		var movedBox = colliders.SingleOrDefault(b => b.GMObject == current);
-
-		if (movedBox == null)
-		{
-			DebugLog.LogError($"ERROR: Can't find collider for {current}!");
-			current.x = savedX;
-			current.y = savedY;
-			return null;
-		}
-
-		foreach (var checkBox in colliders)
-		{
-			if (checkBox == null)
-			{
-				DebugLog.LogWarning($"Null collider in colliders!");
-				continue;
-			}
-
-			if (checkBox.GMObject.Definition.AssetId != assetId)
-			{
-				var currentDefinition = checkBox.GMObject.Definition.parent;
-				var matches = false;
-				while (currentDefinition != null)
-				{
-					if (currentDefinition.AssetId == assetId)
-					{
-						matches = true;
-						break;
-					}
-
-					currentDefinition = currentDefinition.parent;
-				}
-
-				if (!matches)
-				{
-					continue;
-				}
-			}
-
-			if (CheckColliderAgainstCollider(movedBox, checkBox))
-			{
-				current.x = savedX;
-				current.y = savedY;
-				return checkBox.GMObject;
-			}
-		}
-
-		current.x = savedX;
-		current.y = savedY;
-		return null;
-	}
-
-	public static GamemakerObject? instance_place_instanceid(double x, double y, int instanceId, GamemakerObject current)
-	{
-		// gamemaker floors the x/y coords
-		x = Math.Floor(x);
-		y = Math.Floor(y);
-
-		var savedX = current.x;
-		var savedY = current.y;
-		current.x = x;
-		current.y = y;
-
-		var movedBox = colliders.Single(b => b.GMObject == current);
-
-		foreach (var checkBox in colliders)
-		{
-			if (checkBox == null)
-			{
-				DebugLog.LogWarning($"Null collider in colliders!");
-				continue;
-			}
-
-			if (checkBox.GMObject.instanceId != instanceId)
-			{
-				continue;
-			}
-
-			if (CheckColliderAgainstCollider(movedBox, checkBox))
-			{
-				current.x = savedX;
-				current.y = savedY;
-				return checkBox.GMObject;
-			}
-		}
-
-		current.x = savedX;
-		current.y = savedY;
-		return null;
-	}
-
-	public static double DistanceToObject(GamemakerObject a, GamemakerObject b)
-	{
-		var aBox = colliders.First(x => x.GMObject == a);
-		var bBox = colliders.First(x => x.GMObject == b);
-
-		var deltaX = CustomMath.Max(aBox.BBox.left, bBox.BBox.left) - CustomMath.Min(aBox.BBox.right, bBox.BBox.right);
-		var deltaY = CustomMath.Max(aBox.BBox.top, bBox.BBox.top) - CustomMath.Min(aBox.BBox.bottom, bBox.BBox.bottom);
-
-		deltaX = CustomMath.Max(0, deltaX);
-		deltaY = CustomMath.Max(0, deltaY);
-
-		return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
-	}
-
-	private static bool DoBoxesOverlap(double left, double top, double right, double bottom, ColliderClass b)
-		=> left <= (b.BBox.right - 1) 
-		   && right - 1 >= b.BBox.left 
-		   && top <= (b.BBox.bottom - 1) 
-		   && bottom - 1 >= b.BBox.top;
-
-	private static bool DoBoxesOverlap(ColliderClass a, ColliderClass b)
-		=> a.BBox.left <= b.BBox.right
-		   && a.BBox.right >= b.BBox.left
-		   && a.BBox.top <= b.BBox.bottom
-		   && a.BBox.bottom >= b.BBox.top;
+	#endregion
 }

@@ -453,6 +453,11 @@ public static class GameConverter
 			foreach (var item in sprite.CollisionMasks)
 			{
 				asset.CollisionMasks.Add(item.Data);
+
+				if (sprite.Name.Content == "spr_pipis_egg")
+				{
+					DebugLog.Log($"PIPIS");
+				}
 			}
 
 			writer.WriteMemoryPack(asset);

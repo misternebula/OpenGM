@@ -56,11 +56,21 @@ public static class AssetIndexManager
 		return NameToIndex.TryGetValue(name, out var index) ? index : -1;
 	}
 
+	public static string GetName(AssetType type, int index)
+	{
+		return AssetList[type].First(x => x.Value == index).Key;
+	}
+
 	public static int Register(AssetType type, string name)
 	{
 		if (!AssetList.ContainsKey(type))
 		{
 			AssetList.Add(type, new Dictionary<string, int>());
+		}
+
+		if (AssetList[type].TryGetValue(name, out var index))
+		{
+			return index;
 		}
 
 		var highestIndex = AssetList[type].Values.Max();

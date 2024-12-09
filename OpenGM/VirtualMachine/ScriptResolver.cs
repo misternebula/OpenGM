@@ -5,21 +5,14 @@ using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System;
 using System.Collections;
-using System.Diagnostics;
-using System.Text;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
-using static UndertaleModLib.Models.UndertaleRoom;
-
 using OpenTK.Graphics.OpenGL;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
-using System.IO;
-using String = System.String;
+using static UndertaleModLib.Models.UndertaleRoom;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
@@ -49,7 +42,7 @@ public static partial class ScriptResolver
 		//{ "move_bounce_all", move_bounce_all },
 		//{ "move_wrap", move_wrap },
 		//{ "motion_set", motion_set },
-		//{ "motion_add", motion_add },
+		{ "motion_add", motion_add },
 		{ "distance_to_point", distance_to_point },
 		{ "distance_to_object", distance_to_object },
 		{ "path_start", path_start },
@@ -106,10 +99,10 @@ public static partial class ScriptResolver
 		//{ "position_change", position_change },
 		//{ "instance_id_get", instance_id_get },
 		//{ "instance_deactivate_all", instance_deactivate_all },
-		//{ "instance_deactivate_object", instance_deactivate_object },
+		{ "instance_deactivate_object", instance_deactivate_object },
 		//{ "instance_deactivate_region", instance_deactivate_region },
 		//{ "instance_activate_all", instance_activate_all },
-		//{ "instance_activate_object", instance_activate_object },
+		{ "instance_activate_object", instance_activate_object },
 		//{ "instance_activate_region", instance_activate_region },
 		//{ "instance_deactivate_region_special", instance_deactivate_region_special },
 		{ "room_goto", room_goto },
@@ -119,7 +112,7 @@ public static partial class ScriptResolver
 		{ "room_next", room_next },
 		//{ "room_restart", room_restart },
 		//{ "game_end", game_end },
-		//{ "game_restart", game_restart },
+		{ "game_restart", game_restart },
 		//{ "game_load", game_load },
 		//{ "game_save", game_save },
 		//{ "game_save_buffer", game_save_buffer },
@@ -148,8 +141,8 @@ public static partial class ScriptResolver
 		//{ "is_matrix", is_matrix },
 		//{ "typeof", typeof },
 		{ "array_length_1d", array_length_1d },
-		//{ "array_length_2d", array_length_2d },
-		//{ "array_height_2d", array_height_2d },
+		{ "array_length_2d", array_length_2d },
+		{ "array_height_2d", array_height_2d },
 		//{ "array_get", array_get },
 		//{ "array_set", array_set },
 		//{ "array_set_pre", array_set_pre },
@@ -205,7 +198,7 @@ public static partial class ScriptResolver
 		//{ "min3", min3 },
 		//{ "max3", max3 },
 		//{ "mean", mean },
-		//{ "median", median },
+		{ "median", median },
 		{ "choose", choose },
 		{ "clamp", clamp },
 		{ "lerp", lerp },
@@ -232,7 +225,7 @@ public static partial class ScriptResolver
 		{ "string_upper", string_upper},
 		//{ "string_repeat", string_repeat },
 		//{ "string_letters", string_letters },
-		//{ "string_digits", string_digits },
+		{ "string_digits", string_digits },
 		//{ "string_lettersdigits", string_lettersdigits },
 		//{ "string_replace", string_replace },
 		{ "string_replace_all", string_replace_all },
@@ -269,6 +262,7 @@ public static partial class ScriptResolver
 		{ "draw_set_colour", draw_set_colour },
 		{ "draw_set_color", draw_set_colour }, // mfw
 		{ "draw_set_alpha", draw_set_alpha },
+		{ "draw_get_alpha", draw_get_alpha },
 		{ "draw_get_colour", draw_get_colour },
 		{ "draw_get_color", draw_get_colour },
 		{ "merge_colour", merge_colour },
@@ -278,6 +272,8 @@ public static partial class ScriptResolver
 		{ "draw_set_font", draw_set_font },
 		{ "draw_set_halign", draw_set_halign },
 		{ "draw_set_valign", draw_set_valign },
+		{ "draw_get_halign", draw_get_halign },
+		{ "draw_get_valign", draw_get_valign },
 		{ "string_width", string_width },
 		{ "string_height", string_height },
 		{ "draw_text", draw_text },
@@ -397,7 +393,7 @@ public static partial class ScriptResolver
 
 		#region Buffer
 
-		//{ "buffer_create", buffer_create },
+		{ "buffer_create", buffer_create },
 		{ "buffer_delete", buffer_delete},
 		//{ "buffer_write", buffer_write },
 		{ "buffer_read", buffer_read },
@@ -456,7 +452,7 @@ public static partial class ScriptResolver
 		// layer_add_instance
 		// layer_has_instance
 		{ "layer_set_visible", layer_set_visible},
-		// layer_get_visible
+		{ "layer_get_visible", layer_get_visible},
 		// layer_exists
 		{ "layer_x", layer_x },
 		{ "layer_y", layer_y },
@@ -487,11 +483,11 @@ public static partial class ScriptResolver
 		// layer_get_forced_depth
 		// layer_background_get_id
 		// layer_background_exists
-		// layer_background_create
+		{ "layer_background_create", layer_background_create},
 		// layer_background_destroy
 		// layer_background_visible
-		// layer_background_htiled
-		// layer_background_vtiled
+		{ "layer_background_htiled", layer_background_htiled},
+		{ "layer_background_vtiled", layer_background_vtiled},
 		// layer_background_xscale
 		// layer_background_yscale
 		// layer_background_stretch
@@ -652,11 +648,141 @@ public static partial class ScriptResolver
 		{ "ds_list_size", ds_list_size},
 		{ "ds_list_find_value", ds_list_find_value},
 		{ "array_push", array_push},
-		{ "object_is_ancestor", object_is_ancestor}
-
+		{ "object_is_ancestor", object_is_ancestor},
+		{ "tilemap_get_x", tilemap_get_x},
+		{ "tilemap_x", tilemap_x},
+		{ "tilemap_get_y", tilemap_get_y},
+		{ "tilemap_y", tilemap_y},
+		{ "audio_sound_get_pitch", audio_sound_get_pitch},
+		{ "shader_set", shader_set},
+		{ "sprite_get_texture", sprite_get_texture},
+		{ "sprite_get_uvs", sprite_get_uvs},
+		{ "texture_set_stage", texture_set_stage},
+		{ "texture_get_texel_width", texture_get_texel_width},
+		{ "texture_get_texel_height", texture_get_texel_height},
+		{ "shader_set_uniform_f", shader_set_uniform_f},
+		{ "surface_get_texture", surface_get_texture},
+		{ "sprite_get_bbox_left", sprite_get_bbox_left},
+		{ "sprite_get_bbox_top", sprite_get_bbox_top},
+		{ "sprite_get_bbox_right", sprite_get_bbox_right},
+		{ "sprite_get_bbox_bottom", sprite_get_bbox_bottom},
+		{ "shader_get_uniform", shader_get_uniform},
+		{ "shader_get_sampler_index", shader_get_sampler_index},
+		{ "shader_reset", shader_reset},
+		{ "draw_line", draw_line },
+		{ "draw_healthbar", draw_healthbar},
+		{ "path_set_kind", path_set_kind},
+		{ "path_exists", path_exists},
+		{ "audio_sound_get_gain", audio_sound_get_gain}
 		
 		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
 	};
+
+	public static object? audio_sound_get_gain(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		if (index >= GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instance = AudioManager.GetAudioInstance(index);
+
+			if (instance == null)
+			{
+				return 0;
+			}
+
+			AL.GetSource(instance.SoundInstanceId, ALSourcef.Gain, out var gain);
+			return gain;
+		}
+		else
+		{
+			var asset = AudioManager.GetAudioAsset(index);
+			return asset.Gain;
+		}
+	}
+
+	public static object? draw_line(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+
+		CustomWindow.Draw(new GMLineJob()
+		{
+			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			width = 1,
+			x1 = (float)x1,
+			y1 = (float)y1,
+			x2 = (float)x2,
+			y2 = (float)y2
+		});
+
+		return null;
+	}
+
+	// TODO : Implement these ughhhhhh
+
+	public static object? shader_set(object?[] args)
+	{
+		var shaderId = args[0].Conv<int>();
+		return null;
+	}
+
+	public static object? sprite_get_texture(object?[] args)
+	{
+		var spr = args[0].Conv<int>();
+		var subimg = args[0].Conv<int>();
+		return 0;
+	}
+
+	public static object? sprite_get_uvs(object?[] args)
+	{
+		var spr = args[0].Conv<int>();
+		var subimg = args[0].Conv<int>();
+		return new int[8];
+	}
+
+	public static object? texture_set_stage(object?[] args)
+	{
+		return null;
+	}
+
+	public static object? texture_get_texel_width(object?[] args)
+	{
+		return 0;
+	}
+
+	public static object? texture_get_texel_height(object?[] args)
+	{
+		return 0;
+	}
+
+	public static object? shader_set_uniform_f(object?[] args)
+	{
+		return null;
+	}
+
+	public static object? shader_get_uniform(object?[] args)
+	{
+		return null;
+	}
+
+	public static object? surface_get_texture(object?[] args)
+	{
+		return -1;
+	}
+
+	public static object? shader_get_sampler_index(object?[] args)
+	{
+		return -1;
+	}
+
+	public static object? shader_reset(object?[] args)
+	{
+		return null;
+	}
 
 	private static object? layer_force_draw_depth(object?[] args)
 	{
@@ -688,6 +814,11 @@ public static partial class ScriptResolver
 		return null;
 	}
 
+	public static object? draw_get_alpha(object?[] args)
+	{
+		return SpriteManager.DrawAlpha;
+	}
+
 	public static object NewGMLArray(object?[] args)
 	{
 		return args.ToList(); // needs to be resizeable, e.g. initializing __objectID2Depth
@@ -701,12 +832,12 @@ public static partial class ScriptResolver
 
 	public static object? event_inherited(object?[] args)
 	{
-		if (VMExecutor.Ctx.ObjectDefinition?.parent == null)
+		if (VMExecutor.Self.ObjectDefinition?.parent == null)
 		{
 			return null;
 		}
 
-		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition.parent, VMExecutor.Ctx.EventType, VMExecutor.Ctx.EventIndex);
+		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition.parent, VMExecutor.Self.EventType, VMExecutor.Self.EventIndex);
 		return null;
 	}
 
@@ -1348,33 +1479,23 @@ public static partial class ScriptResolver
 		var y2 = args[3].Conv<double>();
 		var outline = args[4].Conv<bool>();
 
-		if (outline)
-		{
-			draw(x1, y1, x2, y1 + 1);
-			draw(x2 - 1, y1 + 1, x2, y2);
-			draw(x1, y2 - 1, x2, y2);
-			draw(x1, y1, x1 + 1, y2);
-			return null;
-		}
+		x2 += 1;
+		y2 += 1;
 
-		draw(x1, y1, x2, y2);
-		return null;
-
-		static void draw(double x1, double y1, double x2, double y2)
+		CustomWindow.Draw(new GMPolygonJob()
 		{
-			CustomWindow.Draw(new GMPolygonJob()
+			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			alpha = SpriteManager.DrawAlpha,
+			Vertices = new Vector2d[]
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(),
-				alpha = SpriteManager.DrawAlpha,
-				Vertices = new Vector2d[]
-				{
-					new(x1, y1),
-					new(x2, y1),
-					new(x2, y2),
-					new(x1, y2)
-				}
-			});
-		}
+				new(x1, y1),
+				new(x2, y1),
+				new(x2, y2),
+				new(x1, y2)
+			},
+			Outline = outline
+		});
+		return null;
 	}
 
 	public static object? draw_set_font(object?[] args)
@@ -1431,6 +1552,16 @@ public static partial class ScriptResolver
 		var valign = args[0].Conv<int>();
 		TextManager.valign = (VAlign)valign;
 		return null;
+	}
+
+	public static object? draw_get_halign(object?[] args)
+	{
+		return (int)TextManager.halign;
+	}
+
+	public static object? draw_get_valign(object?[] args)
+	{
+		return (int)TextManager.valign;
 	}
 
 	public static object? draw_sprite(object?[] args)
@@ -1653,7 +1784,7 @@ public static partial class ScriptResolver
 
 	public static object? draw_self(object?[] args)
 	{
-		SpriteManager.DrawSelf(VMExecutor.Ctx.GMSelf);
+		SpriteManager.DrawSelf(VMExecutor.Self.GMSelf);
 		return null;
 	}
 
@@ -1972,6 +2103,11 @@ public static partial class ScriptResolver
 		var volume = args[1].Conv<double>();
 		var time = args[2].Conv<double>();
 
+		if (index < 0)
+		{
+			return null;
+		}
+
 		if (index >= GMConstants.FIRST_INSTANCE_ID)
 		{
 			// instance id
@@ -2033,7 +2169,6 @@ public static partial class ScriptResolver
 
 	public static object? audio_stop_all(object?[] args)
 	{
-		DebugLog.Log($"audio_stop_all");
 		AudioManager.StopAllAudio();
 		return null;
 	}
@@ -2055,8 +2190,8 @@ public static partial class ScriptResolver
 			var soundAsset = AudioManager.GetAudioInstance(id);
 			if (soundAsset == null)
 			{
-				DebugLog.LogWarning($"trying to stop sound {id} which does not exist.\n" +
-					$"it was probably either done playing or already stopped");
+				//DebugLog.LogWarning($"trying to stop sound {id} which does not exist.\n" +
+				//	$"it was probably either done playing or already stopped");
 				return null;
 			}
 			AL.SourceStop(soundAsset.Source);
@@ -2197,7 +2332,7 @@ public static partial class ScriptResolver
 	public static object? event_user(object?[] args)
 	{
 		var numb = args[0].Conv<int>();
-		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
 		return null;
 	}
 
@@ -2212,10 +2347,10 @@ public static partial class ScriptResolver
 		{
 			(var code, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
 
-			return VMExecutor.ExecuteCode(code, VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs, startingIndex: index);
+			return VMExecutor.ExecuteCode(code, VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs, startingIndex: index);
 		}
 
-		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, args: scriptArgs);
+		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
 	}
 
 	public static object? draw_line_width(object?[] args)
@@ -2283,93 +2418,91 @@ public static partial class ScriptResolver
 		return RoomManager.CurrentRoom.Layers[layer_id].Name;
 	}
 
-	
-
 	private static object layer_get_depth(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer_id = args[0];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		return layer.Depth;
 	}
 
 	private static object? layer_x(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 		var x = args[1].Conv<double>();
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		layer.X = (float)x;
 		return null;
 	}
 
 	private static object? layer_y(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 		var y = args[1].Conv<double>();
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		layer.Y = (float)y;
 		return null;
 	}
 
 	private static object layer_get_x(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		return layer.X;
 	}
 
 	private static object layer_get_y(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		return layer.Y;
 	}
 
 	private static object? layer_hspeed(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 		var hspd = args[1].Conv<double>();
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		layer.HSpeed = (float)hspd;
 		return null;
 	}
 
 	private static object? layer_vspeed(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 		var vspd = args[1].Conv<double>();
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		layer.VSpeed = (float)vspd;
 		return null;
 	}
 
 	private static object layer_get_vspeed(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		return layer.VSpeed;
 	}
 
 	private static object layer_get_hspeed(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		return layer.HSpeed;
 	}
 
 	private static object? layer_depth(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
+		var layer_id = args[0];
 		var depth = args[1].Conv<int>();
 
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 		layer.Depth = depth;
 		return null;
 	}
@@ -2839,6 +2972,15 @@ public static partial class ScriptResolver
 		return RoomManager.RoomList[index].Name;
 	}
 
+	public static object buffer_create(object?[] args)
+	{
+		var size = args[0].Conv<int>();
+		var type = (BufferType)args[1].Conv<int>();
+		var alignment = args[2].Conv<int>();
+
+		return BufferManager.CreateBuffer(size, type, alignment);
+	}
+
 	public static object buffer_load(object?[] args)
 	{
 		var filename = args[0].Conv<string>();
@@ -3131,6 +3273,20 @@ public static partial class ScriptResolver
 		return null;
 	}
 
+	public static object? layer_get_visible(object?[] args)
+	{
+		var layer_value = args[0];
+
+		if (layer_value is string s)
+		{
+			return RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value.Visible;
+		}
+		else
+		{
+			return RoomManager.CurrentRoom.Layers[args[0].Conv<int>()].Visible;
+		}
+	}
+
 	public static object? draw_line_width_color(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
@@ -3227,6 +3383,80 @@ public static partial class ScriptResolver
 		}
 	}
 
+	public static object tilemap_get_x(object?[] args)
+	{
+		var tilemap_element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+				{
+					return tilemap.Element.x;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? tilemap_x(object?[] args)
+	{
+		var tilemap_element_id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+				{
+					tilemap.Element.x = x;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object tilemap_get_y(object?[] args)
+	{
+		var tilemap_element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+				{
+					return tilemap.Element.x;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? tilemap_y(object?[] args)
+	{
+		var tilemap_element_id = args[0].Conv<int>();
+		var y = args[1].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+				{
+					tilemap.Element.y = y;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public static object? draw_tilemap(object?[] args)
 	{
 		var element_id = args[0].Conv<int>();
@@ -3261,6 +3491,9 @@ public static partial class ScriptResolver
 		var col3 = args[6].Conv<int>();
 		var col4 = args[7].Conv<int>();
 		var outline = args[8].Conv<bool>();
+
+		x2 += 1;
+		y2 += 1;
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
@@ -3381,8 +3614,9 @@ public static partial class ScriptResolver
 		}
 	}
 
-	private static object This(object?[] args) => VMExecutor.Ctx.GMSelf.instanceId;
-	private static object Other(object?[] args) => VMExecutor.EnvironmentStack.ToArray()[1].GMSelf.instanceId;
+	private static object This(object?[] args) => VMExecutor.Self.GMSelf.instanceId;
+
+	private static object Other(object?[] args) => VMExecutor.Other.GMSelf.instanceId;
 
 	// TODO what the fuck are these? apparently its JS stuff? see F_JSTryHook etc
 	// these are to do with breakpoints. probably not important. - neb
@@ -3651,7 +3885,7 @@ public static partial class ScriptResolver
 		var type = args[0].Conv<int>();
 		var numb = args[0].Conv<int>();
 
-		GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, (EventType)type + 1, numb);
+		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, (EventType)type + 1, numb);
 		return null;
 	}
 
@@ -3690,12 +3924,12 @@ public static partial class ScriptResolver
 
 		if (Action_Relative)
 		{
-			x += VMExecutor.Ctx.GMSelf.x;
-			y += VMExecutor.Ctx.GMSelf.y;
+			x += VMExecutor.Self.GMSelf.x;
+			y += VMExecutor.Self.GMSelf.y;
 		}
 
-		VMExecutor.Ctx.GMSelf.x = x;
-		VMExecutor.Ctx.GMSelf.y = y;
+		VMExecutor.Self.GMSelf.x = x;
+		VMExecutor.Self.GMSelf.y = y;
 		return null;
 	}
 
@@ -3789,10 +4023,10 @@ public static partial class ScriptResolver
 
 		if (Action_Relative)
 		{
-			speed = VMExecutor.Ctx.GMSelf.speed + speed;
+			speed = VMExecutor.Self.GMSelf.speed + speed;
 		}
 
-		VMExecutor.Ctx.GMSelf.speed = speed;
+		VMExecutor.Self.GMSelf.speed = speed;
 
 		int dir;
 		do
@@ -3803,32 +4037,32 @@ public static partial class ScriptResolver
 		switch (dir)
 		{
 			case 0:
-				VMExecutor.Ctx.GMSelf.direction = 255;
+				VMExecutor.Self.GMSelf.direction = 255;
 				break;
 			case 1:
-				VMExecutor.Ctx.GMSelf.direction = 270;
+				VMExecutor.Self.GMSelf.direction = 270;
 				break;
 			case 2:
-				VMExecutor.Ctx.GMSelf.direction = 315;
+				VMExecutor.Self.GMSelf.direction = 315;
 				break;
 			case 3:
-				VMExecutor.Ctx.GMSelf.direction = 180;
+				VMExecutor.Self.GMSelf.direction = 180;
 				break;
 			case 4:
-				VMExecutor.Ctx.GMSelf.direction = 0;
-				VMExecutor.Ctx.GMSelf.speed = 0;
+				VMExecutor.Self.GMSelf.direction = 0;
+				VMExecutor.Self.GMSelf.speed = 0;
 				break;
 			case 5:
-				VMExecutor.Ctx.GMSelf.direction = 0;
+				VMExecutor.Self.GMSelf.direction = 0;
 				break;
 			case 6:
-				VMExecutor.Ctx.GMSelf.direction = 135;
+				VMExecutor.Self.GMSelf.direction = 135;
 				break;
 			case 7:
-				VMExecutor.Ctx.GMSelf.direction = 90;
+				VMExecutor.Self.GMSelf.direction = 90;
 				break;
 			case 8:
-				VMExecutor.Ctx.GMSelf.direction = 56;
+				VMExecutor.Self.GMSelf.direction = 56;
 				break;
 		}
 
@@ -3842,15 +4076,15 @@ public static partial class ScriptResolver
 
 		if (Action_Relative)
 		{
-			var curValue = VMExecutor.Ctx.GMSelf.alarm[index].Conv<int>();
+			var curValue = VMExecutor.Self.GMSelf.alarm[index].Conv<int>();
 			if (curValue > -1)
 			{
-				VMExecutor.Ctx.GMSelf.alarm[index] = curValue + value;
+				VMExecutor.Self.GMSelf.alarm[index] = curValue + value;
 				return null;
 			}
 		}
 
-		VMExecutor.Ctx.GMSelf.alarm[index] = value;
+		VMExecutor.Self.GMSelf.alarm[index] = value;
 		return null;
 	}
 
@@ -3860,10 +4094,10 @@ public static partial class ScriptResolver
 
 		if (Action_Relative)
 		{
-			friction += VMExecutor.Ctx.GMSelf.friction;
+			friction += VMExecutor.Self.GMSelf.friction;
 		}
 
-		VMExecutor.Ctx.GMSelf.friction = friction;
+		VMExecutor.Self.GMSelf.friction = friction;
 		return null;
 	}
 
@@ -4061,28 +4295,7 @@ public static partial class ScriptResolver
 		var y = args[1].Conv<double>();
 		var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
-		if (obj < 0)
-		{
-			throw new NotImplementedException($"{obj} given to place_meeting");
-		}
-
-		GamemakerObject? collide;
-
-		if (obj < GMConstants.FIRST_INSTANCE_ID)
-		{
-			collide = CollisionManager.instance_place_assetid(x, y, obj, VMExecutor.Ctx.GMSelf);
-		}
-		else
-		{
-			collide = CollisionManager.instance_place_instanceid(x, y, obj, VMExecutor.Ctx.GMSelf);
-		}
-
-		if (collide == null)
-		{
-			return GMConstants.noone;
-		}
-
-		return collide.instanceId;
+		return CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
 	}
 
 	public static object? array_push(object?[] args)
@@ -4126,7 +4339,7 @@ public static partial class ScriptResolver
 		var endaction = (PathEndAction)args[2].Conv<int>();
 		var absolute = args[3].Conv<bool>();
 
-		VMExecutor.Ctx.GMSelf.AssignPath(path, speed, 1, 0, absolute, endaction);
+		VMExecutor.Self.GMSelf.AssignPath(path, speed, 1, 0, absolute, endaction);
 
 		return null;
 	}
@@ -4138,6 +4351,331 @@ public static partial class ScriptResolver
 		// TODO : Docs say that values [-epsilon,0) are set to 0, probably added in newer GM versions
 
 		return Math.Sqrt(val);
+	}
+
+	public static object layer_background_create(object?[] args)
+	{
+		var layer_id = args[0];
+		var sprite = args[1].Conv<int>();
+
+		LayerContainer layer;
+		if (layer_id is string s)
+		{
+			layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
+		}
+		else
+		{
+			var id = layer_id.Conv<int>();
+			layer = RoomManager.CurrentRoom.Layers[id];
+		}
+
+		var item = new CLayerBackgroundElement();
+		item.Index = sprite;
+		item.Visible = true;
+		item.Alpha = 1;
+		item.Color = 0xFFFFFF;
+		item.Layer = layer;
+
+		var background = new GMBackground(item)
+		{
+			depth = layer.Depth
+		};
+
+		layer.ElementsToDraw.Add(background);
+
+		return item.Id;
+	}
+
+	public static object? layer_background_htiled(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var htiled = args[1].Conv<bool>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
+				{
+					tilemap.Element.HTiled = htiled;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_vtiled(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var vtiled = args[1].Conv<bool>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
+				{
+					tilemap.Element.VTiled = vtiled;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? instance_activate_object(object?[] args)
+	{
+		var obj = args[0].Conv<int>();
+
+		if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// asset id
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				instance.Active = true;
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj)!;
+			instance.Active = true;
+		}
+
+		return null;
+	}
+
+	public static object? instance_deactivate_object(object?[] args)
+	{
+		var obj = args[0].Conv<int>();
+
+		if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			// asset id
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				instance.Active = false;
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj)!;
+			instance.Active = false;
+		}
+
+		return null;
+	}
+
+	public static object? audio_sound_get_pitch(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		if (index >= GMConstants.FIRST_INSTANCE_ID)
+		{
+			// instance id
+			var soundAsset = AudioManager.GetAudioInstance(index);
+			if (soundAsset == null)
+			{
+				return null;
+			}
+
+			return (double)AL.GetSource(soundAsset.Source, ALSourcef.Pitch);
+		}
+		else
+		{
+			// sound asset index
+			return AudioManager.GetAssetPitch(index);
+		}
+	}
+
+	public static object sprite_get_bbox_left(object?[] args)
+	{
+		var ind = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[ind];
+		return sprite.MarginLeft;
+	}
+
+	public static object sprite_get_bbox_top(object?[] args)
+	{
+		var ind = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[ind];
+		return sprite.MarginTop;
+	}
+
+	public static object sprite_get_bbox_right(object?[] args)
+	{
+		var ind = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[ind];
+		return sprite.MarginRight;
+	}
+
+	public static object sprite_get_bbox_bottom(object?[] args)
+	{
+		var ind = args[0].Conv<int>();
+		var sprite = SpriteManager._spriteDict[ind];
+		return sprite.MarginBottom;
+	}
+
+	public static object string_digits(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+
+		var result = "";
+
+		foreach (var c in str)
+		{
+			if (char.IsAsciiDigit(c))
+			{
+				result += c;
+			}
+		}
+
+		return result;
+	}
+
+	public static object median(object?[] args)
+	{
+		if (args.Length == 0)
+		{
+			return 0;
+		}
+
+		var realValues = new double[args.Length];
+		for (var i = 0; i < args.Length; i++)
+		{
+			realValues[i] = args.Conv<double>();
+		}
+
+		Array.Sort(realValues);
+
+		return realValues[CustomMath.FloorToInt(args.Length / 2f)];
+	}
+
+	public static object? draw_healthbar(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var amount = args[4].Conv<double>();
+		var backcol = args[5].Conv<int>();
+		var mincol = args[6].Conv<int>();
+		var maxcol = args[7].Conv<int>();
+		var direction = args[8].Conv<int>();
+		var showback = args[9].Conv<bool>();
+		var showborder = args[10].Conv<bool>();
+
+		var midcol = merge_colour(new object[] { mincol, maxcol, 0.5 });
+
+		if (showback)
+		{
+			draw_rectangle_colour(new object?[] { x1, y1, x2, y2, backcol, backcol, backcol, backcol, false });
+
+			if (showborder)
+			{
+				draw_rectangle_colour(new object?[] { x1, y1, x2, y2, 0, 0, 0, 0, true });
+			}
+		}
+
+		amount = Math.Clamp(amount, 0, 100);
+
+		var fraction = amount / 100;
+
+		var barx1 = 0d;
+		var bary1 = 0d;
+		var barx2 = 0d;
+		var bary2 = 0d;
+
+		switch (direction)
+		{
+			case 0:
+				barx1 = x1;
+				bary1 = y1;
+				barx2 = x1 + fraction * (x2 - x1);
+				bary2 = y2;
+				break;
+			case 1:
+				barx1 = x2 - fraction * (x2 - x1);
+				bary1 = y1;
+				barx2 = x2;
+				bary2 = y2;
+				break;
+			case 2:
+				barx1 = x1;
+				bary1 = y1;
+				barx2 = x2;
+				bary2 = y1 + fraction * (y2 - y1);
+				break;
+			case 3:
+				barx1 = x1;
+				bary1 = y2 - fraction * (y2 - y1);
+				barx2 = x2;
+				bary2 = y2;
+				break;
+		}
+
+		var col = 0;
+		if (amount > 50)
+		{
+			col = merge_colour(new object[] { midcol, maxcol, (amount - 50) / 50 }).Conv<int>();
+		}
+		else
+		{
+			col = merge_colour(new object[] { mincol, midcol, amount / 50 }).Conv<int>();
+		}
+
+		draw_rectangle_colour(new object?[] { barx1, bary1, barx2, bary2, col, col, col, col, false });
+		if (showborder)
+		{
+			draw_rectangle_colour(new object?[] { x1, y1, x2, y2, 0, 0, 0, 0, true });
+		}
+
+		return null;
+	}
+
+	public static object? path_set_kind(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var val = args[1].Conv<int>();
+
+		var path = PathManager.Paths[index];
+		path.kind = val;
+		return null;
+	}
+
+	public static object? motion_add(object?[] args)
+	{
+		double ClampFloat(double value)
+		{
+			return Math.Floor(value * 1000000) / 1000000.0;
+		}
+
+		var dir = args[0].Conv<double>();
+		var speed = args[1].Conv<double>();
+
+		var self = VMExecutor.Self.GMSelf;
+
+		self.hspeed += speed * ClampFloat(Math.Cos(dir * CustomMath.Deg2Rad));
+		self.vspeed -= speed * ClampFloat(Math.Sin(dir * CustomMath.Deg2Rad));
+
+		return null;
+	}
+
+	public static object? path_exists(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		return PathManager.Paths.ContainsKey(index);
+	}
+
+	public static object? game_restart(object?[] args)
+	{
+		RoomManager.New_Room = GMConstants.ROOM_RESTARTGAME;
+		return null;
 	}
 }
 

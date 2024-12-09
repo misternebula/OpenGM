@@ -43,11 +43,9 @@ public class KeyboardHandler
         }
 
         // debug
-        if (state.IsKeyPressed(Keys.F1))
-        {
-            VMExecutor.VerboseStackLogs = !VMExecutor.VerboseStackLogs;
-        }
-        if (state.IsKeyDown(Keys.F2))
+        VMExecutor.VerboseStackLogs = state.IsKeyDown(Keys.F1);
+
+		if (state.IsKeyDown(Keys.F2))
         {
             CustomWindow.Instance.UpdateFrequency = 0.0; // This means fastest
         }

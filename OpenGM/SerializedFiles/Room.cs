@@ -91,8 +91,8 @@ public abstract partial class CLayerElementBase
 public partial class CLayerTilemapElement : CLayerElementBase
 {
 	public int BackgroundIndex;
-	public float x;
-	public float y;
+	public double x;
+	public double y;
 	public int Width;
 	public int Height;
 

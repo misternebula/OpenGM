@@ -284,7 +284,12 @@ public static class AudioManager
         _audioClips[assetIndex].Pitch = pitch;
     }
 
-    public static void SetAssetOffset(int assetIndex, double time)
+    public static double GetAssetPitch(int assetIndex)
+    {
+	    return _audioClips[assetIndex].Pitch;
+    }
+
+	public static void SetAssetOffset(int assetIndex, double time)
     {
         _audioClips[assetIndex].Offset = time;
     }
@@ -293,7 +298,6 @@ public static class AudioManager
     { 
 	    return _audioClips[assetIndex].Offset;
     }
-
 
 	public static AudioAsset GetAudioAsset(int assetIndex)
     {

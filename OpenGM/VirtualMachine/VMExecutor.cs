@@ -64,10 +64,58 @@ public static partial class VMExecutor
 	/// </summary>
 	public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
 
-	// debug
 	public static Stack<VMCall> CallStack = new();
 	public static VMCall CurrentCall => CallStack.Peek();
+
+	public static VMScriptExecutionContext Self
+	{
+		get
+		{
+			if (Ctx == null)
+			{
+				// Null at top of stack, in WITH statement. Next value is self.
+				return EnvironmentStack.ToArray()[1];
+			}
+
+			return Ctx;
+		}
+	}
+
+	public static VMScriptExecutionContext Other
+	{
+		get
+		{
+			if (EnvironmentStack.Count == 1)
+			{
+				return Self;
+			}
+
+			if (Ctx == null)
+			{
+				// Null at top of stack, in WITH statement. Next value is self, then next value is other.
+				return EnvironmentStack.ToArray()[2];
+			}
+
+			var stack = EnvironmentStack.ToArray();
+			if (stack.Contains(null))
+			{
+				var i = 0;
+
+				while (stack[i] != null)
+				{
+					i++;
+				}
+
+				i++; // we found the null, so previous one is the ctx that called PUSHENV
+				return stack[i];
+			}
+
+			return stack[1];
+		}
+	}
+
 	public static bool VerboseStackLogs;
+	public static VMCodeInstruction? CurrentInstruction;
 	
 	// private static IList? _temporaryArrayStorage = null;
 
@@ -227,6 +275,7 @@ public static partial class VMExecutor
 	public static (ExecutionResult result, object? data) ExecuteInstruction(VMCodeInstruction instruction)
 	{
 		if (VerboseStackLogs) DebugLog.LogInfo($" - {instruction.Raw}");
+		CurrentInstruction = instruction;
 
 		switch (instruction.Opcode)
 		{

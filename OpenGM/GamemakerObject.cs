@@ -24,8 +24,29 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 	public object?[] alarm = Enumerable.Repeat((object?)-1, 12).ToArray(); // doubles will be ArraySet here
 
 	public bool persistent = false;
-	public double x;
-	public double y;
+
+	private double _x;
+	public double x
+	{
+		get => _x;
+
+		set
+		{
+			_x = value;
+			bbox_dirty = true;
+		}
+	}
+	private double _y;
+	public double y
+	{
+		get => _y;
+
+		set
+		{
+			_y = value;
+			bbox_dirty = true;
+		}
+	}
 	public double xprevious;
 	public double yprevious;
 	public double xstart;
@@ -41,7 +62,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		set
 		{
 			_image_xscale = value;
-			CollisionManager.UpdateRotationMask(this);
+			bbox_dirty = true;
 		}
 	}
 
@@ -52,7 +73,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		set
 		{
 			_image_yscale = value;
-			CollisionManager.UpdateRotationMask(this);
+			bbox_dirty = true;
 		}
 	}
 
@@ -63,7 +84,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		set
 		{
 			_image_angle = value;
-			CollisionManager.UpdateRotationMask(this);
+			bbox_dirty = true;
 		}
 	}
 
@@ -81,25 +102,27 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 				return;
 			}
 
-			if (mask_id != -1)
+			if (mask_index != -1)
 			{
 				return;
 			}
 
+			bbox_dirty = true;
+/*
 			if (margins != Vector4.Zero)
 			{
-				var spriteAsset = mask_id == -1
+				var spriteAsset = mask_index == -1
 					? SpriteManager.GetSpriteAsset(sprite_index)
-					: SpriteManager.GetSpriteAsset(mask_id);
+					: SpriteManager.GetSpriteAsset(mask_index);
 
-				if (spriteAsset != null && spriteAsset.CollisionMasks.Count == 1 && CollisionManager.colliders.Any(x => x.GMObject == this))
+				if (spriteAsset != null && spriteAsset.CollisionMasks.Count == 1 && CollisionManager. colliders.Any(x => x.GMObject == this))
 				{
 					// Don't regenerate collider when theres only one mask, dummy
 					return;
 				}
 
 				CollisionManager.RegisterCollider(this, margins);
-			}
+			}*/
 		}
 	}
 
@@ -109,10 +132,30 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 	public double sprite_height => _cachedSpriteHeight * image_yscale;
 
 	// todo : optimize!!!
-	public double bbox_left => CollisionManager.colliders.First(x => x.GMObject == this).BBox.left;
-	public double bbox_right => CollisionManager.colliders.First(x => x.GMObject == this).BBox.right;
-	public double bbox_top => CollisionManager.colliders.First(x => x.GMObject == this).BBox.top;
-	public double bbox_bottom => CollisionManager.colliders.First(x => x.GMObject == this).BBox.bottom;
+
+	public bool bbox_dirty;
+
+	//public BBox bbox => CollisionManager.colliders.First(x => x.GMObject == this).BBox;
+
+	private BBox? _bbox = null;
+	public BBox bbox
+	{
+		get
+		{
+			if (_bbox == null || bbox_dirty)
+			{ 
+				_bbox = CollisionManager.CalculateBoundingBox(this);
+			}
+
+			return _bbox;
+		}
+
+		set => _bbox = value;
+	}
+	public double bbox_left => bbox.left;
+	public double bbox_right => bbox.right;
+	public double bbox_top => bbox.top;
+	public double bbox_bottom => bbox.bottom;
 
 	private double _cached_sprite_xoffset;
 	public double sprite_xoffset
@@ -150,7 +193,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			_cached_sprite_xoffset = sprite.Origin.X;
 			_cached_sprite_yoffset = sprite.Origin.Y;
 
-			if (mask_id != -1)
+			if (mask_index != -1)
 			{
 				return;
 			}
@@ -162,15 +205,17 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 			margins = sprite.Margins;
 
-			if (margins != Vector4.Zero)
+			/*if (margins != Vector4.Zero)
 			{
 				CollisionManager.RegisterCollider(this, margins);
-			}
+			}*/
+
+			bbox_dirty = true;
 		}
 	}
 
 	private int _mask_id = -1;
-	public int mask_id
+	public int mask_index
 	{
 		get => _mask_id;
 		set
@@ -194,10 +239,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			_cached_sprite_xoffset = maskSprite.Origin.X;
 			_cached_sprite_yoffset = maskSprite.Origin.Y;
 
-			if (margins != Vector4.Zero)
+			/*if (margins != Vector4.Zero)
 			{
 				CollisionManager.RegisterCollider(this, margins);
-			}
+			}*/
+
+			bbox_dirty = true;
 		}
 	}
 
@@ -275,7 +322,10 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 	public double path_ystart;
 	public double path_orientation;
 
-	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskId)
+	public bool Active = true;
+	public bool Marked = false; // Marked for deletion at the end of the frame
+
+	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
 	{
 		Definition = obj;
 		this.x = x;
@@ -285,7 +335,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		this.sprite_index = spriteIndex;
 		this.visible = visible;
 		this.persistent = persistent;
-		this.mask_id = maskId;
+		this.mask_index = maskIndex;
 
 		xstart = x;
 		ystart = y;
@@ -293,18 +343,21 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		InstanceManager.RegisterInstance(this);
 		DrawManager.Register(this);
 
-		if (margins != Vector4.Zero)
+		/*if (margins != Vector4.Zero)
 		{
 			CollisionManager.RegisterCollider(this, margins);
-		}
+		}*/
+		bbox_dirty = true;
 	}
 
 	public override void Destroy()
 	{
 		Destroyed = true;
 		DrawManager.Unregister(this);
-		CollisionManager.UnregisterCollider(this);
+		//CollisionManager.UnregisterCollider(this);
 	}
+
+	public double frame_overflow;
 
 	public sealed override void Draw()
 	{
@@ -320,7 +373,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
 		}
 
-		if (hspeed != 0 && vspeed != 0)
+		if (hspeed != 0 || vspeed != 0)
 		{
 			x += hspeed;
 			y += vspeed;
@@ -343,21 +396,25 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 			var number = SpriteManager.GetNumberOfFrames(sprite_index);
 
-			if (image_index < number)
+			if (image_index >= number)
 			{
-				if (image_index >= 0)
-				{
-					return;
-				}
-
-				image_index += number;
-			}
-			else
-			{
+				frame_overflow += number;
 				image_index -= number;
-			}
 
-			ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+				ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+			}
+			else if (image_index < 0)
+			{
+				frame_overflow -= number;
+				image_index += number;
+
+				ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+			}
+		}
+		else
+		{
+			// lol this is dumb but i guess it's what GM does???
+			image_index += image_speed;
 		}
 	}
 
@@ -367,6 +424,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		{
 			DebugLog.LogError($"Tried to execute event {eventType} {eventNumber} on null definition! obj:{obj}");
 			//Debug.Break();
+			return false;
+		}
+
+		if (obj.Marked)
+		{
 			return false;
 		}
 

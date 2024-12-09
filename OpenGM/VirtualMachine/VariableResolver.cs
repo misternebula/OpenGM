@@ -88,6 +88,7 @@ public static class VariableResolver
 		{ "view_yview", (get_view_yview, set_view_yview)},
 		{ "view_wview", (get_view_wview, set_view_wview)},
 		{ "view_hview", (get_view_hview, set_view_hview)},
+		{ "view_camera", (get_view_camera, set_view_camera)},
 		{ "pointer_null", (get_pointer_null, null)},
 		{ "instance_count", (get_instance_count, null)},
 		{ "current_time", (get_current_time, null)},
@@ -180,12 +181,12 @@ public static class VariableResolver
 	public static void set_depth(GamemakerObject instance, object? value) => instance.depth = value.Conv<double>();
 
 	public static object get_room() => RoomManager.CurrentRoom.AssetId;
-	public static void set_room(object? value) => RoomManager.ChangeRoomAfterEvent(value.Conv<int>());
+	public static void set_room(object? value) => RoomManager.New_Room = value.Conv<int>();
 
-	public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_bottom;
-	public static object get_bbox_top(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.y : instance.bbox_top;
-	public static object get_bbox_left(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.x : instance.bbox_left;
-	public static object get_bbox_right(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_id == -1) ? instance.x : instance.bbox_right;
+	public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_index == -1) ? instance.y : instance.bbox_bottom;
+	public static object get_bbox_top(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_index == -1) ? instance.y : instance.bbox_top;
+	public static object get_bbox_left(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_index == -1) ? instance.x : instance.bbox_left;
+	public static object get_bbox_right(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_index == -1) ? instance.x : instance.bbox_right;
 
 	public static object get_image_yscale(GamemakerObject instance) => instance.image_yscale;
 	public static void set_image_yscale(GamemakerObject instance, object? value) => instance.image_yscale = value.Conv<double>();
@@ -212,7 +213,11 @@ public static class VariableResolver
 	public static void set_hspeed(GamemakerObject instance, object? value) => instance.hspeed = value.Conv<double>();
 
 	public static object get_vspeed(GamemakerObject instance) => instance.vspeed;
-	public static void set_vspeed(GamemakerObject instance, object? value) => instance.vspeed = value.Conv<double>();
+	public static void set_vspeed(GamemakerObject instance, object? value)
+	{
+		//DebugLog.Log($"{instance.Definition.Name} set vspeed to {value}");
+		instance.vspeed = value.Conv<double>();
+	}
 
 	public static object get_direction(GamemakerObject instance) => instance.direction;
 	public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<double>();
@@ -286,6 +291,9 @@ public static class VariableResolver
 
 	public static object get_view_hview() => ViewportManager.view_hview;
 	public static void set_view_hview(object? value) => ViewportManager.view_hview = value.Conv<IList>().Cast<int>().ToArray();
+
+	public static object get_view_camera() => ViewportManager.view_camera;
+	public static void set_view_camera(object? value) => ViewportManager.view_camera = value.Conv<IList>().Cast<int>().ToArray();
 
 	public static object? get_pointer_null() => null;
 

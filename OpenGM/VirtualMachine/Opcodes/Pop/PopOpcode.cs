@@ -97,7 +97,7 @@ public static partial class VMExecutor
 
 			if (instance == null)
 			{
-				throw new NotImplementedException();
+				throw new NotImplementedException($"Instance {assetId} couldn't be found!");
 			}
 
 			// TODO : double check this is always self. might be local as well????
@@ -120,27 +120,7 @@ public static partial class VMExecutor
 
 	public static void PopToOther(string varName, object? value)
 	{
-		var stackArray = EnvironmentStack.ToArray();
-
-		if (stackArray.Contains(null))
-		{
-			// iterate backwards until we find the null value
-
-			var i = 0;
-
-			while (stackArray[i] != null)
-			{
-				i++;
-			}
-
-			// i now holds index of null value. next value is the one calling pushenv
-
-			PopToSelf(stackArray[i + 1].Self, varName, value);
-		}
-		else
-		{
-			PopToSelf(stackArray[1].Self, varName, value);
-		}
+		PopToSelf(Other.Self, varName, value);
 	}
 
 	public static void PopToBuiltIn(string varName, object? value)

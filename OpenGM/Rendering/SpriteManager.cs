@@ -34,6 +34,12 @@ public static class SpriteManager
 
     public static Vector2i GetSpriteOrigin(int name)
     {
+	    if (name == -1)
+	    {
+            DebugLog.LogWarning($"Tried to get origin of null sprite");
+		    return Vector2i.Zero;
+	    }
+
         return _spriteDict[name].Origin;
     }
 
@@ -110,7 +116,21 @@ public static class SpriteManager
             return;
         }
 
-        DrawSpriteExt(obj.sprite_index, obj.image_index, obj.x, obj.y, obj.image_xscale, obj.image_yscale, obj.image_angle, obj.image_blend, obj.image_alpha);
+        var image_index = GetIndexFromImageIndex(obj.image_index + obj.frame_overflow, GetNumberOfFrames(obj.sprite_index));
+        obj.frame_overflow = 0;
+
+        DrawSpriteExt(obj.sprite_index, image_index, obj.x, obj.y, obj.image_xscale, obj.image_yscale, obj.image_angle, obj.image_blend, obj.image_alpha);
+    }
+
+    private static int GetIndexFromImageIndex(double index, int imageNumber)
+    {
+	    var ind = CustomMath.FloorToInt(index) % imageNumber;
+	    if (ind < 0)
+	    {
+		    ind += imageNumber;
+	    }
+
+	    return ind;
     }
 
     public static void draw_sprite_stretched(int name, int index, double x, double y, double w, double h, int color, double alpha)

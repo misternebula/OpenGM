@@ -5,15 +5,23 @@ using OpenGM.VirtualMachine;
 namespace OpenGM;
 public static class InstanceManager
 {
-	public static List<GamemakerObject> instances = new List<GamemakerObject>();
+	public static Dictionary<int, GamemakerObject> instances = new();
 	public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
-	public static int _highestInstanceId = 103506 + 1; // TODO : this changes per game - get from data.win
+	public static int _highestInstanceId = 108115 + 1; // TODO : this changes per game - get from data.win
 
 	public static void RegisterInstance(GamemakerObject obj)
 	{
-		if (instances.Contains(obj))
+		if (instances.ContainsKey(obj.instanceId))
 		{
+			DebugLog.LogWarning($"Tried to register another object with instanceId:{obj.instanceId}\nExisting:{instances[obj.instanceId].Definition.Name}\nNew:{obj.Definition.Name}");
+
+			DebugLog.LogError($"--Stacktrace--");
+			foreach (var item in VMExecutor.CallStack)
+			{
+				DebugLog.LogError($" - {item.Code.Name}");
+			}
+
 			return;
 		}
 
@@ -29,7 +37,7 @@ public static class InstanceManager
 			return;
 		}
 
-		instances.Add(obj);
+		instances.Add(obj.instanceId, obj);
 	}
 
 	public static int instance_create(double x, double y, int obj)
@@ -59,8 +67,8 @@ public static class InstanceManager
 
 	public static int instance_number(int obj)
 	{
-		instances.RemoveAll(x => x == null);
-		return instances.Count(x => HasAssetInParents(x.Definition, obj));
+		//instances.RemoveAll(x => x == null);
+		return instances.Values.Count(x => HasAssetInParents(x.Definition, obj));
 	}
 
 	public static bool HasAssetInParents(ObjectDefinition definition, int id)
@@ -87,7 +95,7 @@ public static class InstanceManager
 		}
 
 		var result = new List<GamemakerObject>();
-		foreach (var instance in instances)
+		foreach (var (instanceId, instance) in instances)
 		{
 			var definition = instance.Definition;
 			while (definition != null)
@@ -100,6 +108,7 @@ public static class InstanceManager
 				definition = definition.parent;
 			}
 		}
+
 		return result;
 	}
 
@@ -107,7 +116,7 @@ public static class InstanceManager
 	{
 		if (instanceId == GMConstants.self)
 		{
-			return VMExecutor.Ctx.GMSelf;
+			return VMExecutor.Self.GMSelf;
 		}
 
 		if (instanceId < GMConstants.FIRST_INSTANCE_ID)
@@ -115,24 +124,17 @@ public static class InstanceManager
 			throw new Exception($"Tried to find instance by asset id {instanceId}");
 		}
 
-		if (instances.Count(x => x.instanceId == instanceId) > 1)
-		{
-			DebugLog.LogError($"Found more than one object instance with id of {instanceId}.");
-			return null;
-		}
-
-		var instance = instances.SingleOrDefault(x => x.instanceId == instanceId);
-		return instance;
+		return !instances.TryGetValue(instanceId, out var value) ? null : value;
 	}
 
 	public static bool instance_exists_instanceid(int instanceId)
 	{
-		return instances.Any(x => x.instanceId == instanceId);
+		return instances.ContainsKey(instanceId);
 	}
 
 	public static bool instance_exists_index(int assetIndex)
 	{
-		foreach (var instance in instances)
+		foreach (var (instanceId, instance) in instances)
 		{
 			var definition = instance.Definition;
 			while (definition != null)
@@ -148,19 +150,38 @@ public static class InstanceManager
 		return false;
 	}
 
-	public static void instance_destroy(GamemakerObject obj)
+	/*public static void instance_destroy(GamemakerObject obj)
 	{
 		if (obj != null)
 		{
+			DebugLog.Log($"INSTANCE_DESTROY {obj.Definition.Name}");
 			obj.Destroy();
+			instances.Remove(obj.instanceId);
+		}
+	}*/
+
+	public static void MarkForDestruction(GamemakerObject? obj, bool executeEvent)
+	{
+		if (obj == null)
+		{
+			return;
 		}
 
-		instances.Remove(obj!);
+		if (!obj.Marked && obj.Active)
+		{
+			if (executeEvent)
+			{
+				GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Destroy);
+			}
+
+			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.CleanUp);
+			obj.Marked = true;
+		}
 	}
 
 	public static void RoomChange()
 	{
-		foreach (var instance in instances)
+		foreach (var (instanceId, instance) in instances)
 		{
 			if (!instance.persistent)
 			{
@@ -168,6 +189,6 @@ public static class InstanceManager
 			}
 		}
 
-		instances = instances.Where(x => x != null && x.persistent).ToList();
+		instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
 	}
 }

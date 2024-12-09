@@ -11,22 +11,56 @@ namespace OpenGM;
 
 public static class RoomManager
 {
-	public static bool ChangeRoomAfterEventExecution = false;
-
 	/// <summary>
 	/// The room to change to.
 	/// </summary>
-	public static Room? RoomToChangeTo = null;
+	//public static Room? RoomToChangeTo = null;
+	public static int New_Room;
 	public static RoomContainer CurrentRoom = null!; // its set to room on start
 
 	public static Dictionary<int, Room> RoomList = new();
 	public static bool RoomLoaded = false;
 	public static bool FirstRoom = false;
 
+	public static void EndGame()
+	{
+		foreach (var (instanceId, instance) in InstanceManager.instances)
+		{
+			instance.Destroy();
+		}
+
+		InstanceManager.instances.Clear();
+	}
+
+	public static void StartGame()
+	{
+		FirstRoom = true;
+		New_Room = 0;
+		ChangeToWaitingRoom();
+	}
+
 	public static void ChangeToWaitingRoom()
 	{
-		DebugLog.LogInfo($"Changing to {RoomToChangeTo!.Name}");
-		ChangeRoomAfterEventExecution = false;
+		if (New_Room == GMConstants.ROOM_ENDOFGAME || New_Room == GMConstants.ROOM_ABORTGAME)
+		{
+			EndGame();
+			return;
+		}
+		else if (New_Room == GMConstants.ROOM_RESTARTGAME)
+		{
+			EndGame();
+			StartGame();
+			return;
+		}
+		else if (New_Room == GMConstants.ROOM_LOADGAME)
+		{
+			return;
+		}
+
+		var room = RoomList[New_Room];
+		New_Room = -1;
+
+		DebugLog.LogInfo($"Changing to {room!.Name}");
 
 		if (CurrentRoom != null && CurrentRoom.Persistent)
 		{
@@ -38,7 +72,7 @@ public static class RoomManager
 			// remove everything that isn't persistent
 
 			// events could destroy other objects, cant modify during iteration
-			var instanceList = new List<GamemakerObject>(InstanceManager.instances);
+			var instanceList = new List<GamemakerObject>(InstanceManager.instances.Values);
 
 			foreach (var instance in instanceList)
 			{
@@ -52,6 +86,7 @@ public static class RoomManager
 					continue;
 				}
 
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
@@ -59,7 +94,7 @@ public static class RoomManager
 				//Destroy(instance.gameObject);
 			}
 
-			InstanceManager.instances = InstanceManager.instances.Where(x => x != null && !x.Destroyed && x.persistent).ToList();
+			InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
 
 			foreach (var item in CurrentRoom.Tiles)
 			{
@@ -93,9 +128,7 @@ public static class RoomManager
 
 		RoomLoaded = false;
 
-		CurrentRoom = new RoomContainer(RoomToChangeTo);
-
-		RoomToChangeTo = null;
+		CurrentRoom = new RoomContainer(room);
 
 		OnRoomChanged();
 	}
@@ -118,7 +151,6 @@ public static class RoomManager
 		var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
 
 		InstanceManager.RoomChange();
-		CollisionManager.RoomChange();
 
 		void RunObjEvents(GamemakerObject obj, GameObject go)
 		{
@@ -286,7 +318,7 @@ public static class RoomManager
 			CurrentRoom.Tiles.Add(newTile);
 		}
 
-		var currentInstances = InstanceManager.instances.ToList();
+		var currentInstances = InstanceManager.instances.Values.ToList();
 
 		if (FirstRoom)
 		{
@@ -321,44 +353,14 @@ public static class RoomManager
 		RoomLoaded = true;
 	}
 
-	public static void ChangeRoomAfterEvent(int index)
-	{
-		ChangeRoomAfterEvent(RoomList[index]);
-	}
-
-	public static void ChangeRoomAfterEvent(Room roomName)
-	{
-		ChangeRoomAfterEventExecution = true;
-		RoomToChangeTo = roomName;
-		
-		if (CurrentRoom != null && CurrentRoom.Persistent)
-		{
-			// oh god we gotta save the current scene aaaaaaaa
-			throw new NotImplementedException();
-		}
-
-		// events could destroy other objects, cant modify during iteration
-		var instanceList = new List<GamemakerObject>(InstanceManager.instances);
-
-		foreach (var instance in instanceList)
-		{
-			if (instance == null)
-			{
-				continue;
-			}
-
-			GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
-		}
-	}
-
 	public static void room_goto_next()
 	{
-		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId + 1]);
+		New_Room = CurrentRoom.AssetId + 1;
 	}
 
 	public static void room_goto_previous()
 	{
-		ChangeRoomAfterEvent(RoomList[CurrentRoom.AssetId -1]);
+		New_Room = CurrentRoom.AssetId - 1;
 	}
 
 	public static int room_next(int numb)

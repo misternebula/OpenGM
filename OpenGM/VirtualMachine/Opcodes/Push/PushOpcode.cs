@@ -139,6 +139,20 @@ public static partial class VMExecutor
 
 	public static void PushSelf(IStackContextSelf self, string varName)
 	{
+		if (self == null)
+		{
+			DebugLog.LogError($"Null self given to PushSelf varName:{varName} - {VMExecutor.CurrentInstruction!.Raw}");
+
+			DebugLog.LogError($"--Stacktrace--");
+			foreach (var item in CallStack)
+			{
+				DebugLog.LogError($" - {item.Code.Name}");
+			}
+
+			Ctx.Stack.Push(null, VMType.v);
+			return;
+		}
+
 		if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
 		{
 			Ctx.Stack.Push(builtin_gettersetter.getter(), VMType.v);
@@ -217,6 +231,14 @@ public static partial class VMExecutor
 			// Asset Id
 
 			var asset = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId)!;
+
+			if (asset == null)
+			{
+				DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, assetId)}!");
+				Ctx.Stack.Push(null, VMType.v);
+				return;
+			}
+
 			PushSelf(asset, varName);
 		}
 		else
@@ -237,34 +259,7 @@ public static partial class VMExecutor
 
 	public static void PushOther(string varName)
 	{
-		var stackArray = EnvironmentStack.ToArray();
-
-		if (stackArray.Length == 1)
-		{
-			// "other" refers to self outside of "with" and collision events
-			PushSelf(stackArray[0].Self, varName);
-			return;
-		}
-
-		if (stackArray.Contains(null))
-		{
-			// iterate backwards until we find the null value
-
-			var i = 0;
-
-			while (stackArray[i] != null)
-			{
-				i++;
-			}
-
-			// i now holds index of null value. next value is the one calling pushenv
-
-			PushSelf(stackArray[i + 1].Self, varName);
-		}
-		else
-		{
-			PushSelf(stackArray[1].Self, varName);
-		}
+		PushSelf(Other.Self, varName);
 	}
 
 	public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
@@ -404,6 +399,14 @@ public static partial class VMExecutor
 						{
 							// asset id
 							var self = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
+
+							if (self == null)
+							{
+								DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, instanceId)}");
+								Ctx.Stack.Push(null, VMType.v);
+								return (ExecutionResult.Success, null);
+							}
+
 							PushSelfArrayIndex(self, variableName, index);
 							return (ExecutionResult.Success, null);
 						}

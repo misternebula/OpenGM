@@ -6,12 +6,12 @@ namespace OpenGM.Rendering;
 
 public class GMBackground : DrawWithDepth
 {
-	private CLayerBackgroundElement _element;
+	public CLayerBackgroundElement Element;
 
 	public GMBackground(CLayerBackgroundElement element)
 	{
 		DrawManager.Register(this);
-		_element = element;
+		Element = element;
 		_currentFrame = element.FirstFrame;
 	}
 
@@ -19,7 +19,7 @@ public class GMBackground : DrawWithDepth
 
 	public override void Draw()
 	{
-		if (!_element.Visible || !_element.Layer.Visible)
+		if (Element == null || !Element.Visible || !Element.Layer.Visible)
 		{
 			return;
 		}
@@ -29,18 +29,18 @@ public class GMBackground : DrawWithDepth
 		// TODO : work out what foreground does
 		// TODO : account for animations
 
-		var sprite = SpriteManager.GetSpritePage(_element.Index, _currentFrame);
-		var origin = SpriteManager.GetSpriteOrigin(_element.Index);
+		var sprite = SpriteManager.GetSpritePage(Element.Index, _currentFrame);
+		var origin = SpriteManager.GetSpriteOrigin(Element.Index);
 
 		CustomWindow.Draw(new GMSpriteJob()
 		{
 			texture = sprite,
 			origin = origin,
-			screenPos = new OpenTK.Mathematics.Vector2d(_element.Layer.X, _element.Layer.Y),
+			screenPos = new OpenTK.Mathematics.Vector2d(Element.Layer.X, Element.Layer.Y),
 			scale = OpenTK.Mathematics.Vector2d.One,
 			angle = 0,
-			blend = _element.Color.ABGRToCol4(),
-			alpha = _element.Color.ABGRToCol4().A
+			blend = Element.Color.ABGRToCol4(),
+			alpha = Element.Color.ABGRToCol4().A
 		});
 	}
 

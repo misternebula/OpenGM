@@ -12,15 +12,15 @@ namespace OpenGM.Rendering;
 
 internal class GMTilesLayer : DrawWithDepth
 {
-	private CLayerTilemapElement _element;
+	public CLayerTilemapElement Element;
 
 	public GMTilesLayer(CLayerTilemapElement element)
 	{
-		_element = element;
+		Element = element;
 		DrawManager.Register(this);
 		_timing = new Stopwatch();
 		_timing.Start();
-		_tileSet = GameLoader.TileSets[_element.BackgroundIndex];
+		_tileSet = GameLoader.TileSets[Element.BackgroundIndex];
 	}
 
 	private Stopwatch _timing;
@@ -41,16 +41,16 @@ internal class GMTilesLayer : DrawWithDepth
 
 		// TODO : Does tilemap animation still happen if the layer is not visible?
 		// just move this if block above the previous if so
-		if (!_element.Layer.Visible)
+		if (!Element.Layer.Visible)
 		{
 			return;
 		}
 
-		for (var _y = 0; _y < _element.Height; _y++)
+		for (var _y = 0; _y < Element.Height; _y++)
 		{
-			for (var _x = 0; _x < _element.Width; _x++)
+			for (var _x = 0; _x < Element.Width; _x++)
 			{
-				var tile = _element.TilesData[_y, _x];
+				var tile = Element.TilesData[_y, _x];
 
 				if (tile.TileIndex == 0)
 				{
@@ -78,7 +78,7 @@ internal class GMTilesLayer : DrawWithDepth
 					texture = _tileSet.Texture,
 					width = _tileSet.TileWidth,
 					height = _tileSet.TileHeight,
-					screenPos = new Vector2d(_x * _tileSet.TileWidth, _y * _tileSet.TileHeight),
+					screenPos = new Vector2d(Element.x + _x * _tileSet.TileWidth, Element.y + _y * _tileSet.TileHeight),
 					alpha = 1,
 					blend = Color4.White,
 					left = (tileSetColumn * tileWidth) + _tileSet.OutputBorderX,

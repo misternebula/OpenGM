@@ -41,7 +41,7 @@ public static class DrawManager
             }
         }
 
-        if (RoomManager.ChangeRoomAfterEventExecution)
+        if (RoomManager.New_Room != -1)
         {
             RoomManager.ChangeToWaitingRoom();
             return true;
@@ -87,7 +87,7 @@ public static class DrawManager
             }
         }
 
-        if (RoomManager.ChangeRoomAfterEventExecution)
+        if (RoomManager.New_Room != -1)
         {
             RoomManager.ChangeToWaitingRoom();
             return true;
@@ -126,7 +126,7 @@ public static class DrawManager
             }
         }
 
-        if (RoomManager.ChangeRoomAfterEventExecution)
+        if (RoomManager.New_Room != -1)
         {
             RoomManager.ChangeToWaitingRoom();
             return;
@@ -138,8 +138,18 @@ public static class DrawManager
             {
                 foreach (var id in gmo.Definition.CollisionScript.Keys)
                 {
-                    var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
-                    if (collide != null)
+                    //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
+
+                    var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
+
+                    if (instanceId == GMConstants.noone)
+                    {
+	                    continue;
+                    }
+
+                    var collide = InstanceManager.instances[instanceId];
+
+					if (collide != null)
                     {
                         VMExecutor.EnvironmentStack.Push(new VMScriptExecutionContext() { Self = collide, ObjectDefinition = collide.Definition, Stack = new() });
                         GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
@@ -157,6 +167,25 @@ public static class DrawManager
         if (RunStepScript(stepList, EventSubtypeStep.EndStep))
         {
             return;
+        }
+
+        var destroyedList = new List<int>();
+        foreach (var (instanceId, instance) in InstanceManager.instances)
+        {
+			if (!instance.Marked)
+	        {
+                continue;
+	        }
+
+			//DebugLog.Log($"DESTROY {instance.Definition.Name}");
+
+			destroyedList.Add(instanceId);
+			instance.Destroy();
+		}
+
+        foreach (var id in destroyedList)
+        {
+	        InstanceManager.instances.Remove(id);
         }
 
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);

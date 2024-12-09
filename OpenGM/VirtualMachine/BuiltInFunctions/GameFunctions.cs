@@ -20,19 +20,9 @@ public static partial class ScriptResolver
 		var y = args[1].Conv<double>();
 		var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
-		if (obj < 0)
-		{
-			throw new NotImplementedException($"{obj} given to place_meeting");
-		}
+		var result = CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
 
-		if (obj < GMConstants.FIRST_INSTANCE_ID)
-		{
-			return CollisionManager.place_meeting_assetid(x, y, obj, VMExecutor.Ctx.GMSelf);
-		}
-		else
-		{
-			return CollisionManager.place_meeting_instanceid(x, y, obj, VMExecutor.Ctx.GMSelf);
-		}
+		return result >= 0;
 	}
 
 	public static object? move_towards_point(object?[] args)
@@ -41,8 +31,8 @@ public static partial class ScriptResolver
 		var targety = args[1].Conv<double>();
 		var sp = args[2].Conv<double>();
 
-		VMExecutor.Ctx.GMSelf.direction = (double)point_direction(VMExecutor.Ctx.GMSelf.x, VMExecutor.Ctx.GMSelf.y, targetx, targety);
-		VMExecutor.Ctx.GMSelf.speed = sp;
+		VMExecutor.Self.GMSelf.direction = (double)point_direction(VMExecutor.Self.GMSelf.x, VMExecutor.Self.GMSelf.y, targetx, targety);
+		VMExecutor.Self.GMSelf.speed = sp;
 
 		return null;
 	}
@@ -52,9 +42,9 @@ public static partial class ScriptResolver
 		var x = args[0].Conv<double>();
 		var y = args[1].Conv<double>();
 
-		var self = VMExecutor.Ctx.GMSelf;
+		var self = VMExecutor.Self.GMSelf;
 
-		if (VMExecutor.Ctx.GMSelf.mask_id == -1 && VMExecutor.Ctx.GMSelf.sprite_index == -1)
+		if (self.mask_index == -1 && self.sprite_index == -1)
 		{
 			// TODO : Docs just say this means the result will be "incorrect". Wtf does that mean???
 			// just assuming it does point_distance
@@ -83,7 +73,7 @@ public static partial class ScriptResolver
 
 		if (obj == GMConstants.other)
 		{
-			// todo - what the fuck does this mean gamemaker!? WHAT DO YOU WANT FROM ME
+			throw new NotImplementedException();
 		}
 		else if (obj < GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -96,12 +86,39 @@ public static partial class ScriptResolver
 			objToCheck = InstanceManager.FindByInstanceId(obj)!;
 		}
 
-		return CollisionManager.DistanceToObject(VMExecutor.Ctx.GMSelf, objToCheck);
+		// compute bounding boxes if needed
+
+		var self = VMExecutor.Self.GMSelf;
+
+		var xd = 0d;
+		var yd = 0d;
+
+		if (self.bbox_left > objToCheck.bbox_right)
+		{
+			xd = self.bbox_left - objToCheck.bbox_right;
+		}
+
+		if (self.bbox_right < objToCheck.bbox_left)
+		{
+			xd = self.bbox_right - objToCheck.bbox_left;
+		}
+
+		if (self.bbox_top > objToCheck.bbox_bottom)
+		{
+			yd = self.bbox_top - objToCheck.bbox_bottom;
+		}
+
+		if (self.bbox_bottom < objToCheck.bbox_top)
+		{
+			yd = self.bbox_bottom - objToCheck.bbox_top;
+		}
+
+		return Math.Sqrt((xd * xd) + (yd * yd));
 	}
 
 	public static object? path_end(object?[] args)
 	{
-		VMExecutor.Ctx.GMSelf.path_index = -1;
+		VMExecutor.Self.GMSelf.path_index = -1;
 		return null;
 	}
 
@@ -113,7 +130,9 @@ public static partial class ScriptResolver
 		var prec = args[3].Conv<bool>();
 		var notme = args[4].Conv<bool>();
 
-		if (obj == -3)
+		return CollisionManager.Command_CollisionPoint(VMExecutor.Self.GMSelf, x, y, obj, prec, notme);
+
+		/*if (obj == -3)
 		{
 			throw new NotImplementedException($"{obj} given to collision_point!");
 		}
@@ -137,7 +156,7 @@ public static partial class ScriptResolver
 			}
 		}
 
-		return null;
+		return null;*/
 	}
 
 	public static object collision_rectangle(object?[] args)
@@ -150,7 +169,9 @@ public static partial class ScriptResolver
 		var prec = args[5].Conv<bool>();
 		var notme = args[6].Conv<bool>();
 
-		if (obj < 0)
+		return CollisionManager.Command_CollisionRectangle(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
+
+		/*if (obj < 0)
 		{
 			throw new NotImplementedException($"{obj} given to collision_rectangle!");
 		}
@@ -162,7 +183,7 @@ public static partial class ScriptResolver
 		else
 		{
 			return CollisionManager.collision_rectangle_instanceid(x1, y1, x2, y2, obj, prec, notme, VMExecutor.Ctx.GMSelf);
-		}
+		}*/
 	}
 
 	public static object? collision_line(object?[] args)
@@ -175,7 +196,9 @@ public static partial class ScriptResolver
 		var prec = args[5].Conv<bool>();
 		var notme = args[6].Conv<bool>();
 
-		if (obj < 0)
+		return CollisionManager.Command_CollisionLine(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
+
+		/*if (obj < 0)
 		{
 			throw new NotImplementedException($"{obj} given to collision_line!");
 		}
@@ -220,7 +243,7 @@ public static partial class ScriptResolver
 			return CollisionManager.CheckColliderAgainstLine(col, new Vector2d(x1, y1), new Vector2d(x2, y2), prec)
 				? instance.instanceId
 				: GMConstants.noone;
-		}
+		}*/
 	}
 
 	private static object instance_find(object?[] args)
@@ -242,18 +265,15 @@ public static partial class ScriptResolver
 
 		if (obj == GMConstants.self)
 		{
-			return VMExecutor.Ctx.GMSelf.instanceId;
+			return VMExecutor.Self.GMSelf.instanceId;
 		}
 		else if (obj == GMConstants.other)
 		{
-			var stackArray = VMExecutor.EnvironmentStack.ToArray();
-			var instance = stackArray[1].GMSelf;
-
-			return instance.instanceId;
+			return VMExecutor.Other.GMSelf.instanceId;
 		}
 		else if (obj == GMConstants.all)
 		{
-			return InstanceManager.instances.ElementAt(n).instanceId;
+			return InstanceManager.instances.ElementAt(n).Value.instanceId;
 		}
 		else if (obj >= GMConstants.FIRST_INSTANCE_ID)
 		{
@@ -264,7 +284,7 @@ public static partial class ScriptResolver
 		else
 		{
 			// is an object index
-			var instances = InstanceManager.instances.Where(x => x.object_index == obj).ToArray();
+			var instances = InstanceManager.instances.Values.Where(x => x.object_index == obj).ToArray();
 
 			if (n >= instances.Length)
 			{
@@ -308,7 +328,7 @@ public static partial class ScriptResolver
 
 		var id = GMConstants.noone;
 		var distance = 10000000000d;
-		foreach (var instance in InstanceManager.instances)
+		foreach (var (instanceId, instance) in InstanceManager.instances)
 		{
 			if (!InstanceManager.HasAssetInParents(instance.Definition, obj))
 			{
@@ -342,9 +362,10 @@ public static partial class ScriptResolver
 	{
 		if (args.Length == 0)
 		{
-			GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.Destroy);
-			GamemakerObject.ExecuteEvent(VMExecutor.Ctx.GMSelf, VMExecutor.Ctx.ObjectDefinition, EventType.CleanUp);
-			InstanceManager.instance_destroy(VMExecutor.Ctx.GMSelf);
+			//GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, EventType.Destroy);
+			//GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, EventType.CleanUp);
+			//InstanceManager.instance_destroy(VMExecutor.Self.GMSelf);
+			InstanceManager.MarkForDestruction(VMExecutor.Self.GMSelf, true);
 			return null;
 		}
 
@@ -363,14 +384,15 @@ public static partial class ScriptResolver
 
 			foreach (var instance in instances)
 			{
-				if (execute_event_flag)
+				InstanceManager.MarkForDestruction(instance, execute_event_flag);
+				/*if (execute_event_flag)
 				{
 					GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
 				}
 
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
-				InstanceManager.instance_destroy(instance);
+				InstanceManager.instance_destroy(instance);*/
 			}
 		}
 		else
@@ -378,7 +400,9 @@ public static partial class ScriptResolver
 			// instance id
 			var instance = InstanceManager.FindByInstanceId(id);
 
-			if (instance == null)
+			InstanceManager.MarkForDestruction(instance, execute_event_flag);
+
+			/*if (instance == null)
 			{
 				DebugLog.LogError($"Tried to run instance_destroy on an instanceId that no longer exists!!!");
 				return null;
@@ -391,7 +415,7 @@ public static partial class ScriptResolver
 
 			GamemakerObject.ExecuteEvent(instance!, instance!.Definition, EventType.CleanUp);
 
-			InstanceManager.instance_destroy(instance);
+			InstanceManager.instance_destroy(instance);*/
 		}
 
 		return null;
@@ -400,7 +424,7 @@ public static partial class ScriptResolver
 	public static object? room_goto(object?[] args)
 	{
 		var index = args[0].Conv<int>();
-		RoomManager.ChangeRoomAfterEvent(index);
+		RoomManager.New_Room = index;
 		return null;
 	}
 

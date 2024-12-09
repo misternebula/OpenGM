@@ -120,7 +120,7 @@ public class Z_EventOrderTests
 		RoomManager.RoomList.Add(0, room);
 
 		RoomManager.FirstRoom = true;
-		RoomManager.ChangeRoomAfterEvent(0);
+		RoomManager.New_Room = 0;
 		RoomManager.ChangeToWaitingRoom();
 
 		var expectedEventOrder = new List<string>
