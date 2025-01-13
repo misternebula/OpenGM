@@ -754,6 +754,8 @@ public static class GameConverter
 						Index = data.Sprites.IndexOf(layer.BackgroundData.Sprite),
 						HTiled = layer.BackgroundData.TiledHorizontally,
 						VTiled = layer.BackgroundData.TiledVertically,
+						XScale = layer.BackgroundData.CalcScaleX,
+						YScale = layer.BackgroundData.CalcScaleY,
 						Stretch = layer.BackgroundData.Stretch,
 						Color = (int)layer.BackgroundData.Color,
 						Alpha = col4.A,

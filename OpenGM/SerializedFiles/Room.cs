@@ -114,6 +114,8 @@ public partial class CLayerBackgroundElement : CLayerElementBase
 	public int Index;
 	public bool HTiled;
 	public bool VTiled;
+	public double XScale;
+	public double YScale;
 	public bool Stretch;
 	public int Color;
 	public double Alpha;
