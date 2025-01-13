@@ -75,6 +75,25 @@ public static partial class VMExecutor
 
 	public static void PopToIndex(int assetId, string varName, object? value)
 	{
+		if (assetId == GMConstants.builtin)
+		{
+			if (Self.Self == null)
+			{
+				PopToGlobal(varName, value);
+				return;
+			}
+
+			if (!Self.Self.SelfVariables.TryAdd(varName, value))
+			{
+				Self.Self.SelfVariables[varName] = value;
+			}
+
+			VariableResolver.BuiltInSelfVariables.Add(varName, (
+					(obj) => obj.SelfVariables[varName]!,
+					(obj, val) => obj.SelfVariables[varName] = val));
+			return;
+		}
+
 		if (assetId < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// Asset Index
@@ -141,7 +160,7 @@ public static partial class VMExecutor
 		if (variablePrefix == VariablePrefix.None)
 		{
 			// we're just popping to a normal variable. thank god.
-			var dataPopped = Ctx.Stack.Pop(instruction.TypeTwo);
+			var dataPopped = Self.Stack.Pop(instruction.TypeTwo);
 
 			if (variableType == VariableType.Global)
 			{
@@ -155,7 +174,7 @@ public static partial class VMExecutor
 			}
 			else if (variableType == VariableType.Self)
 			{
-				PopToSelf(Ctx.Self, variableName, dataPopped);
+				PopToSelf(Self.Self, variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 			else if (variableType == VariableType.Index)
@@ -192,22 +211,22 @@ public static partial class VMExecutor
 				object? value;
 				if (instruction.TypeOne == VMType.v)
 				{
-					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-					instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					index = Self.Stack.Pop(VMType.i).Conv<int>();
+					instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						instanceId = Self.Stack.Pop(VMType.v).Conv<int>();
 					}
-					value = Ctx.Stack.Pop(instruction.TypeTwo);
+					value = Self.Stack.Pop(instruction.TypeTwo);
 				}
 				else
 				{
-					value = Ctx.Stack.Pop(instruction.TypeTwo);
-					index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-					instanceId = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					value = Self.Stack.Pop(instruction.TypeTwo);
+					index = Self.Stack.Pop(VMType.i).Conv<int>();
+					instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Ctx.Stack.Pop(VMType.v).Conv<int>();
+						instanceId = Self.Stack.Pop(VMType.v).Conv<int>();
 					}
 				}
 
@@ -225,7 +244,7 @@ public static partial class VMExecutor
 					}
 					else if (instanceId == GMConstants.self)
 					{
-						PopToSelfArray(Ctx.Self, variableName, index, value);
+						PopToSelfArray(Self.Self, variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
 					else
@@ -278,12 +297,12 @@ public static partial class VMExecutor
 
 				if (instruction.TypeOne == VMType.i)
 				{
-					value = Ctx.Stack.Pop(instruction.TypeTwo);
+					value = Self.Stack.Pop(instruction.TypeTwo);
 
-					id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					id = Self.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
 					{
-						var popped = Ctx.Stack.Pop(VMType.v);
+						var popped = Self.Stack.Pop(VMType.v);
 
 						if (popped is GMLObject gmlo)
 						{
@@ -298,14 +317,14 @@ public static partial class VMExecutor
 				}
 				else
 				{
-					id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+					id = Self.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
 					{
-						var popped = Ctx.Stack.Pop(VMType.v);
+						var popped = Self.Stack.Pop(VMType.v);
 
 						if (popped is GMLObject gmlo)
 						{
-							value = Ctx.Stack.Pop(instruction.TypeTwo);
+							value = Self.Stack.Pop(instruction.TypeTwo);
 							PopToSelf(gmlo, variableName, value);
 							return (ExecutionResult.Success, null);
 						}
@@ -315,7 +334,7 @@ public static partial class VMExecutor
 						}
 					}
 
-					value = Ctx.Stack.Pop(instruction.TypeTwo);
+					value = Self.Stack.Pop(instruction.TypeTwo);
 				}
 
 				if (id == GMConstants.global)
@@ -325,7 +344,16 @@ public static partial class VMExecutor
 				}
 				else if (id == GMConstants.self)
 				{
-					PopToSelf(Ctx.Self, variableName, value);
+					if (Self.Self == null)
+					{
+						// for global scripts
+						PopToGlobal(variableName, value);
+					}
+					else
+					{
+						PopToSelf(Self.Self, variableName, value);
+					}
+
 					return (ExecutionResult.Success, null);
 				}
 				else if (id == GMConstants.noone)

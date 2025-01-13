@@ -51,6 +51,7 @@ public static class VariableResolver
 
 	public static readonly Dictionary<string, object?> GlobalVariables = new();
 
+	public static Dictionary<string, object?> CustomBuiltInVariableValues = new();
 	public static Dictionary<string, (Func<object?> getter, Action<object?>? setter)> BuiltInVariables = new()
 	{
 		{ "working_directory", (get_working_directory, null) },

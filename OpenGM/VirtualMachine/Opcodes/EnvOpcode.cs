@@ -7,18 +7,18 @@ public static partial class VMExecutor
 {
 	public static (ExecutionResult, object?) PUSHENV(VMCodeInstruction instruction)
 	{
-		var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+		var id = Self.Stack.Pop(VMType.i).Conv<int>();
 
 		if (id == GMConstants.stacktop)
 		{
-			id = Ctx.Stack.Pop(VMType.v).Conv<int>();
+			id = Self.Stack.Pop(VMType.v).Conv<int>();
 		}
 
-		var currentContext = Ctx;
+		var currentContext = Self;
 
 		// marks the beginning of the instances pushed. popenv will stop jumping when it reaches this
 		// SUPER HACKY. there HAS to be a better way of doing this
-		EnvironmentStack.Push(null!);
+		EnvironmentStack.Push(null);
 
 		if (VerboseStackLogs) DebugLog.Log($"Pushenv {id}");
 
@@ -155,7 +155,7 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) POPENV(VMCodeInstruction instruction)
 	{
 		var currentInstance = EnvironmentStack.Pop();
-		var nextInstance = Ctx;
+		var nextInstance = EnvironmentStack.Peek();
 
 		if (instruction.Drop)
 		{

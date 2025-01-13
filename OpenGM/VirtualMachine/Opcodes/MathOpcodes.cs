@@ -39,8 +39,8 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object?) ADD(VMCodeInstruction instruction)
 	{
-		var valTwo = Ctx.Stack.Pop(instruction.TypeOne);
-		var valOne = Ctx.Stack.Pop(instruction.TypeTwo);
+		var valTwo = Self.Stack.Pop(instruction.TypeOne);
+		var valOne = Self.Stack.Pop(instruction.TypeTwo);
 
 		var retType = GetMathReturnType(instruction);
 
@@ -50,11 +50,11 @@ public static partial class VMExecutor
 		if (hasString || variableIsString)
 		{
 			// strings need to concat
-			Ctx.Stack.Push(valOne.Conv<string>() + valTwo.Conv<string>(), retType);
+			Self.Stack.Push(valOne.Conv<string>() + valTwo.Conv<string>(), retType);
 		}
 		else
 		{
-			Ctx.Stack.Push(valOne.Conv<double>() + valTwo.Conv<double>(), retType);
+			Self.Stack.Push(valOne.Conv<double>() + valTwo.Conv<double>(), retType);
 		}
 
 		return (ExecutionResult.Success, null);
@@ -63,30 +63,30 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) SUB(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
+		var numTwo = Self.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Self.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
-		Ctx.Stack.Push(numOne - numTwo, retType);
+		Self.Stack.Push(numOne - numTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 
 	public static (ExecutionResult, object?) MUL(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
+		var numTwo = Self.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Self.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
-		Ctx.Stack.Push(numOne * numTwo, retType);
+		Self.Stack.Push(numOne * numTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 
 	public static (ExecutionResult, object?) DIV(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
+		var numTwo = Self.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Self.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
-		Ctx.Stack.Push(numOne / numTwo, retType);
+		Self.Stack.Push(numOne / numTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 
@@ -98,29 +98,29 @@ public static partial class VMExecutor
 	public static (ExecutionResult, object?) REM(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
+		var numTwo = Self.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Self.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
 		var doubleResult = numOne / numTwo;
 
-		Ctx.Stack.Push(Math.Round(doubleResult, MidpointRounding.ToZero), retType);
+		Self.Stack.Push(Math.Round(doubleResult, MidpointRounding.ToZero), retType);
 		return (ExecutionResult.Success, null);
 	}
 
 	public static (ExecutionResult, object?) MOD(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var numTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<double>();
-		var numOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<double>();
+		var numTwo = Self.Stack.Pop(instruction.TypeOne).Conv<double>();
+		var numOne = Self.Stack.Pop(instruction.TypeTwo).Conv<double>();
 
-		Ctx.Stack.Push(CustomMath.Mod(numOne, numTwo), retType);
+		Self.Stack.Push(CustomMath.Mod(numOne, numTwo), retType);
 		return (ExecutionResult.Success, null);
 	}
 
 	public static (ExecutionResult, object?) NEG(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		Ctx.Stack.Push(-Ctx.Stack.Pop(instruction.TypeOne).Conv<double>(), retType);
+		Self.Stack.Push(-Self.Stack.Pop(instruction.TypeOne).Conv<double>(), retType);
 		return (ExecutionResult.Success, null);
 	}
 
@@ -128,30 +128,30 @@ public static partial class VMExecutor
 	{
 		var retType = GetMathReturnType(instruction);
 		// should other binary types handle ops?
-		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<long>();
-		var intOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<long>();
+		var intTwo = Self.Stack.Pop(instruction.TypeOne).Conv<long>();
+		var intOne = Self.Stack.Pop(instruction.TypeTwo).Conv<long>();
 
-		Ctx.Stack.Push(intOne & intTwo, retType);
+		Self.Stack.Push(intOne & intTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 
 	public static (ExecutionResult, object?) OR(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<long>();
-		var intOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<long>();
+		var intTwo = Self.Stack.Pop(instruction.TypeOne).Conv<long>();
+		var intOne = Self.Stack.Pop(instruction.TypeTwo).Conv<long>();
 
-		Ctx.Stack.Push(intOne | intTwo, retType);
+		Self.Stack.Push(intOne | intTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 
 	public static (ExecutionResult, object?) XOR(VMCodeInstruction instruction)
 	{
 		var retType = GetMathReturnType(instruction);
-		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<long>();
-		var intOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<long>();
+		var intTwo = Self.Stack.Pop(instruction.TypeOne).Conv<long>();
+		var intOne = Self.Stack.Pop(instruction.TypeTwo).Conv<long>();
 
-		Ctx.Stack.Push(intOne ^ intTwo, retType);
+		Self.Stack.Push(intOne ^ intTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 
@@ -160,10 +160,10 @@ public static partial class VMExecutor
 		switch (instruction.TypeOne)
 		{
 			case VMType.b:
-				Ctx.Stack.Push(!Ctx.Stack.Pop(VMType.b).Conv<bool>(), VMType.b);
+				Self.Stack.Push(!Self.Stack.Pop(VMType.b).Conv<bool>(), VMType.b);
 				return (ExecutionResult.Success, null);
 			default:
-				Ctx.Stack.Push(~Ctx.Stack.Pop(instruction.TypeOne).Conv<long>(), instruction.TypeOne);
+				Self.Stack.Push(~Self.Stack.Pop(instruction.TypeOne).Conv<long>(), instruction.TypeOne);
 				return (ExecutionResult.Success, null);
 		}
 	}
@@ -171,10 +171,10 @@ public static partial class VMExecutor
 	{
 		var retType = GetMathReturnType(instruction);
 		// is this the right order?
-		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<int>();
-		var intOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<long>();
+		var intTwo = Self.Stack.Pop(instruction.TypeOne).Conv<int>();
+		var intOne = Self.Stack.Pop(instruction.TypeTwo).Conv<long>();
 
-		Ctx.Stack.Push(intOne << intTwo, retType);
+		Self.Stack.Push(intOne << intTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 	
@@ -182,10 +182,10 @@ public static partial class VMExecutor
 	{
 		var retType = GetMathReturnType(instruction);
 		// is this the right order?
-		var intTwo = Ctx.Stack.Pop(instruction.TypeOne).Conv<int>();
-		var intOne = Ctx.Stack.Pop(instruction.TypeTwo).Conv<long>();
+		var intTwo = Self.Stack.Pop(instruction.TypeOne).Conv<int>();
+		var intOne = Self.Stack.Pop(instruction.TypeTwo).Conv<long>();
 
-		Ctx.Stack.Push(intOne >> intTwo, retType);
+		Self.Stack.Push(intOne >> intTwo, retType);
 		return (ExecutionResult.Success, null);
 	}
 }

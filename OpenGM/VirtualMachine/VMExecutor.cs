@@ -2,6 +2,7 @@
 using OpenGM.SerializedFiles;
 using System.Collections;
 using OpenGM.IO;
+using OpenGM.Loading;
 
 namespace OpenGM.VirtualMachine;
 
@@ -58,11 +59,12 @@ public class VMCall
 
 public static partial class VMExecutor
 {
-	public static Stack<VMScriptExecutionContext> EnvironmentStack = new();
+	public static Stack<VMScriptExecutionContext?> EnvironmentStack = new();
+
 	/// <summary>
 	/// gets the top level environment / execution context
 	/// </summary>
-	public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
+	//public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
 
 	public static Stack<VMCall> CallStack = new();
 	public static VMCall CurrentCall => CallStack.Peek();
@@ -71,13 +73,16 @@ public static partial class VMExecutor
 	{
 		get
 		{
-			if (Ctx == null)
+			var top = EnvironmentStack.Peek();
+
+			if (top == null)
 			{
 				// Null at top of stack, in WITH statement. Next value is self.
-				return EnvironmentStack.ToArray()[1];
+
+				return EnvironmentStack.ToArray()[1]!;
 			}
 
-			return Ctx;
+			return top;
 		}
 	}
 
@@ -90,10 +95,12 @@ public static partial class VMExecutor
 				return Self;
 			}
 
-			if (Ctx == null)
+			var top = EnvironmentStack.Peek();
+
+			if (top == null)
 			{
 				// Null at top of stack, in WITH statement. Next value is self, then next value is other.
-				return EnvironmentStack.ToArray()[2];
+				return EnvironmentStack.ToArray()[2]!;
 			}
 
 			var stack = EnvironmentStack.ToArray();
@@ -107,10 +114,10 @@ public static partial class VMExecutor
 				}
 
 				i++; // we found the null, so previous one is the ctx that called PUSHENV
-				return stack[i];
+				return stack[i]!;
 			}
 
-			return stack[1];
+			return stack[1]!;
 		}
 	}
 
@@ -186,10 +193,10 @@ public static partial class VMExecutor
 			{
 				(executionResult, data) = ExecuteInstruction(code.Instructions[instructionIndex]);
 
-				if (VerboseStackLogs && Ctx != null)
+				if (VerboseStackLogs && Self != null)
 				{
 					var stackStr = "{ ";
-					foreach (var item in Ctx.Stack)
+					foreach (var item in Self.Stack)
 					{
 						stackStr += $"{item}, ";
 					}
@@ -245,13 +252,13 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.ReturnedValue)
 			{
-				Ctx!.ReturnValue = data;
+				Self!.ReturnValue = data;
 				break;
 			}
 		}
 
 		// Current object has finished executing, remove from stack
-		var returnValue = Ctx!.ReturnValue;
+		var returnValue = Self!.ReturnValue;
 		EnvironmentStack.Pop();
 
 		CallStack.Pop();
@@ -274,7 +281,8 @@ public static partial class VMExecutor
 	// BUG: throws sometimes instead of returning ExecutionResult.Failure
 	public static (ExecutionResult result, object? data) ExecuteInstruction(VMCodeInstruction instruction)
 	{
-		if (VerboseStackLogs) DebugLog.LogInfo($" - {instruction.Raw}");
+		if (VerboseStackLogs) 
+			DebugLog.LogInfo($" - {instruction.Raw}");
 		CurrentInstruction = instruction;
 
 		switch (instruction.Opcode)
@@ -290,7 +298,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BT:
 				{
-					var boolValue = Ctx.Stack.Pop(VMType.b).Conv<bool>();
+					var boolValue = Self.Stack.Pop(VMType.b).Conv<bool>();
 					if (!boolValue)
 					{
 						break;
@@ -305,7 +313,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BF:
 				{
-					var boolValue = Ctx.Stack.Pop(VMType.b).Conv<bool>();
+					var boolValue = Self.Stack.Pop(VMType.b).Conv<bool>();
 					if (boolValue)
 					{
 						break;
@@ -320,8 +328,8 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.CMP:
 
-				var second = Ctx.Stack.Pop(instruction.TypeOne);
-				var first = Ctx.Stack.Pop(instruction.TypeTwo);
+				var second = Self.Stack.Pop(instruction.TypeOne);
+				var first = Self.Stack.Pop(instruction.TypeTwo);
 
 				// first ??= 0;
 				// second ??= 0;
@@ -338,22 +346,22 @@ public static partial class VMExecutor
 					switch (instruction.Comparison)
 					{
 						case VMComparison.LT:
-							Ctx.Stack.Push(firstNumber < secondNumber, VMType.b);
+							Self.Stack.Push(firstNumber < secondNumber, VMType.b);
 							break;
 						case VMComparison.LTE:
-							Ctx.Stack.Push(firstNumber <= secondNumber, VMType.b);
+							Self.Stack.Push(firstNumber <= secondNumber, VMType.b);
 							break;
 						case VMComparison.EQ:
-							Ctx.Stack.Push(equal, VMType.b);
+							Self.Stack.Push(equal, VMType.b);
 							break;
 						case VMComparison.NEQ:
-							Ctx.Stack.Push(!equal, VMType.b);
+							Self.Stack.Push(!equal, VMType.b);
 							break;
 						case VMComparison.GTE:
-							Ctx.Stack.Push(firstNumber >= secondNumber, VMType.b);
+							Self.Stack.Push(firstNumber >= secondNumber, VMType.b);
 							break;
 						case VMComparison.GT:
-							Ctx.Stack.Push(firstNumber > secondNumber, VMType.b);
+							Self.Stack.Push(firstNumber > secondNumber, VMType.b);
 							break;
 						case VMComparison.None:
 						default:
@@ -368,30 +376,30 @@ public static partial class VMExecutor
 					{
 						if (first is null && second is null)
 						{
-							Ctx.Stack.Push(true, VMType.b);
+							Self.Stack.Push(true, VMType.b);
 						}
 						else if (first is null || second is null)
 						{
-							Ctx.Stack.Push(false, VMType.b);
+							Self.Stack.Push(false, VMType.b);
 						}
 						else
 						{
-							Ctx.Stack.Push(first?.Equals(second), VMType.b);
+							Self.Stack.Push(first?.Equals(second), VMType.b);
 						}
 					}
 					else if (instruction.Comparison == VMComparison.NEQ)
 					{
 						if (first is null && second is null)
 						{
-							Ctx.Stack.Push(false, VMType.b);
+							Self.Stack.Push(false, VMType.b);
 						}
 						else if (first is null || second is null)
 						{
-							Ctx.Stack.Push(true, VMType.b);
+							Self.Stack.Push(true, VMType.b);
 						}
 						else
 						{
-							Ctx.Stack.Push(!first?.Equals(second), VMType.b);
+							Self.Stack.Push(!first?.Equals(second), VMType.b);
 						}
 					}
 					else
@@ -402,16 +410,16 @@ public static partial class VMExecutor
 						switch (instruction.Comparison)
 						{
 							case VMComparison.LT:
-								Ctx.Stack.Push(firstValue < secondValue, VMType.b);
+								Self.Stack.Push(firstValue < secondValue, VMType.b);
 								break;
 							case VMComparison.LTE:
-								Ctx.Stack.Push(firstValue <= secondValue, VMType.b);
+								Self.Stack.Push(firstValue <= secondValue, VMType.b);
 								break;
 							case VMComparison.GTE:
-								Ctx.Stack.Push(firstValue >= secondValue, VMType.b);
+								Self.Stack.Push(firstValue >= secondValue, VMType.b);
 								break;
 							case VMComparison.GT:
-								Ctx.Stack.Push(firstValue > secondValue, VMType.b);
+								Self.Stack.Push(firstValue > secondValue, VMType.b);
 								break;
 							case VMComparison.None:
 							default:
@@ -432,60 +440,46 @@ public static partial class VMExecutor
 				return DoPop(instruction);
 			case VMOpcode.RET:
 				// ret value is always stored as rvalue
-				return (ExecutionResult.ReturnedValue, Ctx.Stack.Pop(VMType.v));
+				return (ExecutionResult.ReturnedValue, Self.Stack.Pop(VMType.v));
 			case VMOpcode.CONV:
 				// dont actually convert, just tell the stack we're a different type
 				// since we have to conv everywhere else later anyway with rvalue
-				Ctx.Stack.Push(Ctx.Stack.Pop(instruction.TypeOne), instruction.TypeTwo);
+				Self.Stack.Push(Self.Stack.Pop(instruction.TypeOne), instruction.TypeTwo);
 				break;
 			case VMOpcode.POPZ:
-				Ctx.Stack.Pop(instruction.TypeOne);
+				Self.Stack.Pop(instruction.TypeOne);
 				break;
 			case VMOpcode.CALL:
+			{
 				var args = new object?[instruction.FunctionArgumentCount];
 
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
 					// args are always pushed as rvalues
-					args[i] = Ctx.Stack.Pop(VMType.v);
+					args[i] = Self.Stack.Pop(VMType.v);
 				}
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
 				{
-					// goofy null checks
-					if (builtInFunction == null)
-					{
-						DebugLog.LogError($"NULL FUNC");
-					}
-
-					if (Ctx == null)
-					{
-						DebugLog.LogError($"NULL CTX");
-					}
-
-					if (Ctx!.Stack == null)
-					{
-						DebugLog.LogError($"NULL STACK");
-					}
-
-					Ctx.Stack!.Push(builtInFunction!(args), VMType.v);
+					Self.Stack!.Push(builtInFunction!(args), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
-					Ctx.Stack.Push(ExecuteCode(script, Ctx.GMSelf, Ctx.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
+					Self.Stack.Push(ExecuteCode(script, Self.GMSelf, Self.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Ctx.Stack.Push(ExecuteCode(scriptName.GetCode(), Ctx.GMSelf, Ctx.ObjectDefinition, args: args), VMType.v);
+					Self.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.GMSelf, Self.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
 				return (ExecutionResult.Failed, $"Can't resolve script {instruction.FunctionName} !");
+			}
 			case VMOpcode.PUSHENV:
 				return PUSHENV(instruction);
 			case VMOpcode.POPENV:
@@ -523,7 +517,7 @@ public static partial class VMExecutor
 				// unused in ch2???? no clue what this does
 				// used for multi-dimensional array bounds checking. c# does that anyway so its probably fine
 				
-				var (index, type) = Ctx.Stack.Peek();
+				var (index, type) = Self.Stack.Peek();
 
 				if (index is int || type is VMType.i || type is VMType.e) // do we check type idk
 				{
@@ -544,14 +538,14 @@ public static partial class VMExecutor
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
 				// apparently used for COW array stuff. does that mean this subtley breaks everything because arrays expect to copy?
-				var id = Ctx.Stack.Pop(VMType.i).Conv<int>();
+				var id = Self.Stack.Pop(VMType.i).Conv<int>();
 				break;
 			case VMOpcode.POPAF:
 			{
-				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<IList>();
+				var index = Self.Stack.Pop(VMType.i).Conv<int>();
+				var array = Self.Stack.Pop(VMType.v).Conv<IList>();
 				
-				var value = Ctx.Stack.Pop(VMType.v);
+				var value = Self.Stack.Pop(VMType.v);
 				
 				// by the magic of reference types this will be set properly
 				VariableResolver.ArraySet(index, value,
@@ -562,12 +556,12 @@ public static partial class VMExecutor
 			}
 			case VMOpcode.PUSHAF: 
 			{
-				var index = Ctx.Stack.Pop(VMType.i).Conv<int>();
-				var array = Ctx.Stack.Pop(VMType.v).Conv<IList>();
+				var index = Self.Stack.Pop(VMType.i).Conv<int>();
+				var array = Self.Stack.Pop(VMType.v).Conv<IList>();
 
 				var value = array[index];
 
-				Ctx.Stack.Push(value, VMType.v);
+				Self.Stack.Push(value, VMType.v);
 
 				break;
 			}

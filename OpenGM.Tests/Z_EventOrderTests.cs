@@ -27,7 +27,7 @@ public class Z_EventOrderTests
 			       popz.v
 			       """;
 		var code = GameConverter.ConvertAssembly(asm);
-		code.OnCodeExecuted += () => events.Add($"{VMExecutor.Ctx.GMSelf.instanceId}:{message}");
+		code.OnCodeExecuted += () => events.Add($"{VMExecutor.Self.GMSelf.instanceId}:{message}");
 		GameLoader.Codes.Add(codeIndex++, code);
 		return code;
 	}
@@ -44,7 +44,7 @@ public class Z_EventOrderTests
 		           popz.v
 		           """;
 		var code = GameConverter.ConvertAssembly(asm);
-		code.OnCodeExecuted += () => events.Add($"{VMExecutor.Ctx.GMSelf.instanceId}:{message}");
+		code.OnCodeExecuted += () => events.Add($"{VMExecutor.Self.GMSelf.instanceId}:{message}");
 		GameLoader.Codes.Add(codeIndex, code);
 		return codeIndex++;
 	}
@@ -55,7 +55,7 @@ public class Z_EventOrderTests
 		GameLoader.Codes.Clear();
 
 		var createCode = GetDebugMessageCode("Create");
-		createCode.OnCodeExecuted += () => VMExecutor.Ctx.GMSelf.alarm[0] = 1;
+		createCode.OnCodeExecuted += () => VMExecutor.Self.GMSelf.alarm[0] = 1;
 
 		var objDef = new ObjectDefinition()
 		{

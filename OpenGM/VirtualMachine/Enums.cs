@@ -21,7 +21,8 @@ public enum VariableType
 	Index,
 	Other,
 	BuiltIn,
-	Argument
+	Argument,
+	Stacktop
 }
 
 public enum VariablePrefix
