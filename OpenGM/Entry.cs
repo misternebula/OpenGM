@@ -48,6 +48,7 @@ internal class Entry
 		VMExecutor.EnvironmentStack.Clear();
 		VMExecutor.CallStack.Clear();
 		InstanceManager.instances.Clear();
+		DrawManager._drawObjects.Clear();
 
 		GMRandom.InitialiseRNG(0);
 

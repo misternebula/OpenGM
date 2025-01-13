@@ -9,7 +9,7 @@ public static class DrawManager
 {
     public static int CirclePrecision = 24;
 
-    private static List<DrawWithDepth> _drawObjects = new();
+    public static List<DrawWithDepth> _drawObjects = new();
 
     public static void Register(DrawWithDepth obj)
     {
