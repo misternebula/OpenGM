@@ -134,8 +134,15 @@ public static partial class VMExecutor
 			return null;
 		}
 
+		if (code.ParentAssetId != -1)
+		{
+			var parentCode = GameLoader.Codes[code.ParentAssetId];
+			return ExecuteCode(parentCode, obj, objectDefinition, eventType, eventIndex, args, startingIndex);
+		}
+
 		if (code.Instructions.Count == 0)
 		{
+			DebugLog.LogError($"Tried to run empty code!");
 			return null;
 		}
 
