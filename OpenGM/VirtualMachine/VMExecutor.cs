@@ -591,7 +591,38 @@ public static partial class VMExecutor
 				break;
 			}
 			case VMOpcode.CALLV:
-				throw new NotImplementedException("callv");
+			{
+				var method = Self.Stack.Pop(VMType.v) as Method;
+				var self = Self.Stack.Pop(VMType.v).Conv<int>(); // instance id
+
+				var args = new object?[instruction.IntData];
+
+				for (var i = 0; i < instruction.IntData; i++)
+				{
+					// args are always pushed as rvalues
+					args[i] = Self.Stack.Pop(VMType.v);
+				}
+
+				if (method == null)
+				{
+					throw new NotImplementedException("method is null");
+				}
+
+				var gmSelf = InstanceManager.FindByInstanceId(self);
+
+				if (gmSelf == null)
+				{
+					throw new NotImplementedException("gmself is null");
+				}
+
+				var script = ScriptResolver.ScriptFunctions[method.code.Name];
+
+				//DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
+
+				Self.Stack.Push(ExecuteCode(method.code, gmSelf, gmSelf.Definition, args: args, startingIndex: script.index), VMType.v);
+
+				break;
+			}
 			case VMOpcode.BREAK:
 				throw new UnreachableException("break is used as an extended opcode marker, so it should never show up as an instruction");
 			default:

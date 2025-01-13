@@ -683,11 +683,29 @@ public static partial class ScriptResolver
 		{ "layer_sprite_get_speed", layer_sprite_get_speed},
 		{ "layer_sprite_get_index", layer_sprite_get_index},
 		{ "layer_sprite_destroy", layer_sprite_destroy},
-		{ "draw_clear", draw_clear}
-		
-		
-		// every single time `method` is used in ch2 it is to bind a function to a global variable. but we already register that
+		{ "draw_clear", draw_clear},
+		{ "method", method},
+		{ "@@NullObject@@", NullObject}
 	};
+
+	public static object? NullObject(object?[] args)
+	{
+		return null;
+	}
+
+	public static object? method(object?[] args)
+	{
+		var struct_ref_or_instance_id = args[0];
+		var func = args[1].Conv<int>();
+
+		var method = new Method()
+		{
+			struct_ref_or_instance_id = struct_ref_or_instance_id,
+			func = func
+		};
+
+		return method;
+	}
 
 	public static object? draw_clear(object?[] args)
 	{
