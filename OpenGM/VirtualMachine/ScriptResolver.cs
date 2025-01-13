@@ -486,12 +486,12 @@ public static partial class ScriptResolver
 		// layer_background_exists
 		{ "layer_background_create", layer_background_create},
 		// layer_background_destroy
-		// layer_background_visible
+		{ "layer_background_visible", layer_background_visible},
 		{ "layer_background_htiled", layer_background_htiled},
 		{ "layer_background_vtiled", layer_background_vtiled},
-		// layer_background_xscale
-		// layer_background_yscale
-		// layer_background_stretch
+		{ "layer_background_xscale", layer_background_xscale},
+		{ "layer_background_yscale", layer_background_yscale},
+		{ "layer_background_stretch", layer_background_stretch},
 		// layer_background_blend
 		// layer_background_alpha
 		// layer_background_index
@@ -1618,7 +1618,7 @@ public static partial class ScriptResolver
 	public static object? window_set_caption(object?[] args)
 	{
 		var caption = args[0].Conv<string>();
-
+		DebugLog.LogInfo($"window_set_caption : {caption}");
 		CustomWindow.Instance.Title = caption;
 		return null;
 	}
@@ -4457,6 +4457,82 @@ public static partial class ScriptResolver
 				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
 				{
 					tilemap.Element.VTiled = vtiled;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_visible(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var visible = args[1].Conv<bool>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
+				{
+					tilemap.Element.Visible = visible;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_xscale(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var xscale = args[1].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
+				{
+					tilemap.Element.XScale = xscale;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_yscale(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var yscale = args[1].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
+				{
+					tilemap.Element.YScale = yscale;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_stretch(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var stretch = args[1].Conv<bool>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground tilemap && tilemap.Element.Id == background_element_id)
+				{
+					tilemap.Element.Stretch = stretch;
 				}
 			}
 		}
