@@ -417,81 +417,81 @@ public class CustomWindow : GameWindow
         var sinAngle = Math.Sin(partJob.angle);
         var cosAngle = Math.Cos(partJob.angle);
 
-        double fVar11;
+        double xUVOffset;
 		var fVar7 = (double)partJob.texture.TargetPosX;
         if (fVar7 <= left)
         {
-	        fVar11 = left - fVar7;
+	        xUVOffset = left - fVar7;
         }
         else
         {
 	        fVar7 -= left;
-	        fVar11 = 0.0f;
+	        xUVOffset = 0.0f;
 	        width -= fVar7;
 	        x += fVar7 * cosAngle * xscale;
 	        y -= fVar7 * sinAngle * yscale;
         }
 
-        double fVar12;
+        double yUVOffset;
         fVar7 = partJob.texture.TargetPosY;
         if (fVar7 <= top)
         {
-	        fVar12 = top - fVar7;
+	        yUVOffset = top - fVar7;
         }
         else
         {
 	        fVar7 -= top;
-	        fVar12 = 0.0f;
+	        yUVOffset = 0.0f;
 	        height -= fVar7;
 	        x += fVar7 * sinAngle * xscale;
 	        y += fVar7 * cosAngle * yscale;
         }
 
-        if (partJob.texture.TargetSizeX < fVar11 + width)
+        if (partJob.texture.TargetSizeX < xUVOffset + width)
         {
-	        width = partJob.texture.TargetSizeX - fVar11;
+	        width = partJob.texture.TargetSizeX - xUVOffset;
         }
 
-        if (partJob.texture.TargetSizeY < fVar12 + height)
+        if (partJob.texture.TargetSizeY < yUVOffset + height)
         {
-	        height = partJob.texture.TargetSizeY - fVar12;
+	        height = partJob.texture.TargetSizeY - yUVOffset;
         }
 
         if ((0.0 < width) && (0.0 < height))
         {
-	        var col1 = partJob.texture.SourceSizeX / partJob.texture.TargetSizeX;
-	        var col2 = partJob.texture.SourceSizeY / partJob.texture.TargetSizeY;
+	        var widthScale = partJob.texture.SourceSizeX / partJob.texture.TargetSizeX;
+	        var heightScale = partJob.texture.SourceSizeY / partJob.texture.TargetSizeY;
 
-			var uvLeft = (partJob.texture.SourcePosX + fVar11) / pageTexture.Width;
-	        var uvTop = (partJob.texture.SourcePosY + fVar12) / pageTexture.Height;
-	        var uvRight = (partJob.texture.SourcePosX + fVar11 + col1 * width) / pageTexture.Width;
-            var uvBottom = (partJob.texture.SourcePosY + fVar12 + col2 * height) / pageTexture.Height;
+			var uvLeft = (partJob.texture.SourcePosX + xUVOffset) / pageTexture.Width;
+	        var uvTop = (partJob.texture.SourcePosY + yUVOffset) / pageTexture.Height;
+	        var uvRight = (partJob.texture.SourcePosX + xUVOffset + widthScale * width) / pageTexture.Width;
+            var uvBottom = (partJob.texture.SourcePosY + yUVOffset + heightScale * height) / pageTexture.Height;
+            var uv0 = new Vector2d(uvLeft, uvTop);
+            var uv1 = new Vector2d(uvRight, uvTop);
+            var uv2 = new Vector2d(uvRight, uvBottom);
+            var uv3 = new Vector2d(uvLeft, uvBottom);
 
-			var a = width * xscale * cosAngle + x;
-	        var b = y - width * xscale * sinAngle;
-	        var c = height * yscale * sinAngle;
-	        var d = height * yscale * cosAngle;
+			var widthCos = width * xscale * cosAngle;
+            var widthSin = -width * xscale * sinAngle;
+            var heightCos = height * yscale * cosAngle;
+			var heightSin = height * yscale * sinAngle;
 
-			var v0 = new Vector2d(x, y);
-	        var uv0 = new Vector2d(uvLeft, uvTop);
+			var bottomVector = new Vector2d(heightSin, heightCos);
 
-			var v1 = new Vector2d(a, b);
-	        var uv1 = new Vector2d(uvRight, uvTop);
+			var topLeft = new Vector2d(x, y);
+			var bottomLeft = topLeft + bottomVector;
 
-	        var v2 = v1 + new Vector2d(c, d);
-	        var uv2 = new Vector2d(uvRight, uvBottom);
-
-			var v3 = v0 + new Vector2d(c, d);
-	        var uv3 = new Vector2d(uvLeft, uvBottom);
+			var topRight = topLeft + new Vector2d(widthCos, widthSin);
+            var bottomRight = topRight + bottomVector;
 
 	        GL.TexCoord2(uv0);
-	        GL.Vertex2(v0);
+	        GL.Vertex2(topLeft);
 	        GL.TexCoord2(uv1);
-	        GL.Vertex2(v1);
+	        GL.Vertex2(topRight);
 	        GL.TexCoord2(uv2);
-	        GL.Vertex2(v2);
+	        GL.Vertex2(bottomRight);
 	        GL.TexCoord2(uv3);
-	        GL.Vertex2(v3);
+	        GL.Vertex2(bottomLeft);
 		}
 
         GL.End();
