@@ -33,15 +33,55 @@ public partial class SpriteData
 [MemoryPackable]
 public partial class SpritePageItem
 {
+	/// <summary>
+	/// YYTPageEntry.x
+	/// </summary>
 	public int SourcePosX;
+	/// <summary>
+	/// YYTPageEntry.y
+	/// </summary>
 	public int SourcePosY;
+	/// <summary>
+	/// YYTPageEntry.w
+	/// </summary>
 	public int SourceSizeX;
+	/// <summary>
+	/// YYTPageEntry.h
+	/// </summary>
 	public int SourceSizeY;
+
+	/// <summary>
+	/// YYTPageEntry.XOffset
+	/// </summary>
 	public int TargetPosX;
+
+	/// <summary>
+	/// YYTPageEntry.YOffset
+	/// </summary>
 	public int TargetPosY;
+
+	/// <summary>
+	/// YYTPageEntry.CropWidth
+	/// </summary>
 	public int TargetSizeX;
+
+	/// <summary>
+	/// YYTPageEntry.CropHeight
+	/// </summary>
 	public int TargetSizeY;
+
+	/// <summary>
+	/// YYTPageEntry.ow
+	/// </summary>
 	public int BSizeX;
+
+	/// <summary>
+	/// YYTPageEntry.oh
+	/// </summary>
 	public int BSizeY;
+
+	/// <summary>
+	/// YYTPageEntry.tp
+	/// </summary>
 	public string Page = null!;
 }
