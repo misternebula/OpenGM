@@ -816,6 +816,14 @@ public static class GameConverter
 						}
 					}
 
+					if (assetsData.TextItems != null)
+					{
+						foreach (var item in assetsData.TextItems)
+						{
+							DebugLog.LogError($"Don't know how to handle TextItems {item.Name.Content}!!!!");
+						}
+					}
+
 					if (assetsData.Sprites != null)
 					{
 						foreach (var item in assetsData.Sprites)
