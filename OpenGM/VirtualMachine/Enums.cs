@@ -99,14 +99,18 @@ public enum VMOpcode
 
 public enum VMType
 {
-	None,
-	i,
-	v,
-	b,
-	d,
-	e,
-	s,
-	l
+	None = -1,
+	d = 0,
+	// float = 1
+	i = 2,
+	l = 3,
+	b = 4,
+	v = 5,
+	s = 6,
+	// GMDebug_StringPatch = 7
+	// Delete = 8
+	// Undefined = 9
+	e = 15
 }
 
 public enum VMComparison

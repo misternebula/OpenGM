@@ -142,7 +142,6 @@ public static partial class VMExecutor
 
 		if (code.Instructions.Count == 0)
 		{
-			DebugLog.LogError($"Tried to run empty code!");
 			return null;
 		}
 
