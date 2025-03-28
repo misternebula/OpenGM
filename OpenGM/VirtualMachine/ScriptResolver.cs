@@ -492,7 +492,7 @@ public static partial class ScriptResolver
 		{ "layer_background_xscale", layer_background_xscale},
 		{ "layer_background_yscale", layer_background_yscale},
 		{ "layer_background_stretch", layer_background_stretch},
-		// layer_background_blend
+		//{ "layer_background_blend", layer_background_blend},
 		// layer_background_alpha
 		// layer_background_index
 		// layer_background_speed
@@ -685,8 +685,52 @@ public static partial class ScriptResolver
 		{ "layer_sprite_destroy", layer_sprite_destroy},
 		{ "draw_clear", draw_clear},
 		{ "method", method},
-		{ "@@NullObject@@", NullObject}
+		{ "@@NullObject@@", NullObject},
+		{ "draw_background", draw_background},
+		{ "room_set_persistent", room_set_persistent}
 	};
+
+	public static object? room_set_persistent(object?[] args)
+	{
+		var roomIndex = args[0].Conv<int>();
+		var persistent = args[1].Conv<bool>();
+
+		var room = RoomManager.RoomList[roomIndex];
+		room.Persistent = persistent;
+
+		return null;
+	}
+
+	public static object? draw_background(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+		var y = args[2].Conv<double>();
+
+		var background = GameLoader.Backgrounds[index];
+
+		// TODO : handle tiling
+		// TODO : handle strech
+		// TODO : handle foreground
+		// TODO : handle speed
+
+		var sprite = background.Texture;
+
+		if (sprite == null)
+		{
+			return null;
+		}
+
+		CustomWindow.Draw(new GMSpriteJob()
+		{
+			texture = sprite,
+			screenPos = new Vector2d(x, y),
+			blend = Color4.White,
+			alpha = 1
+		});
+
+		return null;
+	}
 
 	public static object? NullObject(object?[] args)
 	{

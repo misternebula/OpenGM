@@ -188,7 +188,7 @@ public static class DrawManager
 	        InstanceManager.instances.Remove(id);
         }
 
-        var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
+		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
         // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
 
@@ -197,7 +197,18 @@ public static class DrawManager
 	        GL.Clear(ClearBufferMask.ColorBufferBit);
 		}
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
+        // ROOM BACKGROUNDS
+        foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
+        {
+	        if (item == null)
+	        {
+		        continue;
+	        }
+
+	        item.Draw();
+        }
+
+		if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
         }

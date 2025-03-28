@@ -7,7 +7,6 @@ if (keeptoggled == 0)
 {
     if (obj_controller_dw_city_big_2.bothToggled == 1)
     {
-        show_debug_message("both toggled!");
         global.flag[383] = 1
         keepdown = 1
     }
@@ -19,7 +18,6 @@ if (keeptoggled == 0)
             if (toggle == 0)
             {
                 snd_play(snd_noise)
-                show_debug_message("toggle ON");
             }
                 
             toggle = 1
@@ -28,7 +26,6 @@ if (keeptoggled == 0)
         {
             if (toggle == 1)
             {
-                show_debug_message("toggle OFF");
                 snd_play(snd_dtrans_flip)
             }
                 

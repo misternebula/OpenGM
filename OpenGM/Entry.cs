@@ -60,10 +60,10 @@ internal class Entry
 			gameSettings.UpdateFrequency = 30;
 			var nativeSettings = NativeWindowSettings.Default;
 			nativeSettings.WindowBorder = WindowBorder.Fixed;
-			nativeSettings.ClientSize = new Vector2i((int)firstRoom.SizeX, (int)firstRoom.SizeY);
+			nativeSettings.ClientSize = GameLoader.GeneralInfo!.DefaultWindowSize;
 			nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
 
-			window = new CustomWindow(gameSettings, nativeSettings, (uint)firstRoom.SizeX, (uint)firstRoom.SizeY);
+			window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo!.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo!.DefaultWindowSize.Y);
 		}
 		else
 		{

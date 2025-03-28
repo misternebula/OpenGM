@@ -10,6 +10,8 @@ using OpenGM.IO;
 using System.Numerics;
 using System.Text;
 using System.Linq;
+using OpenGM.Rendering;
+using OpenTK.Mathematics;
 
 namespace OpenGM.Loading;
 
@@ -26,6 +28,7 @@ public static class GameConverter
 		using var writer = new BinaryWriter(stream);
 
 		// must match order of gameloader
+		ExportGeneralInfo(writer, data);
 		ExportAssetOrder(writer, data);
 		ConvertScripts(writer, data);
 		ConvertCode(writer, data, data.Code);
@@ -39,8 +42,28 @@ public static class GameConverter
 		ExportTileSets(writer, data);
 		ExportSounds(writer, data);
 		ExportPaths(writer, data);
+		ExportBackgrounds(writer, data);
 
 		GC.Collect(); // gc after doing a buncha loading
+	}
+
+	public static void ExportGeneralInfo(BinaryWriter writer, UndertaleData data)
+	{
+		var asset = new GameData()
+		{
+			Filename = data.GeneralInfo.FileName.Content,
+			LastObjectID = (int)data.GeneralInfo.LastObj,
+			LastTileID = (int)data.GeneralInfo.LastTile,
+			Name = data.GeneralInfo.Name.Content,
+			BranchType = (BranchType)data.GeneralInfo.Branch,
+			Major = data.GeneralInfo.Major,
+			Minor = data.GeneralInfo.Minor,
+			Release = data.GeneralInfo.Release,
+			Build = data.GeneralInfo.Build,
+			DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight)
+
+		};
+		writer.WriteMemoryPack(asset);
 	}
 
 	public static void ConvertScripts(BinaryWriter writer, UndertaleData data)
@@ -909,6 +932,23 @@ public static class GameConverter
 				asset.Tiles.Add(tileAsset);
 			}
 
+			foreach (var background in room.Backgrounds)
+			{
+				var backgroundAsset = new OldBackground()
+				{
+					Enabled = background.Enabled,
+					Foreground = background.Foreground,
+					Definition = data.Backgrounds.IndexOf(background.BackgroundDefinition),
+					Position = new Vector2i(background.X, background.Y),
+					TilingX = background.TiledHorizontally,
+					TilingY = background.TiledVertically,
+					Speed = new Vector2i(background.SpeedX, background.SpeedY),
+					Stretch = background.Stretch
+				};
+
+				asset.OldBackgrounds.Add(backgroundAsset);
+			}
+
 			writer.WriteMemoryPack(asset);
 		}
 
@@ -1122,6 +1162,52 @@ public static class GameConverter
 			writer.WriteMemoryPack(asset);
 		}
 
+		Console.WriteLine(" Done!");
+	}
+
+	public static void ExportBackgrounds(BinaryWriter writer, UndertaleData data)
+	{
+		Console.Write($"Exporting backgrounds...");
+
+		writer.Write(data.Backgrounds.Count);
+		foreach (var background in data.Backgrounds)
+		{
+			SpritePageItem? pageItem;
+
+			if (background.Texture == null)
+			{
+				pageItem = null;
+			}
+			else
+			{
+				pageItem = new SpritePageItem
+				{
+					SourcePosX = background.Texture.SourceX,
+					SourcePosY = background.Texture.SourceY,
+					SourceSizeX = background.Texture.SourceWidth,
+					SourceSizeY = background.Texture.SourceHeight,
+					TargetPosX = background.Texture.TargetX,
+					TargetPosY = background.Texture.TargetY,
+					TargetSizeX = background.Texture.TargetWidth,
+					TargetSizeY = background.Texture.TargetHeight,
+					BSizeX = background.Texture.BoundingWidth,
+					BSizeY = background.Texture.BoundingHeight,
+					Page = background.Texture.TexturePage.Name.Content
+				};
+			}
+
+			var asset = new Background()
+			{
+				AssetIndex = data.Backgrounds.IndexOf(background),
+				Name = background.Name.Content,
+				Transparent = background.Transparent,
+				Smooth = background.Smooth,
+				Preload = background.Preload,
+				Texture = pageItem
+			};
+
+			writer.WriteMemoryPack(asset);
+		}
 		Console.WriteLine(" Done!");
 	}
 }

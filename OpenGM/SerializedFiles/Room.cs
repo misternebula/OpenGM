@@ -25,6 +25,7 @@ public partial class Room
 	public List<Layer> Layers = new();
 	public List<GameObject> LooseObjects = new();
 	public List<Tile> Tiles = new();
+	public List<OldBackground> OldBackgrounds = new();
 }
 
 [MemoryPackable]
@@ -56,6 +57,19 @@ public partial class Tile
 	public float ScaleX;
 	public float ScaleY;
 	public uint Color;
+}
+
+[MemoryPackable]
+public partial class OldBackground
+{
+	public bool Enabled;
+	public bool Foreground;
+	public int Definition;
+	public Vector2i Position;
+	public bool TilingX;
+	public bool TilingY;
+	public Vector2i Speed;
+	public bool Stretch;
 }
 
 public enum ElementType

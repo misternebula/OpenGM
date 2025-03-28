@@ -14,6 +14,8 @@ public static class GameLoader
     public static bool DebugDumpFunctions = false;
 
     private static List<VMCode> _replacementVMCodes = new();
+
+    public static GameData? GeneralInfo;
     
     public static void LoadGame()
     {
@@ -35,7 +37,8 @@ public static class GameLoader
         using var reader = new BinaryReader(stream);
 
         // must match order of gameconverter
-        AssetIndexManager.LoadAssetIndexes(reader);
+        GeneralInfo = reader.ReadMemoryPack<GameData>();
+		AssetIndexManager.LoadAssetIndexes(reader);
         LoadScripts(reader);
         LoadCode(reader);
         LoadGlobalInitCode(reader);
@@ -48,6 +51,7 @@ public static class GameLoader
         LoadTileSets(reader);
         AudioManager.LoadSounds(reader);
         LoadPaths(reader);
+        LoadBackgrounds(reader);
         
         GC.Collect(); // gc after doing a buncha loading
     }
@@ -380,5 +384,22 @@ public static class GameLoader
 
             PathManager.Paths.Add(PathManager.Paths.Count, path);
 		}
+		Console.WriteLine($" Done!");
+	}
+
+	public static Dictionary<int, Background> Backgrounds = new();
+
+	private static void LoadBackgrounds(BinaryReader reader)
+	{
+		Console.Write($"Loading backgrounds...");
+		Backgrounds.Clear();
+
+		var length = reader.ReadInt32();
+		for (var i = 0; i < length; i++)
+		{
+			var asset = reader.ReadMemoryPack<Background>();
+			Backgrounds.Add(asset.AssetIndex, asset);
+		}
+		Console.WriteLine($" Done!");
 	}
 }

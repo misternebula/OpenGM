@@ -93,6 +93,7 @@ public static class VariableResolver
 		{ "pointer_null", (get_pointer_null, null)},
 		{ "instance_count", (get_instance_count, null)},
 		{ "current_time", (get_current_time, null)},
+		{ "current_month", (get_current_month, null)},
 		{ "debug_mode", (get_debug_mode, null)}
 	};
 
@@ -321,6 +322,8 @@ public static class VariableResolver
 	public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
 
 	public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
+
+	public static object get_current_month() => DateTime.Now.Month;
 
 	public static object get_debug_mode() => false;
 }

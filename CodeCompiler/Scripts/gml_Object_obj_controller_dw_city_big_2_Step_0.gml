@@ -4,7 +4,6 @@ if (!ignoreHardWork)
     show_debug_message("---")
     with (obj_alleySwitch)
     {
-        show_debug_message("id:" + id + " toggle:" + toggle + " other:" + other.id)
         if (toggle == 1)
         {
             other.toggle = 1

@@ -102,6 +102,8 @@ public static class RoomManager
 			}
 			CurrentRoom.Tiles.Clear();
 
+			CurrentRoom.OldBackgrounds.Clear();
+
 			foreach (var layer in CurrentRoom.Layers)
 			{
 				foreach (var item in layer.Value.ElementsToDraw)
@@ -338,6 +340,23 @@ public static class RoomManager
 			};
 
 			CurrentRoom.Tiles.Add(newTile);
+		}
+
+		foreach (var item in CurrentRoom.RoomAsset.OldBackgrounds)
+		{
+			var oldBackground = new GMOldBackground()
+			{
+				Enabled = item.Enabled,
+				Foreground = item.Foreground,
+				Definition = item.Definition,
+				Position = item.Position,
+				TilingX = item.TilingX,
+				TilingY = item.TilingY,
+				Speed = item.Speed,
+				Stretch = item.Stretch
+			};
+
+			CurrentRoom.OldBackgrounds.Add(oldBackground);
 		}
 
 		var currentInstances = InstanceManager.instances.Values.ToList();

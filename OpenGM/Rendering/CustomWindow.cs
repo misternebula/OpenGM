@@ -67,7 +67,7 @@ public class CustomWindow : GameWindow
         GL.BlendEquation(BlendEquationMode.FuncAdd);
     }
 
-    protected override void OnLoad()
+	protected override void OnLoad()
     {
         base.OnLoad();
         DebugLog.LogInfo($"OnLoad()");
@@ -115,7 +115,7 @@ public class CustomWindow : GameWindow
         DrawManager.FixedUpdate();
         AudioManager.Update();
 
-		//UpdateInstanceFollow();
+		UpdateInstanceFollow();
 
 		foreach (var item in DebugJobs)
 		{
@@ -587,7 +587,7 @@ public class GMSpriteJob : GMBaseJob
 {
     public Vector2d screenPos;
     public SpritePageItem texture = null!;
-    public Vector2d scale;
+    public Vector2d scale = Vector2d.One;
     public double angle;
     public Vector2 origin;
 }

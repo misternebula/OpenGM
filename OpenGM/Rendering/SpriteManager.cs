@@ -56,7 +56,7 @@ public static class SpriteManager
 
         if (floored < 0)
         {
-	        throw new NotImplementedException();
+	        throw new NotImplementedException($"Trying to get SpritePageItem for index {index} floored:{floored}");
         }
 
 		return subimages[floored];

@@ -110,6 +110,7 @@ public enum VMType
 	// GMDebug_StringPatch = 7
 	// Delete = 8
 	// Undefined = 9
+	// PtrType = 10
 	e = 15
 }
 

@@ -122,7 +122,12 @@ public static class SurfaceManager
 
     public static void ResizeSurface(int id, int w, int h)
     {
-        var bufferId = _framebuffers[id];
+	    if (w < 1 || h < 1 || w > 8192 || h > 8192)
+	    {
+		    throw new NotImplementedException("Invalid surface dimensions");
+	    }
+
+	    var bufferId = _framebuffers[id];
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
