@@ -51,6 +51,12 @@ public class CustomWindow : GameWindow
         Width = width;
         Height = height;
         
+        DebugLog.LogInfo($"-- CustomWindow .ctor --");
+        DebugLog.LogInfo($"  Version: {nativeWindowSettings.API} {nativeWindowSettings.APIVersion}");
+        DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
+        DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
+        DebugLog.LogInfo($"------------------------");
+
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>
         {
             var message = MarshalTk.MarshalPtrToString(messagePtr);

@@ -62,6 +62,7 @@ internal class Entry
 			nativeSettings.WindowBorder = WindowBorder.Fixed;
 			nativeSettings.ClientSize = GameLoader.GeneralInfo!.DefaultWindowSize;
 			nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
+			nativeSettings.Flags = ContextFlags.Default;
 
 			window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo!.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo!.DefaultWindowSize.Y);
 		}
