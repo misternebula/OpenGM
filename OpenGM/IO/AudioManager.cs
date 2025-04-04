@@ -13,11 +13,6 @@ namespace OpenGM.IO;
  * copied from https://github.com/misternebula/DELTARUNITY/blob/main/Assets/Scripts/AudioManager/AudioManager.cs
  * organization is eh, spread out between here and ScriptResolver. its fine
  * 
- * openal installation:
- * download release from https://github.com/kcat/openal-soft
- * rename bin/Win64/guy to OpenAL32.dll
- * copy into build folder
- * 
  * resources i used:
  * https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/
  * https://gist.github.com/kamiyaowl/32fb397e0141c65792e1
