@@ -1026,20 +1026,44 @@ public static class GameConverter
 			// https://github.com/UnderminersTeam/UndertaleModTool/blob/master/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAllSounds.csx
 			// ignore compressed for now
 			{
-				if (item.AudioID == -1)
+				var isEmbedded = item.Flags.HasFlag(UndertaleSound.AudioEntryFlags.IsEmbedded);
+				var isCompressed = item.Flags.HasFlag(UndertaleSound.AudioEntryFlags.IsCompressed);
+
+				if (isEmbedded)
 				{
-					// external .ogg
-					asset.File = $"{asset.Name}.ogg";
-					bytes = File.ReadAllBytes(Path.Combine(Entry.DataWinFolder, asset.File));
-				}
-				else if (item.GroupID == data.GetBuiltinSoundGroupID())
-				{
-					// embedded .wav
-					asset.File = $"{asset.Name}.wav";
-					var embeddedAudio = data.EmbeddedAudio;
-					bytes = embeddedAudio[item.AudioID].Data;
+					if (isCompressed)
+					{
+						// embedded .ogg
+						asset.File = $"{asset.Name}.ogg";
+						var embeddedAudio = data.EmbeddedAudio;
+						bytes = embeddedAudio[item.AudioID].Data;
+					}
+					else
+					{
+						// embedded .wav
+						asset.File = $"{asset.Name}.wav";
+						var embeddedAudio = data.EmbeddedAudio;
+						bytes = embeddedAudio[item.AudioID].Data;
+					}
 				}
 				else
+				{
+					if (isCompressed)
+					{
+						// embedded .ogg
+						asset.File = $"{asset.Name}.ogg";
+						var embeddedAudio = data.EmbeddedAudio;
+						bytes = embeddedAudio[item.AudioID].Data;
+					}
+					else
+					{
+						// external .ogg
+						asset.File = $"{asset.Name}.ogg";
+						bytes = File.ReadAllBytes(Path.Combine(Entry.DataWinFolder, asset.File));
+					}
+				}
+
+				if (item.GroupID != data.GetBuiltinSoundGroupID())
 				{
 					// .wav in some audio group file
 					asset.File = $"{asset.Name}.wav";
