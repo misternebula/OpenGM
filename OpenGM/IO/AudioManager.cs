@@ -393,6 +393,8 @@ public static class AudioManager
 
     public static void ChangeGain(int source, double volume, double milliseconds)
     {
+        volume = Math.Max(0, volume); // TODO : check if this is what GM does?
+
         // todo implement lerping with timer
         AL.Source(source, ALSourcef.Gain, (float)volume);
         CheckALError();
