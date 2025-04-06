@@ -9,11 +9,6 @@ public static partial class VMExecutor
 	
 	public static void PopToGlobal(string varName, object? value)
 	{
-		if (varName == "debug")
-		{
-			value = DebugMode;
-		}
-
 		VariableResolver.GlobalVariables[varName] = value;
 	}
 

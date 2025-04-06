@@ -61,6 +61,8 @@ public class KeyboardHandler
         if (state.IsKeyPressed(Keys.F5))
         {
             VMExecutor.DebugMode = !VMExecutor.DebugMode;
+            VariableResolver.GlobalVariables["debug"] = VMExecutor.DebugMode;
+			DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
         }
     }
 
