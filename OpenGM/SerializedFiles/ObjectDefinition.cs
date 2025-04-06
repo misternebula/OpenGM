@@ -6,7 +6,8 @@ using UndertaleModLib.Models;
 namespace OpenGM.SerializedFiles;
 
 /// <summary>
-/// "template" for an object. analagous to a class
+/// "template" for an object. analagous to a class.
+/// since GM objects have parent-child hierarchy we need this separation between the class and the instance (the class has the functions, the instance has the variables)
 /// </summary>
 [MemoryPackable]
 public partial class ObjectDefinition

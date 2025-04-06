@@ -7,7 +7,9 @@ using OpenGM.Loading;
 namespace OpenGM.VirtualMachine;
 
 /// <summary>
-/// contains data about each script execution and also environment
+/// environment frame.
+/// contains data about the current object. is pushed alongside the call frame. can have multiple of these per call frame.
+/// TODO: move this inside call frame? would make stack walking harder.
 /// </summary>
 public class VMScriptExecutionContext
 {
@@ -15,6 +17,7 @@ public class VMScriptExecutionContext
 	public GamemakerObject GMSelf => (GamemakerObject)Self;
 	public ObjectDefinition? ObjectDefinition;
 	public DataStack Stack = null!;
+	// TODO: move all these into the call frame. they dont change with WITH blocks i think
 	//public Dictionary<string, object?> Locals = null!;
 	public object? ReturnValue;
 	public EventType EventType;
@@ -44,9 +47,14 @@ public class VMScriptExecutionContext
 	}
 }
 
+/// <summary>
+/// call frame.
+/// contains data about the currently executing function. is pushed alongside the environment frame.
+/// </summary>
 public class VMCall
 {
 	public VMCode Code = null!;
+	// TODO: i dont think this is needed. we could potentially put environment frames inside this call frame if we wanted the dependency.
 	public VMScriptExecutionContext Ctx = null!;
 	public Dictionary<string, object?> Locals = new();
 
@@ -61,14 +69,16 @@ public static partial class VMExecutor
 {
 	public static Stack<VMScriptExecutionContext?> EnvironmentStack = new();
 
-	/// <summary>
-	/// gets the top level environment / execution context
-	/// </summary>
-	//public static VMScriptExecutionContext Ctx => EnvironmentStack.Peek();
-
 	public static Stack<VMCall> CallStack = new();
+	/// <summary>
+	/// the top level call frame
+	/// </summary>
 	public static VMCall CurrentCall => CallStack.Peek();
 
+	/// <summary>
+	/// the top level environment frame, for the current object
+	/// has logic for handling goofy null frame for WITH
+	/// </summary>
 	public static VMScriptExecutionContext Self
 	{
 		get
