@@ -1,6 +1,5 @@
 ﻿using OpenGM.SerializedFiles;
 using Newtonsoft.Json.Linq;
-using NVorbis;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -12,6 +11,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
+using StbVorbisSharp;
 using static UndertaleModLib.Models.UndertaleRoom;
 using static UndertaleModLib.Models.UndertaleBackground;
 
@@ -2151,12 +2151,23 @@ public static partial class ScriptResolver
 			return existingIndex;
 		}
 
-		// maybe this should be moved to RegisterAudioClip
-		using var vorbisReader = new VorbisReader(filename);
-		var data = new float[vorbisReader.TotalSamples * vorbisReader.Channels]; // is this correct length?
-		vorbisReader.ReadSamples(data, 0, data.Length);
-		var stereo = vorbisReader.Channels == 2;
-		var freq = vorbisReader.SampleRate;
+		// this should probably be put in AudioManager
+		using var vorbis = Vorbis.FromMemory(File.ReadAllBytes(filename));
+		var data = new float[vorbis.StbVorbis.total_samples * vorbis.Channels];
+		unsafe
+		{
+			fixed (float* ptr = data)
+			{
+				var realLength = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, data.Length);
+				realLength *= vorbis.Channels;
+				if (realLength != data.Length)
+				{
+					DebugLog.LogWarning($"{filename} length {realLength} != {data.Length}");
+				}
+			}
+		}
+		var stereo = vorbis.Channels == 2;
+		var freq = vorbis.SampleRate;
 
 		var buffer = AL.GenBuffer();
 		AudioManager.CheckALError();

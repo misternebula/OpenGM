@@ -3,9 +3,9 @@ using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using NAudio.Wave;
 using Newtonsoft.Json;
-using NVorbis;
 using OpenTK.Audio.OpenAL;
 using System.Runtime.CompilerServices;
+using StbVorbisSharp;
 
 namespace OpenGM.IO;
 
@@ -99,6 +99,7 @@ public static class AudioManager
             if (Path.GetExtension(asset.File) == ".wav")
             {
                 // write to the same file to get slightly more perf. need the extension so the reader knows what it is
+                // file sucks but is needed to have read that lets us use floats
                 File.WriteAllBytes("temp.wav", bytes);
                 
                 try
@@ -118,13 +119,22 @@ public static class AudioManager
             }
             else if (Path.GetExtension(asset.File) == ".ogg")
             {
-                using var stream = new MemoryStream(bytes);
-
-                using var vorbisReader = new VorbisReader(stream);
-                data = new float[vorbisReader.TotalSamples * vorbisReader.Channels]; // is this correct length?
-                vorbisReader.ReadSamples(data, 0, data.Length);
-                stereo = vorbisReader.Channels == 2;
-                freq = vorbisReader.SampleRate;
+                using var vorbis = Vorbis.FromMemory(bytes);
+                data = new float[vorbis.StbVorbis.total_samples * vorbis.Channels];
+                unsafe
+                {
+                    fixed (float* ptr = data)
+                    {
+                        var realLength = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, data.Length);
+                        realLength *= vorbis.Channels;
+                        if (realLength != data.Length)
+                        {
+                            DebugLog.LogWarning($"{asset.File} length {realLength} != {data.Length}");
+                        }
+                    }
+                }
+                stereo = vorbis.Channels == 2;
+                freq = vorbis.SampleRate;
             }
             else
             {

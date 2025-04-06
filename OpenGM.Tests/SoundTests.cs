@@ -31,6 +31,30 @@ public class SoundTests
             DebugLog.LogInfo($"buffer {samples.Length} samples, got {count} samples");
         }
     }
+    
+    [TestMethod]
+    public unsafe void TestGoodOgg2()
+    {
+        // audacity says 3326400 * 2 = 6652800 samples
+        
+        {
+            using var vorbisReader = new VorbisReader("battle.ogg");
+            var samples = new float[vorbisReader.TotalSamples * vorbisReader.Channels];
+            var count = vorbisReader.ReadSamples(samples, 0, samples.Length);
+            // apparently this differs from total samples??? why??
+            DebugLog.LogInfo($"buffer {samples.Length} samples, got {count} samples");
+        }
+
+        {
+            using var vorbis = Vorbis.FromMemory(File.ReadAllBytes("battle.ogg"));
+            var samples = new float[vorbis.StbVorbis.total_samples * vorbis.Channels];
+            int count;
+            fixed (float* ptr = samples)
+                count = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, samples.Length);
+            count *= vorbis.Channels;
+            DebugLog.LogInfo($"buffer {samples.Length} samples, got {count} samples");
+        }
+    }
 
     [TestMethod]
     public unsafe void TestBadOgg()
