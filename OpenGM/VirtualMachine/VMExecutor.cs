@@ -16,8 +16,8 @@ public class VMScriptExecutionContext
 	public IStackContextSelf Self = null!; // can be null for global scripts but those shouldnt run functions that need it
 	public GamemakerObject GMSelf => (GamemakerObject)Self;
 	public ObjectDefinition? ObjectDefinition;
+	// TODO: move all these into the call frame. they dont change with `with` blocks i think
 	public DataStack Stack = null!;
-	// TODO: move all these into the call frame. they dont change with WITH blocks i think
 	//public Dictionary<string, object?> Locals = null!;
 	public object? ReturnValue;
 	public EventType EventType;
@@ -76,8 +76,8 @@ public static partial class VMExecutor
 	public static VMCall CurrentCall => CallStack.Peek();
 
 	/// <summary>
-	/// the top level environment frame, for the current object
-	/// has logic for handling goofy null frame for WITH
+	/// the top level environment frame, for the current object.
+	/// has logic for handling goofy null frame for `with`.
 	/// </summary>
 	public static VMScriptExecutionContext Self
 	{
