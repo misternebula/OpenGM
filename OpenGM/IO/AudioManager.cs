@@ -106,7 +106,11 @@ public static class AudioManager
                 {
                     using var audioFileReader = new AudioFileReader("temp.wav");
                     data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
-                    audioFileReader.Read(data, 0, data.Length);
+                    var realLength = audioFileReader.Read(data, 0, data.Length);
+                    if (realLength != data.Length)
+                    {
+                        DebugLog.LogWarning($"{asset.File} length {realLength} != {data.Length}");
+                    }
                     stereo = audioFileReader.WaveFormat.Channels == 2;
                     freq = audioFileReader.WaveFormat.SampleRate;
                 }
