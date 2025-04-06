@@ -9,20 +9,39 @@ namespace OpenGM.Tests;
 public class SoundTests
 {
     [TestMethod]
-    public void TestGoodOgg()
+    public unsafe void TestGoodOgg()
     {
-        using var vorbisReader = new VorbisReader("AUDIO_INTRONOISE.ogg");
-        var samples = new float[vorbisReader.TotalSamples * vorbisReader.Channels];
-        vorbisReader.ReadSamples(samples, 0, samples.Length);
+        {
+            using var vorbisReader = new VorbisReader("AUDIO_INTRONOISE.ogg");
+            var samples = new float[vorbisReader.TotalSamples * vorbisReader.Channels];
+            var count = vorbisReader.ReadSamples(samples, 0, samples.Length);
+            // apparently this differs from total samples??? why??
+            DebugLog.LogInfo($"buffer {samples.Length} samples, got {count} samples");
+        }
+
+        {
+            using var vorbis = Vorbis.FromMemory(File.ReadAllBytes("AUDIO_INTRONOISE.ogg"));
+            var samples = new float[vorbis.StbVorbis.total_samples * vorbis.Channels];
+            int count;
+            fixed (float* ptr = samples)
+                count = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, samples.Length);
+            count *= vorbis.Channels;
+            DebugLog.LogInfo($"buffer {samples.Length} samples, got {count} samples");
+        }
     }
 
     [TestMethod]
-    public void TestBadOgg()
+    public unsafe void TestBadOgg()
     {
-        // this hangs rn
-        using var vorbisReader = new VorbisReader("mus_menu1.ogg");
-        var samples = new float[vorbisReader.TotalSamples * vorbisReader.Channels];
-        // vorbisReader.ReadSamples(samples, 0, samples.Length);
+        // nvorbis hangs
+        
+        using var vorbis = Vorbis.FromMemory(File.ReadAllBytes("mus_menu1.ogg"));
+        var samples = new float[vorbis.StbVorbis.total_samples * vorbis.Channels];
+        int count;
+        fixed (float* ptr = samples)
+            count = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, samples.Length);
+        count *= vorbis.Channels;
+        DebugLog.LogInfo($"buffer {samples.Length} samples, got {count} samples");
     }
 
     [TestMethod]
@@ -31,12 +50,14 @@ public class SoundTests
         {
             using var reader = new VorbisReader("AUDIO_INTRONOISE.ogg");
             var total = 0;
+            var iter = 0;
             var buffer = new float[reader.SampleRate];
             while (true)
             {
                 var count = reader.ReadSamples(buffer, 0, buffer.Length);
-                DebugLog.Log($"read {count} total {total} of {reader.TotalSamples * reader.Channels}");
                 total += count;
+                iter++;
+                DebugLog.Log($"read {count} iter {iter} total {total} of {reader.TotalSamples * reader.Channels}");
                 if (count == 0) break;
             }
         }
@@ -49,16 +70,18 @@ public class SoundTests
             // https://nothings.org/stb_vorbis/samples/sample.c
             using var vorbis = Vorbis.FromMemory(File.ReadAllBytes("AUDIO_INTRONOISE.ogg"));
             var total = 0;
+            var iter = 0;
             vorbis.SubmitBuffer();
-            var samples = new float[vorbis.SampleRate];
+            var buffer = new float[vorbis.SampleRate];
             while (true)
             {
                 int count;
-                fixed (float* ptr = samples)
-                    count = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, samples.Length);
+                fixed (float* ptr = buffer)
+                    count = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, buffer.Length);
                 count *= vorbis.Channels; // returns count per channel
                 total += count;
-                DebugLog.LogInfo($"read {count} total {total} of {vorbis.StbVorbis.total_samples * vorbis.Channels}");
+                iter++;
+                DebugLog.LogInfo($"read {count} iter {iter} total {total} of {vorbis.StbVorbis.total_samples * vorbis.Channels}");
                 if (count == 0) break;
             }
 
