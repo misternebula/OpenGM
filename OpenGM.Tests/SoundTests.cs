@@ -75,7 +75,6 @@ public class SoundTests
             using var vorbis = Vorbis.FromMemory(File.ReadAllBytes("AUDIO_INTRONOISE.ogg"));
             var total = 0;
             var iter = 0;
-            vorbis.SubmitBuffer();
             var buffer = new float[vorbis.SampleRate];
             while (true)
             {
