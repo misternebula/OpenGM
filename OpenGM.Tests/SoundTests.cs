@@ -11,6 +11,8 @@ public class SoundTests
     [TestMethod]
     public unsafe void TestGoodOgg()
     {
+        // audacity says 480374 * 2 = 960748 samples
+        
         {
             using var vorbisReader = new VorbisReader("AUDIO_INTRONOISE.ogg");
             var samples = new float[vorbisReader.TotalSamples * vorbisReader.Channels];
@@ -33,6 +35,8 @@ public class SoundTests
     [TestMethod]
     public unsafe void TestBadOgg()
     {
+        // audacity says 1411648 * 2 = 2823296 samples
+        
         // nvorbis hangs
         
         using var vorbis = Vorbis.FromMemory(File.ReadAllBytes("mus_menu1.ogg"));
