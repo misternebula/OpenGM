@@ -126,7 +126,9 @@ public static class DrawManager
             }
         }
 
-        if (RoomManager.New_Room != -1)
+        HandleKeyboard();
+
+		if (RoomManager.New_Room != -1)
         {
             RoomManager.ChangeToWaitingRoom();
             return;
@@ -273,5 +275,69 @@ public static class DrawManager
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();
+    }
+
+    public static void HandleKeyboard()
+    {
+        KeyDown();
+        KeyPressed();
+        KeyReleased();
+    }
+
+    public static void KeyDown()
+    {
+        var keyDown = 0;
+        for (var i = 0; i < 256; i++)
+        {
+            if (KeyboardHandler.KeyDown[i])
+            {
+                keyDown = 1;
+				Handle(i, EventType.Keyboard);
+            }
+        }
+
+		// either 0 (no key) or 1 (any key)
+		Handle(keyDown, EventType.Keyboard);
+	}
+
+	public static void KeyPressed()
+	{
+		var keyPressed = 0;
+		for (var i = 0; i < 256; i++)
+		{
+			if (KeyboardHandler.KeyPressed[i])
+			{
+				keyPressed = 1;
+				Handle(i, EventType.KeyPress);
+			}
+		}
+
+		// either 0 (no key) or 1 (any key)
+		Handle(keyPressed, EventType.KeyPress);
+	}
+
+	public static void KeyReleased()
+	{
+		var keyReleased = 0;
+		for (var i = 0; i < 256; i++)
+		{
+			if (KeyboardHandler.KeyReleased[i])
+			{
+				keyReleased = 1;
+				Handle(i, EventType.KeyRelease);
+			}
+		}
+
+		// either 0 (no key) or 1 (any key)
+		Handle(keyReleased, EventType.KeyRelease);
+	}
+
+	public static void Handle(int key, EventType type)
+    {
+        var objects = InstanceManager.instances.Values.ToList();
+        foreach (var obj in objects)
+        {
+            GamemakerObject.ExecuteEvent(obj, obj.Definition, type, key);
+        }
     }
 }
