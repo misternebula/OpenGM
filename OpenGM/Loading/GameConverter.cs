@@ -650,7 +650,12 @@ public static class GameConverter
 				storage.CollisionScriptIDs.Add((int)subtypeContainer.EventSubtype, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
 			}
 
-			// keyboard
+			storage.KeyboardScriptIDs = new();
+			foreach (var subtypeContainer in obj.Events[(int)EventType.Keyboard - 1])
+			{
+				storage.KeyboardScriptIDs.Add(subtypeContainer.EventSubtypeKey, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
+			}
+
 			// mouse
 
 			storage.OtherScriptIDs = new();
@@ -665,8 +670,18 @@ public static class GameConverter
 				storage.DrawScriptIDs.Add(subtypeContainer.EventSubtypeDraw, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
 			}
 
-			// keypress
-			// keyrelease
+			storage.KeyPressScriptIDs = new();
+			foreach (var subtypeContainer in obj.Events[(int)EventType.KeyPress - 1])
+			{
+				storage.KeyPressScriptIDs.Add(subtypeContainer.EventSubtypeKey, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
+			}
+
+			storage.KeyReleaseScriptIDs = new();
+			foreach (var subtypeContainer in obj.Events[(int)EventType.KeyRelease - 1])
+			{
+				storage.KeyReleaseScriptIDs.Add(subtypeContainer.EventSubtypeKey, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
+			}
+
 			// trigger
 			storage.CleanUpScriptID = GetCodeID(EventType.CleanUp, 0);
 			// gesture

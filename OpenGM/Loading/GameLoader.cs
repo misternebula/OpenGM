@@ -176,10 +176,14 @@ public static class GameLoader
                 asset.CollisionScript[subtype] = id2Script[codeId]!;
             }
 
-            // Keyboard
-            // Mouse
+			foreach (var (subtype, codeId) in storage.KeyboardScriptIDs)
+			{
+				asset.KeyboardScripts[subtype] = id2Script[codeId]!;
+			}
 
-            foreach (var (subtype, codeId) in storage.OtherScriptIDs)
+			// Mouse
+
+			foreach (var (subtype, codeId) in storage.OtherScriptIDs)
             {
                 asset.OtherScript[subtype] = id2Script[codeId]!;
             }
@@ -189,11 +193,19 @@ public static class GameLoader
                 asset.DrawScript[subtype] = id2Script[codeId]!;
             }
 
-            // KeyPress
-            // KeyRelease
-            // Trigger
+			foreach (var (subtype, codeId) in storage.KeyPressScriptIDs)
+			{
+				asset.KeyPressScripts[subtype] = id2Script[codeId]!;
+			}
 
-            asset.CleanUpScript = id2Script[storage.CleanUpScriptID];
+			foreach (var (subtype, codeId) in storage.KeyReleaseScriptIDs)
+			{
+				asset.KeyReleaseScripts[subtype] = id2Script[codeId]!;
+			}
+
+			// Trigger
+
+			asset.CleanUpScript = id2Script[storage.CleanUpScriptID];
 
             // Gesture
 

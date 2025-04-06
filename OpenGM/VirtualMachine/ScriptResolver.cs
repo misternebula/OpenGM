@@ -1392,6 +1392,8 @@ public static partial class ScriptResolver
 
 	public static object? ds_list_shuffle(params object?[] args)
 	{
+		// TODO : make this use GMRandom
+
 		var id = args[0].Conv<int>();
 
 		if (!_dsListDict.ContainsKey(id))

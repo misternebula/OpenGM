@@ -43,14 +43,17 @@ public partial class ObjectDefinition
 	public Dictionary<EventSubtypeStep, VMCode> StepScript = new();
 	[MemoryPackIgnore]
 	public Dictionary<int, VMCode> CollisionScript = new();
-	//keyboard
+	[MemoryPackIgnore]
+	public Dictionary<EventSubtypeKey, VMCode> KeyboardScripts = new();
 	//mouse
 	[MemoryPackIgnore]
 	public Dictionary<EventSubtypeOther, VMCode> OtherScript = new();
 	[MemoryPackIgnore]
 	public Dictionary<EventSubtypeDraw, VMCode> DrawScript = new();
-	//keypress
-	//keyrelease
+	[MemoryPackIgnore]
+	public Dictionary<EventSubtypeKey, VMCode> KeyPressScripts = new();
+	[MemoryPackIgnore]
+	public Dictionary<EventSubtypeKey, VMCode> KeyReleaseScripts = new();
 	//trigger
 	[MemoryPackIgnore]
 	public VMCode? CleanUpScript;
@@ -68,12 +71,12 @@ public partial class ObjectDefinitionStorage
 	public Dictionary<int, int> AlarmScriptIDs = new();
 	public Dictionary<EventSubtypeStep, int> StepScriptIDs = new();
 	public Dictionary<int, int> CollisionScriptIDs = new();
-	//keyboard
+	public Dictionary<EventSubtypeKey, int> KeyboardScriptIDs = new();
 	//mouse
 	public Dictionary<EventSubtypeOther, int> OtherScriptIDs = new();
 	public Dictionary<EventSubtypeDraw, int> DrawScriptIDs = new();
-	//keypress
-	//keyrelease
+	public Dictionary<EventSubtypeKey, int> KeyPressScriptIDs = new();
+	public Dictionary<EventSubtypeKey, int> KeyReleaseScriptIDs = new();
 	//trigger
 	public int CleanUpScriptID;
 	//gesture

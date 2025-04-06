@@ -478,25 +478,25 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 				return TryExecuteDict(definition.StepScript, (EventSubtypeStep)eventNumber);
 			case EventType.Collision:
 				return TryExecuteDict(definition.CollisionScript, eventNumber);
-			// keyboard
+			case EventType.Keyboard:
+				return TryExecuteDict(definition.KeyboardScripts, (EventSubtypeKey)eventNumber);
 			// mouse
 			case EventType.Other:
 				return TryExecuteDict(definition.OtherScript, (EventSubtypeOther)eventNumber);
 			case EventType.Draw:
 				return TryExecuteDict(definition.DrawScript, (EventSubtypeDraw)eventNumber);
-			// keypress
-			// keyrelease
+			case EventType.KeyPress:
+				return TryExecuteDict(definition.KeyPressScripts, (EventSubtypeKey)eventNumber);
+			case EventType.KeyRelease:
+				return TryExecuteDict(definition.KeyReleaseScripts, (EventSubtypeKey)eventNumber);
 			// trigger
 			case EventType.CleanUp:
 				return TryExecute(definition.CleanUpScript);
 			// gesture
 			case EventType.PreCreate:
 				return TryExecute(definition.PreCreateScript);
-			case EventType.KeyPress:
-			case EventType.KeyRelease:
 			case EventType.Trigger:
 			case EventType.Gesture:
-			case EventType.Keyboard:
 			case EventType.Mouse:
 			default:
 				DebugLog.LogError($"{eventType} not implemented!");
