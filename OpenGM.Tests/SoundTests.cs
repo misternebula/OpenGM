@@ -56,6 +56,7 @@ public class SoundTests
                 int count;
                 fixed (float* ptr = samples)
                     count = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, samples.Length);
+                count *= vorbis.Channels; // returns count per channel
                 total += count;
                 DebugLog.LogInfo($"read {count} total {total} of {vorbis.StbVorbis.total_samples * vorbis.Channels}");
                 if (count == 0) break;
