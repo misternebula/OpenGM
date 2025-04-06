@@ -11,7 +11,7 @@ public static partial class VMExecutor
 	{
 		if (varName == "debug")
 		{
-			value = true;
+			value = DebugMode;
 		}
 
 		VariableResolver.GlobalVariables[varName] = value;

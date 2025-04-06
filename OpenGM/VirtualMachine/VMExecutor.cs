@@ -132,6 +132,7 @@ public static partial class VMExecutor
 	}
 
 	public static bool VerboseStackLogs;
+	public static bool DebugMode;
 	public static VMCodeInstruction? CurrentInstruction;
 	
 	// private static IList? _temporaryArrayStorage = null;

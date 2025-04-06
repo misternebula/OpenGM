@@ -57,6 +57,11 @@ public class KeyboardHandler
         {
             CustomWindow.Instance.UpdateFrequency = Entry.GameSpeed;
         }
+
+        if (state.IsKeyPressed(Keys.F5))
+        {
+            VMExecutor.DebugMode = !VMExecutor.DebugMode;
+        }
     }
 
     public static bool KeyboardCheckDirect(int key)
