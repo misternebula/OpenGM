@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenGM.Rendering;
+using OpenGM.SaveState;
 
 namespace OpenGM.IO;
 
@@ -63,6 +64,15 @@ public class KeyboardHandler
             VMExecutor.DebugMode = !VMExecutor.DebugMode;
             VariableResolver.GlobalVariables["debug"] = VMExecutor.DebugMode;
 			DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
+        }
+
+        if (state.IsKeyPressed(Keys.F6))
+        {
+            SaveStateManager.QueueSave();
+        }
+        if (state.IsKeyPressed(Keys.F7))
+        {
+            SaveStateManager.QueueLoad();
         }
     }
 

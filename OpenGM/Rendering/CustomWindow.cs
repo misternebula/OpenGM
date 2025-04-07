@@ -7,6 +7,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System.Drawing;
+using OpenGM.SaveState;
 using UndertaleModLib.Decompiler;
 
 namespace OpenGM.Rendering;
@@ -131,6 +132,8 @@ public class CustomWindow : GameWindow
         DebugJobs.Clear();
 
 		SwapBuffers();
+		
+		SaveStateManager.DoQueuedAction();
     }
 
     public void UpdateInstanceFollow()
