@@ -16,7 +16,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 	/// <summary>
 	/// CHECK BUILTIN SELF VARS BEFORE THIS!!
 	/// </summary>
-	public Dictionary<string, object?> SelfVariables { get; } = new();
+	public Dictionary<string, object?> SelfVariables { get; set; } = new();
 
 	public ObjectDefinition Definition;
 
