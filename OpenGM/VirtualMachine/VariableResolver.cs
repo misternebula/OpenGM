@@ -49,7 +49,7 @@ public static class VariableResolver
 		array[index] = value;
 	}
 
-	public static readonly Dictionary<string, object?> GlobalVariables = new();
+	public static Dictionary<string, object?> GlobalVariables = new();
 
 	public static Dictionary<string, object?> CustomBuiltInVariableValues = new();
 	public static Dictionary<string, (Func<object?> getter, Action<object?>? setter)> BuiltInVariables = new()

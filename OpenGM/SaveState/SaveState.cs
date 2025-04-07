@@ -12,6 +12,7 @@ namespace OpenGM.SaveState;
 public class SaveState
 {
     public byte[] GameBytes = null!;
+    public Dictionary<string, object?> GlobalVars = null!;
 #pragma warning disable CS0414 // Field is assigned but its value is never used
     public SSRoom Room = null!;
 #pragma warning restore CS0414 // Field is assigned but its value is never used
@@ -24,6 +25,7 @@ public class SaveState
         {
             GameBytes = MemoryPackSerializer.Serialize(GameLoader.GeneralInfo),
 
+            GlobalVars = VariableResolver.GlobalVariables.Where(x => x.Value is not Method).ToDictionary(), // ignore method I HATE THEM
             // _room = SSRoom.From(RoomManager.CurrentRoom),
             Instances = InstanceManager.instances.ToDictionary(x => x.Key, x => SSObject.From(x.Value)),
         };
@@ -37,9 +39,13 @@ public class SaveState
             throw new NotImplementedException("tried to load save state on a different game!");
         }
 
+        VariableResolver.GlobalVariables = GlobalVars;
+        
         // RoomManager.CurrentRoom = _room.Into();
+        
+        // scary!
         InstanceManager.instances.Clear();
-        DrawManager._drawObjects.Clear();;
+        DrawManager._drawObjects.Clear();
         var instances = Instances.ToDictionary(x => x.Key, x => x.Value.Into());
         foreach (var x in instances)
         {
@@ -111,6 +117,7 @@ public class SSObject
 
     public GamemakerObject Into()
     {
+        // scary!
         var obj = (GamemakerObject)RuntimeHelpers.GetUninitializedObject(typeof(GamemakerObject));
         obj.Definition = InstanceManager.ObjectDefinitions[ObjDef];
         obj.SelfVariables = SelfVars.ToDictionary(x => x.Key, x => x.Value);
@@ -118,6 +125,7 @@ public class SSObject
         {
             VariableResolver.BuiltInSelfVariables[x.Key].setter!(obj, x.Value);
         }
+        obj._createRan = true;
 
         return obj;
     }
