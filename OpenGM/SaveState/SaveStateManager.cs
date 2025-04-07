@@ -1,4 +1,8 @@
-﻿namespace OpenGM.SaveState;
+﻿using System.Diagnostics;
+using MessagePack;
+using OpenGM.IO;
+
+namespace OpenGM.SaveState;
 
 /// <summary>
 /// handles saving and loading save states.
@@ -43,7 +47,11 @@ public static class SaveStateManager
             using var stream = File.OpenWrite("savestate.bin");
             using var writer = new BinaryWriter(stream);
             var saveState = SaveState.From();
-            writer.WriteMemoryPack(saveState);
+            var bytes = MessagePackSerializer.Serialize(saveState);
+            writer.Write(bytes.Length);
+            writer.Write(bytes);
+            
+            DebugLog.Log(MessagePackSerializer.ConvertToJson(bytes));
         }
 
         if (_doLoad)
@@ -52,8 +60,12 @@ public static class SaveStateManager
 
             using var stream = File.OpenRead("savestate.bin");
             using var reader = new BinaryReader(stream);
-            var saveState = reader.ReadMemoryPack<SaveState>();
+            var length = reader.ReadInt32();
+            var bytes = reader.ReadBytes(length);
+            var saveState = MessagePackSerializer.Deserialize<SaveState>(bytes)!;
             saveState.Into();
+            
+            Debugger.Break();
         }
     }
 }
