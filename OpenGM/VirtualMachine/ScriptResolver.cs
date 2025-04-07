@@ -684,7 +684,7 @@ public static partial class ScriptResolver
 		{ "layer_sprite_get_index", layer_sprite_get_index},
 		{ "layer_sprite_destroy", layer_sprite_destroy},
 		{ "draw_clear", draw_clear},
-		{ "method", method},
+		{ "method", method}, // seems to only be used to define global scripts, which is useless for us because we already make our own list (ScriptFunctions) :P
 		{ "@@NullObject@@", NullObject},
 		{ "draw_background", draw_background},
 		{ "room_set_persistent", room_set_persistent}

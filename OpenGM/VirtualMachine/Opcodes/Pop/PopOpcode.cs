@@ -74,6 +74,7 @@ public static partial class VMExecutor
 		{
 			if (Self.Self == null)
 			{
+				// for global scripts
 				PopToGlobal(varName, value);
 				return;
 			}
