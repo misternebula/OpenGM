@@ -222,10 +222,10 @@ public static class DrawManager
 
         // SurfaceManager.surface_set_target(SurfaceManager.application_surface);
         
-        if (CustomWindow.Instance != null) // only null in tests
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-        }
+        // if (CustomWindow.Instance != null) // only null in tests
+        // {
+            // GL.Clear(ClearBufferMask.ColorBufferBit);
+        // }
 
         // TODO: at some point this must be replaced by drawing each view
         
