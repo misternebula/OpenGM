@@ -13,8 +13,23 @@ public static class VertexManager
     public static int u_view;
     public static int u_doTex;
 
+    [StructLayout(LayoutKind.Explicit)]
+    public struct Vertex
+    {
+        [FieldOffset(0 * sizeof(float))] public Vector2 pos;
+        [FieldOffset(2 * sizeof(float))] public Vector4 color;
+        [FieldOffset((2 + 4) * sizeof(float))] public Vector2 uv;
+
+        public Vertex(Vector2d pos, Color4 color, Vector2d uv)
+        {
+            this.pos = (Vector2)pos;
+            this.color = (Vector4)color;
+            this.uv = (Vector2)uv;
+        }
+    }
+
     /// <summary>
-    /// setup shaders
+    /// setup shader and buffer
     /// </summary>
     public static void Init()
     {
@@ -74,21 +89,6 @@ public static class VertexManager
         GL.EnableVertexAttribArray(2);
     }
 
-    [StructLayout(LayoutKind.Explicit)]
-    public struct Vertex
-    {
-        [FieldOffset(0 * sizeof(float))] public Vector2 pos;
-        [FieldOffset(2 * sizeof(float))] public Vector4 color;
-        [FieldOffset((2 + 4) * sizeof(float))] public Vector2 uv;
-
-        public Vertex(Vector2d pos, Color4 color, Vector2d uv)
-        {
-            this.pos = (Vector2)pos;
-            this.color = (Vector4)color;
-            this.uv = (Vector2)uv;
-        }
-    }
-
     /// <summary>
     /// draw some vertices
     /// </summary>
@@ -96,14 +96,7 @@ public static class VertexManager
     public static void Draw(PrimitiveType primitiveType, Vertex[] vertices)
     {
         // TODO: cache over frames?
-        GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * Unsafe.SizeOf<Vertex>(), vertices, BufferUsageHint.StaticDraw);
+        GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * Unsafe.SizeOf<Vertex>(), vertices, BufferUsageHint.StreamDraw);
         GL.DrawArrays(primitiveType, 0, vertices.Length);
-    }
-
-    /// <summary>
-    /// remove all unused buffers. mark used buffers as unused
-    /// </summary>
-    private static void ClearUnusedBuffers()
-    {
     }
 }
