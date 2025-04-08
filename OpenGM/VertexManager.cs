@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -11,6 +12,8 @@ namespace OpenGM;
 /// </summary>
 public static class VertexManager
 {
+    public static int u_view;
+    
     /// <summary>
     /// setup shaders
     /// </summary>
@@ -49,6 +52,8 @@ public static class VertexManager
 
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
+        
+        u_view = GL.GetUniformLocation(program, "u_view");
 
         // use the shader for everything
         GL.UseProgram(program);

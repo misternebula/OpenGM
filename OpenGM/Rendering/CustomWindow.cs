@@ -115,6 +115,7 @@ public class CustomWindow : GameWindow
         // var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
         // GL.MatrixMode(MatrixMode.Projection);
         // GL.LoadMatrix(ref matrix);
+        GL.Uniform4(VertexManager.u_view, new Vector4((float)X, (float)Y, Width, Height));
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
