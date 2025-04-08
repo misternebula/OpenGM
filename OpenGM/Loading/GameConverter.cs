@@ -1044,7 +1044,19 @@ public static class GameConverter
 				var isEmbedded = item.Flags.HasFlag(UndertaleSound.AudioEntryFlags.IsEmbedded);
 				var isCompressed = item.Flags.HasFlag(UndertaleSound.AudioEntryFlags.IsCompressed);
 
-				if (isEmbedded)
+				if (item.GroupID != data.GetBuiltinSoundGroupID())
+				{
+					// .wav in some audio group file
+					asset.File = $"{asset.Name}.wav";
+
+					var audioGroupPath = Path.Combine(Entry.DataWinFolder, $"audiogroup{item.GroupID}.dat");
+					using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
+					using var audioGroupData = UndertaleIO.Read(stream);
+
+					var embeddedAudio = audioGroupData.EmbeddedAudio;
+					bytes = embeddedAudio[item.AudioID].Data;
+				}
+				else if (isEmbedded)
 				{
 					if (isCompressed)
 					{
@@ -1076,19 +1088,6 @@ public static class GameConverter
 						asset.File = $"{asset.Name}.ogg";
 						bytes = File.ReadAllBytes(Path.Combine(Entry.DataWinFolder, asset.File));
 					}
-				}
-
-				if (item.GroupID != data.GetBuiltinSoundGroupID())
-				{
-					// .wav in some audio group file
-					asset.File = $"{asset.Name}.wav";
-
-					var audioGroupPath = Path.Combine(Entry.DataWinFolder, $"audiogroup{item.GroupID}.dat");
-					using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
-					using var audioGroupData = UndertaleIO.Read(stream);
-
-					var embeddedAudio = audioGroupData.EmbeddedAudio;
-					bytes = embeddedAudio[item.AudioID].Data;
 				}
 			}
 
