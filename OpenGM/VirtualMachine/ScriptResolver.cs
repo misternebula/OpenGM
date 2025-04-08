@@ -684,7 +684,7 @@ public static partial class ScriptResolver
 		{ "layer_sprite_get_index", layer_sprite_get_index},
 		{ "layer_sprite_destroy", layer_sprite_destroy},
 		{ "draw_clear", draw_clear},
-		{ "method", method}, // seems to only be used to define global scripts, which is useless for us because we already make our own list (ScriptFunctions) :P
+		{ "method", method}, // seems to only be for global scripts (using global self instance) or struct constructors (using null self instance)
 		{ "@@NullObject@@", NullObject},
 		{ "draw_background", draw_background},
 		{ "room_set_persistent", room_set_persistent}
@@ -2442,6 +2442,7 @@ public static partial class ScriptResolver
 
 		if (script == default)
 		{
+			// BUG: wrong. should be script id, which is done above, idk if this is used
 			(var code, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
 
 			return VMExecutor.ExecuteCode(code, VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs, startingIndex: index);
