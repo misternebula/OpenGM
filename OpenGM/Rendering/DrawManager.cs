@@ -229,9 +229,6 @@ public static class DrawManager
 
         // TODO: at some point this must be replaced by drawing each view
         
-        // silly: moved updating matrix to here so that it happens to application surface 
-        CustomWindow.Instance!.UpdatePositionResolution();
-        
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
         {
             return;
@@ -259,8 +256,8 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            // 0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {

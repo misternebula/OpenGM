@@ -40,6 +40,13 @@ public static class SurfaceManager
         var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+        
+        // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
+        if (surface == application_surface)
+        {
+            CustomWindow.Instance.UpdatePositionResolution();
+        }
+
         return true;
     }
 
@@ -56,6 +63,12 @@ public static class SurfaceManager
             var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref matrix);
+            
+            // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
+            if (surface == application_surface)
+            {
+                CustomWindow.Instance.UpdatePositionResolution();
+            }
         }
         else
         {
@@ -63,6 +76,7 @@ public static class SurfaceManager
             
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             // just revert back to viewport and matrix set in CustomWindow
+            // html5 just uses window size it seems so we do that here
             var width = CustomWindow.Instance.FramebufferSize.X;
             var height = CustomWindow.Instance.FramebufferSize.Y;
             GL.Viewport(0, 0, width, height);
