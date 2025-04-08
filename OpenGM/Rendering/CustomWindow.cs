@@ -257,7 +257,9 @@ public class CustomWindow : GameWindow
                 return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
             }
 
+#pragma warning disable CS8321 // Local function is declared but never used
             Color4 LerpBetweenColors(Color4 leftColor, Color4 rightColor, double left, double right, double value)
+#pragma warning restore CS8321 // Local function is declared but never used
             {
                 var distance = map(value, left, right, 0, 1);
                 return Lerp(leftColor, rightColor, (float)distance);
@@ -325,6 +327,7 @@ public class CustomWindow : GameWindow
 
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
 
+                    /*
                     GL.Begin(PrimitiveType.Quads);
 
                     // TODO : this will make the different lines of a string have the gradient applied seperately.
@@ -350,6 +353,7 @@ public class CustomWindow : GameWindow
                     GL.Vertex2(topLeftX, topLeftY + glyph.h * textJob.scale.Y);
 
                     GL.End();
+                    */
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);
 
@@ -363,8 +367,9 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Begin(PrimitiveType.Quads);
-        GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
+        // GL.Begin(PrimitiveType.Quads);
+        // GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
+        var color = new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha);
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -398,7 +403,8 @@ public class CustomWindow : GameWindow
         drawAreaTopRight = drawAreaTopRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         drawAreaBottomRight = drawAreaBottomRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         drawAreaBottomLeft = drawAreaBottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
-
+        
+        /*
 		GL.TexCoord2(topLeftUV);
         GL.Vertex2(drawAreaTopLeft);
         GL.TexCoord2(topRightUV);
@@ -409,6 +415,14 @@ public class CustomWindow : GameWindow
         GL.Vertex2(drawAreaBottomLeft);
         
         GL.End();
+        */
+        VertexManager.Draw(PrimitiveType.TriangleFan, [
+	        new VertexManager.Vertex((Vector2)drawAreaTopLeft, (Vector4)color, (Vector2)topLeftUV),
+	        new VertexManager.Vertex((Vector2)drawAreaTopRight, (Vector4)color, (Vector2)topRightUV),
+	        new VertexManager.Vertex((Vector2)drawAreaBottomRight, (Vector4)color, (Vector2)bottomRightUV),
+	        new VertexManager.Vertex((Vector2)drawAreaBottomLeft, (Vector4)color, (Vector2)bottomLeftUV),
+        ]);
+        
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
@@ -416,8 +430,9 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Begin(PrimitiveType.Quads);
-        GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
+        // GL.Begin(PrimitiveType.Quads);
+        // GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
+        var color = new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha);
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -498,6 +513,7 @@ public class CustomWindow : GameWindow
 			var topRight = topLeft + new Vector2d(widthCos, widthSin);
             var bottomRight = topRight + bottomVector;
 
+            /*
 	        GL.TexCoord2(uv0);
 	        GL.Vertex2(topLeft);
 	        GL.TexCoord2(uv1);
@@ -506,9 +522,16 @@ public class CustomWindow : GameWindow
 	        GL.Vertex2(bottomRight);
 	        GL.TexCoord2(uv3);
 	        GL.Vertex2(bottomLeft);
+	        */
+            VertexManager.Draw(PrimitiveType.TriangleFan, [
+	            new VertexManager.Vertex((Vector2)topLeft, (Vector4)color, (Vector2)uv0),
+	            new VertexManager.Vertex((Vector2)topRight, (Vector4)color, (Vector2)uv1),
+	            new VertexManager.Vertex((Vector2)bottomRight, (Vector4)color, (Vector2)uv2),
+	            new VertexManager.Vertex((Vector2)bottomLeft, (Vector4)color, (Vector2)uv3),
+            ]);
 		}
 
-        GL.End();
+        // GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
@@ -527,6 +550,7 @@ public class CustomWindow : GameWindow
         width = lineJob.width * 0.5f * width / length;
         height = lineJob.width * 0.5f * height / length;
 
+        /*
         GL.Begin(PrimitiveType.Polygon);
 
         GL.Color4(lineJob.col1);
@@ -538,46 +562,47 @@ public class CustomWindow : GameWindow
 		GL.Vertex2(lineJob.x1 + height, lineJob.y1 - width);
 
 		GL.End();
+		*/
 	}
 
     public static void Draw(GMLinesJob linesJob)
     {
-        GL.Begin(PrimitiveType.LineStrip);
-        GL.Color4(new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha));
+        // GL.Begin(PrimitiveType.LineStrip);
+        // GL.Color4(new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha));
 
         foreach (var vert in linesJob.Vertices)
         {
-            GL.Vertex2(vert);
+            // GL.Vertex2(vert);
         }
 
-        GL.End();
+        // GL.End();
 	}
 
     public static void Draw(GMPolygonJob polyJob)
     {
         if (polyJob.Outline)
         {
-            GL.Begin(PrimitiveType.LineLoop);
+            // GL.Begin(PrimitiveType.LineLoop);
         }
         else
         {
-            GL.Begin(PrimitiveType.Polygon);
+            // GL.Begin(PrimitiveType.Polygon);
         }
 
-        GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
+        // GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
 
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
 	        if (polyJob.Colors != null)
 	        {
                 var col = polyJob.Colors[i];
-		        GL.Color4(new Color4(col.R, col.G, col.B, (float)polyJob.alpha));
+		        // GL.Color4(new Color4(col.R, col.G, col.B, (float)polyJob.alpha));
 			}
 
-            GL.Vertex2(polyJob.Vertices[i]);
+            // GL.Vertex2(polyJob.Vertices[i]);
 		}
 
-        GL.End();
+        // GL.End();
     }
 }
 

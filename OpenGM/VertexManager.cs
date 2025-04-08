@@ -6,6 +6,9 @@ using OpenTK.Mathematics;
 
 namespace OpenGM;
 
+/// <summary>
+/// handles drawing using modern opengl
+/// </summary>
 public static class VertexManager
 {
     /// <summary>
@@ -58,6 +61,13 @@ public static class VertexManager
         [FieldOffset(0 * sizeof(float))] public Vector2 pos;
         [FieldOffset(2 * sizeof(float))] public Vector4 color;
         [FieldOffset((2 + 4) * sizeof(float))] public Vector2 uv;
+
+        public Vertex(Vector2 pos, Vector4 color, Vector2 uv)
+        {
+            this.pos = pos;
+            this.color = color;
+            this.uv = uv;
+        }
     }
 
     /// <summary>
@@ -77,9 +87,9 @@ public static class VertexManager
 
         GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, vertexSize, 0 * sizeof(float));
         GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, vertexSize, 2 * sizeof(float));
+        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, vertexSize, 2 * sizeof(float));
         GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, vertexSize, (2 + 4) * sizeof(float));
+        GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, vertexSize, (2 + 4) * sizeof(float));
         GL.EnableVertexAttribArray(2);
 
         GL.DrawArrays(primitiveType, 0, vertices.Length);
