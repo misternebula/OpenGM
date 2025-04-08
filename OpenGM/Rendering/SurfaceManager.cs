@@ -42,7 +42,8 @@ public static class SurfaceManager
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
         */
-        GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+        // BUG: changing view causes uh problems with tp bar and attack ui
+        // GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         
         // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
         if (surface == application_surface)
@@ -68,7 +69,7 @@ public static class SurfaceManager
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
             */
-            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+            // GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
             
             // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
             if (surface == application_surface)
@@ -91,7 +92,7 @@ public static class SurfaceManager
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref matrix);
             */
-            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+            // GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         }
         return true;
 	}
