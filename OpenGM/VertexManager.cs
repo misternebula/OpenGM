@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using OpenGM.IO;
-using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -14,12 +12,13 @@ public static class VertexManager
 {
     public static int u_view;
     public static int u_doTex;
-    
+
     /// <summary>
     /// setup shaders
     /// </summary>
     public static void Init()
     {
+        // use one shader for everything
         var vertexShader = GL.CreateShader(ShaderType.VertexShader);
         GL.ShaderSource(vertexShader, File.ReadAllText("shader.vert"));
         GL.CompileShader(vertexShader);
@@ -53,13 +52,26 @@ public static class VertexManager
 
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
-        
+
         u_view = GL.GetUniformLocation(program, "u_view");
         u_doTex = GL.GetUniformLocation(program, "u_doTex");
 
-        // use the shader for everything
         GL.UseProgram(program);
-        DebugLog.LogInfo("SHADER SUCCESS");
+
+
+        // use one buffer for everything
+        var vao = GL.GenVertexArray();
+        var vbo = GL.GenBuffer();
+
+        GL.BindVertexArray(vao);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+
+        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 0 * sizeof(float));
+        GL.EnableVertexAttribArray(0);
+        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 2 * sizeof(float));
+        GL.EnableVertexAttribArray(1);
+        GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), (2 + 4) * sizeof(float));
+        GL.EnableVertexAttribArray(2);
     }
 
     [StructLayout(LayoutKind.Explicit)]
@@ -83,30 +95,9 @@ public static class VertexManager
     // TODO: dont have to allocate vertex array probably
     public static void Draw(PrimitiveType primitiveType, Vertex[] vertices)
     {
-        // TODO: cache over frames
-        var vao = GL.GenVertexArray();
-        var vbo = GL.GenBuffer();
-
-        GL.BindVertexArray(vao);
-
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        var vertexSize = Unsafe.SizeOf<Vertex>();
-        GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * vertexSize, vertices, BufferUsageHint.StaticDraw);
-
-        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, vertexSize, 0 * sizeof(float));
-        GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, vertexSize, 2 * sizeof(float));
-        GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, vertexSize, (2 + 4) * sizeof(float));
-        GL.EnableVertexAttribArray(2);
-
+        // TODO: cache over frames?
+        GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * Unsafe.SizeOf<Vertex>(), vertices, BufferUsageHint.StaticDraw);
         GL.DrawArrays(primitiveType, 0, vertices.Length);
-
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-        GL.BindVertexArray(0);
-
-        GL.DeleteVertexArray(vao);
-        GL.DeleteBuffer(vbo);
     }
 
     /// <summary>
