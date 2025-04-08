@@ -260,9 +260,7 @@ public class CustomWindow : GameWindow
                 return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
             }
 
-#pragma warning disable CS8321 // Local function is declared but never used
             Color4 LerpBetweenColors(Color4 leftColor, Color4 rightColor, double left, double right, double value)
-#pragma warning restore CS8321 // Local function is declared but never used
             {
                 var distance = map(value, left, right, 0, 1);
                 return Lerp(leftColor, rightColor, (float)distance);
