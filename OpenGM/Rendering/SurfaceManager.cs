@@ -22,7 +22,7 @@ public static class SurfaceManager
 
     public static bool surface_exists(int surface) => _framebuffers.ContainsKey(surface);
 
-    // https://github.com/YoYoGames/GameMaker-HTML5/blob/96aa70d9ce66cdbf056747428a9902c2f57e9b25/scripts/functions/Function_Surface.js#L500
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Surface.js#L500
     public static bool surface_set_target(int surface)
     {
         if (!_framebuffers.ContainsKey(surface))
@@ -36,11 +36,10 @@ public static class SurfaceManager
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         var width = GetSurfaceWidth(surface);
         var height = GetSurfaceHeight(surface);
-        GL.Viewport(0, 0, width, height);
-        // UpdateDefaultCamera in html5
+        GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
         var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-        //GL.MatrixMode(MatrixMode.Projection);
-        //GL.LoadMatrix(ref matrix);
+        GL.MatrixMode(MatrixMode.Projection);
+        GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
         return true;
     }
 
@@ -51,26 +50,21 @@ public static class SurfaceManager
         {
             var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-            // i am actually so confused on how any of this works, even looking at html5
-            var x = (float)CustomWindow.Instance.X;
-            var y = (float)CustomWindow.Instance.Y;
             var width = GetSurfaceWidth(surface);
             var height = GetSurfaceHeight(surface);
-            GL.Viewport(0, 0, width, height);
-            var matrix = Matrix4.CreateOrthographicOffCenter(x, x+width, y+height, y, 0, 1);
-            // GL.MatrixMode(MatrixMode.Projection);
-            // GL.LoadMatrix(ref matrix);
+            GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
+            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
         }
         else
         {
+            // draw to display
+            
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            // ClientSize and FramebufferSize are the same
-            var width = CustomWindow.Instance.ClientSize.X;
-            var height = CustomWindow.Instance.ClientSize.Y;
-            GL.Viewport(0, 0, width, height);
-            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            // GL.MatrixMode(MatrixMode.Projection);
-            // GL.LoadMatrix(ref matrix);
+            // just revert back to viewport and matrix set in CustomWindow
+            GL.Viewport(0, 0, CustomWindow.Instance.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+            CustomWindow.Instance.UpdatePositionResolution();
         }
         return true;
 	}
@@ -126,6 +120,12 @@ public static class SurfaceManager
 	    {
 		    throw new NotImplementedException("Invalid surface dimensions");
 	    }
+        
+        if (id == application_surface)
+        {
+            // TODO: if resizing application surface, defer until we set target in DrawManager
+            throw new NotImplementedException("resizing application surface");
+        }
 
 	    var bufferId = _framebuffers[id];
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);

@@ -102,7 +102,7 @@ public class CustomWindow : GameWindow
         UpdatePositionResolution();
     }
 
-    private void UpdatePositionResolution()
+    internal void UpdatePositionResolution()
     {
         var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
         GL.MatrixMode(MatrixMode.Projection);

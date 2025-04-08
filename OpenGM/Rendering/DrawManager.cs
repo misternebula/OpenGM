@@ -192,7 +192,7 @@ public static class DrawManager
 
 		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
-        // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3989
+        // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L4168
 
         if (CustomWindow.Instance != null) // only false in tests
         {
@@ -200,6 +200,9 @@ public static class DrawManager
 		}
 
         // ROOM BACKGROUNDS
+        // BUG: uhhh this happens before application surface? idk where this is in html5 code
+        //      and old backgrounds dont register themselves in the regular draw events? why?
+        //      or maybe this intentionally draws directly to the display buffer like pre/postdraw
         foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
         {
 	        if (item == null)
@@ -215,9 +218,12 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.surface_set_target(SurfaceManager.application_surface);
+        SurfaceManager.surface_set_target(SurfaceManager.application_surface);
         
-        // GL.Clear(ClearBufferMask.ColorBufferBit);
+        if (CustomWindow.Instance != null) // only false in tests
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+        }
 
         // TODO: at some point this must be replaced by drawing each view
         
@@ -236,7 +242,7 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.surface_reset_target();
+        SurfaceManager.surface_reset_target();
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
@@ -248,8 +254,8 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            // 0, 0, CustomWindow.Instance.ClientSize.X, CustomWindow.Instance.ClientSize.Y);
+        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {
