@@ -52,10 +52,10 @@ public static class SurfaceManager
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
             var width = GetSurfaceWidth(surface);
             var height = GetSurfaceHeight(surface);
-            GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
+            GL.Viewport(0, 0, width, height);
             var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
             GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+            GL.LoadMatrix(ref matrix);
         }
         else
         {
@@ -63,8 +63,12 @@ public static class SurfaceManager
             
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             // just revert back to viewport and matrix set in CustomWindow
-            GL.Viewport(0, 0, CustomWindow.Instance.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
-            CustomWindow.Instance.UpdatePositionResolution();
+            var width = CustomWindow.Instance.FramebufferSize.X;
+            var height = CustomWindow.Instance.FramebufferSize.Y;
+            GL.Viewport(0, 0, width, height);
+            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref matrix);
         }
         return true;
 	}

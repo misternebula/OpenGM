@@ -1,6 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -153,6 +154,7 @@ public static class DrawManager
 
 					if (collide != null)
                     {
+                        // makes it so `other` is the collided thing
                         VMExecutor.EnvironmentStack.Push(new VMScriptExecutionContext() { Self = collide, ObjectDefinition = collide.Definition, Stack = new() });
                         GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
                         VMExecutor.EnvironmentStack.Pop();
@@ -194,7 +196,7 @@ public static class DrawManager
 
         // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L4168
 
-        if (CustomWindow.Instance != null) // only false in tests
+        if (CustomWindow.Instance != null) // only null in tests
         {
 	        GL.Clear(ClearBufferMask.ColorBufferBit);
 		}
@@ -220,12 +222,15 @@ public static class DrawManager
 
         SurfaceManager.surface_set_target(SurfaceManager.application_surface);
         
-        if (CustomWindow.Instance != null) // only false in tests
+        if (CustomWindow.Instance != null) // only null in tests
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
         }
 
         // TODO: at some point this must be replaced by drawing each view
+        
+        // silly: moved updating matrix to here so that it happens to application surface 
+        CustomWindow.Instance!.UpdatePositionResolution();
         
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
         {
@@ -254,8 +259,8 @@ public static class DrawManager
             return;
         }
 
-        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            // 0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {

@@ -16,6 +16,11 @@ public class CustomWindow : GameWindow
 
     public static List<GMBaseJob> DebugJobs = new();
 
+    /*
+     * stuff below is used for the matrix, not actual window resolution.
+     * this matrix defines how draw units map to pixels.
+     */
+    
     // Size of the Window
     public uint Width;
     public uint Height;
@@ -27,7 +32,7 @@ public class CustomWindow : GameWindow
         set
         {
             _x = value;
-            UpdatePositionResolution();
+            // UpdatePositionResolution();
         }
     }
 
@@ -38,7 +43,7 @@ public class CustomWindow : GameWindow
         set
         {
             _y = value;
-            UpdatePositionResolution();
+            // UpdatePositionResolution();
         }
     }
 
@@ -77,32 +82,31 @@ public class CustomWindow : GameWindow
     {
         base.OnLoad();
         DebugLog.LogInfo($"OnLoad()");
-		UpdatePositionResolution();
+		// UpdatePositionResolution();
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
     {
         base.OnFramebufferResize(e);
-        GL.Viewport(0, 0, e.Width, e.Height);
-        // "Resolution" below isnt really resolution, but just number of "pixels" (units) you can see
-        // BUG: frame buffer should be fixed resolution thats just upscaled (for pixel perfect)
+        GL.Viewport(0, 0, e.Width, e.Height); // draw to entire framebuffer
     }
 
     public void SetPosition(double x, double y)
     {
         _x = x;
         _y = y;
-        UpdatePositionResolution();
+        // UpdatePositionResolution();
     }
 
     public void SetResolution(int width, int height)
     {
         Width = (uint)width;
         Height = (uint)height;
-        UpdatePositionResolution();
+        // UpdatePositionResolution();
     }
 
-    internal void UpdatePositionResolution()
+    // this is called by DrawManager now
+    public void UpdatePositionResolution()
     {
         var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
         GL.MatrixMode(MatrixMode.Projection);
