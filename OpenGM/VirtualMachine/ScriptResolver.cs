@@ -3000,6 +3000,20 @@ public static partial class ScriptResolver
 		var surface_id = args[0].Conv<int>();
 		var w = args[1].Conv<int>();
 		var h = args[2].Conv<int>();
+
+		if (w < 1 || h < 1 || w > 8192 || h > 8192)
+		{
+			throw new NotImplementedException("Invalid surface dimensions");
+		}
+
+		if (surface_id == SurfaceManager.application_surface)
+		{
+			SurfaceManager.NewApplicationSize = true;
+			SurfaceManager.NewApplicationWidth = w;
+			SurfaceManager.NewApplicationWidth = h;
+			return null;
+		}
+
 		SurfaceManager.ResizeSurface(surface_id, w, h);
 		return null;
 	}
@@ -3576,7 +3590,7 @@ public static partial class ScriptResolver
 	public static object? surface_free(object?[] args)
 	{
 		var surface = args[0].Conv<int>();
-		SurfaceManager.FreeSurface(surface);
+		SurfaceManager.FreeSurface(surface, false);
 		return null;
 	}
 

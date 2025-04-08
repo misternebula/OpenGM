@@ -147,7 +147,7 @@ public static class RoomManager
 			// html5 creates app surface when setting target, we can just do it here
 			// could resize but wtv
 			if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
-				SurfaceManager.FreeSurface(SurfaceManager.application_surface);
+				SurfaceManager.FreeSurface(SurfaceManager.application_surface, true);
 			// should we use display size instead?
 			SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
 		}

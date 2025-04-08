@@ -128,33 +128,85 @@ public static class SurfaceManager
         return _nextId++;
     }
 
-    public static void FreeSurface(int id)
+    public static void FreeSurface(int id, bool force)
     {
-        var buffer = _framebuffers[id];
-        
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        GL.DeleteTexture(textureId);
+        if (force || application_surface != id)
+        {
+			var buffer = _framebuffers[id];
 
-        GL.DeleteFramebuffer(buffer);
-        _framebuffers.Remove(id);
+			var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
+			GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+			GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+			GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+			GL.DeleteTexture(textureId);
+
+			GL.DeleteFramebuffer(buffer);
+			_framebuffers.Remove(id);
+		}
+    }
+
+    public static bool NewApplicationSize;
+    public static int NewApplicationWidth = -1;
+    public static int NewApplicationHeight = -1;
+
+    public static bool AppSurfaceEnabled;
+    public static bool UsingAppSurface;
+
+    public static int ApplicationWidth;
+    public static int ApplicationHeight;
+
+    // set in AppSurfaceEnable
+    public static int OldApplicationWidth;
+    public static int OldApplicationHeight;
+
+    // TODO : get these
+    public static int DeviceWidth;
+    public static int DeviceHeight;
+
+    public static void UpdateApplicationSurface()
+    {
+        if (!AppSurfaceEnabled)
+        {
+			ApplicationWidth = DeviceWidth;
+			ApplicationHeight = DeviceHeight;
+
+            if (surface_exists(application_surface))
+            {
+				FreeSurface(application_surface, true);
+                application_surface = -17899859; // ??? why is this the magic number lol
+			}
+		}
+        else
+        {
+			if (UsingAppSurface == false)
+			{
+			    ApplicationWidth = OldApplicationWidth;
+				ApplicationHeight = OldApplicationHeight;
+			}
+
+            if (application_surface < 0 || !surface_exists(application_surface))
+            {
+                // creatingApplicationSurface = true
+                application_surface = CreateSurface(ApplicationWidth, ApplicationHeight, -1);
+				// wind_regionwidth = ApplicationWidth
+				// creatingApplicationSurface = false
+				// wind_regionheight = ApplicationHeight
+			}
+
+            if (NewApplicationSize)
+            {
+                NewApplicationSize = false;
+                ResizeSurface(application_surface, NewApplicationWidth, NewApplicationHeight);
+                ApplicationWidth = NewApplicationWidth;
+                ApplicationHeight = NewApplicationHeight;
+            }
+		}
+
+        UsingAppSurface = AppSurfaceEnabled;
     }
 
     public static void ResizeSurface(int id, int w, int h)
     {
-	    if (w < 1 || h < 1 || w > 8192 || h > 8192)
-	    {
-		    throw new NotImplementedException("Invalid surface dimensions");
-	    }
-        
-        if (id == application_surface)
-        {
-            // TODO: if resizing application surface, defer until we set target in DrawManager
-            throw new NotImplementedException("resizing application surface");
-        }
-
 	    var bufferId = _framebuffers[id];
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);

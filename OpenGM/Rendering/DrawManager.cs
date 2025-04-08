@@ -99,9 +99,11 @@ public static class DrawManager
 
     public static void FixedUpdate()
     {
-        //VariableResolver.GlobalVariables["debug"] = true;
+        SurfaceManager.UpdateApplicationSurface();
 
-        var stepList = _drawObjects.OrderBy(x => x.instanceId);
+		//VariableResolver.GlobalVariables["debug"] = true;
+
+		var stepList = _drawObjects.OrderBy(x => x.instanceId);
 
         foreach (var item in stepList)
         {
