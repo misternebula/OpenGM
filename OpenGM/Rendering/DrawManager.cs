@@ -220,7 +220,7 @@ public static class DrawManager
             return;
         }
 
-        SurfaceManager.surface_set_target(SurfaceManager.application_surface);
+        // SurfaceManager.surface_set_target(SurfaceManager.application_surface);
         
         if (CustomWindow.Instance != null) // only null in tests
         {
@@ -244,7 +244,7 @@ public static class DrawManager
             return;
         }
 
-        SurfaceManager.surface_reset_target();
+        // SurfaceManager.surface_reset_target();
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
@@ -256,8 +256,8 @@ public static class DrawManager
             return;
         }
 
-        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            // 0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {

@@ -32,7 +32,7 @@ public class CustomWindow : GameWindow
         set
         {
             _x = value;
-            // UpdatePositionResolution();
+            UpdatePositionResolution();
         }
     }
 
@@ -43,7 +43,7 @@ public class CustomWindow : GameWindow
         set
         {
             _y = value;
-            // UpdatePositionResolution();
+            UpdatePositionResolution();
         }
     }
 
@@ -82,7 +82,7 @@ public class CustomWindow : GameWindow
     {
         base.OnLoad();
         DebugLog.LogInfo($"OnLoad()");
-		// UpdatePositionResolution();
+		UpdatePositionResolution();
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
@@ -95,14 +95,14 @@ public class CustomWindow : GameWindow
     {
         _x = x;
         _y = y;
-        // UpdatePositionResolution();
+        UpdatePositionResolution();
     }
 
     public void SetResolution(int width, int height)
     {
         Width = (uint)width;
         Height = (uint)height;
-        // UpdatePositionResolution();
+        UpdatePositionResolution();
     }
 
     // this is called by DrawManager now
