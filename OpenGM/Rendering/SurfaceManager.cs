@@ -149,7 +149,7 @@ public static class SurfaceManager
     public static int NewApplicationWidth = -1;
     public static int NewApplicationHeight = -1;
 
-    public static bool AppSurfaceEnabled;
+    public static bool AppSurfaceEnabled = true;
     public static bool UsingAppSurface;
 
     public static int ApplicationWidth;

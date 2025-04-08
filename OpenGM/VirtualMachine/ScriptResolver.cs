@@ -3010,7 +3010,7 @@ public static partial class ScriptResolver
 		{
 			SurfaceManager.NewApplicationSize = true;
 			SurfaceManager.NewApplicationWidth = w;
-			SurfaceManager.NewApplicationWidth = h;
+			SurfaceManager.NewApplicationHeight = h;
 			return null;
 		}
 
