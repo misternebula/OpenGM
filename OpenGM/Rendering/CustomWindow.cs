@@ -327,6 +327,7 @@ public class CustomWindow : GameWindow
 
 
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
+                    GL.Uniform1(VertexManager.u_doTex, 1);
 
                     /*
                     GL.Begin(PrimitiveType.Quads);
@@ -374,6 +375,7 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.Uniform1(VertexManager.u_doTex, 1);
         // GL.Begin(PrimitiveType.Quads);
         // GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
         var color = new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha);
@@ -437,6 +439,7 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.Uniform1(VertexManager.u_doTex, 1);
         // GL.Begin(PrimitiveType.Quads);
         // GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
         var color = new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha);
@@ -570,6 +573,7 @@ public class CustomWindow : GameWindow
 
 		GL.End();
 		*/
+        GL.Uniform1(VertexManager.u_doTex, 0);
         VertexManager.Draw(PrimitiveType.TriangleFan, [
 	        new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
 	        new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
@@ -591,6 +595,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
+	    GL.Uniform1(VertexManager.u_doTex, 0);
 	    var color = new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha);
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
@@ -627,6 +632,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
+        GL.Uniform1(VertexManager.u_doTex, 0);
         var color = new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha);
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)

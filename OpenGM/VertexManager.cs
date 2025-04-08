@@ -13,6 +13,7 @@ namespace OpenGM;
 public static class VertexManager
 {
     public static int u_view;
+    public static int u_doTex;
     
     /// <summary>
     /// setup shaders
@@ -54,6 +55,7 @@ public static class VertexManager
         GL.DeleteShader(fragmentShader);
         
         u_view = GL.GetUniformLocation(program, "u_view");
+        u_doTex = GL.GetUniformLocation(program, "u_doTex");
 
         // use the shader for everything
         GL.UseProgram(program);
