@@ -739,6 +739,7 @@ public static partial class ScriptResolver
 
 	public static object? method(object?[] args)
 	{
+		// TODO: seems to always be self or null. need to resolve to instance (https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279)
 		var struct_ref_or_instance_id = args[0];
 		var func = args[1].Conv<int>();
 

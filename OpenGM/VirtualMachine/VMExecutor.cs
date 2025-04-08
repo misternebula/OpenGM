@@ -603,6 +603,7 @@ public static partial class VMExecutor
 			case VMOpcode.CALLV:
 			{
 				var method = Self.Stack.Pop(VMType.v) as Method;
+				// TODO: use method inst as self, not sure what this popped thing actually is
 				var self = Self.Stack.Pop(VMType.v).Conv<int>(); // instance id
 
 				var args = new object?[instruction.IntData];

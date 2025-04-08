@@ -7,6 +7,11 @@ public partial class VMCode
 {
 	public int AssetId;
 	public string Name = null!;
+	/// <summary>
+	/// script files have functions.
+	/// the script function VMCode is empty and has parent = script asset VMCode.
+	/// the script asset VMCode has all the actual code.
+	/// </summary>
 	public int ParentAssetId = -1;
 	public List<string> LocalVariables = null!;
 	public Dictionary<int, int> Labels = new();
