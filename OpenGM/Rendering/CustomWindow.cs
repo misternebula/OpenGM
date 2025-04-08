@@ -62,6 +62,9 @@ public class CustomWindow : GameWindow
         DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
         DebugLog.LogInfo($"------------------------");
 
+        VertexManager.Init();
+        
+        /*
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>
         {
             var message = MarshalTk.MarshalPtrToString(messagePtr);
@@ -71,6 +74,7 @@ public class CustomWindow : GameWindow
         GL.Enable(EnableCap.DebugOutput);
 
         GL.Enable(EnableCap.Texture2D); // always allow a texture to be drawn. does nothing if no texture is bound
+        */
         GL.Enable(EnableCap.Blend); // always allow blending
         
         // bm_normal
@@ -108,9 +112,9 @@ public class CustomWindow : GameWindow
     // this is called by DrawManager now
     public void UpdatePositionResolution()
     {
-        var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadMatrix(ref matrix);
+        // var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
+        // GL.MatrixMode(MatrixMode.Projection);
+        // GL.LoadMatrix(ref matrix);
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)

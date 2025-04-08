@@ -37,9 +37,9 @@ public static class SurfaceManager
         var width = GetSurfaceWidth(surface);
         var height = GetSurfaceHeight(surface);
         GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
-        var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+        // var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+        // GL.MatrixMode(MatrixMode.Projection);
+        // GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
         
         // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
         if (surface == application_surface)
@@ -60,9 +60,9 @@ public static class SurfaceManager
             var width = GetSurfaceWidth(surface);
             var height = GetSurfaceHeight(surface);
             GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
-            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+            // var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            // GL.MatrixMode(MatrixMode.Projection);
+            // GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
             
             // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
             if (surface == application_surface)
@@ -80,9 +80,9 @@ public static class SurfaceManager
             var width = CustomWindow.Instance.FramebufferSize.X;
             var height = CustomWindow.Instance.FramebufferSize.Y;
             GL.Viewport(0, 0, width, height);
-            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix);
+            // var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            // GL.MatrixMode(MatrixMode.Projection);
+            // GL.LoadMatrix(ref matrix);
         }
         return true;
 	}
