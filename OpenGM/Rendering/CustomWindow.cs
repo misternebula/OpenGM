@@ -355,6 +355,12 @@ public class CustomWindow : GameWindow
 
                     GL.End();
                     */
+                    VertexManager.Draw(PrimitiveType.TriangleFan, [
+	                    new(new(topLeftX, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX), new(leftX, topY)),
+	                    new(new(topLeftX + glyph.w * textJob.scale.X, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, topY)),
+	                    new(new(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y)), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, bottomY)),
+	                    new(new(topLeftX, topLeftY + glyph.h * textJob.scale.Y), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX), new(leftX, bottomY)),
+                    ]);
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);
 
@@ -418,10 +424,10 @@ public class CustomWindow : GameWindow
         GL.End();
         */
         VertexManager.Draw(PrimitiveType.TriangleFan, [
-	        new VertexManager.Vertex((Vector2)drawAreaTopLeft, (Vector4)color, (Vector2)topLeftUV),
-	        new VertexManager.Vertex((Vector2)drawAreaTopRight, (Vector4)color, (Vector2)topRightUV),
-	        new VertexManager.Vertex((Vector2)drawAreaBottomRight, (Vector4)color, (Vector2)bottomRightUV),
-	        new VertexManager.Vertex((Vector2)drawAreaBottomLeft, (Vector4)color, (Vector2)bottomLeftUV),
+	        new(drawAreaTopLeft, color, topLeftUV),
+	        new(drawAreaTopRight, color, topRightUV),
+	        new(drawAreaBottomRight, color, bottomRightUV),
+	        new(drawAreaBottomLeft, color, bottomLeftUV),
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -525,10 +531,10 @@ public class CustomWindow : GameWindow
 	        GL.Vertex2(bottomLeft);
 	        */
             VertexManager.Draw(PrimitiveType.TriangleFan, [
-	            new VertexManager.Vertex((Vector2)topLeft, (Vector4)color, (Vector2)uv0),
-	            new VertexManager.Vertex((Vector2)topRight, (Vector4)color, (Vector2)uv1),
-	            new VertexManager.Vertex((Vector2)bottomRight, (Vector4)color, (Vector2)uv2),
-	            new VertexManager.Vertex((Vector2)bottomLeft, (Vector4)color, (Vector2)uv3),
+	            new(topLeft, color, uv0),
+	            new(topRight, color, uv1),
+	            new(bottomRight, color, uv2),
+	            new(bottomLeft, color, uv3),
             ]);
 		}
 
@@ -564,46 +570,71 @@ public class CustomWindow : GameWindow
 
 		GL.End();
 		*/
+        VertexManager.Draw(PrimitiveType.TriangleFan, [
+	        new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
+	        new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
+	        new(new(lineJob.x2 + height, lineJob.y2 - width), lineJob.col2, Vector2.Zero),
+	        new(new(lineJob.x1 + height, lineJob.y1 - width), lineJob.col1, Vector2.Zero),
+        ]);
 	}
 
     public static void Draw(GMLinesJob linesJob)
     {
-        // GL.Begin(PrimitiveType.LineStrip);
-        // GL.Color4(new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha));
+	    /*
+        GL.Begin(PrimitiveType.LineStrip);
+        GL.Color4(new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha));
 
         foreach (var vert in linesJob.Vertices)
         {
-            // GL.Vertex2(vert);
+            GL.Vertex2(vert);
         }
 
-        // GL.End();
-	}
+        GL.End();
+		*/
+	    var color = new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha);
+        var v = new VertexManager.Vertex[linesJob.Vertices.Length];
+        for (var i = 0; i < linesJob.Vertices.Length; i++)
+        {
+	        v[i] = new(linesJob.Vertices[i], color, Vector2d.Zero);
+        }
+        VertexManager.Draw(PrimitiveType.LineStrip, v);
+    }
 
     public static void Draw(GMPolygonJob polyJob)
     {
+        /*
         if (polyJob.Outline)
         {
-            // GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(PrimitiveType.LineLoop);
         }
         else
         {
-            // GL.Begin(PrimitiveType.Polygon);
+            GL.Begin(PrimitiveType.Polygon);
         }
 
-        // GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
+        GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
 
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
 	        if (polyJob.Colors != null)
 	        {
                 var col = polyJob.Colors[i];
-		        // GL.Color4(new Color4(col.R, col.G, col.B, (float)polyJob.alpha));
+		        GL.Color4(new Color4(col.R, col.G, col.B, (float)polyJob.alpha));
 			}
 
-            // GL.Vertex2(polyJob.Vertices[i]);
+            GL.Vertex2(polyJob.Vertices[i]);
 		}
 
-        // GL.End();
+        GL.End();
+		*/
+        var color = new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha);
+        var v = new VertexManager.Vertex[polyJob.Vertices.Length];
+        for (var i = 0; i < polyJob.Vertices.Length; i++)
+        {
+	        v[i] = new(polyJob.Vertices[i], polyJob.Colors != null ? polyJob.Colors[i] : color, Vector2d.Zero);
+        }
+        // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
+        VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
     }
 }
 

@@ -67,17 +67,18 @@ public static class VertexManager
         [FieldOffset(2 * sizeof(float))] public Vector4 color;
         [FieldOffset((2 + 4) * sizeof(float))] public Vector2 uv;
 
-        public Vertex(Vector2 pos, Vector4 color, Vector2 uv)
+        public Vertex(Vector2d pos, Color4 color, Vector2d uv)
         {
-            this.pos = pos;
-            this.color = color;
-            this.uv = uv;
+            this.pos = (Vector2)pos;
+            this.color = (Vector4)color;
+            this.uv = (Vector2)uv;
         }
     }
 
     /// <summary>
     /// draw some vertices
     /// </summary>
+    // TODO: dont have to allocate vertex array probably
     public static void Draw(PrimitiveType primitiveType, Vertex[] vertices)
     {
         // TODO: cache over frames
