@@ -112,9 +112,11 @@ public class CustomWindow : GameWindow
     // this is called by DrawManager now
     public void UpdatePositionResolution()
     {
-        // var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
-        // GL.MatrixMode(MatrixMode.Projection);
-        // GL.LoadMatrix(ref matrix);
+        /*
+        var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
+        GL.MatrixMode(MatrixMode.Projection);
+        GL.LoadMatrix(ref matrix);
+        */
         GL.Uniform4(VertexManager.u_view, new Vector4((float)X, (float)Y, Width, Height));
     }
 
@@ -364,6 +366,7 @@ public class CustomWindow : GameWindow
                     ]);
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);
+                    GL.Uniform1(VertexManager.u_doTex, 0);
 
                     xOffset += glyph.shift * textJob.scale.X;
                 }
@@ -433,6 +436,7 @@ public class CustomWindow : GameWindow
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
@@ -543,6 +547,7 @@ public class CustomWindow : GameWindow
 
         // GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -573,7 +578,6 @@ public class CustomWindow : GameWindow
 
 		GL.End();
 		*/
-        GL.Uniform1(VertexManager.u_doTex, 0);
         VertexManager.Draw(PrimitiveType.TriangleFan, [
 	        new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
 	        new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
@@ -595,7 +599,6 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
-	    GL.Uniform1(VertexManager.u_doTex, 0);
 	    var color = new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha);
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
@@ -632,7 +635,6 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
-        GL.Uniform1(VertexManager.u_doTex, 0);
         var color = new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha);
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)

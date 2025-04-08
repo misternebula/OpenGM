@@ -220,12 +220,14 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.surface_set_target(SurfaceManager.application_surface);
+        /*
+        SurfaceManager.surface_set_target(SurfaceManager.application_surface);
         
-        // if (CustomWindow.Instance != null) // only null in tests
-        // {
-            // GL.Clear(ClearBufferMask.ColorBufferBit);
-        // }
+        if (CustomWindow.Instance != null) // only null in tests
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+        }
+        */
 
         // TODO: at some point this must be replaced by drawing each view
         
@@ -256,8 +258,10 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            // 0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+        /*
+        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
+            0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+        */
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {

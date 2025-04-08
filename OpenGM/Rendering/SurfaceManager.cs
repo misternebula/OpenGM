@@ -37,9 +37,12 @@ public static class SurfaceManager
         var width = GetSurfaceWidth(surface);
         var height = GetSurfaceHeight(surface);
         GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
-        // var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-        // GL.MatrixMode(MatrixMode.Projection);
-        // GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+        /*
+        var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+        GL.MatrixMode(MatrixMode.Projection);
+        GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+        */
+        GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         
         // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
         if (surface == application_surface)
@@ -60,9 +63,12 @@ public static class SurfaceManager
             var width = GetSurfaceWidth(surface);
             var height = GetSurfaceHeight(surface);
             GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
-            // var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            // GL.MatrixMode(MatrixMode.Projection);
-            // GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+            /*
+            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
+            */
+            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
             
             // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
             if (surface == application_surface)
@@ -80,9 +86,12 @@ public static class SurfaceManager
             var width = CustomWindow.Instance.FramebufferSize.X;
             var height = CustomWindow.Instance.FramebufferSize.Y;
             GL.Viewport(0, 0, width, height);
-            // var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            // GL.MatrixMode(MatrixMode.Projection);
-            // GL.LoadMatrix(ref matrix);
+            /*
+            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref matrix);
+            */
+            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         }
         return true;
 	}
@@ -216,6 +225,8 @@ public static class SurfaceManager
         // draw rectangle with that texture
         // TODO: this draws nothing for the tension bar. fuck
         GL.BindTexture(TextureTarget.Texture2D, textureId);
+        GL.Uniform1(VertexManager.u_doTex, 1);
+        /*
         GL.Begin(PrimitiveType.Quads);
         // the order here is different from sprite drawing or else everything gets y flipped????
         GL.TexCoord2(0, 1);
@@ -227,6 +238,14 @@ public static class SurfaceManager
         GL.TexCoord2(0, 0);
         GL.Vertex2(x, y + h);
         GL.End();
+        */
+        VertexManager.Draw(PrimitiveType.TriangleFan, [
+            new(new(x, y), Color4.White, new(0, 1)),
+            new(new(x + w, y), Color4.White, new(1, 1)),
+            new(new(x + w, y + h), Color4.White, new(1, 0)),
+            new(new(x, y + h), Color4.White, new(0, 0)),
+        ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 }
