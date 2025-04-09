@@ -4,7 +4,7 @@ namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {
-	// see https://github.com/UnderminersTeam/Underanalyzer/blob/main/Underanalyzer/Decompiler/AST/Nodes/BinaryNode.cs#L40
+	// see https://github.com/UnderminersTeam/Underanalyzer/blob/fa8fd0da89c5a4fe1bb050fe62bc5106210b1c13/Underanalyzer/VMDataTypeExtensions.cs#L22
 	public static VMType GetMathReturnType(VMCodeInstruction instruction)
 	{
 		if (instruction.Opcode == VMOpcode.CMP)
@@ -22,7 +22,7 @@ public static partial class VMExecutor
 		var bias1 = StackTypeBias(instruction.TypeOne);
 		var bias2 = StackTypeBias(instruction.TypeTwo);
 		return bias1 == bias2
-			? (VMType)CustomMath.Min((int)instruction.TypeOne, (int)instruction.TypeTwo) // BUG: this is different enum order than UnderAnalyzer 
+			? (VMType)CustomMath.Min((int)instruction.TypeOne, (int)instruction.TypeTwo)
 			: (bias1 > bias2) ? instruction.TypeOne : instruction.TypeTwo;
 	}
 
