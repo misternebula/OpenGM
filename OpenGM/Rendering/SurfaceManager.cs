@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using System.Diagnostics;
+using OpenGM.IO;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -135,7 +136,15 @@ public static class SurfaceManager
 
 			GL.DeleteFramebuffer(buffer);
 			_framebuffers.Remove(id);
-		}
+
+#if DEBUG 
+            // sanity check
+            if (SurfaceStack.Contains(id))
+            {
+                Debugger.Break();
+            }
+#endif
+        }
     }
 
     public static bool NewApplicationSize;

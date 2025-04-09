@@ -59,7 +59,11 @@ public class CustomWindow : GameWindow
         DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
         DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
         DebugLog.LogInfo($"------------------------");
-
+        
+        // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L721
+        SurfaceManager.ApplicationWidth = FramebufferSize.X;
+        SurfaceManager.ApplicationHeight = FramebufferSize.Y;
+        
         VertexManager.Init();
         
         /*

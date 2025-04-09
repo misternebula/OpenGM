@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using System.Diagnostics;
+using OpenGM.IO;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -269,6 +270,13 @@ public static class DrawManager
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
+            // BUG: one new game in ch2, this becomes unbalanced. i have no idea why.
+            // i dont feel like actually fixing this right now
+            Debugger.Break();
+            while (SurfaceManager.SurfaceStack.Count != 0)
+            {
+                SurfaceManager.surface_reset_target();
+            }
             return;
         }
 
