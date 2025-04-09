@@ -687,7 +687,9 @@ public static partial class ScriptResolver
 		{ "method", method}, // seems to only be for global scripts (using global self instance) or struct constructors (using null self instance)
 		{ "@@NullObject@@", NullObject},
 		{ "draw_background", draw_background},
-		{ "room_set_persistent", room_set_persistent}
+		{ "room_set_persistent", room_set_persistent},
+		{ "path_get_x", path_get_x },
+		{ "path_get_y", path_get_y },
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -5019,6 +5021,32 @@ public static partial class ScriptResolver
 		}
 
 		return null;
+	}
+
+	public static object? path_get_x(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var pos = args[0].Conv<double>();
+
+		if (!PathManager.Paths.TryGetValue(index, out var path))
+		{
+			return -1; // this isn't documented anywhere, smh gamemaker
+		}
+
+		return path.XPosition(pos);
+	}
+
+	public static object? path_get_y(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		var pos = args[0].Conv<double>();
+
+		if (!PathManager.Paths.TryGetValue(index, out var path))
+		{
+			return -1; // this isn't documented anywhere, smh gamemaker
+		}
+
+		return path.YPosition(pos);
 	}
 }
 
