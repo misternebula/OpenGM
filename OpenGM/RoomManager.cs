@@ -139,7 +139,9 @@ public static class RoomManager
 		DebugLog.Log($"Changing camera...");
 		if (CustomWindow.Instance != null) // only null in tests.
 		{
-			CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight); // changes the view size
+			// reset view
+			CustomWindow.Instance.SetPosition(0, 0);
+			CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
 			CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
 			//CustomWindow.Instance.UpdateInstanceFollow();
 		}
