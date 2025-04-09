@@ -1763,7 +1763,6 @@ public static partial class ScriptResolver
 		DebugLog.Log($"window_set_size {w} {h}");
 
 		CustomWindow.Instance.ClientSize = new Vector2i(w, h);
-		// should this also update CustomWindow Width/Height? should that just be removed altogether?
 
 		return null;
 	}
