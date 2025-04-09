@@ -17,11 +17,9 @@ public class CustomWindow : GameWindow
     public static List<GMBaseJob> DebugJobs = new();
 
     /*
-     * stuff below is used for the matrix, not actual window resolution.
-     * this matrix defines how draw units map to pixels.
+     * below is for view, should be moved somewhere else
      */
-    
-    // Size of the Window
+
     public uint Width;
     public uint Height;
 
@@ -32,7 +30,7 @@ public class CustomWindow : GameWindow
         set
         {
             _x = value;
-            UpdatePositionResolution();
+            // UpdatePositionResolution();
         }
     }
 
@@ -43,7 +41,7 @@ public class CustomWindow : GameWindow
         set
         {
             _y = value;
-            UpdatePositionResolution();
+            // UpdatePositionResolution();
         }
     }
 
@@ -86,7 +84,7 @@ public class CustomWindow : GameWindow
     {
         base.OnLoad();
         DebugLog.LogInfo($"OnLoad()");
-		UpdatePositionResolution();
+		// UpdatePositionResolution();
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
@@ -95,21 +93,29 @@ public class CustomWindow : GameWindow
         GL.Viewport(0, 0, e.Width, e.Height); // draw to entire framebuffer
     }
 
+    /// <summary>
+    /// set the view position
+    /// </summary>
     public void SetPosition(double x, double y)
     {
         _x = x;
         _y = y;
-        UpdatePositionResolution();
+        // UpdatePositionResolution();
     }
 
+    /// <summary>
+    /// set the view resolution
+    /// </summary>
     public void SetResolution(int width, int height)
     {
         Width = (uint)width;
         Height = (uint)height;
-        UpdatePositionResolution();
+        // UpdatePositionResolution();
     }
 
-    // this is called by DrawManager now
+    /// <summary>
+    /// sets the view uniform
+    /// </summary>
     public void UpdatePositionResolution()
     {
         /*
@@ -132,6 +138,7 @@ public class CustomWindow : GameWindow
         DrawManager.FixedUpdate();
         AudioManager.Update();
 
+        // this should be moved at some point into view code
 		UpdateInstanceFollow();
 
 		foreach (var item in DebugJobs)

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGM.IO;
-using OpenGM.VirtualMachine;
+﻿using OpenGM.IO;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -42,13 +36,12 @@ public static class SurfaceManager
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
         */
-        // BUG: changing view causes uh problems with tp bar and attack ui
-        // GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+        GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         
-        // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
+        // application surface does view stuff
         if (surface == application_surface)
         {
-            // CustomWindow.Instance.UpdatePositionResolution();
+            CustomWindow.Instance.UpdatePositionResolution();
         }
 
         return true;
@@ -69,12 +62,12 @@ public static class SurfaceManager
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
             */
-            // GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
             
-            // application surface should do offsetting stuff i think. this corresponds to nothing in html5 so idk if this is right
+            // application surface does view stuff
             if (surface == application_surface)
             {
-                // CustomWindow.Instance.UpdatePositionResolution();
+                CustomWindow.Instance.UpdatePositionResolution();
             }
         }
         else
@@ -92,12 +85,12 @@ public static class SurfaceManager
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref matrix);
             */
-            // GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         }
         return true;
 	}
 
-	public static int CreateSurface(int width, int height, int format)
+	public static int CreateSurface(int width, int height, int format) // TODO: format
     {
         // Generate framebuffer
         var buffer = GL.GenFramebuffer();
@@ -128,7 +121,7 @@ public static class SurfaceManager
         return _nextId++;
     }
 
-    public static void FreeSurface(int id, bool force)
+    public static void FreeSurface(int id, bool force) // force comes from cpp
     {
         if (force || application_surface != id)
         {
@@ -149,22 +142,28 @@ public static class SurfaceManager
     public static int NewApplicationWidth = -1;
     public static int NewApplicationHeight = -1;
 
+    /*
+     * below is unused for now
+     */
     public static bool AppSurfaceEnabled = true;
-    public static bool UsingAppSurface;
+    public static bool UsingAppSurface = true;
 
     public static int ApplicationWidth;
     public static int ApplicationHeight;
 
-    // set in AppSurfaceEnable
+    // set in AppSurfaceEnable/
     public static int OldApplicationWidth;
     public static int OldApplicationHeight;
 
-    // TODO : get these
-    public static int DeviceWidth;
-    public static int DeviceHeight;
+    // TODO : is this right?
+    public static int DeviceWidth => CustomWindow.Instance.FramebufferSize.X;
+    public static int DeviceHeight => CustomWindow.Instance.FramebufferSize.Y;
 
-    public static void UpdateApplicationSurface()
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L3842
+    // also copied from cpp
+    public static void SetApplicationSurface()
     {
+        // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L1898
         if (!AppSurfaceEnabled)
         {
 			ApplicationWidth = DeviceWidth;
@@ -184,6 +183,7 @@ public static class SurfaceManager
 				ApplicationHeight = OldApplicationHeight;
 			}
 
+            //Create Application Surface?
             if (application_surface < 0 || !surface_exists(application_surface))
             {
                 // creatingApplicationSurface = true
@@ -193,6 +193,7 @@ public static class SurfaceManager
 				// wind_regionheight = ApplicationHeight
 			}
 
+            //Resize the surface?
             if (NewApplicationSize)
             {
                 NewApplicationSize = false;
@@ -200,6 +201,9 @@ public static class SurfaceManager
                 ApplicationWidth = NewApplicationWidth;
                 ApplicationHeight = NewApplicationHeight;
             }
+
+            // Set to use the application surface        
+            surface_set_target(application_surface);
 		}
 
         UsingAppSurface = AppSurfaceEnabled;
@@ -228,7 +232,7 @@ public static class SurfaceManager
 
         if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
         {
-            DebugLog.LogError($"ERROR: Framebuffer is not complete!");
+            DebugLog.LogError($"ERROR: Framebuffer is not complete!\n{Environment.StackTrace}");
         }
         
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
@@ -260,8 +264,7 @@ public static class SurfaceManager
         return height;
     }
 
-    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Surface.js#L841
-    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L3763
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Surface.js#L842
     public static void draw_surface(int id, double x, double y) => 
         draw_surface_stretched(id, x, y, GetSurfaceWidth(id), GetSurfaceHeight(id));
 

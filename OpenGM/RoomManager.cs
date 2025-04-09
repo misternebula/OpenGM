@@ -143,13 +143,6 @@ public static class RoomManager
 			CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight); // changes the view size
 			CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
 			//CustomWindow.Instance.UpdateInstanceFollow();
-
-			// html5 creates app surface when setting target, we can just do it here
-			// could resize but wtv
-			if (SurfaceManager.surface_exists(SurfaceManager.application_surface))
-				SurfaceManager.FreeSurface(SurfaceManager.application_surface, true);
-			// should we use display size instead?
-			SurfaceManager.application_surface = SurfaceManager.CreateSurface(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight, 0);
 		}
 
 		var createdObjects = new List<(GamemakerObject gm, GameObject go)>();

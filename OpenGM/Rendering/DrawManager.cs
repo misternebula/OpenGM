@@ -99,8 +99,11 @@ public static class DrawManager
 
     public static void FixedUpdate()
     {
-        SurfaceManager.UpdateApplicationSurface();
-
+        /*
+         * https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L1716
+         * GameMaker_DoAStep
+         */
+        
 		//VariableResolver.GlobalVariables["debug"] = true;
 
 		var stepList = _drawObjects.OrderBy(x => x.instanceId);
@@ -193,10 +196,13 @@ public static class DrawManager
         {
 	        InstanceManager.instances.Remove(id);
         }
+        
+        /*
+         * https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L4168
+         * yyRoom.prototype.Draw
+         */
 
 		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
-
-        // reference for this surface code is here: https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L4168
 
         if (CustomWindow.Instance != null) // only null in tests
         {
@@ -204,9 +210,7 @@ public static class DrawManager
 		}
 
         // ROOM BACKGROUNDS
-        // BUG: uhhh this happens before application surface? idk where this is in html5 code
-        //      and old backgrounds dont register themselves in the regular draw events? why?
-        //      or maybe this intentionally draws directly to the display buffer like pre/postdraw
+        // this is for undertale, which doesnt do surface stuff... we gotta account for that at some point
         foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
         {
 	        if (item == null)
@@ -217,22 +221,32 @@ public static class DrawManager
 	        item.Draw();
         }
 
+        /*
+         * PreDraw
+         */
 		if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
         }
 
-        /*
-        SurfaceManager.surface_set_target(SurfaceManager.application_surface);
-        
-        if (CustomWindow.Instance != null) // only null in tests
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-        }
-        */
+        SurfaceManager.SetApplicationSurface();
 
+        if (SurfaceManager.UsingAppSurface)
+        {
+            if (CustomWindow.Instance != null) // only null in tests
+            {
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+            }
+        }
+
+        /*
+         * DrawViews
+         */
         // TODO: at some point this must be replaced by drawing each view
         
+        /*
+         * DrawTheRoom
+         */
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
         {
             return;
@@ -248,23 +262,38 @@ public static class DrawManager
             return;
         }
 
-        // SurfaceManager.surface_reset_target();
+        if (SurfaceManager.UsingAppSurface)
+        {
+            SurfaceManager.surface_reset_target();
+        }
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
             return;
         }
 
+        /*
+         * PostDraw
+         */
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
             return;
         }
 
         /*
-        SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 
-            0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
-        */
+         * DrawApplicationSurface 
+         */
+        if (SurfaceManager.UsingAppSurface)
+        {
+            GL.Disable(EnableCap.Blend);
+            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface,
+                0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+            GL.Enable(EnableCap.Blend);
+        }
 
+        /*
+         * DrawGUI
+         */
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {
             return;
@@ -280,6 +309,8 @@ public static class DrawManager
             return;
         }
 
+        // this does animation stuff
+        // html5 does it different, but events move around all the time and nothing breaks yet
         foreach (var item in drawList)
         {
             if (item is GamemakerObject)
