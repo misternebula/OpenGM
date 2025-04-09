@@ -148,7 +148,21 @@ public static partial class VMExecutor
 		if (code.ParentAssetId != -1)
 		{
 			var parentCode = GameLoader.Codes[code.ParentAssetId];
-			return ExecuteCode(parentCode, obj, objectDefinition, eventType, eventIndex, args, startingIndex);
+
+			var func = parentCode?.Functions.FirstOrDefault(x => x.FunctionName == code.Name);
+
+			var newStartingIndex = 0;
+			if (func != null)
+			{
+				// i think this is never null but i don't really know.
+				newStartingIndex = func.InstructionIndex;
+			}
+			else
+			{
+				DebugLog.LogWarning($"No func found for {code.Name}, executing from beginning");
+			}
+
+			return ExecuteCode(parentCode, obj, objectDefinition, eventType, eventIndex, args, newStartingIndex);
 		}
 
 		if (code.Instructions.Count == 0)
