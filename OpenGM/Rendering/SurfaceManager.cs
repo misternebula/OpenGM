@@ -288,7 +288,6 @@ public static class SurfaceManager
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 
         // draw rectangle with that texture
-        // TODO: this draws nothing for the tension bar. fuck
         GL.BindTexture(TextureTarget.Texture2D, textureId);
         GL.Uniform1(VertexManager.u_doTex, 1);
         /*
