@@ -3404,12 +3404,6 @@ public static partial class ScriptResolver
 		var col1 = args[5].Conv<int>();
 		var col2 = args[6].Conv<int>();
 
-		var argb1 = col1.ABGRToCol4();
-		var argb2 = col2.ABGRToCol4();
-
-		argb1.A = (float)SpriteManager.DrawAlpha;
-		argb2.A = (float)SpriteManager.DrawAlpha;
-
 		CustomWindow.Draw(new GMLineJob()
 		{
 			x1 = (float)x1,
@@ -3417,8 +3411,8 @@ public static partial class ScriptResolver
 			x2 = (float)x2,
 			y2 = (float)y2,
 			width = (float)width,
-			col1 = argb1,
-			col2 = argb2
+			col1 = col1.ABGRToCol4(SpriteManager.DrawAlpha),
+			col2 = col2.ABGRToCol4(SpriteManager.DrawAlpha)
 		});
 
 		return null;
