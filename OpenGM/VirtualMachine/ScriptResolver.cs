@@ -3604,7 +3604,6 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			Outline = outline,
 			Vertices = new[]
 			{
@@ -3615,7 +3614,10 @@ public static partial class ScriptResolver
 			},
 			Colors = new []
 			{
-				col1.ABGRToCol4(), col2.ABGRToCol4(), col3.ABGRToCol4(), col4.ABGRToCol4()
+				col1.ABGRToCol4(SpriteManager.DrawAlpha),
+				col2.ABGRToCol4(SpriteManager.DrawAlpha),
+				col3.ABGRToCol4(SpriteManager.DrawAlpha),
+				col4.ABGRToCol4(SpriteManager.DrawAlpha)
 			}
 		});
 
