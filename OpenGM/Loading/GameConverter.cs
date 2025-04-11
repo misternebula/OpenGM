@@ -780,8 +780,6 @@ public static class GameConverter
 				}
 				else if (layer.LayerType == UndertaleRoom.LayerType.Background)
 				{
-					var col4 = ((int)layer.BackgroundData.Color).ABGRToCol4();
-
 					var backgroundElement = new CLayerBackgroundElement()
 					{
 						Type = ElementType.Background,
@@ -795,8 +793,7 @@ public static class GameConverter
 						XScale = layer.BackgroundData.CalcScaleX,
 						YScale = layer.BackgroundData.CalcScaleY,
 						Stretch = layer.BackgroundData.Stretch,
-						Color = (int)layer.BackgroundData.Color,
-						Alpha = col4.A,
+						Color = layer.BackgroundData.Color,
 						FirstFrame = (int)layer.BackgroundData.FirstFrame,
 						AnimationSpeed = layer.BackgroundData.AnimationSpeed,
 						AnimationSpeedType = layer.BackgroundData.AnimationSpeedType

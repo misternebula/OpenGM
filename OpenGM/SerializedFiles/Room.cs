@@ -131,8 +131,7 @@ public partial class CLayerBackgroundElement : CLayerElementBase
 	public double XScale;
 	public double YScale;
 	public bool Stretch;
-	public int Color;
-	public double Alpha;
+	public uint Color;
 	public int FirstFrame;
 	public double AnimationSpeed;
 	public AnimationSpeedType AnimationSpeedType;

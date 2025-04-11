@@ -756,8 +756,7 @@ public static partial class ScriptResolver
 	public static object? draw_clear(object?[] args)
 	{
 		var col = args[0].Conv<int>();
-		var colour = col.ABGRToCol4();
-		colour.A = 0f;
+		var colour = col.ABGRToCol4(0);
 		GL.ClearColor(colour);
 		GL.Clear(ClearBufferMask.ColorBufferBit);
 		GL.ClearColor(0, 0, 0, 0);
@@ -2461,8 +2460,8 @@ public static partial class ScriptResolver
 			
 		CustomWindow.Draw(new GMLineJob()
 		{
-			col1 = SpriteManager.DrawColor.ABGRToCol4(),
-			col2 = SpriteManager.DrawColor.ABGRToCol4(),
+			col1 = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+			col2 = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			x1 = (float)x1,
 			y1 = (float)y1,
 			x2 = (float)x2,
@@ -4480,8 +4479,7 @@ public static partial class ScriptResolver
 		var item = new CLayerBackgroundElement();
 		item.Index = sprite;
 		item.Visible = true;
-		item.Alpha = 1;
-		item.Color = 0xFFFFFF;
+		item.Color = 0xFFFFFFFF;
 		item.Layer = layer;
 
 		var background = new GMBackground(item)
