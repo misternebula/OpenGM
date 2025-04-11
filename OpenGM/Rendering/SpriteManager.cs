@@ -76,8 +76,7 @@ public static class SpriteManager
             screenPos = new Vector2d(x, y),
             angle = rot,
             scale = new Vector2d(xscale, yscale),
-            blend = blend.ABGRToCol4(),
-            alpha = alpha,
+            blend = blend.ABGRToCol4(alpha),
             origin = origin,
             fogEnabled = FogEnabled,
             fogColor = FogColor.ABGRToCol4()
@@ -99,8 +98,7 @@ public static class SpriteManager
             screenPos = new Vector2d(x, y),
             angle = 0,
             scale = new Vector2d(xscale, yscale),
-            blend = blend.ABGRToCol4(),
-            alpha = alpha,
+            blend = blend.ABGRToCol4(alpha),
             origin = Vector2.Zero,
             left = left,
             top = top,
@@ -146,8 +144,7 @@ public static class SpriteManager
             screenPos = new Vector2d(x, y),
             angle = 0,
             scale = new Vector2d(w / spriteWidth, h / spriteHeight),
-            blend = color.ABGRToCol4(),
-            alpha = alpha,
+            blend = color.ABGRToCol4(alpha),
             origin = Vector2.Zero
         });
     }

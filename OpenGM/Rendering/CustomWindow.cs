@@ -326,16 +326,8 @@ public class CustomWindow : GameWindow
                     var c4 = textJob.c4;
                     if (!textJob.isColor)
                     {
-                        c1 = c2 = c3 = c4 = new Color4(textJob.blend.R, textJob.blend.G, textJob.blend.B, (float)textJob.alpha);
+                        c1 = c2 = c3 = c4 = textJob.blend;
                     }
-                    else
-                    {
-	                    c1.A = (float)textJob.alpha;
-	                    c2.A = (float)textJob.alpha;
-	                    c3.A = (float)textJob.alpha;
-	                    c4.A = (float)textJob.alpha;
-					}
-
 
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
                     GL.Uniform1(VertexManager.u_doTex, 1);
@@ -390,7 +382,7 @@ public class CustomWindow : GameWindow
         GL.Uniform1(VertexManager.u_doTex, 1);
         // GL.Begin(PrimitiveType.Quads);
         // GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
-        var color = new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha);
+        var color = spriteJob.blend;
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -455,7 +447,7 @@ public class CustomWindow : GameWindow
         GL.Uniform1(VertexManager.u_doTex, 1);
         // GL.Begin(PrimitiveType.Quads);
         // GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
-        var color = new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha);
+        var color = partJob.blend;
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -608,11 +600,10 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
-	    var color = new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha);
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
         {
-	        v[i] = new(linesJob.Vertices[i], color, Vector2d.Zero);
+	        v[i] = new(linesJob.Vertices[i], linesJob.blend, Vector2d.Zero);
         }
         VertexManager.Draw(PrimitiveType.LineStrip, v);
     }
@@ -644,11 +635,10 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
-        var color = new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha);
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
-	        v[i] = new(polyJob.Vertices[i], polyJob.Colors != null ? polyJob.Colors[i] : color, Vector2d.Zero);
+	        v[i] = new(polyJob.Vertices[i], polyJob.Colors != null ? polyJob.Colors[i] : polyJob.blend, Vector2d.Zero);
         }
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
@@ -715,7 +705,6 @@ public class GMPolygonJob : GMBaseJob
 public abstract class GMBaseJob
 {
     public Color4 blend;
-    public double alpha;
     public Color4 fogColor;
     public bool fogEnabled;
 }

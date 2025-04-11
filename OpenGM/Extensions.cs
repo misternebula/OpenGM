@@ -14,6 +14,16 @@ public static class Extensions
 			: new Color4(bytes[3], bytes[2], bytes[1], bytes[0]);
 	}
 
+	public static Color4 ABGRToCol4(this int bgr, double alpha)
+	{
+		alpha = Math.Clamp(alpha, 0, 1);
+
+		var bytes = BitConverter.GetBytes(bgr);
+		return BitConverter.IsLittleEndian
+			? new Color4(bytes[0], bytes[1], bytes[2], (byte)(alpha * 255))
+			: new Color4(bytes[3], bytes[2], bytes[1], (byte)(alpha * 255));
+	}
+
 	// sometimes things use \r\n, sometimes they use \n
 	public static string[] SplitLines(this string @this) => @this.Replace("\r\n", "\n").Split('\n');
 

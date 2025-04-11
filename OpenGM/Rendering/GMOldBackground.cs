@@ -44,8 +44,7 @@ public class GMOldBackground
 		{
 			texture = sprite,
 			screenPos = Position,
-			blend = Color4.White,
-			alpha = 1
+			blend = Color4.White
 		});
 	}
 }

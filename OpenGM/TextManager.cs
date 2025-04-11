@@ -24,8 +24,7 @@ public static class TextManager
 		{
 			text = text,
 			screenPos = new Vector2d(x, y),
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			halign = halign,
 			valign = valign,
 			scale = new Vector2d(xscale, yscale),
@@ -292,17 +291,16 @@ public static class TextManager
 		{
 			text = text,
 			screenPos = new Vector2d(x, y),
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = alpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(alpha),
 			halign = halign,
 			valign = valign,
 			scale = Vector2.One,
 			angle = 0,
 			isColor = true,
-			c1 = c1.ABGRToCol4(),
-			c2 = c2.ABGRToCol4(),
-			c3 = c3.ABGRToCol4(),
-			c4 = c4.ABGRToCol4(),
+			c1 = c1.ABGRToCol4(alpha),
+			c2 = c2.ABGRToCol4(alpha),
+			c3 = c3.ABGRToCol4(alpha),
+			c4 = c4.ABGRToCol4(alpha),
 			asset = fontAsset,
 			// gamemaker is weird
 			// "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."

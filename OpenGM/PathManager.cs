@@ -213,8 +213,7 @@ public static class PathManager
 		CustomWindow.Draw(new GMLinesJob()
 		{
 			Vertices = verts,
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha)
 		});
 	}
 

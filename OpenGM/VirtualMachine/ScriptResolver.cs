@@ -727,8 +727,7 @@ public static partial class ScriptResolver
 		{
 			texture = sprite,
 			screenPos = new Vector2d(x, y),
-			blend = Color4.White,
-			alpha = 1
+			blend = Color4.White
 		});
 
 		return null;
@@ -797,8 +796,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMLineJob()
 		{
-			alpha = SpriteManager.DrawAlpha,
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			width = 1,
 			x1 = (float)x1,
 			y1 = (float)y1,
@@ -1573,8 +1571,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			Vertices = new Vector2d[]
 			{
 				new(x1, y1),
@@ -1626,7 +1623,7 @@ public static partial class ScriptResolver
 		var mg = oneBytes[1] + (twoBytes[1] - oneBytes[1]) * amount;
 		var mb = oneBytes[2] + (twoBytes[2] - oneBytes[2]) * amount;
 
-		return BitConverter.ToInt32(new[] { (byte)mr, (byte)mg, (byte)mb, (byte)255 }, 0);
+		return BitConverter.ToInt32(new[] { (byte)mr, (byte)mg, (byte)mb, (byte)0 }, 0);
 	}
 
 	public static object? draw_set_halign(object?[] args)
@@ -2700,8 +2697,7 @@ public static partial class ScriptResolver
 
 			CustomWindow.Draw(new GMLineJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(),
-				alpha = SpriteManager.DrawAlpha,
+				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 				width = 1,
 				x1 = (float)x1,
 				y1 = (float)y1,
@@ -2728,8 +2724,7 @@ public static partial class ScriptResolver
 
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(),
-				alpha = SpriteManager.DrawAlpha,
+				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 				Vertices = new[] { new Vector2d(x2, y2), new Vector2d(a, b), new Vector2d(c, d) }
 			});
 		}
@@ -2904,8 +2899,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			Vertices = points,
 			Outline = outline
 		});
@@ -2925,8 +2919,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			Vertices = new Vector2d[]
 			{
 				new Vector2d(x1, y1),
@@ -3063,8 +3056,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMTextJob()
 		{
-			alpha = SpriteManager.DrawAlpha,
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			angle = 0,
 			asset = TextManager.fontAsset,
 			halign = TextManager.halign,
@@ -3412,6 +3404,12 @@ public static partial class ScriptResolver
 		var col1 = args[5].Conv<int>();
 		var col2 = args[6].Conv<int>();
 
+		var argb1 = col1.ABGRToCol4();
+		var argb2 = col2.ABGRToCol4();
+
+		argb1.A = (float)SpriteManager.DrawAlpha;
+		argb2.A = (float)SpriteManager.DrawAlpha;
+
 		CustomWindow.Draw(new GMLineJob()
 		{
 			x1 = (float)x1,
@@ -3419,8 +3417,8 @@ public static partial class ScriptResolver
 			x2 = (float)x2,
 			y2 = (float)y2,
 			width = (float)width,
-			col1 = col1.ABGRToCol4(),
-			col2 = col2.ABGRToCol4()
+			col1 = argb1,
+			col2 = argb2
 		});
 
 		return null;
@@ -3612,8 +3610,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			Outline = outline,
 			Vertices = new[]
 			{
@@ -3659,8 +3656,7 @@ public static partial class ScriptResolver
 
 		CustomWindow.Draw(new GMPolygonJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			Vertices = points,
 			Outline = outline
 		});
@@ -3777,8 +3773,10 @@ public static partial class ScriptResolver
 				new Vector2d(x2, y2),
 				new Vector2d(x3, y3)
 			},
-			alpha = SpriteManager.DrawAlpha,
-			Colors = new[] { col1.ABGRToCol4(), col2.ABGRToCol4(), col3.ABGRToCol4() }
+			Colors = new[] { 
+				col1.ABGRToCol4(SpriteManager.DrawAlpha),
+				col2.ABGRToCol4(SpriteManager.DrawAlpha),
+				col3.ABGRToCol4(SpriteManager.DrawAlpha) }
 		});
 
 		return null;
@@ -3966,8 +3964,7 @@ public static partial class ScriptResolver
 			screenPos = new Vector2d(x, y),
 			asset = TextManager.fontAsset,
 			angle = angle,
-			blend = SpriteManager.DrawColor.ABGRToCol4(),
-			alpha = SpriteManager.DrawAlpha,
+			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 			halign = TextManager.halign,
 			valign = TextManager.valign,
 			scale = new Vector2d(xscale, yscale),
