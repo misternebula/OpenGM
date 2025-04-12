@@ -3029,21 +3029,36 @@ public static partial class ScriptResolver
 		var y = args[2].Conv<double>();
 		var w = args[3].Conv<int>();
 		var h = args[4].Conv<int>();
-		var removeback = args[5].Conv<bool>();
+		var removeback = args[5].Conv<bool>(); // hell no im not doing that rn (deltarune does it i have to)
 		var smooth = args[6].Conv<bool>();
 		var xorig = args[7].Conv<int>();
 		var yorig = args[8].Conv<int>();
 
-		return 1;
+		// return 1;
 		
 		// TODO: make copy of the texture i guess, cuz battleLayerHighlight frees the surface instantly wtf
+		//		 i made a copy and its still not working!!!
 		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Sprite.js#L485
+		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L4370
 		// this is written very poorly LMAO i dont care
 #pragma warning disable CS0162 // Unreachable code detected
 		var spriteId = SpriteManager._spriteDict.Keys.Max() + 1; // dumb
 		var texturePageName = $"sprite_create_from_surface {spriteId}";
-		// imageresult used in draw for width and height only
-		PageManager.TexturePages.Add(texturePageName, (new ImageResult { Width = w, Height = h, }, SurfaceManager.GetTextureFromSurface(index)));
+		// make a copy of the texture by reading going gpu -> cpu copy -> gpu copy
+		GL.BindTexture(TextureTarget.Texture2D, SurfaceManager.GetTextureFromSurface(index));
+		var pixels = new byte[w * h * 4];
+		unsafe
+		{
+			fixed (byte* ptr = pixels)
+				GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
+		}
+		var imageResult = new ImageResult()
+		{
+			Width = w,
+			Height = h,
+			Data = pixels
+		};
+		PageManager.BindTexture(texturePageName, imageResult);
 		var spritePage = new SpritePageItem
 		{
 			SourcePosX = 0,

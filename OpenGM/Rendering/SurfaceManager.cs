@@ -279,13 +279,8 @@ public static class SurfaceManager
 
     public static void draw_surface_stretched(int id, double x, double y, double w, double h)
     {
-        var buffer = _framebuffers[id];
-
         // we drew into this fbo earlier, get its texture data
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+        var textureId = GetTextureFromSurface(id);
 
         // draw rectangle with that texture
         GL.BindTexture(TextureTarget.Texture2D, textureId);
