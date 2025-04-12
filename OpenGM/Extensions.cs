@@ -6,9 +6,8 @@ namespace OpenGM;
 
 public static class Extensions
 {
-	public static Color4 ABGRToCol4(this uint bgr) => ((int)bgr).ABGRToCol4();
-
-	public static Color4 ABGRToCol4(this int bgr)
+	// for GMBackground :P
+	public static Color4 ABGRToCol4(this uint bgr)
 	{
 		var bytes = BitConverter.GetBytes(bgr);
 		return BitConverter.IsLittleEndian

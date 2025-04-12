@@ -79,7 +79,7 @@ public static class SpriteManager
             blend = blend.ABGRToCol4(alpha),
             origin = origin,
             fogEnabled = FogEnabled,
-            fogColor = FogColor.ABGRToCol4()
+            fogColor = FogColor.ABGRToCol4(1) // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_D3D.js#L1095
         });
     }
 
