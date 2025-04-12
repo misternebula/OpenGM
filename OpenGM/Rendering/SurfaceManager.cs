@@ -299,10 +299,10 @@ public static class SurfaceManager
         GL.End();
         */
         VertexManager.Draw(PrimitiveType.TriangleFan, [
-            new(new(x, y), Color4.White, new(0, 1)),
-            new(new(x + w, y), Color4.White, new(1, 1)),
-            new(new(x + w, y + h), Color4.White, new(1, 0)),
-            new(new(x, y + h), Color4.White, new(0, 0)),
+            new(new(x, y), Color4.White, new(0, 0)),
+            new(new(x + w, y), Color4.White, new(1, 0)),
+            new(new(x + w, y + h), Color4.White, new(1, 1)),
+            new(new(x, y + h), Color4.White, new(0, 1)),
         ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.Uniform1(VertexManager.u_doTex, 0);

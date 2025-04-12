@@ -35,7 +35,7 @@ public static class PageManager
 	        UploadTexture(item.Key, item.Value.image);
         }
         
-        GC.Collect(); // gc to remove above
+        GC.Collect(); // gc to remove cpu texture data
 
         Console.WriteLine(" Done!");
     }

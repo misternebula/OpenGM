@@ -12,6 +12,7 @@ public static class VertexManager
 {
     public static int u_view;
     public static int u_doTex;
+    public static int u_flipY;
 
     [StructLayout(LayoutKind.Explicit)]
     public struct Vertex
@@ -70,6 +71,7 @@ public static class VertexManager
 
         u_view = GL.GetUniformLocation(program, "u_view");
         u_doTex = GL.GetUniformLocation(program, "u_doTex");
+        u_flipY = GL.GetUniformLocation(program, "u_flipY");
 
         GL.UseProgram(program);
 
