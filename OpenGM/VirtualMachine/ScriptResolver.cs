@@ -794,9 +794,12 @@ public static partial class ScriptResolver
 		var x2 = args[2].Conv<double>();
 		var y2 = args[3].Conv<double>();
 
+		var col = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 		CustomWindow.Draw(new GMLineJob()
 		{
-			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+			col1 = col,
+			col2 = col,
 			width = 1,
 			x1 = (float)x1,
 			y1 = (float)y1,
@@ -2695,9 +2698,12 @@ public static partial class ScriptResolver
 		{
 			// draw body of arrow
 
+			var col = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMLineJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				col1 = col,
+				col2 = col,
 				width = 1,
 				x1 = (float)x1,
 				y1 = (float)y1,
