@@ -1,7 +1,9 @@
-﻿using OpenGM.SerializedFiles;
-using System.Drawing;
+﻿using OpenGM.IO;
+using OpenGM.SerializedFiles;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using OpenGM.IO;
+using StbImageSharp;
+using UndertaleModLib.Models;
 
 namespace OpenGM.Rendering;
 
@@ -152,5 +154,87 @@ public static class SpriteManager
     public static int GetNumberOfFrames(int name)
     {
         return _spriteDict[name].Textures.Count;
+    }
+
+
+    public static int sprite_create_from_surface(int surfaceId, double x, double y, int w, int h, bool removeback, bool smooth, int xorig, int yorig)
+    {
+        // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Sprite.js#L485
+        // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L4370
+
+        // we have to do a song and dance because sprites require texture pages and whatnot to draw
+        
+        var spriteId = _spriteDict.Keys.Max() + 1; // this probably breaks sometimes
+        var texturePageName = $"sprite_create_from_surface {spriteId}"; // needed for texture page lookup
+
+        // make a copy of the texture. theres better ways to do this but this should work
+        GL.BindTexture(TextureTarget.Texture2D, SurfaceManager.GetTextureFromSurface(surfaceId));
+        var pixels = new byte[w * h * 4];
+        unsafe
+        {
+            fixed (byte* ptr = pixels)
+                GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
+        }
+        // store it as a "page". its really just one texture that the sprite will use to draw
+        var imageResult = new ImageResult()
+        {
+            Width = w,
+            Height = h,
+            Data = pixels
+        };
+        PageManager.UploadTexture(texturePageName, imageResult);
+
+        // create a sprite with the single texture
+        var spritePage = new SpritePageItem
+        {
+            SourcePosX = 0,
+            SourcePosY = 0,
+            SourceSizeX = w,
+            SourceSizeY = h,
+            TargetPosX = 0,
+            TargetPosY = 0,
+            TargetSizeX = w,
+            TargetSizeY = h,
+            BSizeX = w,
+            BSizeY = h,
+            Page = texturePageName
+        };
+        var sprite = new SpriteData
+        {
+            AssetIndex = spriteId,
+            Name = texturePageName,
+            Width = w,
+            Height = h,
+            MarginLeft = 0,
+            MarginRight = 0,
+            MarginBottom = 0,
+            MarginTop = 0,
+            BBoxMode = 0,
+            SepMasks = UndertaleSprite.SepMaskType.AxisAlignedRect,
+            OriginX = xorig,
+            OriginY = yorig,
+            Textures = [spritePage],
+            CollisionMasks = [], // no idea
+            PlaybackSpeed = 0,
+            PlaybackSpeedType = AnimSpeedType.FramesPerSecond
+        };
+        _spriteDict.Add(sprite.AssetIndex, sprite);
+
+        return sprite.AssetIndex;
+    }
+
+    public static bool sprite_delete(int index)
+    {
+        // only used with sprite_create_from_surface
+
+        // remove the sprite
+        if (_spriteDict.Remove(index, out var sprite))
+        {
+            // remove the copied texture
+            PageManager.DeleteTexture(sprite.Textures[0].Page);
+            return true;
+        }
+
+        return false;
     }
 }

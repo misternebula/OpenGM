@@ -3029,73 +3029,12 @@ public static partial class ScriptResolver
 		var y = args[2].Conv<double>();
 		var w = args[3].Conv<int>();
 		var h = args[4].Conv<int>();
-		var removeback = args[5].Conv<bool>(); // hell no im not doing that rn (deltarune does it i have to)
+		var removeback = args[5].Conv<bool>(); // TODO: implement
 		var smooth = args[6].Conv<bool>();
 		var xorig = args[7].Conv<int>();
 		var yorig = args[8].Conv<int>();
 
-		// return 1;
-		
-		// TODO: make copy of the texture i guess, cuz battleLayerHighlight frees the surface instantly wtf
-		//		 i made a copy and its still not working!!!
-		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Sprite.js#L485
-		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L4370
-		// this is written very poorly LMAO i dont care
-#pragma warning disable CS0162 // Unreachable code detected
-		var spriteId = SpriteManager._spriteDict.Keys.Max() + 1; // dumb
-		var texturePageName = $"sprite_create_from_surface {spriteId}";
-		// make a copy of the texture by reading going gpu -> cpu copy -> gpu copy
-		GL.BindTexture(TextureTarget.Texture2D, SurfaceManager.GetTextureFromSurface(index));
-		var pixels = new byte[w * h * 4];
-		unsafe
-		{
-			fixed (byte* ptr = pixels)
-				GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
-		}
-		var imageResult = new ImageResult()
-		{
-			Width = w,
-			Height = h,
-			Data = pixels
-		};
-		PageManager.BindTexture(texturePageName, imageResult);
-		var spritePage = new SpritePageItem
-		{
-			SourcePosX = 0,
-			SourcePosY = 0,
-			SourceSizeX = w,
-			SourceSizeY = h,
-			TargetPosX = 0,
-			TargetPosY = 0,
-			TargetSizeX = w,
-			TargetSizeY = h,
-			BSizeX = w,
-			BSizeY = h,
-			Page = texturePageName
-		};
-		var sprite = new SpriteData
-		{
-			AssetIndex = spriteId,
-			Name = texturePageName,
-			Width = w,
-			Height = h,
-			MarginLeft = 0,
-			MarginRight = 0,
-			MarginBottom = 0,
-			MarginTop = 0,
-			BBoxMode = 0,
-			SepMasks = UndertaleSprite.SepMaskType.AxisAlignedRect,
-			OriginX = xorig,
-			OriginY = yorig,
-			Textures = [spritePage],
-			CollisionMasks = [], // no idea
-			PlaybackSpeed = 0,
-			PlaybackSpeedType = AnimSpeedType.FramesPerSecond
-		};
-		SpriteManager._spriteDict.Add(sprite.AssetIndex, sprite);
-
-		return sprite.AssetIndex;
-#pragma warning restore CS0162 // Unreachable code detected
+		return SpriteManager.sprite_create_from_surface(index, x, y, w, h, removeback, smooth, xorig, yorig);
 	}
 
 	public static object? sprite_set_offset(object?[] args)
@@ -4393,17 +4332,7 @@ public static partial class ScriptResolver
 	{
 		var index = args[0].Conv<int>();
 		
-		// TODO: only used for surface created sprites, so dont delete the texture or else surface fbo texture go bye bye
-		//		 probably should be changed to handle other stuff, but idk how to do that
-		
-		if (SpriteManager._spriteDict.Remove(index, out var sprite))
-		{
-			PageManager.TexturePages.Remove(sprite.Textures[0].Page);
-			
-			return true;
-		}
-
-		return false;
+		return SpriteManager.sprite_delete(index);
 	}
 
 	public static object? window_enable_borderless_fullscreen(object?[] args)
