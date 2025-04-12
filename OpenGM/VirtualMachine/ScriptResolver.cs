@@ -3640,8 +3640,32 @@ public static partial class ScriptResolver
 		var x = args[1].Conv<double>();
 		var y = args[1].Conv<double>();
 
-		// TODO : implement
-		// FUCK FUCK FUCK
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tilemap && tilemap.Element.Id == element_id)
+				{
+					var oldDepth = tilemap.depth;
+					var oldX = tilemap.Element.x;
+					var oldY = tilemap.Element.y;
+					var wasVisible = tilemap.Element.Layer.Visible;
+
+					// TODO - whats the point of setting depth? isn't that just for drawing ordering?
+					tilemap.depth = VMExecutor.Self.GMSelf.depth;
+					tilemap.Element.x = x;
+					tilemap.Element.y = y;
+					tilemap.Element.Layer.Visible = true;
+
+					tilemap.Draw();
+
+					tilemap.depth = oldDepth;
+					tilemap.Element.x = oldX;
+					tilemap.Element.y = oldY;
+					tilemap.Element.Layer.Visible = wasVisible;
+				}
+			}
+		}
 
 		return null;
 	}
