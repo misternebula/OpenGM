@@ -3641,6 +3641,7 @@ public static partial class ScriptResolver
 		var y = args[1].Conv<double>();
 
 		// TODO : implement
+		// FUCK FUCK FUCK
 
 		return null;
 	}
