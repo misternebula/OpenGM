@@ -312,4 +312,16 @@ public static class SurfaceManager
         GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.Uniform1(VertexManager.u_doTex, 0);
     }
+
+    public static int GetTextureFromSurface(int surfaceId)
+    {
+        var buffer = _framebuffers[surfaceId];
+        
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+
+        return textureId;
+    }
 }
