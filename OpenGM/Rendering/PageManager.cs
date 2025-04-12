@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using OpenGM.IO;
+using OpenTK.Graphics.OpenGL;
 using StbImageSharp;
 
 namespace OpenGM.Rendering;
@@ -16,11 +17,13 @@ public static class PageManager
 	    Console.Write("Unbinding textures...");
 
 	    GL.BindTexture(TextureTarget.Texture2D, 0);
-
-		foreach (var item in TexturePages)
+	    
+	    foreach (var name in TexturePages.Keys)
 	    {
-            GL.DeleteTexture(item.Value.id);
+		    DeleteTexture(name);
 	    }
+	    
+	    Console.WriteLine(" Done!");
 	}
 
     public static void BindTextures()
@@ -29,7 +32,7 @@ public static class PageManager
         
         foreach (var item in TexturePages)
         {
-	        BindTexture(item.Key, item.Value.image);
+	        UploadTexture(item.Key, item.Value.image);
         }
         
         GC.Collect(); // gc to remove above
@@ -37,7 +40,7 @@ public static class PageManager
         Console.WriteLine(" Done!");
     }
 
-    public static void BindTexture(string name, ImageResult image)
+    public static void UploadTexture(string name, ImageResult image)
     {
 	    var newId = GL.GenTexture();
 
@@ -50,5 +53,13 @@ public static class PageManager
 	    image.Data = null; // let this get gc'd since it was uploaded to the gpu
 
 	    TexturePages[name] = (image, newId);
+    }
+
+    public static void DeleteTexture(string name)
+    {
+	    if (TexturePages.Remove(name, out var value))
+	    {
+		    GL.DeleteTexture(value.id);
+	    }
     }
 }

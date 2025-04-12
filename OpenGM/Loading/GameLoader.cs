@@ -315,7 +315,6 @@ public static class GameLoader
         Console.Write($"Loading Texture Pages...");
 
         PageManager.UnbindTextures();
-        PageManager.TexturePages.Clear();
 
 		//StbImage.stbi_set_flip_vertically_on_load(1);
 
