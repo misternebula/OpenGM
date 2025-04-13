@@ -11,7 +11,7 @@ namespace OpenGM;
 
 internal class Entry
 {
-	public static int GameSpeed { get; private set; } = 30; // TODO : load this from data.win
+	public static float GameSpeed { get; private set; } = 30;
 
 	private static CustomWindow window = null!;
 
@@ -49,6 +49,9 @@ internal class Entry
 		VMExecutor.CallStack.Clear();
 		InstanceManager.instances.Clear();
 		DrawManager._drawObjects.Clear();
+
+		GameSpeed = GameLoader.GeneralInfo!.FPS;
+		InstanceManager.NextInstanceID = GameLoader.GeneralInfo!.LastObjectID + 1;
 
 		GMRandom.InitialiseRNG(0);
 

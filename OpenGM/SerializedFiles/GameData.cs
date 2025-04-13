@@ -21,6 +21,7 @@ public partial class GameData
 	public required uint Release;
 	public required uint Build;
 	public required Vector2i DefaultWindowSize;
+	public required float FPS;
 }
 
 public enum BranchType

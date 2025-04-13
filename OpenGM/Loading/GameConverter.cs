@@ -61,7 +61,8 @@ public static class GameConverter
 			Minor = data.GeneralInfo.Minor,
 			Release = data.GeneralInfo.Release,
 			Build = data.GeneralInfo.Build,
-			DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight)
+			DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight),
+			FPS = data.GeneralInfo.GMS2FPS
 
 		};
 		writer.WriteMemoryPack(asset);

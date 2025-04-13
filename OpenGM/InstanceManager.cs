@@ -8,7 +8,7 @@ public static class InstanceManager
 	public static Dictionary<int, GamemakerObject> instances = new();
 	public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
-	public static int _highestInstanceId = 108115 + 1; // TODO : this changes per game - get from data.win
+	public static int NextInstanceID;
 
 	public static void RegisterInstance(GamemakerObject obj)
 	{
@@ -45,7 +45,7 @@ public static class InstanceManager
 		var definition = ObjectDefinitions[obj];
 
 		// is 0 depth right? no idea
-		var newGM = new GamemakerObject(definition, x, y, 0, _highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+		var newGM = new GamemakerObject(definition, x, y, 0, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
 		GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
 		GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
@@ -57,7 +57,7 @@ public static class InstanceManager
 	{
 		var definition = ObjectDefinitions[obj];
 
-		var newGM = new GamemakerObject(definition, x, y, depth, _highestInstanceId++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+		var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
 		GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
 		GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
