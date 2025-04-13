@@ -16,7 +16,7 @@ public class GMSprite : DrawWithDepth
 	public int Y;
 	public double XScale;
 	public double YScale;
-	public int Color;
+	public uint Color;
 	public double AnimationSpeed;
 	public AnimationSpeedType AnimationSpeedType;
 	public double FrameIndex;
@@ -68,7 +68,10 @@ public class GMSprite : DrawWithDepth
 			FrameIndex -= _spriteFrames;
 		}
 
-		SpriteManager.DrawSpriteExt(Definition, FrameIndex, X, Y, XScale, YScale, Rotation, Color, 1.0); // TODO : alpha is probably packed into color...
+		var col = (int)(Color & 0x00FFFFFF);
+		var alpha = ((Color & 0xFF000000) >> 6) / 255.0;
+
+		SpriteManager.DrawSpriteExt(Definition, FrameIndex, X, Y, XScale, YScale, Rotation, col, alpha);
 	}
 
 	public override void Destroy()

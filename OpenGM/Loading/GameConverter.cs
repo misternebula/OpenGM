@@ -874,7 +874,7 @@ public static class GameConverter
 							val.Y = item.Y;
 							val.ScaleX = item.ScaleX;
 							val.ScaleY = item.ScaleY;
-							val.Color = (int)item.Color;
+							val.Color = item.Color;
 							val.AnimationSpeed = item.AnimationSpeed;
 							val.AnimationSpeedType = item.AnimationSpeedType;
 							val.FrameIndex = item.FrameIndex;

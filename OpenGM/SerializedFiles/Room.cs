@@ -163,7 +163,7 @@ public partial class CLayerSpriteElement : CLayerElementBase
 	public int Y;
 	public double ScaleX;
 	public double ScaleY;
-	public int Color;
+	public uint Color;
 	public double AnimationSpeed;
 	public AnimationSpeedType AnimationSpeedType;
 	public double FrameIndex;
