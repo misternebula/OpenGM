@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System.Collections;
 
 namespace OpenGM.VirtualMachine;
 
@@ -15,11 +16,11 @@ public static partial class ScriptResolver
 		switch (type)
 		{
 			case 0:
-				return MatrixToArray(ViewMatrix);
+				return MatrixToList(ViewMatrix);
 			case 1:
-				return MatrixToArray(ProjectionMatrix);
+				return MatrixToList(ProjectionMatrix);
 			case 2:
-				return MatrixToArray(WorldMatrix);
+				return MatrixToList(WorldMatrix);
 			default:
 				throw new Exception("Illegal matrix type");
 		}
@@ -28,7 +29,7 @@ public static partial class ScriptResolver
 	public static object? matrix_set(object?[] args)
 	{
 		var type = args[0].Conv<int>();
-		var value = ArrayToMatrix(args[1].Conv<double[]>());
+		var value = ListToMatrix(args[1].Conv<IList>());
 
 		switch (type)
 		{
@@ -102,15 +103,15 @@ public static partial class ScriptResolver
 
 	public static object? matrix_multiply(object?[] args)
 	{
-		var matrix1 = ArrayToMatrix(args[0].Conv<double[]>());
-		var matrix2 = ArrayToMatrix(args[1].Conv<double[]>());
+		var matrix1 = ListToMatrix(args[0].Conv<IList>());
+		var matrix2 = ListToMatrix(args[1].Conv<IList>());
 
-		return MatrixToArray(Matrix4.Mult(matrix1, matrix2));
+		return MatrixToList(Matrix4.Mult(matrix1, matrix2));
 	}
 
 	public static object? matrix_build_identity(object?[] args)
 	{
-		return MatrixToArray(Matrix4.Identity);
+		return MatrixToList(Matrix4.Identity);
 	}
 
 	public static object? matrix_build_lookat(object?[] args)
@@ -125,7 +126,7 @@ public static partial class ScriptResolver
 		var yup = (float)args[7].Conv<double>();
 		var zup = (float)args[8].Conv<double>();
 
-		return MatrixToArray(Matrix4.LookAt(xfrom, yfrom, zfrom, xto, yto, zto, xup, yup, zup));
+		return MatrixToList(Matrix4.LookAt(xfrom, yfrom, zfrom, xto, yto, zto, xup, yup, zup));
 	}
 
 	public static object? matrix_build_projection_ortho(object?[] args)
@@ -135,7 +136,7 @@ public static partial class ScriptResolver
 		var znear = (float)args[2].Conv<double>();
 		var zfar = (float)args[3].Conv<double>();
 
-		return MatrixToArray(Matrix4.CreateOrthographic(w, h, znear, zfar));
+		return MatrixToList(Matrix4.CreateOrthographic(w, h, znear, zfar));
 	}
 
 	public static object? matrix_build_projection_perspective(object?[] args)
@@ -184,7 +185,7 @@ public static partial class ScriptResolver
 
 	public static object? matrix_transform_vertex(object?[] args)
 	{
-		var matrix = ArrayToMatrix(args[0].Conv<double[]>());
+		var matrix = ListToMatrix(args[0].Conv<IList>());
 		var x = (float)args[1].Conv<double>();
 		var y = (float)args[2].Conv<double>();
 		var z = (float)args[3].Conv<double>();
@@ -194,9 +195,9 @@ public static partial class ScriptResolver
 		return new double[] { ret.X, ret.Y, ret.Z };
 	}
 
-	public static Matrix4 ArrayToMatrix(double[] array)
+	public static Matrix4 ListToMatrix(IList list)
 	{
-		if (array.Length != 16)
+		if (list.Count != 16)
 		{
 			throw new Exception("Array must contain exactly 16 elements");
 		}
@@ -206,14 +207,14 @@ public static partial class ScriptResolver
 		{
 			for (var j = 0; j < 4; j++)
 			{
-				matrix[i, j] = (float)array[(i * 4) + j];
+				matrix[i, j] = list[(i * 4) + j].Conv<float>();
 			}
 		}
 
 		return matrix;
 	}
 
-	public static double[] MatrixToArray(Matrix4 matrix)
+	public static IList MatrixToList(Matrix4 matrix)
 	{
 		var array = new double[16];
 
