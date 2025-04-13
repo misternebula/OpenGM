@@ -152,7 +152,7 @@ public partial class CLayerTileElement : CLayerElementBase
 	//public int InstanceID;
 	public float ScaleX;
 	public float ScaleY;
-	public int Color;
+	public uint Color;
 }
 
 [MemoryPackable]

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using OpenTK.Mathematics;
 
 namespace OpenGM.Rendering;
@@ -20,7 +22,7 @@ public class GMTile : DrawWithDepth
 
     public float XScale;
     public float YScale;
-    public int Color;
+    public uint Color;
 
     public GMTile()
     {
@@ -34,8 +36,19 @@ public class GMTile : DrawWithDepth
             return;
         }
 
-        SpriteManager.DrawSpritePart(Definition, 0, left, top, width, height, X, Y);
-    }
+		var sprite = SpriteManager.GetSpritePage(Definition, 0);
+		CustomWindow.Draw(new GMSpritePartJob()
+		{
+			texture = sprite,
+			screenPos = new Vector2d(X, Y),
+			blend = Color.ABGRToCol4(),
+			origin = Vector2.Zero,
+			left = left,
+			top = top,
+			width = width,
+			height = height
+		});
+	}
 
     public override void Destroy()
     {

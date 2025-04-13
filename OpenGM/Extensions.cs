@@ -25,6 +25,13 @@ public static class Extensions
 			: new Color4(bytes[3], bytes[2], bytes[1], (byte)(alpha * 255));
 	}
 
+	public static uint Col4ToABGR(this Color4 col)
+	{
+		var byteCol = (System.Drawing.Color)col; // kinda dumb but easy way to get the bytes back
+
+		return (uint)(byteCol.R | (byteCol.G << 8) | (byteCol.B << 16) | (byteCol.A << 24));
+	}
+
 	// sometimes things use \r\n, sometimes they use \n
 	public static string[] SplitLines(this string @this) => @this.Replace("\r\n", "\n").Split('\n');
 

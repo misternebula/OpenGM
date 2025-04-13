@@ -821,7 +821,7 @@ public static class GameConverter
 							val.SourceHeight = (int)tile.Height;
 							val.ScaleX = tile.ScaleX;
 							val.ScaleY = tile.ScaleY;
-							val.Color = (int)tile.Color;
+							val.Color = tile.Color;
 
 							layerasset.Elements.Add(val);
 						}

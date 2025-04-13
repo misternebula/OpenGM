@@ -815,6 +815,7 @@ public static partial class ScriptResolver
 	public static object? shader_set(object?[] args)
 	{
 		var shaderId = args[0].Conv<int>();
+		DebugLog.LogWarning("shader_set not implemented.");
 		return null;
 	}
 
@@ -822,6 +823,7 @@ public static partial class ScriptResolver
 	{
 		var spr = args[0].Conv<int>();
 		var subimg = args[0].Conv<int>();
+		DebugLog.LogWarning("sprite_get_texture not implemented.");
 		return 0;
 	}
 
@@ -829,46 +831,55 @@ public static partial class ScriptResolver
 	{
 		var spr = args[0].Conv<int>();
 		var subimg = args[0].Conv<int>();
+		DebugLog.LogWarning("sprite_get_uvs not implemented.");
 		return new int[8];
 	}
 
 	public static object? texture_set_stage(object?[] args)
 	{
+		DebugLog.LogWarning("texture_set_stage not implemented.");
 		return null;
 	}
 
 	public static object? texture_get_texel_width(object?[] args)
 	{
+		DebugLog.LogWarning("texture_get_texel_width not implemented.");
 		return 0;
 	}
 
 	public static object? texture_get_texel_height(object?[] args)
 	{
+		DebugLog.LogWarning("texture_get_texel_height not implemented.");
 		return 0;
 	}
 
 	public static object? shader_set_uniform_f(object?[] args)
 	{
+		DebugLog.LogWarning("shader_set_uniform_f not implemented.");
 		return null;
 	}
 
 	public static object? shader_get_uniform(object?[] args)
 	{
+		DebugLog.LogWarning("shader_get_uniform not implemented.");
 		return null;
 	}
 
 	public static object? surface_get_texture(object?[] args)
 	{
+		DebugLog.LogWarning("surface_get_texture not implemented.");
 		return -1;
 	}
 
 	public static object? shader_get_sampler_index(object?[] args)
 	{
+		DebugLog.LogWarning("shader_get_sampler_index not implemented.");
 		return -1;
 	}
 
 	public static object? shader_reset(object?[] args)
 	{
+		DebugLog.LogWarning("shader_reset not implemented.");
 		return null;
 	}
 
@@ -879,6 +890,8 @@ public static partial class ScriptResolver
 		//Debug.Log($"layer_force_draw_depth force:{force} depth:{depth}");
 
 		// not implementing yet because uhhhhhhhhhhhhhhhhhhh
+
+		DebugLog.LogWarning("layer_force_draw_depth not implemented.");
 
 		return null;
 	}
@@ -2649,8 +2662,20 @@ public static partial class ScriptResolver
 	{
 		var __index = args[0].Conv<int>();
 		var __alpha = args[1].Conv<double>();
-		// TODO : implement
-		//(TileManager.Tiles.First(x => x.instanceId == __index) as GMTile).Alpha = __alpha;
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMTile tile && tile.instanceId == __index)
+				{
+					var col = tile.Color.ABGRToCol4();
+					col.A = (float)__alpha;
+					tile.Color = col.Col4ToABGR();
+				}
+			}
+		}
+
 		return null;
 	}
 
@@ -3820,7 +3845,7 @@ public static partial class ScriptResolver
 
 	public static object? draw_sprite_pos(object?[] args)
 	{
-		// todo : implement
+		DebugLog.LogWarning("draw_sprite_pos not implemented.");
 		return null;
 	}
 
@@ -4013,14 +4038,9 @@ public static partial class ScriptResolver
 
 	public static object? draw_surface_ext(object?[] args)
 	{
-		// TODO : implement
-
+		DebugLog.LogWarning("draw_surface_ext not implemented.");
 		return null;
 	}
-
-	
-
-	
 
 	public static object sprite_exists(object?[] args)
 	{

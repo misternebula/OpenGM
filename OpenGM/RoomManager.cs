@@ -331,7 +331,7 @@ public static class RoomManager
 				instanceId = item.InstanceID,
 				XScale = item.ScaleX,
 				YScale = item.ScaleY,
-				Color = (int)item.Color,
+				Color = item.Color,
 				Definition = 0
 			};
 
