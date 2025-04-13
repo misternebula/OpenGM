@@ -528,7 +528,7 @@ public static partial class ScriptResolver
 
 		
 		{ "object_get_sprite", object_get_sprite },
-		
+
 		{ "draw_arrow", draw_arrow },
 
 		{ "make_color_hsv", make_color_hsv },
@@ -538,7 +538,7 @@ public static partial class ScriptResolver
 
 		{ "draw_circle", draw_circle },
 		{ "draw_triangle", draw_triangle },
-		
+
 		{ "texturegroup_get_textures", texturegroup_get_textures},
 		{ "array_length", array_length},
 		{ "texture_prefetch", texture_prefetch},
@@ -549,23 +549,23 @@ public static partial class ScriptResolver
 		{ "os_get_language", os_get_language},
 		{ "surface_resize", surface_resize },
 		{ "surface_exists", surface_exists },
-		
+
 		{ "gamepad_button_check_pressed", gamepad_button_check_pressed},
 		{ "sprite_create_from_surface", sprite_create_from_surface},
 		{ "sprite_set_offset", sprite_set_offset },
 		{ "gamepad_get_device_count", gamepad_get_device_count},
 		{ "draw_text_ext", draw_text_ext },
-		
+
 		{ "texture_flush", texture_flush},
 		{ "room_get_name", room_get_name},
-		
-		
+
+
 		{ "sprite_get_xoffset", sprite_get_xoffset },
 		{ "sprite_get_yoffset", sprite_get_yoffset },
-		
+
 		{ "sprite_get_width", sprite_get_width},
 		{ "sprite_get_height", sprite_get_height},
-		
+
 		{ "chr", chr},
 
 		{ "date_current_datetime", date_current_datetime},
@@ -579,22 +579,22 @@ public static partial class ScriptResolver
 		{ "date_get_second", date_get_second},
 
 		{ "mouse_check_button_pressed", mouse_check_button_pressed},
-		
+
 		{ "draw_line_width_color", draw_line_width_color},
 		{ "surface_create", surface_create },
 		{ "surface_set_target", surface_set_target },
 		{ "draw_clear_alpha", draw_clear_alpha },
-		
-		
+
+
 		{ "draw_tilemap", draw_tilemap},
 		{ "surface_reset_target", surface_reset_target },
 		{ "surface_free", surface_free },
 		{ "draw_rectangle_colour", draw_rectangle_colour },
 		{ "draw_rectangle_color", draw_rectangle_colour },
 		{ "draw_ellipse", draw_ellipse },
-		
+
 		{ "game_get_speed", game_get_speed},
-		
+
 		{ "audio_sound_get_track_position", audio_sound_get_track_position},
 		{ "draw_surface", draw_surface},
 		{ "gpu_set_blendmode_ext", gpu_set_blendmode_ext},
@@ -607,22 +607,22 @@ public static partial class ScriptResolver
 		{ "draw_sprite_pos", draw_sprite_pos },
 		{ "ds_list_shuffle", ds_list_shuffle},
 		{ "os_get_region",os_get_region},
-		
+
 		{ "ds_map_set", ds_map_set},
 		{ "sprite_prefetch", sprite_prefetch},
-		
+
 		{ "steam_initialised", steam_initialised},
 		{ "audio_channel_num", audio_channel_num},
-		
+
 		{ "object_get_name", object_get_name},
 		{ "audio_sound_length", audio_sound_length},
 		{ "draw_get_font", draw_get_font },
-		
+
 		{ "make_colour_rgb", make_color_rgb},
 		{ "make_color_rgb", make_color_rgb},
 		{ "draw_text_ext_transformed", draw_text_ext_transformed},
 		{ "draw_surface_ext", draw_surface_ext},
-		
+
 		{ "sprite_exists", sprite_exists},
 		{ "event_perform", event_perform},
 		{ "gpu_set_blendenable", gpu_set_blendenable},
@@ -641,7 +641,7 @@ public static partial class ScriptResolver
 		{ "action_set_alarm", action_set_alarm},
 		{ "action_set_friction", action_set_friction},
 		{ "sprite_delete", sprite_delete},
-		
+
 		{ "window_enable_borderless_fullscreen", window_enable_borderless_fullscreen},
 		{ "parameter_count", parameter_count},
 		{ "game_change", game_change},
@@ -691,6 +691,17 @@ public static partial class ScriptResolver
 		{ "room_set_persistent", room_set_persistent},
 		{ "path_get_x", path_get_x },
 		{ "path_get_y", path_get_y },
+
+		{ "matrix_get", matrix_get },
+		{ "matrix_set", matrix_set },
+		{ "matrix_build", matrix_build },
+		{ "matrix_multiply", matrix_multiply },
+		{ "matrix_build_identity", matrix_build_identity },
+		{ "matrix_build_lookat", matrix_build_lookat },
+		{ "matrix_build_projection_ortho", matrix_build_projection_ortho },
+		{ "matrix_build_projection_perspective", matrix_build_projection_perspective },
+		{ "matrix_build_projection_perspective_fov", matrix_build_projection_perspective_fov },
+		{ "matrix_transform_vertex", matrix_transform_vertex },
 	};
 
 	public static object? room_set_persistent(object?[] args)
