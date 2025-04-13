@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using OpenGM.IO;
 using StbImageSharp;
 using OpenGM.Rendering;
+using System.Diagnostics;
 
 namespace OpenGM.Loading;
 public static class GameLoader
@@ -52,6 +53,7 @@ public static class GameLoader
         AudioManager.LoadSounds(reader);
         LoadPaths(reader);
         LoadBackgrounds(reader);
+        LoadShaders(reader);
         
         GC.Collect(); // gc after doing a buncha loading
     }
@@ -411,6 +413,23 @@ public static class GameLoader
 			var asset = reader.ReadMemoryPack<Background>();
 			Backgrounds.Add(asset.AssetIndex, asset);
 		}
+		Console.WriteLine($" Done!");
+	}
+
+	public static Dictionary<int, Shader> Shaders = new();
+
+	private static void LoadShaders(BinaryReader reader)
+    {
+		Console.Write($"Loading shaders...");
+        Shaders.Clear();
+
+		var length = reader.ReadInt32();
+		for (var i = 0; i < length; i++)
+        {
+			var asset = reader.ReadMemoryPack<Shader>();
+			Shaders.Add(asset.AssetIndex, asset);
+		}
+
 		Console.WriteLine($" Done!");
 	}
 }

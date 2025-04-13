@@ -43,6 +43,7 @@ public static class GameConverter
 		ExportSounds(writer, data);
 		ExportPaths(writer, data);
 		ExportBackgrounds(writer, data);
+		ExportShaders(writer, data);
 
 		GC.Collect(); // gc after doing a buncha loading
 	}
@@ -1243,6 +1244,49 @@ public static class GameConverter
 
 			writer.WriteMemoryPack(asset);
 		}
+		Console.WriteLine(" Done!");
+	}
+
+	public static void ExportShaders(BinaryWriter writer, UndertaleData data)
+	{
+		Console.Write($"Exporting shaders...");
+
+		writer.Write(data.Shaders.Count);
+		foreach (var shader in data.Shaders)
+		{
+			var asset = new Shader();
+			asset.AssetIndex = data.Shaders.IndexOf(shader);
+			asset.Name = shader.Name.Content;
+			asset.ShaderType = (int)shader.Type;
+
+			switch (shader.Type)
+			{
+				case UndertaleShader.ShaderType.GLSL_ES:
+					asset.VertexSource = shader.GLSL_ES_Vertex.Content;
+					asset.FragmentSource = shader.GLSL_ES_Fragment.Content;
+					break;
+				case UndertaleShader.ShaderType.GLSL:
+					asset.VertexSource = shader.GLSL_Vertex.Content;
+					asset.FragmentSource = shader.GLSL_Fragment.Content;
+					break;
+				case UndertaleShader.ShaderType.HLSL9:
+					asset.VertexSource = shader.HLSL9_Vertex.Content;
+					asset.FragmentSource = shader.HLSL9_Fragment.Content;
+					break;
+				default:
+					// There are other shader types (HLSL11, PSSL, CG_PS3, CG_VITA) but they shouldn't show up
+					throw new NotImplementedException();
+			}
+
+			asset.ShaderAttributes = new string[shader.VertexShaderAttributes.Count];
+			for (var i = 0; i < shader.VertexShaderAttributes.Count; i++)
+			{
+				asset.ShaderAttributes[i] = shader.VertexShaderAttributes[i].Name.Content;
+			}
+
+			writer.WriteMemoryPack(asset);
+		}
+
 		Console.WriteLine(" Done!");
 	}
 }
