@@ -493,6 +493,8 @@ public static class GameConverter
 		// jank, but it works and its fast to load
 		var streamWriter = new StringBuilder();
 		{
+			// https://github.com/UnderminersTeam/UndertaleModTool/blob/4e98560d3eea85dbeac89285c9bebe1385c3207c/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAssetOrder.csx
+
 			// Write Sounds.
 			streamWriter.AppendLine("@@sounds@@");
 			if (data.Sounds.Count > 0)
@@ -525,13 +527,12 @@ public static class GameConverter
 					streamWriter.AppendLine(path.Name.Content);
 			}
 
-			// Write Code.
-			streamWriter.AppendLine("@@code@@");
-			var codes = data.Code.ToList();
-			if (codes.Count > 0)
+			// Write Scripts.
+			streamWriter.AppendLine("@@scripts@@");
+			if (data.Scripts.Count > 0)
 			{
-				foreach (UndertaleCode code in codes)
-					streamWriter.AppendLine(code.Name.Content);
+				foreach (UndertaleScript script in data.Scripts)
+					streamWriter.AppendLine(script.Name.Content);
 			}
 
 			// Write Fonts.
