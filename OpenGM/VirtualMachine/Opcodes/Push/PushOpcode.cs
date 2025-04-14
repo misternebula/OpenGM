@@ -335,9 +335,9 @@ public static partial class VMExecutor
 
 				if (instruction.StringData != null)
 				{
-					if (AssetIndexManager.NameToIndex.ContainsKey(instruction.StringData))
+					if (AssetIndexManager.GetIndex(instruction.StringData) != -1)
 					{
-						Self.Stack.Push(AssetIndexManager.NameToIndex[instruction.StringData], VMType.i);
+						Self.Stack.Push(AssetIndexManager.GetIndex(instruction.StringData), VMType.i);
 					}
 					else if (instruction.StringData.StartsWith($"gml_Script_"))
 					{
