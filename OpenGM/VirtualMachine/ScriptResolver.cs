@@ -2485,9 +2485,7 @@ public static partial class ScriptResolver
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = ScriptsByIndex[scriptAssetId];
-
-		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
+		return VMExecutor.ExecuteCode(ScriptsByIndex[scriptAssetId].GetCode(), VMExecutor.Self.Self, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
 	}
 
 	public static object? draw_line_width(object?[] args)
