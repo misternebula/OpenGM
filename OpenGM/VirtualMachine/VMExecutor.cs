@@ -501,6 +501,8 @@ public static partial class VMExecutor
 					break;
 				}
 
+				// TODO: remove this. all gml stuff always uses scripts, not code. it just so happens that for deltarune the names match
+				//	     breaks nothing tho
 				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
 				{
 					var (script, instructionIndex) = scriptFunction;
@@ -645,6 +647,7 @@ public static partial class VMExecutor
 					throw new NotImplementedException("gmself is null");
 				}
 
+				// TODO: method stuff stores script index. in deltarune these match, so breaks nothing, but is wrong
 				var script = ScriptResolver.ScriptFunctions[method.code.Name];
 
 				//DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
