@@ -72,8 +72,7 @@ internal class Entry
 		}
 		else
 		{
-			// i think this is wrong because it sets the matrix stuff not the actual window size? idk
-			window.SetResolution(firstRoom.SizeX, firstRoom.SizeY);
+			window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
 		}
 
 		DebugLog.LogInfo($"Binding page textures...");
