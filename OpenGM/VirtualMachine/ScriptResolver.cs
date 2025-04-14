@@ -777,6 +777,10 @@ public static partial class ScriptResolver
 				throw new NotImplementedException();
 			}
 		}
+		else if (struct_ref_or_instance_id is GMLObject gmlo)
+		{
+			method.inst = gmlo;
+		}
 		else
 		{
 			throw new NotImplementedException();
