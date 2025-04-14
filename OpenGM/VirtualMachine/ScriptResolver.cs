@@ -3369,8 +3369,7 @@ public static partial class ScriptResolver
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		// TODO: constructor is script index. in deltarune these match, so breaks nothing
-		var ret = VMExecutor.ExecuteCode(GameLoader.Codes[constructorIndex], obj, args: values);
+		VMExecutor.ExecuteCode(ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
 
 		return obj;
 	}
