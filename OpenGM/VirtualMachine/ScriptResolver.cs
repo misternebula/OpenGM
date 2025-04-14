@@ -4325,28 +4325,17 @@ public static partial class ScriptResolver
 		return null;
 	}
 
-	private static float AlphaRef = 0;
-
 	public static object? gpu_set_alphatestenable(object?[] args)
 	{
 		var enabled = args[0].Conv<bool>();
-
-		if (enabled)
-		{
-			GL.AlphaFunc(AlphaFunction.Greater, AlphaRef);
-		}
-		else
-		{
-			GL.AlphaFunc(AlphaFunction.Always, AlphaRef);
-		}
-
+		GL.Uniform1(VertexManager.alphaTestEnabled, enabled == true ? 1 : 0);
 		return null;
 	}
 
 	public static object? gpu_set_alphatestref(object?[] args)
 	{
 		var alphaRef = args[0].Conv<int>();
-		AlphaRef = alphaRef / 255f;
+		GL.Uniform1(VertexManager.alphaRefValue, alphaRef / 255f);
 		return null;
 	}
 

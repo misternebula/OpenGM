@@ -14,7 +14,10 @@ public static class VertexManager
     public static int u_doTex;
     public static int u_flipY;
 
-    [StructLayout(LayoutKind.Explicit)]
+    public static int alphaTestEnabled;
+    public static int alphaRefValue;
+
+	[StructLayout(LayoutKind.Explicit)]
     public struct Vertex
     {
         [FieldOffset(0 * sizeof(float))] public Vector2 pos;
@@ -72,8 +75,10 @@ public static class VertexManager
         u_view = GL.GetUniformLocation(program, "u_view");
         u_doTex = GL.GetUniformLocation(program, "u_doTex");
         u_flipY = GL.GetUniformLocation(program, "u_flipY");
+        alphaTestEnabled = GL.GetUniformLocation(program, "alphaTestEnabled");
+        alphaRefValue = GL.GetUniformLocation(program, "alphaRefValue");
 
-        GL.UseProgram(program);
+		GL.UseProgram(program);
 
 
         // use one buffer for everything

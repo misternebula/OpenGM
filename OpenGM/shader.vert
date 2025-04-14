@@ -4,8 +4,8 @@ layout (location = 0) in vec2 a_pos;
 layout (location = 1) in vec4 a_color;
 layout (location = 2) in vec2 a_uv;
 
-out vec4 color;
-out vec2 uv;
+out vec4 fcolor;
+out vec2 texc;
 
 uniform vec4 u_view; // x, y, width, height
 uniform bool u_flipY; // backbuffer drawing should be flipped. nothing else should
@@ -15,6 +15,6 @@ void main() {
     if (u_flipY) gl_Position.y = 1 - gl_Position.y;
     gl_Position.xy = gl_Position.xy * 2 - 1; // 0..1 to -1..1
     gl_Position.zw = vec2(1);
-    color = a_color;
-    uv = a_uv;
+    fcolor = a_color;
+    texc = a_uv;
 }
