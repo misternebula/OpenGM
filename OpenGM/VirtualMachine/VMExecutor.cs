@@ -377,10 +377,10 @@ public static partial class VMExecutor
 					switch (instruction.Comparison)
 					{
 						case VMComparison.LT:
-							Self.Stack.Push(firstNumber < secondNumber, VMType.b);
+							Self.Stack.Push(CustomMath.ApproxLessThan(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.LTE:
-							Self.Stack.Push(firstNumber <= secondNumber, VMType.b);
+							Self.Stack.Push(CustomMath.ApproxLessThanEqual(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.EQ:
 							Self.Stack.Push(equal, VMType.b);
@@ -389,10 +389,10 @@ public static partial class VMExecutor
 							Self.Stack.Push(!equal, VMType.b);
 							break;
 						case VMComparison.GTE:
-							Self.Stack.Push(firstNumber >= secondNumber, VMType.b);
+							Self.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.GT:
-							Self.Stack.Push(firstNumber > secondNumber, VMType.b);
+							Self.Stack.Push(CustomMath.ApproxGreaterThan(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.None:
 						default:
@@ -441,16 +441,16 @@ public static partial class VMExecutor
 						switch (instruction.Comparison)
 						{
 							case VMComparison.LT:
-								Self.Stack.Push(firstValue < secondValue, VMType.b);
+								Self.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.LTE:
-								Self.Stack.Push(firstValue <= secondValue, VMType.b);
+								Self.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.GTE:
-								Self.Stack.Push(firstValue >= secondValue, VMType.b);
+								Self.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.GT:
-								Self.Stack.Push(firstValue > secondValue, VMType.b);
+								Self.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.None:
 							default:

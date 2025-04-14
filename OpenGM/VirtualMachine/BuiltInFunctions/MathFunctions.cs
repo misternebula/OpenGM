@@ -264,6 +264,8 @@ public static partial class ScriptResolver
 		var min = args[1].Conv<double>();
 		var max = args[2].Conv<double>();
 
+		// TODO : do we need to use Epsilon here?
+
 		if (val <= min)
 		{
 			return min;

@@ -75,10 +75,13 @@ public static class CustomMath
 		return value == 0 ? 1 : Math.Sign(value);
 	}
 
-	public static bool ApproxEqual(double a, double b)
-	{
-		return Math.Abs(a - b) <= Epsilon;
-	}
+	public static bool ApproxEqual(double a, double b) => Math.Abs(a - b) <= Epsilon;
+
+	public static bool ApproxGreaterThan(double a, double b) => a > b + Epsilon;
+	public static bool ApproxGreaterThanEqual(double a, double b) => ApproxEqual(a, b) || ApproxGreaterThan(a, b);
+
+	public static bool ApproxLessThan(double a, double b) => a + Epsilon < b;
+	public static bool ApproxLessThanEqual(double a, double b) => ApproxEqual(a, b) || ApproxLessThan(a, b);
 
 	public static double Mod(double a, double b)
 	{
