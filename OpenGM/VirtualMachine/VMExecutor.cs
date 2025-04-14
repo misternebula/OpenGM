@@ -145,29 +145,12 @@ public static partial class VMExecutor
 			return null;
 		}
 
-		if (code.ParentAssetId != -1) // this is the case for e.g. NewGMLObject (it points to the child script function instead of the parent script asset)
+		if (code.ParentAssetId != -1) // deltarune calls script functions that point to the script asset
 		{
+			// TODO: potentially speed up lookup here, profile to see if thats needed
 			var parentCode = GameLoader.Codes[code.ParentAssetId];
-			
-			if (parentCode?.ParentAssetId != -1)
-			{
-				throw new NotImplementedException("multiple layers of nested functions??");
-			}
-
-			var func = parentCode?.Functions.FirstOrDefault(x => x.FunctionName == code.Name);
-
-			var newStartingIndex = 0;
-			if (func != null)
-			{
-				// i think this is never null but i don't really know.
-				newStartingIndex = func.InstructionIndex;
-			}
-			else
-			{
-				DebugLog.LogWarning($"No func found for {code.Name}, executing from beginning");
-			}
-
-			return ExecuteCode(parentCode, obj, objectDefinition, eventType, eventIndex, args, newStartingIndex);
+			var func = parentCode.Functions.First(x => x.FunctionName == code.Name);
+			return ExecuteCode(parentCode, obj, objectDefinition, eventType, eventIndex, args, func.InstructionIndex);
 		}
 
 		if (code.Instructions.Count == 0)
@@ -501,16 +484,7 @@ public static partial class VMExecutor
 					break;
 				}
 
-				// TODO: remove this. all gml stuff always uses scripts, not code. it just so happens that for deltarune the names match
-				//	     breaks nothing tho
-				if (ScriptResolver.ScriptFunctions.TryGetValue(instruction.FunctionName, out var scriptFunction))
-				{
-					var (script, instructionIndex) = scriptFunction;
-					Self.Stack.Push(ExecuteCode(script, Self.GMSelf, Self.ObjectDefinition, args: args, startingIndex: instructionIndex), VMType.v);
-					break;
-				}
-
-				if (ScriptResolver.Scripts.TryGetValue(instruction.FunctionName, out var scriptName))
+				if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
 					Self.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.GMSelf, Self.ObjectDefinition, args: args), VMType.v);
 					break;
@@ -647,12 +621,9 @@ public static partial class VMExecutor
 					throw new NotImplementedException("gmself is null");
 				}
 
-				// TODO: method stuff stores script index. in deltarune these match, so breaks nothing
-				var script = ScriptResolver.ScriptFunctions[method.code.Name];
-
 				//DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
 
-				Self.Stack.Push(ExecuteCode(method.code, gmSelf, gmSelf.Definition, args: args, startingIndex: script.index), VMType.v);
+				Self.Stack.Push(ExecuteCode(method.GetScript().GetCode(), gmSelf, gmSelf.Definition, args: args), VMType.v);
 
 				break;
 			}

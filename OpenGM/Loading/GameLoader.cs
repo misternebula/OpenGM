@@ -62,13 +62,15 @@ public static class GameLoader
     {
 	    Console.Write($"Loading scripts...");
 
-	    ScriptResolver.Scripts.Clear();
+	    ScriptResolver.ScriptsByName.Clear();
+	    ScriptResolver.ScriptsByIndex.Clear();
 
 		var length = reader.ReadInt32();
 	    for (var i = 0; i < length; i++)
 	    {
 		    var asset = reader.ReadMemoryPack<VMScript>();
-		    ScriptResolver.Scripts.Add(asset.Name, asset);
+		    ScriptResolver.ScriptsByName.Add(asset.Name, asset);
+		    ScriptResolver.ScriptsByIndex.Add(asset.AssetIndex, asset);
 		}
 	    Console.WriteLine($" Done!");
 	}
@@ -80,7 +82,6 @@ public static class GameLoader
         Console.Write($"Loading code...");
 
         var allUsedFunctions = new HashSet<string>();
-        ScriptResolver.ScriptFunctions.Clear();
         Codes.Clear();
 
 		var length = reader.ReadInt32();
@@ -99,11 +100,6 @@ public static class GameLoader
             }
 
             Codes.Add(asset.AssetId, asset);
-
-            foreach (var func in asset.Functions)
-            {
-                ScriptResolver.ScriptFunctions.Add(func.FunctionName, (asset, func.InstructionIndex));
-            }
 
             if (DebugDumpFunctions)
             {

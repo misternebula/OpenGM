@@ -157,7 +157,7 @@ public static class GameConverter
 
 		if (startLine == -1)
 		{
-			// no code in file???
+			// this is the case for script functions. they are empty and have parent as script asset
 
 			asset.Instructions = new();
 			asset.Labels = new() { { 0, 0 } };

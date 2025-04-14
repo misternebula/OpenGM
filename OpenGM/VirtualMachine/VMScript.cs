@@ -6,7 +6,7 @@ namespace OpenGM.VirtualMachine;
 /// <summary>
 /// VMCode but with a different index and name.
 /// gml can only reference scripts, not code.
-/// e.g. script_execute, NewGMLObject, method, push.i [string]
+/// code is only directly used in object, room, and global init. everything else is script.
 /// </summary>
 [MemoryPackable]
 public partial class VMScript

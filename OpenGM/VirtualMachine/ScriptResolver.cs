@@ -19,10 +19,9 @@ using static UndertaleModLib.Models.UndertaleBackground;
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
 {
-	public static Dictionary<string, VMScript> Scripts = new();
+	public static Dictionary<string, VMScript> ScriptsByName = new();
+	public static Dictionary<int, VMScript> ScriptsByIndex = new();
 	public static List<VMCode> GlobalInit = new();
-
-	public static Dictionary<string, (VMCode script, int index)> ScriptFunctions = new Dictionary<string, (VMCode script, int index)>();
 
 	public static Dictionary<string, Func<object?[], object?>> BuiltInFunctions = new()
 	{
@@ -2465,7 +2464,7 @@ public static partial class ScriptResolver
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = Scripts.Values.First(x => x.AssetIndex == scriptAssetId);
+		var script = ScriptsByIndex[scriptAssetId];
 
 		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
 	}

@@ -11,10 +11,7 @@ public static class TestUtils
 		var code = GameConverter.ConvertAssembly(asmFile);
 		code.Name = name;
 
-		foreach (var func in code.Functions)
-		{
-			ScriptResolver.ScriptFunctions.Add(func.FunctionName, (code, func.InstructionIndex));
-		}
+		// TODO: add functions properly
 
 		VMExecutor.VerboseStackLogs = true;
 		var result = VMExecutor.ExecuteCode(code, null);
