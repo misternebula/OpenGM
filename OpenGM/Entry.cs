@@ -50,8 +50,8 @@ internal class Entry
 		InstanceManager.instances.Clear();
 		DrawManager._drawObjects.Clear();
 
-		GameSpeed = GameLoader.GeneralInfo!.FPS;
-		InstanceManager.NextInstanceID = GameLoader.GeneralInfo!.LastObjectID + 1;
+		GameSpeed = GameLoader.GeneralInfo.FPS;
+		InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
 
 		GMRandom.InitialiseRNG(0);
 
@@ -63,11 +63,11 @@ internal class Entry
 			gameSettings.UpdateFrequency = 30;
 			var nativeSettings = NativeWindowSettings.Default;
 			nativeSettings.WindowBorder = WindowBorder.Fixed;
-			nativeSettings.ClientSize = GameLoader.GeneralInfo!.DefaultWindowSize;
+			nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
 			// nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
 			nativeSettings.Flags = ContextFlags.Default;
 
-			window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo!.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo!.DefaultWindowSize.Y);
+			window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
 		}
 		else
 		{
@@ -82,11 +82,6 @@ internal class Entry
 
 		foreach (var item in ScriptResolver.GlobalInit)
 		{
-			if (item == null)
-			{
-				continue;
-			}
-
 			VMExecutor.ExecuteCode(item, null);
 		}
 

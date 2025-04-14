@@ -20,7 +20,7 @@ namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
 {
 	public static Dictionary<string, VMScript> Scripts = new();
-	public static List<VMCode?> GlobalInit = new();
+	public static List<VMCode> GlobalInit = new();
 
 	public static Dictionary<string, (VMCode script, int index)> ScriptFunctions = new Dictionary<string, (VMCode script, int index)>();
 

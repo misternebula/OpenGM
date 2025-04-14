@@ -11,5 +11,5 @@ internal class Method
 	public object? struct_ref_or_instance_id;
 	public int func;
 
-	public VMCode code => GameLoader.Codes[func]!;
+	public VMCode code => GameLoader.Codes[func];
 }
