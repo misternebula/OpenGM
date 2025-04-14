@@ -168,6 +168,11 @@ public static class AudioManager
 
     public static void Dispose()
     {
+        if (!_inited)
+        {
+            return;
+        }
+        
         /*
 		 * deallocate all the buffers
 		 * and currently playing sources here
@@ -177,18 +182,24 @@ public static class AudioManager
             AL.DeleteSource(source.Source);
             CheckALError();
         }
+        _audioSources.Clear();
         foreach (var clip in _audioClips.Values)
         {
             AL.DeleteBuffer(clip.Clip);
             CheckALError();
         }
+        _audioClips.Clear();
 
         ALC.MakeContextCurrent(ALContext.Null);
         CheckALCError();
         ALC.DestroyContext(_context);
         CheckALCError();
+        _context = default;
         ALC.CloseDevice(_device);
         CheckALCError();
+        _device = default;
+
+        _inited = false;
     }
 
     public static void Update()

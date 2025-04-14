@@ -42,6 +42,7 @@ internal class Entry
 
 		//CollisionManager.colliders.Clear();
 
+		AudioManager.Dispose();
 		AudioManager.Init();
 		GameLoader.LoadGame();
 
