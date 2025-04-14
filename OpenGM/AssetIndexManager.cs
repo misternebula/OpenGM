@@ -6,13 +6,13 @@ public enum AssetType
 	sprites,
 	backgrounds,
 	paths,
-	scripts,
 	fonts,
 	objects,
 	timelines,
 	rooms,
 	shaders,
 	extensions,
+	code
 }
 
 public static class AssetIndexManager
