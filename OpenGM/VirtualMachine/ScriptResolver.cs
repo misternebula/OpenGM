@@ -948,7 +948,7 @@ public static partial class ScriptResolver
 			return null;
 		}
 
-		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition.parent, VMExecutor.Self.EventType, VMExecutor.Self.EventIndex);
+		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition.parent, VMExecutor.Call.EventType, VMExecutor.Call.EventIndex);
 		return null;
 	}
 

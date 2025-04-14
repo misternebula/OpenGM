@@ -109,24 +109,24 @@ public static partial class VMExecutor
 
 	public static void PushGlobal(string varName)
 	{
-		Self.Stack.Push(VariableResolver.GlobalVariables[varName], VMType.v);
+		Call.Stack.Push(VariableResolver.GlobalVariables[varName], VMType.v);
 	}
 
 	public static void PushGlobalArrayIndex(string varName, int index)
 	{
 		var array = VariableResolver.GlobalVariables[varName].Conv<IList>();
-		Self.Stack.Push(array[index], VMType.v);
+		Call.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocalArrayIndex(string varName, int index)
 	{
-		var array = CurrentCall.Locals[varName].Conv<IList>();
-		Self.Stack.Push(array[index], VMType.v);
+		var array = Call.Locals[varName].Conv<IList>();
+		Call.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushLocal(string varName)
 	{
-		Self.Stack.Push(CurrentCall.Locals[varName], VMType.v);
+		Call.Stack.Push(Call.Locals[varName], VMType.v);
 	}
 
 	public static void PushBuiltin(string varName)
@@ -134,17 +134,17 @@ public static partial class VMExecutor
 		if (VariableResolver.BuiltInVariables.ContainsKey(varName))
 		{
 			var value = VariableResolver.BuiltInVariables[varName].getter();
-			Self.Stack.Push(value, VMType.v);
+			Call.Stack.Push(value, VMType.v);
 		}
 		else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
 		{
 			var value = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf);
-			Self.Stack.Push(value, VMType.v);
+			Call.Stack.Push(value, VMType.v);
 		}
 		else if (Self.Self.SelfVariables.ContainsKey(varName))
 		{
 			var value = Self.Self.SelfVariables[varName];
-			Self.Stack.Push(value, VMType.v);
+			Call.Stack.Push(value, VMType.v);
 		}
 		else
 		{
@@ -157,12 +157,12 @@ public static partial class VMExecutor
 		if (VariableResolver.BuiltInVariables.ContainsKey(varName))
 		{
 			var array = VariableResolver.BuiltInVariables[varName].getter().Conv<IList>();
-			Self.Stack.Push(array[index], VMType.v);
+			Call.Stack.Push(array[index], VMType.v);
 		}
 		else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
 		{
 			var array = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf).Conv<IList>();
-			Self.Stack.Push(array[index], VMType.v);
+			Call.Stack.Push(array[index], VMType.v);
 		}
 		else
 		{
@@ -182,23 +182,23 @@ public static partial class VMExecutor
 				DebugLog.LogError($" - {item.Code.Name}");
 			}
 
-			Self.Stack.Push(null, VMType.v);
+			Call.Stack.Push(null, VMType.v);
 			return;
 		}
 
 		if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
 		{
-			Self.Stack.Push(builtin_gettersetter.getter(), VMType.v);
+			Call.Stack.Push(builtin_gettersetter.getter(), VMType.v);
 		}
 		else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfbuiltin_gettersetter) && self is GamemakerObject gm)
 		{
-			Self.Stack.Push(selfbuiltin_gettersetter.getter(gm), VMType.v);
+			Call.Stack.Push(selfbuiltin_gettersetter.getter(gm), VMType.v);
 		}
 		else
 		{
 			if (self.SelfVariables.ContainsKey(varName))
 			{
-				Self.Stack.Push(self.SelfVariables[varName], VMType.v);
+				Call.Stack.Push(self.SelfVariables[varName], VMType.v);
 			}
 			else
 			{
@@ -218,7 +218,7 @@ public static partial class VMExecutor
 				}
 
 				self.SelfVariables[varName] = null;
-				Self.Stack.Push(self.SelfVariables[varName], VMType.v);
+				Call.Stack.Push(self.SelfVariables[varName], VMType.v);
 			}
 		}
 	}
@@ -228,33 +228,33 @@ public static partial class VMExecutor
 		if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var bi_gettersetter))
 		{
 			var array = bi_gettersetter.getter().Conv<IList>();
-			Self.Stack.Push(array[index], VMType.v);
+			Call.Stack.Push(array[index], VMType.v);
 		}
 		else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var bis_gettersetter) && self is GamemakerObject gm)
 		{
 			var array = bis_gettersetter.getter(gm).Conv<IList>();
-			Self.Stack.Push(array[index], VMType.v);
+			Call.Stack.Push(array[index], VMType.v);
 		}
 		else
 		{
 			var array = self.SelfVariables[varName].Conv<IList>();
-			Self.Stack.Push(array[index], VMType.v);
+			Call.Stack.Push(array[index], VMType.v);
 		}
 	}
 
 	public static void PushArgument(int index)
 	{
-		var arguments = CurrentCall.Locals["arguments"].Conv<IList>();
+		var arguments = Call.Locals["arguments"].Conv<IList>();
 
 		if (index >= arguments.Count)
 		{
 			// Scripts can be called with fewer than normal arguments.
 			// They just get set to Undefined.
-			Self.Stack.Push(null, VMType.v);
+			Call.Stack.Push(null, VMType.v);
 			return;
 		}
 
-		Self.Stack.Push(arguments[index], VMType.v);
+		Call.Stack.Push(arguments[index], VMType.v);
 	}
 
 	public static void PushIndex(int assetId, string varName)
@@ -268,7 +268,7 @@ public static partial class VMExecutor
 			if (asset == null)
 			{
 				DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, assetId)}!");
-				Self.Stack.Push(null, VMType.v);
+				Call.Stack.Push(null, VMType.v);
 				return;
 			}
 
@@ -291,7 +291,7 @@ public static partial class VMExecutor
 
 				DebugLog.LogError(Environment.StackTrace);
 
-				Self.Stack.Push(null, VMType.v);
+				Call.Stack.Push(null, VMType.v);
 				return;
 			}
 
@@ -306,7 +306,7 @@ public static partial class VMExecutor
 
 	public static void PushStacktop(string varName)
 	{
-		var instanceId = Self.Stack.Pop(VMType.v).Conv<int>();
+		var instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
 		PushIndex(instanceId, varName);
 	}
 
@@ -314,17 +314,17 @@ public static partial class VMExecutor
 	{
 		var argIndex = int.Parse(varName.Replace("argument", ""));
 
-		var arguments = CurrentCall.Locals["arguments"].Conv<IList>();
+		var arguments = Call.Locals["arguments"].Conv<IList>();
 
 		if (argIndex >= arguments.Count)
 		{
-			Self.Stack.Push(null, VMType.v);
+			Call.Stack.Push(null, VMType.v);
 			return;
 		}
 
 		var array = arguments[argIndex].Conv<IList>();
 
-		Self.Stack.Push(array[index], VMType.v);
+		Call.Stack.Push(array[index], VMType.v);
 	}
 
 	public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
@@ -337,7 +337,7 @@ public static partial class VMExecutor
 				{
 					if (AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData) != -1)
 					{
-						Self.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
+						Call.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
 					}
 					else
 					{
@@ -346,23 +346,23 @@ public static partial class VMExecutor
 				}
 				else
 				{
-					Self.Stack.Push(instruction.IntData, VMType.i);
+					Call.Stack.Push(instruction.IntData, VMType.i);
 				}
 				return (ExecutionResult.Success, null);
 			case VMType.e:
-				Self.Stack.Push(instruction.ShortData, VMType.e);
+				Call.Stack.Push(instruction.ShortData, VMType.e);
 				return (ExecutionResult.Success, null);
 			case VMType.l:
-				Self.Stack.Push(instruction.LongData, VMType.l);
+				Call.Stack.Push(instruction.LongData, VMType.l);
 				return (ExecutionResult.Success, null);
 			case VMType.b:
-				Self.Stack.Push(instruction.BoolData, VMType.b);
+				Call.Stack.Push(instruction.BoolData, VMType.b);
 				return (ExecutionResult.Success, null);
 			case VMType.d:
-				Self.Stack.Push(instruction.DoubleData, VMType.d);
+				Call.Stack.Push(instruction.DoubleData, VMType.d);
 				return (ExecutionResult.Success, null);
 			case VMType.s:
-				Self.Stack.Push(instruction.StringData, VMType.s);
+				Call.Stack.Push(instruction.StringData, VMType.s);
 				return (ExecutionResult.Success, null);
 			case VMType.v:
 				return DoPushV(instruction);
@@ -426,12 +426,12 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Self.Stack.Pop(VMType.i).Conv<int>();
-					var instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					var index = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Self.Stack.Pop(VMType.v).Conv<int>();
+						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
 					}
 
 					if (instanceId == GMConstants.global)
@@ -477,7 +477,7 @@ public static partial class VMExecutor
 							if (self == null)
 							{
 								DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, instanceId)}");
-								Self.Stack.Push(null, VMType.v);
+								Call.Stack.Push(null, VMType.v);
 								return (ExecutionResult.Success, null);
 							}
 
@@ -497,8 +497,8 @@ public static partial class VMExecutor
 				}
 				else if (variableType == VariableType.Global)
 				{
-					var index = Self.Stack.Pop(VMType.i).Conv<int>();
-					var instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					var index = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.global)
 					{
@@ -508,8 +508,8 @@ public static partial class VMExecutor
 				}
 				else if (variableType == VariableType.Local)
 				{
-					var index = Self.Stack.Pop(VMType.i).Conv<int>();
-					var instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					var index = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.local)
 					{
@@ -522,8 +522,8 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Self.Stack.Pop(VMType.i).Conv<int>();
-					var instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					var index = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 
 					// TODO: make into methods and move out duplicated code
 					if (instanceId == GMConstants.global)
@@ -534,18 +534,18 @@ public static partial class VMExecutor
 							onlyGrow: true);
 
 						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
-						Self.Stack.Push(array[index], VMType.v);
+						Call.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
 					{
 						VariableResolver.ArraySet(index, new List<object?>(),
-							() => CurrentCall.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
-							array => CurrentCall.Locals[variableName] = array,
+							() => Call.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
+							array => Call.Locals[variableName] = array,
 							onlyGrow: true);
 
-						var array = CurrentCall.Locals[variableName].Conv<IList>();
-						Self.Stack.Push(array[index], VMType.v);
+						var array = Call.Locals[variableName].Conv<IList>();
+						Call.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
@@ -557,7 +557,7 @@ public static partial class VMExecutor
 							onlyGrow: true);
 
 						var array = Self.Self.SelfVariables[variableName].Conv<IList>();
-						Self.Stack.Push(array[index], VMType.v);
+						Call.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -566,26 +566,26 @@ public static partial class VMExecutor
 			{
 				if (variableType == VariableType.Self)
 				{
-					var index = Self.Stack.Pop(VMType.i).Conv<int>();
-					var instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					var index = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 
 					if (instanceId == GMConstants.global)
 					{
 						var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
-						Self.Stack.Push(array[index], VMType.v);
+						Call.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.local)
 					{
-						var array = CurrentCall.Locals[variableName].Conv<IList>();
-						Self.Stack.Push(array[index], VMType.v);
+						var array = Call.Locals[variableName].Conv<IList>();
+						Call.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 					else if (instanceId == GMConstants.self)
 					{
 						// TODO: check builtin self var
 						var array = Self.Self.SelfVariables[variableName].Conv<IList>();
-						Self.Stack.Push(array[index], VMType.v);
+						Call.Stack.Push(array[index], VMType.v);
 						return (ExecutionResult.Success, null);
 					}
 				}
@@ -595,11 +595,11 @@ public static partial class VMExecutor
 		{
 			if (variableType == VariableType.Self)
 			{
-				var id = Self.Stack.Pop(VMType.i).Conv<int>();
+				var id = Call.Stack.Pop(VMType.i).Conv<int>();
 
 				if (id == GMConstants.stacktop)
 				{
-					var popped = Self.Stack.Pop(VMType.v);
+					var popped = Call.Stack.Pop(VMType.v);
 
 					if (popped is GMLObject gmlo)
 					{

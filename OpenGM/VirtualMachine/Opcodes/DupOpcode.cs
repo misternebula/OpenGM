@@ -20,7 +20,7 @@ public static partial class VMExecutor
 		if (VerboseStackLogs)
 		{
 			DebugLog.Log($"DoDup dupType:{dupType} dupTypeSize:{dupTypeSize} STACK : ");
-			foreach (var item in Self.Stack)
+			foreach (var item in Call.Stack)
 			{
 				Console.WriteLine($" - {item.value} (VMType.{item.type}, {VMTypeToSize(item.type)} bytes)");
 			}
@@ -40,7 +40,7 @@ public static partial class VMExecutor
 			while (topSize > 0)
 			{
 #pragma warning disable CS0618
-				var curr = Self.Stack.Pop(); // i think this is the only time its okay to use untyped pop
+				var curr = Call.Stack.Pop(); // i think this is the only time its okay to use untyped pop
 #pragma warning restore CS0618
 				topStack.Push(curr);
 				topSize -= VMTypeToSize(curr.type);
@@ -52,7 +52,7 @@ public static partial class VMExecutor
 			while (bottomSize > 0)
 			{
 #pragma warning disable CS0618
-				var curr = Self.Stack.Pop(); // i think this is the only time its okay to use untyped pop
+				var curr = Call.Stack.Pop(); // i think this is the only time its okay to use untyped pop
 #pragma warning restore CS0618
 				bottomStack.Push(curr);
 				bottomSize -= VMTypeToSize(curr.type);
@@ -68,7 +68,7 @@ public static partial class VMExecutor
 			while (topStack.Count > 0)
 			{
 #pragma warning disable CS0618
-				Self.Stack.Push(topStack.Pop());
+				Call.Stack.Push(topStack.Pop());
 #pragma warning restore CS0618
 			}
 
@@ -76,7 +76,7 @@ public static partial class VMExecutor
 			while (bottomStack.Count > 0)
 			{
 #pragma warning disable CS0618
-				Self.Stack.Push(bottomStack.Pop());
+				Call.Stack.Push(bottomStack.Pop());
 #pragma warning restore CS0618
 			}
 		}
@@ -89,7 +89,7 @@ public static partial class VMExecutor
 			while (size > 0)
 			{
 #pragma warning disable CS0618
-				var curr = Self.Stack.Pop(); // i think this is the only time its okay to use untyped pop
+				var curr = Call.Stack.Pop(); // i think this is the only time its okay to use untyped pop
 #pragma warning restore CS0618
 				toDuplicate.Add(curr);
 				size -= VMTypeToSize(curr.type);
@@ -107,7 +107,7 @@ public static partial class VMExecutor
 				for (int j = toDuplicate.Count - 1; j >= 0; j--)
 				{
 #pragma warning disable CS0618
-					Self.Stack.Push(toDuplicate[j]);
+					Call.Stack.Push(toDuplicate[j]);
 #pragma warning restore CS0618
 				}
 			}

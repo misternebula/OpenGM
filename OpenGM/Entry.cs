@@ -45,7 +45,7 @@ internal class Entry
 		AudioManager.Init();
 		GameLoader.LoadGame();
 
-		VMExecutor.EnvironmentStack.Clear();
+		VMExecutor.EnvStack.Clear();
 		VMExecutor.CallStack.Clear();
 		InstanceManager.instances.Clear();
 		DrawManager._drawObjects.Clear();

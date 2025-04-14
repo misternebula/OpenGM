@@ -7,18 +7,16 @@ public static partial class VMExecutor
 {
 	public static (ExecutionResult, object?) PUSHENV(VMCodeInstruction instruction)
 	{
-		var id = Self.Stack.Pop(VMType.i).Conv<int>();
+		var id = Call.Stack.Pop(VMType.i).Conv<int>();
 
 		if (id == GMConstants.stacktop)
 		{
-			id = Self.Stack.Pop(VMType.v).Conv<int>();
+			id = Call.Stack.Pop(VMType.v).Conv<int>();
 		}
-
-		var currentContext = Self;
 
 		// marks the beginning of the instances pushed. popenv will stop jumping when it reaches this
 		// SUPER HACKY. there HAS to be a better way of doing this
-		EnvironmentStack.Push(null);
+		EnvStack.Push(null);
 
 		if (VerboseStackLogs) DebugLog.Log($"Pushenv {id}");
 
@@ -34,37 +32,23 @@ public static partial class VMExecutor
 		}
 		else if (id == GMConstants.other)
 		{
-			// TODO: how does return work??
-			var newCtx = new VMScriptExecutionContext
+			var newCtx = new VMEnvFrame
 			{
 				Self = Other.Self,
 				ObjectDefinition = Other.ObjectDefinition,
-				// TODO: why copy? is with statement a separate block?
-				Stack = new(currentContext.Stack),
-				//Locals = new(currentContext.Locals),
-				ReturnValue = currentContext.ReturnValue,
-				EventType = currentContext.EventType,
-				EventIndex = currentContext.EventIndex,
 			};
 
-			EnvironmentStack.Push(newCtx);
+			EnvStack.Push(newCtx);
 		}
 		else if (id == GMConstants.self)
 		{
-			// TODO: how does return work??
-			var newCtx = new VMScriptExecutionContext
+			var newCtx = new VMEnvFrame
 			{
 				Self = Self.Self,
 				ObjectDefinition = Self.ObjectDefinition,
-				// TODO: why copy? is with statement a separate block?
-				Stack = new(currentContext.Stack),
-				//Locals = new(currentContext.Locals),
-				ReturnValue = currentContext.ReturnValue,
-				EventType = currentContext.EventType,
-				EventIndex = currentContext.EventIndex,
 			};
 
-			EnvironmentStack.Push(newCtx);
+			EnvStack.Push(newCtx);
 		}
 		else if (id is GMConstants.global or GMConstants.all)
 		{
@@ -102,21 +86,14 @@ public static partial class VMExecutor
 
 			foreach (var instance in instances)
 			{
-				// TODO: how does return work??
-				var newCtx = new VMScriptExecutionContext
+				var newCtx = new VMEnvFrame
 				{
 					Self = instance,
 					ObjectDefinition = instance.Definition,
-					// TODO: why copy? is with statement a separate block?
-					Stack = new(currentContext.Stack),
-					//Locals = new(currentContext.Locals),
-					ReturnValue = currentContext.ReturnValue,
-					EventType = currentContext.EventType,
-					EventIndex = currentContext.EventIndex,
 				};
 
 				if (VerboseStackLogs) DebugLog.Log($"Pushing {instance.instanceId}");
-				EnvironmentStack.Push(newCtx);
+				EnvStack.Push(newCtx);
 			}
 		}
 		else
@@ -133,20 +110,13 @@ public static partial class VMExecutor
 				return (ExecutionResult.JumpedToLabel, instruction.IntData);
 			}
 
-			// TODO: how does return work??
-			var newCtx = new VMScriptExecutionContext
+			var newCtx = new VMEnvFrame
 			{
 				Self = instance,
 				ObjectDefinition = instance.Definition,
-				// TODO: why copy? is with statement a separate block?
-				Stack = new(currentContext.Stack),
-				//Locals = new(currentContext.Locals),
-				ReturnValue = currentContext.ReturnValue,
-				EventType = currentContext.EventType,
-				EventIndex = currentContext.EventIndex,
 			};
 
-			EnvironmentStack.Push(newCtx);
+			EnvStack.Push(newCtx);
 		}
 
 		return (ExecutionResult.Success, null);
@@ -154,14 +124,14 @@ public static partial class VMExecutor
 
 	public static (ExecutionResult, object?) POPENV(VMCodeInstruction instruction)
 	{
-		var currentInstance = EnvironmentStack.Pop();
-		var nextInstance = EnvironmentStack.Peek();
+		var currentInstance = EnvStack.Pop();
+		var nextInstance = EnvStack.Peek();
 
 		if (instruction.Drop)
 		{
 			while (currentInstance != null)
 			{
-				currentInstance = EnvironmentStack.Pop();
+				currentInstance = EnvStack.Pop();
 			}
 
 			return (ExecutionResult.Success, null);
@@ -176,7 +146,7 @@ public static partial class VMExecutor
 		// no instances left
 		if (nextInstance == null)
 		{
-			EnvironmentStack.Pop();
+			EnvStack.Pop();
 			return (ExecutionResult.Success, null);
 		}
 

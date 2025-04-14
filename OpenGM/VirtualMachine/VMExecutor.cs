@@ -9,19 +9,12 @@ namespace OpenGM.VirtualMachine;
 /// <summary>
 /// environment frame.
 /// contains data about the current object. is pushed alongside the call frame. can have multiple of these per call frame.
-/// TODO: move this inside call frame? would make stack walking harder.
 /// </summary>
-public class VMScriptExecutionContext
+public class VMEnvFrame
 {
 	public IStackContextSelf Self = null!; // can be null for global scripts but those shouldnt run functions that need it
 	public GamemakerObject GMSelf => (GamemakerObject)Self;
 	public ObjectDefinition? ObjectDefinition;
-	// TODO: move all these into the call frame. they dont change with `with` blocks i think
-	public DataStack Stack = null!;
-	//public Dictionary<string, object?> Locals = null!;
-	public object? ReturnValue;
-	public EventType EventType;
-	public int EventIndex;
 
 	public override string ToString()
 	{
@@ -33,10 +26,12 @@ public class VMScriptExecutionContext
 		if (Self is GamemakerObject gm)
 		{
 			var ret = $"{gm.object_index} ({gm.instanceId})\r\nStack:";
+			/*
 			foreach (var item in Stack)
 			{
 				ret += $"- {item}\r\n";
 			}
+			*/
 
 			return ret;
 		}
@@ -51,69 +46,66 @@ public class VMScriptExecutionContext
 /// call frame.
 /// contains data about the currently executing function. is pushed alongside the environment frame.
 /// </summary>
-public class VMCall
+public class VMCallFrame
 {
-	public VMCode Code = null!;
-	// TODO: i dont think this is needed. we could potentially put environment frames inside this call frame if we wanted the dependency.
-	public VMScriptExecutionContext Ctx = null!;
-	public Dictionary<string, object?> Locals = new();
-
-	public VMCall(VMCode code, VMScriptExecutionContext ctx)
-	{
-		Code = code;
-		Ctx = ctx;
-	}
+	public VMCode Code = null!; // used to get name lol
+	
+	public DataStack Stack = null!;
+	public Dictionary<string, object?> Locals = null!;
+	public object? ReturnValue;
+	public EventType EventType;
+	public int EventIndex;
 }
 
 public static partial class VMExecutor
 {
-	public static Stack<VMScriptExecutionContext?> EnvironmentStack = new();
+	public static Stack<VMEnvFrame?> EnvStack = new();
 
-	public static Stack<VMCall> CallStack = new();
+	public static Stack<VMCallFrame> CallStack = new();
 	/// <summary>
 	/// the top level call frame
 	/// </summary>
-	public static VMCall CurrentCall => CallStack.Peek();
+	public static VMCallFrame Call => CallStack.Peek();
 
 	/// <summary>
 	/// the top level environment frame, for the current object.
 	/// has logic for handling goofy null frame for `with`.
 	/// </summary>
-	public static VMScriptExecutionContext Self
+	public static VMEnvFrame Self
 	{
 		get
 		{
-			var top = EnvironmentStack.Peek();
+			var top = EnvStack.Peek();
 
 			if (top == null)
 			{
 				// Null at top of stack, in WITH statement. Next value is self.
 
-				return EnvironmentStack.ToArray()[1]!;
+				return EnvStack.ToArray()[1]!;
 			}
 
 			return top;
 		}
 	}
 
-	public static VMScriptExecutionContext Other
+	public static VMEnvFrame Other
 	{
 		get
 		{
-			if (EnvironmentStack.Count == 1)
+			if (EnvStack.Count == 1)
 			{
 				return Self;
 			}
 
-			var top = EnvironmentStack.Peek();
+			var top = EnvStack.Peek();
 
 			if (top == null)
 			{
 				// Null at top of stack, in WITH statement. Next value is self, then next value is other.
-				return EnvironmentStack.ToArray()[2]!;
+				return EnvStack.ToArray()[2]!;
 			}
 
-			var stack = EnvironmentStack.ToArray();
+			var stack = EnvStack.ToArray();
 			if (stack.Contains(null))
 			{
 				var i = 0;
@@ -170,24 +162,28 @@ public static partial class VMExecutor
 			//}
 		}
 
-		var newCtx = new VMScriptExecutionContext
+		var newCtx = new VMEnvFrame
 		{
 			Self = obj!,
 			ObjectDefinition = objectDefinition,
-			Stack = new(),
-			//Locals = new(),
-			ReturnValue = null,
-			EventType = eventType,
-			EventIndex = eventIndex
 		};
 
 		// Make the current object the current instance
-		EnvironmentStack.Push(newCtx);
+		EnvStack.Push(newCtx);
 
 		var instructionIndex = startingIndex;
 		var lastJumpedLabel = 0; // just for debugging
 
-		var call = new VMCall(code, newCtx);
+		var call = new VMCallFrame
+		{
+			Code = code,
+			
+			Stack = new(),
+			Locals = new(),
+			ReturnValue = null,
+			EventType = eventType,
+			EventIndex = eventIndex
+		};
 		CallStack.Push(call);
 
 		foreach (var item in code.LocalVariables)
@@ -215,7 +211,7 @@ public static partial class VMExecutor
 				if (VerboseStackLogs && Self != null)
 				{
 					var stackStr = "{ ";
-					foreach (var item in Self.Stack)
+					foreach (var item in Call.Stack)
 					{
 						stackStr += $"{item}, ";
 					}
@@ -271,14 +267,14 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.ReturnedValue)
 			{
-				Self!.ReturnValue = data;
+				Call.ReturnValue = data;
 				break;
 			}
 		}
 
 		// Current object has finished executing, remove from stack
-		var returnValue = Self!.ReturnValue;
-		EnvironmentStack.Pop();
+		var returnValue = Call.ReturnValue;
+		EnvStack.Pop();
 
 		CallStack.Pop();
 
@@ -317,7 +313,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BT:
 				{
-					var boolValue = Self.Stack.Pop(VMType.b).Conv<bool>();
+					var boolValue = Call.Stack.Pop(VMType.b).Conv<bool>();
 					if (!boolValue)
 					{
 						break;
@@ -332,7 +328,7 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.BF:
 				{
-					var boolValue = Self.Stack.Pop(VMType.b).Conv<bool>();
+					var boolValue = Call.Stack.Pop(VMType.b).Conv<bool>();
 					if (boolValue)
 					{
 						break;
@@ -347,8 +343,8 @@ public static partial class VMExecutor
 				}
 			case VMOpcode.CMP:
 
-				var second = Self.Stack.Pop(instruction.TypeOne);
-				var first = Self.Stack.Pop(instruction.TypeTwo);
+				var second = Call.Stack.Pop(instruction.TypeOne);
+				var first = Call.Stack.Pop(instruction.TypeTwo);
 
 				// first ??= 0;
 				// second ??= 0;
@@ -365,22 +361,22 @@ public static partial class VMExecutor
 					switch (instruction.Comparison)
 					{
 						case VMComparison.LT:
-							Self.Stack.Push(CustomMath.ApproxLessThan(firstNumber, secondNumber), VMType.b);
+							Call.Stack.Push(CustomMath.ApproxLessThan(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.LTE:
-							Self.Stack.Push(CustomMath.ApproxLessThanEqual(firstNumber, secondNumber), VMType.b);
+							Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.EQ:
-							Self.Stack.Push(equal, VMType.b);
+							Call.Stack.Push(equal, VMType.b);
 							break;
 						case VMComparison.NEQ:
-							Self.Stack.Push(!equal, VMType.b);
+							Call.Stack.Push(!equal, VMType.b);
 							break;
 						case VMComparison.GTE:
-							Self.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstNumber, secondNumber), VMType.b);
+							Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.GT:
-							Self.Stack.Push(CustomMath.ApproxGreaterThan(firstNumber, secondNumber), VMType.b);
+							Call.Stack.Push(CustomMath.ApproxGreaterThan(firstNumber, secondNumber), VMType.b);
 							break;
 						case VMComparison.None:
 						default:
@@ -395,30 +391,30 @@ public static partial class VMExecutor
 					{
 						if (first is null && second is null)
 						{
-							Self.Stack.Push(true, VMType.b);
+							Call.Stack.Push(true, VMType.b);
 						}
 						else if (first is null || second is null)
 						{
-							Self.Stack.Push(false, VMType.b);
+							Call.Stack.Push(false, VMType.b);
 						}
 						else
 						{
-							Self.Stack.Push(first?.Equals(second), VMType.b);
+							Call.Stack.Push(first?.Equals(second), VMType.b);
 						}
 					}
 					else if (instruction.Comparison == VMComparison.NEQ)
 					{
 						if (first is null && second is null)
 						{
-							Self.Stack.Push(false, VMType.b);
+							Call.Stack.Push(false, VMType.b);
 						}
 						else if (first is null || second is null)
 						{
-							Self.Stack.Push(true, VMType.b);
+							Call.Stack.Push(true, VMType.b);
 						}
 						else
 						{
-							Self.Stack.Push(!first?.Equals(second), VMType.b);
+							Call.Stack.Push(!first?.Equals(second), VMType.b);
 						}
 					}
 					else
@@ -429,16 +425,16 @@ public static partial class VMExecutor
 						switch (instruction.Comparison)
 						{
 							case VMComparison.LT:
-								Self.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), VMType.b);
+								Call.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.LTE:
-								Self.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), VMType.b);
+								Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.GTE:
-								Self.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), VMType.b);
+								Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.GT:
-								Self.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), VMType.b);
+								Call.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), VMType.b);
 								break;
 							case VMComparison.None:
 							default:
@@ -459,14 +455,14 @@ public static partial class VMExecutor
 				return DoPop(instruction);
 			case VMOpcode.RET:
 				// ret value is always stored as rvalue
-				return (ExecutionResult.ReturnedValue, Self.Stack.Pop(VMType.v));
+				return (ExecutionResult.ReturnedValue, Call.Stack.Pop(VMType.v));
 			case VMOpcode.CONV:
 				// dont actually convert, just tell the stack we're a different type
 				// since we have to conv everywhere else later anyway with rvalue
-				Self.Stack.Push(Self.Stack.Pop(instruction.TypeOne), instruction.TypeTwo);
+				Call.Stack.Push(Call.Stack.Pop(instruction.TypeOne), instruction.TypeTwo);
 				break;
 			case VMOpcode.POPZ:
-				Self.Stack.Pop(instruction.TypeOne);
+				Call.Stack.Pop(instruction.TypeOne);
 				break;
 			case VMOpcode.CALL:
 			{
@@ -475,18 +471,18 @@ public static partial class VMExecutor
 				for (var i = 0; i < instruction.FunctionArgumentCount; i++)
 				{
 					// args are always pushed as rvalues
-					args[i] = Self.Stack.Pop(VMType.v);
+					args[i] = Call.Stack.Pop(VMType.v);
 				}
 
 				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
 				{
-					Self.Stack!.Push(builtInFunction!(args), VMType.v);
+					Call.Stack!.Push(builtInFunction!(args), VMType.v);
 					break;
 				}
 
 				if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Self.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.GMSelf, Self.ObjectDefinition, args: args), VMType.v);
+					Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.GMSelf, Self.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
@@ -529,7 +525,7 @@ public static partial class VMExecutor
 				// unused in ch2???? no clue what this does
 				// used for multi-dimensional array bounds checking. c# does that anyway so its probably fine
 				
-				var (index, type) = Self.Stack.Peek();
+				var (index, type) = Call.Stack.Peek();
 
 				if (index is int || type is VMType.i || type is VMType.e) // do we check type idk
 				{
@@ -550,14 +546,14 @@ public static partial class VMExecutor
 			case VMOpcode.SETOWNER:
 				// seems to always push.i before
 				// apparently used for COW array stuff. does that mean this subtley breaks everything because arrays expect to copy?
-				var id = Self.Stack.Pop(VMType.i).Conv<int>();
+				var id = Call.Stack.Pop(VMType.i).Conv<int>();
 				break;
 			case VMOpcode.POPAF:
 			{
-				var index = Self.Stack.Pop(VMType.i).Conv<int>();
-				var array = Self.Stack.Pop(VMType.v).Conv<IList>();
+				var index = Call.Stack.Pop(VMType.i).Conv<int>();
+				var array = Call.Stack.Pop(VMType.v).Conv<IList>();
 				
-				var value = Self.Stack.Pop(VMType.v);
+				var value = Call.Stack.Pop(VMType.v);
 				
 				// by the magic of reference types this will be set properly
 				VariableResolver.ArraySet(index, value,
@@ -568,12 +564,12 @@ public static partial class VMExecutor
 			}
 			case VMOpcode.PUSHAF: 
 			{
-				var index = Self.Stack.Pop(VMType.i).Conv<int>();
-				var array = Self.Stack.Pop(VMType.v).Conv<IList>();
+				var index = Call.Stack.Pop(VMType.i).Conv<int>();
+				var array = Call.Stack.Pop(VMType.v).Conv<IList>();
 
 				var value = array[index];
 
-				Self.Stack.Push(value, VMType.v);
+				Call.Stack.Push(value, VMType.v);
 
 				break;
 			}
@@ -597,16 +593,16 @@ public static partial class VMExecutor
 			}
 			case VMOpcode.CALLV:
 			{
-				var method = Self.Stack.Pop(VMType.v) as Method;
+				var method = Call.Stack.Pop(VMType.v) as Method;
 				// TODO: use method inst as self, not sure what this popped thing actually is
-				var self = Self.Stack.Pop(VMType.v).Conv<int>(); // instance id
+				var self = Call.Stack.Pop(VMType.v).Conv<int>(); // instance id
 
 				var args = new object?[instruction.IntData];
 
 				for (var i = 0; i < instruction.IntData; i++)
 				{
 					// args are always pushed as rvalues
-					args[i] = Self.Stack.Pop(VMType.v);
+					args[i] = Call.Stack.Pop(VMType.v);
 				}
 
 				if (method == null)
@@ -623,7 +619,7 @@ public static partial class VMExecutor
 
 				//DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
 
-				Self.Stack.Push(ExecuteCode(method.GetScript().GetCode(), gmSelf, gmSelf.Definition, args: args), VMType.v);
+				Call.Stack.Push(ExecuteCode(method.GetScript().GetCode(), gmSelf, gmSelf.Definition, args: args), VMType.v);
 
 				break;
 			}

@@ -161,9 +161,9 @@ public static class DrawManager
 					if (collide != null)
                     {
                         // makes it so `other` is the collided thing
-                        VMExecutor.EnvironmentStack.Push(new VMScriptExecutionContext() { Self = collide, ObjectDefinition = collide.Definition, Stack = new() });
+                        VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
                         GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
-                        VMExecutor.EnvironmentStack.Pop();
+                        VMExecutor.EnvStack.Pop();
                     }
                 }
             }

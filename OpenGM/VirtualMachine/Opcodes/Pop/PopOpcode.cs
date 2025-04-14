@@ -15,7 +15,7 @@ public static partial class VMExecutor
 	public static void PopToLocal(string varName, object? value)
 	{
 		//Ctx.Locals[varName] = value;
-		CurrentCall.Locals[varName] = value;
+		Call.Locals[varName] = value;
 	}
 
 	public static void PopToGlobalArray(string varName, int index, object? value)
@@ -32,8 +32,8 @@ public static partial class VMExecutor
 		VariableResolver.ArraySet(
 			index,
 			value,
-			() => CurrentCall.Locals.TryGetValue(varName, out var array) ? array as IList : null,
-			array => CurrentCall.Locals[varName] = array);
+			() => Call.Locals.TryGetValue(varName, out var array) ? array as IList : null,
+			array => Call.Locals[varName] = array);
 	}
 
 	public static void PopToSelf(IStackContextSelf self, string varName, object? value)
@@ -122,7 +122,7 @@ public static partial class VMExecutor
 
 	public static void PopToArgument(int index, object? value)
 	{
-		var args = (object?[])CurrentCall.Locals["arguments"].Conv<IList>();
+		var args = (object?[])Call.Locals["arguments"].Conv<IList>();
 
 		if (index >= args.Length)
 		{
@@ -130,7 +130,7 @@ public static partial class VMExecutor
 		}
 		
 		args[index] = value;
-		CurrentCall.Locals["arguments"] = args;
+		Call.Locals["arguments"] = args;
 	}
 
 	public static void PopToOther(string varName, object? value)
@@ -156,7 +156,7 @@ public static partial class VMExecutor
 		if (variablePrefix == VariablePrefix.None)
 		{
 			// we're just popping to a normal variable. thank god.
-			var dataPopped = Self.Stack.Pop(instruction.TypeTwo);
+			var dataPopped = Call.Stack.Pop(instruction.TypeTwo);
 
 			if (variableType == VariableType.Global)
 			{
@@ -207,22 +207,22 @@ public static partial class VMExecutor
 				object? value;
 				if (instruction.TypeOne == VMType.v)
 				{
-					index = Self.Stack.Pop(VMType.i).Conv<int>();
-					instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					index = Call.Stack.Pop(VMType.i).Conv<int>();
+					instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Self.Stack.Pop(VMType.v).Conv<int>();
+						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
 					}
-					value = Self.Stack.Pop(instruction.TypeTwo);
+					value = Call.Stack.Pop(instruction.TypeTwo);
 				}
 				else
 				{
-					value = Self.Stack.Pop(instruction.TypeTwo);
-					index = Self.Stack.Pop(VMType.i).Conv<int>();
-					instanceId = Self.Stack.Pop(VMType.i).Conv<int>();
+					value = Call.Stack.Pop(instruction.TypeTwo);
+					index = Call.Stack.Pop(VMType.i).Conv<int>();
+					instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Self.Stack.Pop(VMType.v).Conv<int>();
+						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
 					}
 				}
 
@@ -293,12 +293,12 @@ public static partial class VMExecutor
 
 				if (instruction.TypeOne == VMType.i)
 				{
-					value = Self.Stack.Pop(instruction.TypeTwo);
+					value = Call.Stack.Pop(instruction.TypeTwo);
 
-					id = Self.Stack.Pop(VMType.i).Conv<int>();
+					id = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
 					{
-						var popped = Self.Stack.Pop(VMType.v);
+						var popped = Call.Stack.Pop(VMType.v);
 
 						if (popped is GMLObject gmlo)
 						{
@@ -313,14 +313,14 @@ public static partial class VMExecutor
 				}
 				else
 				{
-					id = Self.Stack.Pop(VMType.i).Conv<int>();
+					id = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
 					{
-						var popped = Self.Stack.Pop(VMType.v);
+						var popped = Call.Stack.Pop(VMType.v);
 
 						if (popped is GMLObject gmlo)
 						{
-							value = Self.Stack.Pop(instruction.TypeTwo);
+							value = Call.Stack.Pop(instruction.TypeTwo);
 							PopToSelf(gmlo, variableName, value);
 							return (ExecutionResult.Success, null);
 						}
@@ -330,7 +330,7 @@ public static partial class VMExecutor
 						}
 					}
 
-					value = Self.Stack.Pop(instruction.TypeTwo);
+					value = Call.Stack.Pop(instruction.TypeTwo);
 				}
 
 				if (id == GMConstants.global)

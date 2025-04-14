@@ -255,24 +255,24 @@ public static class VariableResolver
 	public static object get_alarm(GamemakerObject instance) => instance.alarm;
 	public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().ToArray();
 
-	public static object get_argument_count() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>().Count;
-	public static object get_argument() => VMExecutor.CurrentCall.Locals["arguments"]!;
-	public static object? get_argument_0() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[0];
-	public static object? get_argument_1() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[1];
-	public static object? get_argument_2() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[2];
-	public static object? get_argument_3() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[3];
-	public static object? get_argument_4() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[4];
-	public static object? get_argument_5() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[5];
-	public static object? get_argument_6() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[6];
-	public static object? get_argument_7() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[7];
-	public static object? get_argument_8() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[8];
-	public static object? get_argument_9() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[9];
-	public static object? get_argument_10() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[10];
-	public static object? get_argument_11() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[11];
-	public static object? get_argument_12() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[12];
-	public static object? get_argument_13() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[13];
-	public static object? get_argument_14() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[14];
-	public static object? get_argument_15() => VMExecutor.CurrentCall.Locals["arguments"].Conv<IList>()[15];
+	public static object get_argument_count() => VMExecutor.Call.Locals["arguments"].Conv<IList>().Count;
+	public static object get_argument() => VMExecutor.Call.Locals["arguments"]!;
+	public static object? get_argument_0() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[0];
+	public static object? get_argument_1() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[1];
+	public static object? get_argument_2() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[2];
+	public static object? get_argument_3() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[3];
+	public static object? get_argument_4() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[4];
+	public static object? get_argument_5() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[5];
+	public static object? get_argument_6() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[6];
+	public static object? get_argument_7() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[7];
+	public static object? get_argument_8() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[8];
+	public static object? get_argument_9() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[9];
+	public static object? get_argument_10() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[10];
+	public static object? get_argument_11() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[11];
+	public static object? get_argument_12() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[12];
+	public static object? get_argument_13() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[13];
+	public static object? get_argument_14() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[14];
+	public static object? get_argument_15() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[15];
 
 	public static object? get_undefined() => null;
 
