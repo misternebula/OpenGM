@@ -335,9 +335,9 @@ public static partial class VMExecutor
 
 				if (instruction.StringData != null)
 				{
-					if (AssetIndexManager.GetIndex(instruction.StringData) != -1) // BUG: this pushes code index instead of script index i think?
+					if (AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData) != -1)
 					{
-						Self.Stack.Push(AssetIndexManager.GetIndex(instruction.StringData), VMType.i);
+						Self.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
 					}
 					else if (instruction.StringData.StartsWith($"gml_Script_"))
 					{

@@ -55,6 +55,11 @@ public static class AssetIndexManager
 	{
 		return _nameToIndex.TryGetValue(name, out var index) ? index : -1;
 	}
+	
+	public static int GetIndex(AssetType type, string name)
+	{
+		return _assetList[type].TryGetValue(name, out var index) ? index : -1;
+	}
 
 	public static string GetName(AssetType type, int index)
 	{

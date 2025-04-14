@@ -2172,7 +2172,7 @@ public static partial class ScriptResolver
 		filename = Path.Combine(Entry.DataWinFolder, filename);
 
 		var assetName = Path.GetFileNameWithoutExtension(filename);
-		var existingIndex = AssetIndexManager.GetIndex(assetName);
+		var existingIndex = AssetIndexManager.GetIndex(AssetType.sounds, assetName);
 		if (existingIndex != -1)
 		{
 			// happens in deltarune on battle.ogg
