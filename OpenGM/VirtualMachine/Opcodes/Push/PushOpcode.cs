@@ -339,12 +339,6 @@ public static partial class VMExecutor
 					{
 						Self.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
 					}
-					else if (instruction.StringData.StartsWith($"gml_Script_"))
-					{
-						// BUG: wrong. should be script id because its used by script_execute i think, idk if this is used
-						var funcIndex = ScriptResolver.ScriptFunctions.Keys.ToList().IndexOf(instruction.StringData);
-						Self.Stack.Push(funcIndex, VMType.i);
-					}
 					else
 					{
 						throw new NotImplementedException();

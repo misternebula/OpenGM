@@ -647,7 +647,7 @@ public static partial class VMExecutor
 					throw new NotImplementedException("gmself is null");
 				}
 
-				// TODO: method stuff stores script index. in deltarune these match, so breaks nothing, but is wrong
+				// TODO: method stuff stores script index. in deltarune these match, so breaks nothing
 				var script = ScriptResolver.ScriptFunctions[method.code.Name];
 
 				//DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");

@@ -754,7 +754,7 @@ public static partial class ScriptResolver
 	{
 		// TODO: seems to always be self or null. need to resolve to instance (https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279)
 		var struct_ref_or_instance_id = args[0];
-		var func = args[1].Conv<int>(); // BUG: this should be a script index, but it is sometimes a code index because push.i does that
+		var func = args[1].Conv<int>();
 
 		var method = new Method()
 		{
@@ -2462,18 +2462,10 @@ public static partial class ScriptResolver
 
 	public static object? script_execute(object?[] args)
 	{
-		var scriptAssetId = args[0].Conv<int>(); // BUG: this should be a script index, but it is sometimes a code index because push.i does that
+		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = Scripts.FirstOrDefault(x => x.Value.AssetIndex == scriptAssetId).Value;
-
-		if (script == default)
-		{
-			// BUG: wrong. should be script id, which is done above, idk if this is used
-			(var code, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
-
-			return VMExecutor.ExecuteCode(code, VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs, startingIndex: index);
-		}
+		var script = Scripts.Values.First(x => x.AssetIndex == scriptAssetId);
 
 		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
 	}
@@ -3374,10 +3366,11 @@ public static partial class ScriptResolver
 
 	public static object? NewGMLObject(object?[] args)
 	{
-		var constructorIndex = args[0].Conv<int>(); // BUG: this should be a script index, but it is sometimes a code index because push.i does that
+		var constructorIndex = args[0].Conv<int>();
 		var values = args[1..];
 		var obj = new GMLObject();
 
+		// TODO: constructor is script index. in deltarune these match, so breaks nothing
 		var ret = VMExecutor.ExecuteCode(GameLoader.Codes[constructorIndex], obj, args: values);
 
 		return obj;
