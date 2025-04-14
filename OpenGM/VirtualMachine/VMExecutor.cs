@@ -145,9 +145,14 @@ public static partial class VMExecutor
 			return null;
 		}
 
-		if (code.ParentAssetId != -1)
+		if (code.ParentAssetId != -1) // this is the case for e.g. NewGMLObject (it points to the child script function instead of the parent script asset)
 		{
 			var parentCode = GameLoader.Codes[code.ParentAssetId];
+			
+			if (parentCode?.ParentAssetId != -1)
+			{
+				throw new NotImplementedException("multiple layers of nested functions??");
+			}
 
 			var func = parentCode?.Functions.FirstOrDefault(x => x.FunctionName == code.Name);
 

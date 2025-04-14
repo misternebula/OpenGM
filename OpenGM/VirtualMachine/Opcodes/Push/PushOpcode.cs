@@ -335,7 +335,7 @@ public static partial class VMExecutor
 
 				if (instruction.StringData != null)
 				{
-					if (AssetIndexManager.GetIndex(instruction.StringData) != -1)
+					if (AssetIndexManager.GetIndex(instruction.StringData) != -1) // BUG: this pushes code index instead of script index i think?
 					{
 						Self.Stack.Push(AssetIndexManager.GetIndex(instruction.StringData), VMType.i);
 					}

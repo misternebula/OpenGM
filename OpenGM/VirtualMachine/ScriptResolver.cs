@@ -754,7 +754,7 @@ public static partial class ScriptResolver
 	{
 		// TODO: seems to always be self or null. need to resolve to instance (https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279)
 		var struct_ref_or_instance_id = args[0];
-		var func = args[1].Conv<int>();
+		var func = args[1].Conv<int>(); // BUG: this should be a script index, but it is sometimes a code index because push.i does that
 
 		var method = new Method()
 		{
@@ -2462,7 +2462,7 @@ public static partial class ScriptResolver
 
 	public static object? script_execute(object?[] args)
 	{
-		var scriptAssetId = args[0].Conv<int>();
+		var scriptAssetId = args[0].Conv<int>(); // BUG: this should be a script index, but it is sometimes a code index because push.i does that
 		var scriptArgs = args[1..];
 
 		var script = Scripts.FirstOrDefault(x => x.Value.AssetIndex == scriptAssetId).Value;
@@ -3374,29 +3374,11 @@ public static partial class ScriptResolver
 
 	public static object? NewGMLObject(object?[] args)
 	{
-		var constructorIndex = args[0].Conv<int>();
+		var constructorIndex = args[0].Conv<int>(); // BUG: this should be a script index, but it is sometimes a code index because push.i does that
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		var code = GameLoader.Codes[constructorIndex]!;
-		var instructionIndex = 0;
-
-		if (code.ParentAssetId != -1)
-		{
-			// This should always be the case, I think?
-			// Not sure if non-anonymous functions or scripts can be used as constructors.
-			var parentCode = GameLoader.Codes[code.ParentAssetId]!;
-
-			if (parentCode.ParentAssetId != -1)
-			{
-				throw new NotImplementedException("multiple layers of nested functions??");
-			}
-
-			instructionIndex = parentCode.Functions.First(x => x.FunctionName == code.Name).InstructionIndex;
-			code = parentCode;
-		}
-
-		var ret = VMExecutor.ExecuteCode(code, obj, args: values, startingIndex: instructionIndex);
+		var ret = VMExecutor.ExecuteCode(GameLoader.Codes[constructorIndex], obj, args: values);
 
 		return obj;
 	}
