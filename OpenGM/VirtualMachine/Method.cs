@@ -8,8 +8,6 @@ using OpenGM.Loading;
 namespace OpenGM.VirtualMachine;
 internal class Method
 {
-	public object? struct_ref_or_instance_id;
-	public int func;
-
-	public VMScript GetScript() => ScriptResolver.ScriptsByIndex[func];
+	public IStackContextSelf? inst;
+	public VMScript func = null!;
 }

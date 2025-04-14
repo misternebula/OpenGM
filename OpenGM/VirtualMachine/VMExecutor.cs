@@ -13,7 +13,7 @@ namespace OpenGM.VirtualMachine;
 public class VMEnvFrame
 {
 	public IStackContextSelf Self = null!; // can be null for global scripts but those shouldnt run functions that need it
-	public GamemakerObject GMSelf => (GamemakerObject)Self;
+	public GamemakerObject GMSelf => (GamemakerObject)Self; // shortcut for cast since we do this often
 	public ObjectDefinition? ObjectDefinition;
 
 	public override string ToString()
@@ -594,8 +594,7 @@ public static partial class VMExecutor
 			case VMOpcode.CALLV:
 			{
 				var method = Call.Stack.Pop(VMType.v) as Method;
-				// TODO: use method inst as self, not sure what this popped thing actually is
-				var self = Call.Stack.Pop(VMType.v).Conv<int>(); // instance id
+				var idk = Call.Stack.Pop(VMType.v).Conv<int>(); // this is NOT instance id. idk what it is
 
 				var args = new object?[instruction.IntData];
 
@@ -610,16 +609,9 @@ public static partial class VMExecutor
 					throw new NotImplementedException("method is null");
 				}
 
-				var gmSelf = InstanceManager.FindByInstanceId(self);
-
-				if (gmSelf == null)
-				{
-					throw new NotImplementedException("gmself is null");
-				}
-
 				//DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
 
-				Call.Stack.Push(ExecuteCode(method.GetScript().GetCode(), gmSelf, gmSelf.Definition, args: args), VMType.v);
+				Call.Stack.Push(ExecuteCode(method.func.GetCode(), method.inst, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
 
 				break;
 			}

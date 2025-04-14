@@ -751,15 +751,36 @@ public static partial class ScriptResolver
 
 	public static object? method(object?[] args)
 	{
-		// TODO: seems to always be self or null. need to resolve to instance (https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279)
+		// seems to always be self or null.
+		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279
 		var struct_ref_or_instance_id = args[0];
 		var func = args[1].Conv<int>();
 
-		var method = new Method()
+		var method = new Method
 		{
-			struct_ref_or_instance_id = struct_ref_or_instance_id,
-			func = func
+			func = ScriptsByIndex[func]
 		};
+
+		if (struct_ref_or_instance_id is null)
+		{
+			method.inst = null;
+		}
+		else if (struct_ref_or_instance_id is bool or int or short or long or double or float)
+		{
+			var num = struct_ref_or_instance_id.Conv<int>();
+			if (num == GMConstants.self)
+			{
+				method.inst = VMExecutor.Self.Self;
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+		else
+		{
+			throw new NotImplementedException();
+		}
 
 		return method;
 	}
