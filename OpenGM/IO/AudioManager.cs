@@ -114,8 +114,9 @@ public static class AudioManager
                     stereo = audioFileReader.WaveFormat.Channels == 2;
                     freq = audioFileReader.WaveFormat.SampleRate;
                 }
-                catch (Exception)
+                catch (Exception e) // i think this is caused by ch1. not sure why
                 {
+                    DebugLog.LogWarning($"couldnt read wave file {asset.File}: {e}");
                     data = new float[] { };
                     freq = 1;
                     stereo = false;

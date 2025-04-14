@@ -47,7 +47,7 @@ public static class SpriteManager
 
     public static SpritePageItem GetSpritePage(string name, double index)
     {
-        return GetSpritePage(AssetIndexManager.GetIndex(name), index);
+        return GetSpritePage(AssetIndexManager.GetIndex(AssetType.sprites, name), index);
     }
 
     public static SpritePageItem GetSpritePage(int id, double index)

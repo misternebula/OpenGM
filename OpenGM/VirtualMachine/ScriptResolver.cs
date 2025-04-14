@@ -2172,7 +2172,7 @@ public static partial class ScriptResolver
 		filename = Path.Combine(Entry.DataWinFolder, filename);
 
 		var assetName = Path.GetFileNameWithoutExtension(filename);
-		var existingIndex = AssetIndexManager.GetIndex(assetName);
+		var existingIndex = AssetIndexManager.GetIndex(AssetType.sounds, assetName);
 		if (existingIndex != -1)
 		{
 			// happens in deltarune on battle.ogg
@@ -2465,15 +2465,7 @@ public static partial class ScriptResolver
 		var scriptAssetId = args[0].Conv<int>();
 		var scriptArgs = args[1..];
 
-		var script = Scripts.FirstOrDefault(x => x.Value.AssetIndex == scriptAssetId).Value;
-
-		if (script == default)
-		{
-			// BUG: wrong. should be script id, which is done above, idk if this is used
-			(var code, var index) = ScriptFunctions[ScriptFunctions.Keys.ToList()[scriptAssetId]];
-
-			return VMExecutor.ExecuteCode(code, VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs, startingIndex: index);
-		}
+		var script = Scripts.Values.First(x => x.AssetIndex == scriptAssetId);
 
 		return VMExecutor.ExecuteCode(script.GetCode(), VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
 	}
@@ -3378,25 +3370,8 @@ public static partial class ScriptResolver
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		var code = GameLoader.Codes[constructorIndex]!;
-		var instructionIndex = 0;
-
-		if (code.ParentAssetId != -1)
-		{
-			// This should always be the case, I think?
-			// Not sure if non-anonymous functions or scripts can be used as constructors.
-			var parentCode = GameLoader.Codes[code.ParentAssetId]!;
-
-			if (parentCode.ParentAssetId != -1)
-			{
-				throw new NotImplementedException("multiple layers of nested functions??");
-			}
-
-			instructionIndex = parentCode.Functions.First(x => x.FunctionName == code.Name).InstructionIndex;
-			code = parentCode;
-		}
-
-		var ret = VMExecutor.ExecuteCode(code, obj, args: values, startingIndex: instructionIndex);
+		// TODO: constructor is script index. in deltarune these match, so breaks nothing
+		var ret = VMExecutor.ExecuteCode(GameLoader.Codes[constructorIndex], obj, args: values);
 
 		return obj;
 	}

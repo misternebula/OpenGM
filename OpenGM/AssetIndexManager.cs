@@ -6,26 +6,26 @@ public enum AssetType
 	sprites,
 	backgrounds,
 	paths,
+	scripts,
 	fonts,
 	objects,
 	timelines,
 	rooms,
 	shaders,
 	extensions,
-	code
 }
 
 public static class AssetIndexManager
 {
-	public static Dictionary<AssetType, Dictionary<string, int>> AssetList = new();
-	public static Dictionary<string, int> NameToIndex = new();
+	private static Dictionary<AssetType, Dictionary<string, int>> _assetList = new();
+	private static Dictionary<string, int> _nameToIndex = new();
 
 	public static void LoadAssetIndexes(BinaryReader reader)
 	{
 		Console.Write($"Loading asset order...");
 
-		AssetList.Clear();
-		NameToIndex.Clear();
+		_assetList.Clear();
+		_nameToIndex.Clear();
 
 		var lines = reader.ReadString().SplitLines();
 		var headerLineNumber = 0;
@@ -40,58 +40,63 @@ public static class AssetIndexManager
 				continue;
 			}
 
-			if (!AssetList.ContainsKey(currentAssetType))
+			if (!_assetList.ContainsKey(currentAssetType))
 			{
-				AssetList.Add(currentAssetType, new Dictionary<string, int>());
+				_assetList.Add(currentAssetType, new Dictionary<string, int>());
 			}
 
-			AssetList[currentAssetType].Add(line, i - headerLineNumber - 1);
-			NameToIndex.Add(line, i - headerLineNumber - 1);
+			_assetList[currentAssetType].Add(line, i - headerLineNumber - 1);
+			_nameToIndex.Add(line, i - headerLineNumber - 1);
 		}
 		Console.WriteLine($" Done!");
 	}
 
 	public static int GetIndex(string name)
 	{
-		return NameToIndex.TryGetValue(name, out var index) ? index : -1;
+		return _nameToIndex.TryGetValue(name, out var index) ? index : -1;
+	}
+	
+	public static int GetIndex(AssetType type, string name)
+	{
+		return _assetList[type].TryGetValue(name, out var index) ? index : -1;
 	}
 
 	public static string GetName(AssetType type, int index)
 	{
-		return AssetList[type].First(x => x.Value == index).Key;
+		return _assetList[type].First(x => x.Value == index).Key;
 	}
 
 	public static int Register(AssetType type, string name)
 	{
-		if (!AssetList.ContainsKey(type))
+		if (!_assetList.ContainsKey(type))
 		{
-			AssetList.Add(type, new Dictionary<string, int>());
+			_assetList.Add(type, new Dictionary<string, int>());
 		}
 
-		if (AssetList[type].TryGetValue(name, out var index))
+		if (_assetList[type].TryGetValue(name, out var index))
 		{
 			return index;
 		}
 
-		var highestIndex = AssetList[type].Values.Max();
-		AssetList[type].Add(name, highestIndex + 1);
-		NameToIndex.Add(name, highestIndex + 1);
+		var highestIndex = _assetList[type].Values.Max();
+		_assetList[type].Add(name, highestIndex + 1);
+		_nameToIndex.Add(name, highestIndex + 1);
 		return highestIndex + 1;
 	}
 
 	public static void Unregister(AssetType type, string name)
 	{
-		if (!AssetList.ContainsKey(type))
+		if (!_assetList.ContainsKey(type))
 		{
 			return;
 		}
 
-		if (!AssetList[type].ContainsKey(name))
+		if (!_assetList[type].ContainsKey(name))
 		{
 			return;
 		}
 
-		AssetList[type].Remove(name);
-		NameToIndex.Remove(name);
+		_assetList[type].Remove(name);
+		_nameToIndex.Remove(name);
 	}
 }

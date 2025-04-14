@@ -5,8 +5,8 @@ namespace OpenGM.VirtualMachine;
 
 /// <summary>
 /// VMCode but with a different index and name.
-/// sometimes these arent associated with code so the index is different.
-/// script_execute uses this index, and i think thats it. its weird
+/// gml can only reference scripts, not code.
+/// e.g. script_execute, NewGMLObject, method, push.i [string]
 /// </summary>
 [MemoryPackable]
 public partial class VMScript
