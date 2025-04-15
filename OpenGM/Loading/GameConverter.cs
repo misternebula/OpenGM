@@ -423,6 +423,7 @@ public static class GameConverter
 	public static void GetVariableInfo(VMCodeInstruction instruction, out string variableName, out VariableType variableType, out VariablePrefix prefix, out int assetIndex)
 	{
 		variableName = instruction.StringData;
+		instruction.StringData = null!; // stuff moved to above, save space here
 		prefix = VariablePrefix.None;
 
 		var indexingArray = variableName.StartsWith("[array]");
