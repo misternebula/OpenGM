@@ -519,8 +519,7 @@ public static partial class VMExecutor
 						id = popped.Conv<int>();
 					}
 				}
-
-				if (id == GMConstants.other)
+				else if (id == GMConstants.other)
 				{
 					PushOther(variableName);
 					return (ExecutionResult.Success, null);

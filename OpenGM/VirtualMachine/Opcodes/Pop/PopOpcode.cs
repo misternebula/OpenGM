@@ -208,25 +208,27 @@ public static partial class VMExecutor
 				int index;
 				int instanceId;
 				object? value;
-				if (instruction.TypeOne == VMType.v)
+				if (instruction.TypeOne == VMType.i) // flips value and id pop
 				{
+					value = Call.Stack.Pop(instruction.TypeTwo);
+
 					index = Call.Stack.Pop(VMType.i).Conv<int>();
 					instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
 						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
 					}
-					value = Call.Stack.Pop(instruction.TypeTwo);
 				}
-				else
+				else // v
 				{
-					value = Call.Stack.Pop(instruction.TypeTwo);
 					index = Call.Stack.Pop(VMType.i).Conv<int>();
 					instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
 						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
 					}
+
+					value = Call.Stack.Pop(instruction.TypeTwo);
 				}
 
 				if (variableType == VariableType.Self)
@@ -291,10 +293,9 @@ public static partial class VMExecutor
 
 			if (variableType == VariableType.Self)
 			{
-				int id = 0;
-				object? value = null;
-
-				if (instruction.TypeOne == VMType.i)
+				int id;
+				object? value;
+				if (instruction.TypeOne == VMType.i) // flips value and id pop
 				{
 					value = Call.Stack.Pop(instruction.TypeTwo);
 
@@ -314,7 +315,7 @@ public static partial class VMExecutor
 						}
 					}
 				}
-				else
+				else // v
 				{
 					id = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (id == GMConstants.stacktop)
@@ -364,6 +365,60 @@ public static partial class VMExecutor
 
 				PopToIndex(id, variableName, value);
 				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Static)
+			{
+				int id;
+				object? value;
+
+				if (instruction.TypeOne == VMType.i) // flips value and id pop
+				{
+					value = Call.Stack.Pop(instruction.TypeTwo);
+
+					id = Call.Stack.Pop(VMType.i).Conv<int>();
+					if (id == GMConstants.stacktop)
+					{
+						var popped = Call.Stack.Pop(VMType.v);
+
+						if (popped is GMLObject gmlo)
+						{
+							PopToSelf(gmlo, variableName, value);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							id = popped.Conv<int>();
+						}
+					}
+				}
+				else // v
+				{
+					id = Call.Stack.Pop(VMType.i).Conv<int>();
+					if (id == GMConstants.stacktop)
+					{
+						var popped = Call.Stack.Pop(VMType.v);
+
+						if (popped is GMLObject gmlo)
+						{
+							value = Call.Stack.Pop(instruction.TypeTwo);
+							PopToSelf(gmlo, variableName, value);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							id = popped.Conv<int>();
+						}
+					}
+
+					value = Call.Stack.Pop(instruction.TypeTwo);
+				}
+
+				if (id == GMConstants.@static)
+				{
+					// static variables are global per function definition
+					PopToGlobal($"static {Call.Code.Name} {variableName}", value);
+					return (ExecutionResult.Success, null);
+				}
 			}
 		}
 
