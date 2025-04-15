@@ -84,7 +84,7 @@ public static partial class VMExecutor
 			DebugLog.LogError($"--Stacktrace--");
 			foreach (var item in CallStack)
 			{
-				DebugLog.LogError($" - {item.Code.Name}");
+				DebugLog.LogError($" - {item.CodeName}");
 			}
 
 			Call.Stack.Push(null, VMType.v);
@@ -119,7 +119,7 @@ public static partial class VMExecutor
 				DebugLog.LogError($"--Stacktrace--");
 				foreach (var item in CallStack)
 				{
-					DebugLog.LogError($" - {item.Code.Name}");
+					DebugLog.LogError($" - {item.CodeName}");
 				}
 
 				self.SelfVariables[varName] = null;
@@ -191,7 +191,7 @@ public static partial class VMExecutor
 				DebugLog.LogError($"--Stacktrace--");
 				foreach (var item in CallStack)
 				{
-					DebugLog.LogError($" - {item.Code.Name}");
+					DebugLog.LogError($" - {item.CodeName}");
 				}
 
 				DebugLog.LogError(Environment.StackTrace);

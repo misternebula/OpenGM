@@ -416,7 +416,7 @@ public static partial class VMExecutor
 				if (id == GMConstants.@static)
 				{
 					// static variables are global per function definition
-					PopToGlobal($"static {Call.Code.Name} {variableName}", value);
+					PopToGlobal($"static {Call.CodeName} {variableName}", value);
 					return (ExecutionResult.Success, null);
 				}
 			}

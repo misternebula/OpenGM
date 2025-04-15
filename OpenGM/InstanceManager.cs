@@ -19,7 +19,7 @@ public static class InstanceManager
 			DebugLog.LogError($"--Stacktrace--");
 			foreach (var item in VMExecutor.CallStack)
 			{
-				DebugLog.LogError($" - {item.Code.Name}");
+				DebugLog.LogError($" - {item.CodeName}");
 			}
 
 			return;

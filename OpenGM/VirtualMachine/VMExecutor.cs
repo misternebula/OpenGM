@@ -48,7 +48,7 @@ public class VMEnvFrame
 /// </summary>
 public class VMCallFrame
 {
-	public VMCode Code = null!; // used to get name lol
+	public string CodeName = null!;
 	
 	public DataStack Stack = null!;
 	public Dictionary<string, object?> Locals = null!;
@@ -129,7 +129,7 @@ public static partial class VMExecutor
 	
 	// private static IList? _temporaryArrayStorage = null;
 
-	public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null, int startingIndex = 0)
+	public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
 	{
 		if (code == null)
 		{
@@ -137,12 +137,15 @@ public static partial class VMExecutor
 			return null;
 		}
 
-		if (code.ParentAssetId != -1) // deltarune calls script functions that point to the script asset
+		var codeName = code.Name; // grab script function name and use that instead of script asset name
+		var instructionIndex = 0;
+		if (code.ParentAssetId != -1) // deltarune calls script functions (empty code) that point to the script asset
 		{
-			// TODO: potentially speed up lookup here, profile to see if thats needed
 			var parentCode = GameLoader.Codes[code.ParentAssetId];
+			// TODO: potentially speed up lookup here, profile to see if thats needed
 			var func = parentCode.Functions.First(x => x.FunctionName == code.Name);
-			return ExecuteCode(parentCode, obj, objectDefinition, eventType, eventIndex, args, func.InstructionIndex);
+			instructionIndex = func.InstructionIndex;
+			code = parentCode;
 		}
 
 		if (code.Instructions.Count == 0)
@@ -158,7 +161,7 @@ public static partial class VMExecutor
 			var count = CallStack.Count;
 			var leftPadding = string.Concat(Enumerable.Repeat(space, count));
 
-			DebugLog.LogInfo($"{leftPadding}------------------------------ {code.Name} ------------------------------ ");
+			DebugLog.LogInfo($"{leftPadding}------------------------------ {codeName} ------------------------------ ");
 			//}
 		}
 
@@ -171,12 +174,11 @@ public static partial class VMExecutor
 		// Make the current object the current instance
 		EnvStack.Push(newCtx);
 
-		var instructionIndex = startingIndex;
 		var lastJumpedLabel = 0; // just for debugging
 
 		var call = new VMCallFrame
 		{
-			Code = code,
+			CodeName = codeName,
 			
 			Stack = new(),
 			Locals = new(),
@@ -228,12 +230,12 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.Failed)
 			{
-				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {code.Name} failed : {data}");
+				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {codeName} failed : {data}");
 
 				DebugLog.LogError($"--Stacktrace--");
 				foreach (var item in CallStack)
 				{
-					DebugLog.LogError($" - {item.Code.Name}");
+					DebugLog.LogError($" - {item.CodeName}");
 				}
 
 				//Debug.Break();
@@ -286,7 +288,7 @@ public static partial class VMExecutor
 			var count = CallStack.Count;
 			var leftPadding = string.Concat(Enumerable.Repeat(space, count));
 
-			DebugLog.LogInfo($"{leftPadding}-#-#-#-#-#-#-#-#-#-#-#-#-#-#-- {code.Name} --#-#-#-#-#-#-#-#-#-#-#-#-#-#- ");
+			DebugLog.LogInfo($"{leftPadding}-#-#-#-#-#-#-#-#-#-#-#-#-#-#-- {codeName} --#-#-#-#-#-#-#-#-#-#-#-#-#-#- ");
 			//}
 		}
 
@@ -652,7 +654,7 @@ public static partial class VMExecutor
 			// (YYGetBool is the only function that checks for 0x5)
 			if (type == typeof(bool)) return false;
 
-			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{CallStack.First().Code.Name}");
+			throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{CallStack.First().CodeName}");
 		}
 
 		if (@this.GetType() == type)
