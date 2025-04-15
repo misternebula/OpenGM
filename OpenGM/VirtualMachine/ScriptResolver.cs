@@ -2064,7 +2064,11 @@ public static partial class ScriptResolver
 	{
 		var listenerIndex = args[0].Conv<double>(); // deltarune doesnt use other listeners rn so i dont care
 		var gain = args[1].Conv<double>();
+
+		gain = Math.Max(0, gain);
+
 		AL.Listener(ALListenerf.Gain, (float)gain);
+		AudioManager.CheckALError();
 		return null;
 	}
 
