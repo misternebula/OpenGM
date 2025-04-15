@@ -2692,6 +2692,8 @@ public static partial class ScriptResolver
 		var __index = args[0].Conv<int>();
 		var __alpha = args[1].Conv<double>();
 
+		__alpha = Math.Clamp(__alpha, 0, 1);
+
 		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
 		{
 			foreach (var element in layer.ElementsToDraw)
