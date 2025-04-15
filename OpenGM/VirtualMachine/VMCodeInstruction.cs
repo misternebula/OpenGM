@@ -11,6 +11,11 @@ public partial class VMCodeInstruction
 	public VMType TypeOne = VMType.None;
 	public VMType TypeTwo = VMType.None;
 
+	public string variableName = null!;
+	public VariableType variableType;
+	public VariablePrefix variablePrefix;
+	public int assetId;
+
 	// we could just store StringData and then parse it in opcodes, but this works too 
 	public int IntData;
 	public short ShortData;

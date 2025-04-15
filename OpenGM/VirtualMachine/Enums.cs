@@ -22,7 +22,8 @@ public enum VariableType
 	Other,
 	BuiltIn,
 	Argument,
-	Stacktop
+	Stacktop,
+	Static
 }
 
 public enum VariablePrefix

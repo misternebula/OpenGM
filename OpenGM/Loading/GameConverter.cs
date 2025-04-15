@@ -219,6 +219,8 @@ public static class GameConverter
 					TypeTwo = types.Length == 2 ? (VMType)Enum.Parse(typeof(VMType), types[1]) : VMType.None,
 				};
 
+				var shouldGetVariableInfo = false;
+
 				switch (enumOperation)
 				{
 					case VMOpcode.CHKINDEX:
@@ -265,6 +267,10 @@ public static class GameConverter
 					case VMOpcode.POP:
 						var variableName = line.Substring(opcode.Length + 1);
 						instruction.StringData = variableName;
+						if (instruction.TypeOne != VMType.e)
+						{
+							shouldGetVariableInfo = true;
+						}
 						break;
 					case VMOpcode.DUP:
 						var indexBack = line.Substring(opcode.Length + 1);
@@ -353,6 +359,7 @@ public static class GameConverter
 								break;
 							case VMType.v:
 								instruction.StringData = value;
+								shouldGetVariableInfo = true;
 								break;
 							case VMType.b:
 								// not used i think?
@@ -397,11 +404,119 @@ public static class GameConverter
 						throw new ArgumentOutOfRangeException();
 				}
 
+				if (shouldGetVariableInfo)
+				{
+					GetVariableInfo(instruction, out var variableName, out var variableType, out var variablePrefix, out var assetId);
+					instruction.variableName = variableName;
+					instruction.variableType = variableType;
+					instruction.variablePrefix = variablePrefix;
+					instruction.assetId = assetId;
+				}
+
 				asset.Instructions.Add(instruction);
 			}
 		}
 
 		return asset;
+	}
+
+	public static void GetVariableInfo(VMCodeInstruction instruction, out string variableName, out VariableType variableType, out VariablePrefix prefix, out int assetIndex)
+	{
+		variableName = instruction.StringData;
+		prefix = VariablePrefix.None;
+
+		var indexingArray = variableName.StartsWith("[array]");
+		if (indexingArray)
+		{
+			prefix = VariablePrefix.Array;
+			variableName = variableName[7..]; // skip [array]
+		}
+
+		var stackTop = variableName.StartsWith("[stacktop]");
+		if (stackTop)
+		{
+			prefix = VariablePrefix.Stacktop;
+			variableName = variableName[10..]; // skip [stacktop]
+		}
+
+		var arraypopaf = variableName.StartsWith("[arraypopaf]");
+		if (arraypopaf)
+		{
+			prefix = VariablePrefix.ArrayPopAF;
+			variableName = variableName[12..]; // skip [arraypopaf]
+		}
+
+		var arraypushaf = variableName.StartsWith("[arraypushaf]");
+		if (arraypushaf)
+		{
+			prefix = VariablePrefix.ArrayPushAF;
+			variableName = variableName[13..]; // skip [arraypushaf]
+		}
+
+		variableType = VariableType.None;
+
+		assetIndex = -1;
+		var split = variableName.Split('.');
+
+		if (split.Length == 3)
+		{
+			// weird thing
+			var instanceId = GMConstants.FIRST_INSTANCE_ID + int.Parse(split[0]);
+			variableName = split[2];
+			if (split[1] != "[instance]self")
+			{
+				throw new NotImplementedException();
+			}
+
+			assetIndex = instanceId;
+			variableType = VariableType.Index;
+			return;
+		}
+
+		var context = split[0];
+		variableName = split[1];
+
+		if (context == "global")
+		{
+			variableType = VariableType.Global;
+		}
+		else if (context == "local")
+		{
+			variableType = VariableType.Local;
+		}
+		else if (context == "self")
+		{
+			variableType = VariableType.Self;
+		}
+		else if (context == "other")
+		{
+			variableType = VariableType.Other;
+		}
+		else if (context == "builtin")
+		{
+			variableType = VariableType.BuiltIn;
+		}
+		else if (context == "arg")
+		{
+			variableType = VariableType.Argument;
+		}
+		else if (context == "stacktop")
+		{
+			variableType = VariableType.Stacktop;
+		}
+		else if (context == "static")
+		{
+			variableType = VariableType.Static;
+		}
+		else if (int.TryParse(context, out var index))
+		{
+			variableType = VariableType.Index;
+			assetIndex = index;
+		}
+		else
+		{
+			throw new NotImplementedException($"Unknown variable type : {context} - {instruction.Raw}");
+		}
 	}
 
 	public static void ExportPages(BinaryWriter writer, UndertaleData data)

@@ -151,7 +151,10 @@ public static partial class VMExecutor
 			throw new NotImplementedException();
 		}
 
-		GetVariableInfo(instruction.StringData, out string variableName, out VariableType variableType, out VariablePrefix variablePrefix, out int assetId);
+		var variableName = instruction.variableName;
+		var variableType = instruction.variableType;
+		var variablePrefix = instruction.variablePrefix;
+		var assetId = instruction.assetId;
 
 		if (variablePrefix == VariablePrefix.None)
 		{
