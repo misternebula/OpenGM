@@ -483,7 +483,7 @@ public static partial class ScriptResolver
 		// layer_is_draw_depth_forced
 		// layer_get_forced_depth
 		// layer_background_get_id
-		// layer_background_exists
+		{ "layer_background_exists", layer_background_exists},
 		{ "layer_background_create", layer_background_create},
 		// layer_background_destroy
 		{ "layer_background_visible", layer_background_visible},
@@ -492,8 +492,8 @@ public static partial class ScriptResolver
 		{ "layer_background_xscale", layer_background_xscale},
 		{ "layer_background_yscale", layer_background_yscale},
 		{ "layer_background_stretch", layer_background_stretch},
-		//{ "layer_background_blend", layer_background_blend},
-		// layer_background_alpha
+		{ "layer_background_blend", layer_background_blend},
+		{ "layer_background_alpha", layer_background_alpha},
 		// layer_background_index
 		// layer_background_speed
 		// layer_background_sprite
@@ -505,8 +505,8 @@ public static partial class ScriptResolver
 		// layer_background_get_xscale
 		// layer_background_get_yscale
 		// layer_background_get_stretch
-		// layer_background_get_blend
-		// layer_background_get_alpha
+		{ "layer_background_get_blend", layer_background_get_blend },
+		{ "layer_background_get_alpha", layer_background_get_alpha },
 		// layer_background_get_index
 		// layer_background_get_speed
 
@@ -701,6 +701,10 @@ public static partial class ScriptResolver
 		{ "matrix_build_projection_perspective", matrix_build_projection_perspective },
 		{ "matrix_build_projection_perspective_fov", matrix_build_projection_perspective_fov },
 		{ "matrix_transform_vertex", matrix_transform_vertex },
+		{ "layer_tile_get_x", layer_tile_get_x },
+		{ "layer_tile_get_y", layer_tile_get_y },
+		{ "layer_tile_x", layer_tile_x },
+		{ "layer_tile_y", layer_tile_y },
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -5101,6 +5105,176 @@ public static partial class ScriptResolver
 		}
 
 		return path.YPosition(pos);
+	}
+
+	public static object? layer_background_blend(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var blend = args[1].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground back && back.Element.Id == background_element_id)
+				{
+					// this doesnt set alpha on purpose
+					back.Element.Color = (uint)blend;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_get_blend(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground back && back.Element.Id == background_element_id)
+				{
+					return back.Element.Color;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? layer_background_get_alpha(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground back && back.Element.Id == background_element_id)
+				{
+					return back.Element.Alpha;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	public static object? layer_background_alpha(object?[] args)
+	{
+		var background_element_id = args[0].Conv<int>();
+		var alpha = args[0].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMBackground back && back.Element.Id == background_element_id)
+				{
+					back.Element.Alpha = alpha;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static object? layer_background_exists(object?[] args)
+	{
+		var layer_id = args[0].Conv<int>();
+		var background_element_id = args[1].Conv<int>();
+
+		if (!RoomManager.CurrentRoom.Layers.TryGetValue(layer_id, out var layer))
+		{
+			return false;
+		}
+
+		foreach (var element in layer.ElementsToDraw)
+		{
+			if (element is GMBackground back && back.Element.Id == background_element_id)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static object? layer_tile_get_x(object?[] args)
+	{
+		var __index = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMTile tile && tile.instanceId == __index)
+				{
+					return tile.X;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	private static object? layer_tile_x(object?[] args)
+	{
+		var __index = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMTile tile && tile.instanceId == __index)
+				{
+					tile.X = x;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private static object? layer_tile_get_y(object?[] args)
+	{
+		var __index = args[0].Conv<int>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMTile tile && tile.instanceId == __index)
+				{
+					return tile.Y;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	private static object? layer_tile_y(object?[] args)
+	{
+		var __index = args[0].Conv<int>();
+		var y = args[1].Conv<double>();
+
+		foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+		{
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMTile tile && tile.instanceId == __index)
+				{
+					tile.Y = y;
+				}
+			}
+		}
+
+		return null;
 	}
 }
 

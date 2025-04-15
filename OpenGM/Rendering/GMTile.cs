@@ -10,8 +10,8 @@ using OpenTK.Mathematics;
 namespace OpenGM.Rendering;
 public class GMTile : DrawWithDepth
 {
-    public float X;
-    public float Y;
+    public double X;
+    public double Y;
 
     public int Definition;
 
@@ -20,8 +20,8 @@ public class GMTile : DrawWithDepth
     public int width;
     public int height;
 
-    public float XScale;
-    public float YScale;
+    public double XScale;
+    public double YScale;
     public uint Color;
 
     public GMTile()

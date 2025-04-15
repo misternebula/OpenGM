@@ -913,6 +913,7 @@ public static class GameConverter
 						YScale = layer.BackgroundData.CalcScaleY,
 						Stretch = layer.BackgroundData.Stretch,
 						Color = layer.BackgroundData.Color,
+						Alpha = layer.BackgroundData.Color.ABGRToCol4().A,
 						FirstFrame = (int)layer.BackgroundData.FirstFrame,
 						AnimationSpeed = layer.BackgroundData.AnimationSpeed,
 						AnimationSpeedType = layer.BackgroundData.AnimationSpeedType

@@ -39,7 +39,7 @@ public class GMBackground : DrawWithDepth
 			screenPos = new OpenTK.Mathematics.Vector2d(Element.Layer.X, Element.Layer.Y),
 			scale = OpenTK.Mathematics.Vector2d.One,
 			angle = 0,
-			blend = Element.Color.ABGRToCol4()
+			blend = Element.Color.ABGRToCol4(Element.Alpha)
 		});
 	}
 

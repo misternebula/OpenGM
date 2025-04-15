@@ -134,6 +134,7 @@ public partial class CLayerBackgroundElement : CLayerElementBase
 	public uint Color;
 	public int FirstFrame;
 	public double AnimationSpeed;
+	public double Alpha;
 	public AnimationSpeedType AnimationSpeedType;
 }
 
