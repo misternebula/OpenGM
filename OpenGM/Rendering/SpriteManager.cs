@@ -168,7 +168,7 @@ public static class SpriteManager
         var texturePageName = $"sprite_create_from_surface {spriteId}"; // needed for texture page lookup
 
         // make a copy of the texture. theres better ways to do this but this should work
-        GL.BindTexture(TextureTarget.Texture2D, SurfaceManager.GetTextureFromSurface(surfaceId));
+        SurfaceManager.BindSurfaceTexture(surfaceId);
         var pixels = new byte[w * h * 4];
         unsafe
         {

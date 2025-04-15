@@ -249,12 +249,7 @@ public static class SurfaceManager
 
     public static int GetSurfaceWidth(int id)
     {
-        var bufferId = _framebuffers[id];
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
+        BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return width;
@@ -262,12 +257,7 @@ public static class SurfaceManager
 
     public static int GetSurfaceHeight(int id)
     {
-        var bufferId = _framebuffers[id];
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
+        BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return height;
@@ -279,12 +269,10 @@ public static class SurfaceManager
 
     public static void draw_surface_stretched(int id, double x, double y, double w, double h)
     {
-        // we drew into this fbo earlier, get its texture data
-        var textureId = GetTextureFromSurface(id);
-
         // draw rectangle with that texture
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
+        BindSurfaceTexture(id);
         GL.Uniform1(VertexManager.u_doTex, 1);
+        // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
         // the order here is different from sprite drawing or else everything gets y flipped????
@@ -308,7 +296,7 @@ public static class SurfaceManager
         GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
-    public static int GetTextureFromSurface(int surfaceId)
+    public static void BindSurfaceTexture(int surfaceId)
     {
         var buffer = _framebuffers[surfaceId];
         
@@ -317,6 +305,6 @@ public static class SurfaceManager
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 
-        return textureId;
+        GL.BindTexture(TextureTarget.Texture2D, textureId);
     }
 }
