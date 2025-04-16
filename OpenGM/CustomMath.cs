@@ -116,4 +116,30 @@ public static class CustomMath
 
 		return p;
 	}
+
+	/*
+	 * JS Functions
+	 * Functions that replicate JS math functions for HTML referenced code.
+	 */
+
+	// TODO : replace these with better implementations
+
+	public static float FMod(float x, float y)
+	{
+		if (x == 0)
+		{
+			return 0;
+		}
+
+		var t = (x * 0x1000000) % (y * 0x1000000);
+		t /= 0x1000000;
+		return t;
+	}
+
+	public static double Round(double n) => Math.Round(n, MidpointRounding.ToPositiveInfinity);
+
+	public static float ClampFloat(float f) => DoubleTilde(f * 1000000) / 1000000.0f;
+
+	// Substitute for double bitwise NOT (~~).
+	public static float DoubleTilde(float f) => (float)Math.Round(f, MidpointRounding.ToZero);
 }

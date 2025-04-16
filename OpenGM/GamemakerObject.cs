@@ -258,10 +258,13 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		get => _speed;
 		set
 		{
+			if (_speed == value)
+			{
+				return;
+			}
+
 			_speed = value;
-			var d = direction;
-			_hspeed = Math.Cos(d * CustomMath.Deg2Rad) * value;
-			_vspeed = -Math.Sin(d * CustomMath.Deg2Rad) * value;
+			ComputeHVSpeed();
 		}
 	}
 
@@ -271,9 +274,13 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		get => _hspeed;
 		set
 		{
+			if (_hspeed == value)
+			{
+				return;
+			}
+
 			_hspeed = value;
-			_direction = VectorToDir(hspeed, vspeed);
-			_speed = CustomMath.Sign(_speed) * Math.Sqrt(Math.Pow(_hspeed, 2) + Math.Pow(_vspeed, 2));
+			ComputeSpeed();
 		}
 	}
 
@@ -283,9 +290,13 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		get => _vspeed;
 		set
 		{
+			if (_vspeed == value)
+			{
+				return;
+			}
+
 			_vspeed = value;
-			_direction = VectorToDir(hspeed, vspeed);
-			_speed = CustomMath.Sign(_speed) * Math.Sqrt(Math.Pow(_hspeed, 2) + Math.Pow(_vspeed, 2));
+			ComputeSpeed();
 		}
 	}
 
@@ -299,9 +310,71 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 		set
 		{
-			_direction = value;
-			_hspeed = Math.Cos(value * CustomMath.Deg2Rad) * speed;
-			_vspeed = -Math.Sin(value * CustomMath.Deg2Rad) * speed;
+			var val = value;
+			while (val < 0)
+			{
+				val += 360;
+			}
+
+			while (val > 360)
+			{
+				val -= 360;
+			}
+
+			_direction = CustomMath.FMod((float)val, 360);
+			ComputeHVSpeed();
+		}
+	}
+
+	// https://github.com/YoYoGames/GameMaker-HTML5/blob/9122bcd3a811bd4878a1f0bbce9e6b04b31bee31/scripts/yyInstance.js#L1131
+	public void ComputeSpeed()
+	{
+		if (hspeed == 0)
+		{
+			if (vspeed > 0)
+			{
+				_direction = 270;
+			}
+			else if (vspeed < 0)
+			{
+				_direction = 90;
+			}
+		}
+		else
+		{
+			var dd = CustomMath.ClampFloat((float)(180 * (Math.Atan2(vspeed, hspeed)) / Math.PI));
+			_direction = dd <= 0
+				? (double)-dd
+				: 360.0 - dd;
+		}
+
+		if (Math.Abs(_direction - CustomMath.Round(_direction)) < 0.0001)
+		{
+			_direction = CustomMath.Round(_direction);
+		}
+		_direction = CustomMath.FMod((float)_direction, 360f);
+
+		_speed = Math.Sqrt((hspeed * hspeed) + (vspeed * vspeed));
+		if (Math.Abs(_speed - CustomMath.Round(_speed)) < 0.0001)
+		{
+			_speed = CustomMath.Round(_speed);
+		}
+	}
+
+	// https://github.com/YoYoGames/GameMaker-HTML5/blob/9122bcd3a811bd4878a1f0bbce9e6b04b31bee31/scripts/yyInstance.js#L1175
+	public void ComputeHVSpeed()
+	{
+		_hspeed = speed * CustomMath.ClampFloat((float)Math.Cos(direction * CustomMath.Deg2Rad));
+		_vspeed = -speed * CustomMath.ClampFloat((float)Math.Sin(direction * CustomMath.Deg2Rad));
+
+		if (Math.Abs(_hspeed - CustomMath.Round(_hspeed)) < 0.0001)
+		{ 
+			_hspeed = CustomMath.Round(_hspeed);
+		}
+
+		if (Math.Abs(_vspeed - CustomMath.Round(_vspeed)) < 0.0001)
+		{ 
+			_vspeed = CustomMath.Round(_vspeed); 
 		}
 	}
 
