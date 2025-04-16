@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Core.Native;
@@ -7,6 +8,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using UndertaleModLib.Decompiler;
 
 namespace OpenGM.Rendering;
@@ -231,6 +233,12 @@ public class CustomWindow : GameWindow
         if (string.IsNullOrEmpty(textJob.text))
         {
             return;
+        }
+
+        if (GameLoader.GeneralInfo.Major == 1)
+        {
+            textJob.text = Regex.Replace(textJob.text, @"(?<=[^\\])#", Environment.NewLine);
+            textJob.text = textJob.text.Replace(@"\#", "#");
         }
 
         var lines = textJob.text.SplitLines();
