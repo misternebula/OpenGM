@@ -48,6 +48,7 @@ public partial class Tile
 	public int X;
 	public int Y;
 	public int Definition;
+	public required bool SpriteMode;
 	public int SourceLeft;
 	public int SourceTop;
 	public int SourceWidth;

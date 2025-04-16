@@ -34,6 +34,7 @@ public static class GameConverter
 		ConvertCode(writer, data, data.Code);
 		ExportGlobalInitCode(writer, data);
 		ExportObjectDefinitions(writer, data);
+		ExportBackgrounds(writer, data);
 		ExportRooms(writer, data);
 		ConvertSprites(writer, data, data.Sprites);
 		ExportFonts(writer, data);
@@ -42,7 +43,6 @@ public static class GameConverter
 		ExportTileSets(writer, data);
 		ExportSounds(writer, data);
 		ExportPaths(writer, data);
-		ExportBackgrounds(writer, data);
 		ExportShaders(writer, data);
 
 		GC.Collect(); // gc after doing a buncha loading
@@ -1043,13 +1043,16 @@ public static class GameConverter
 
 			foreach (var tile in room.Tiles)
 			{
-				// TODO : check this doesnt include layer tiles??? it probably does ughhh
+				var definition = tile.spriteMode
+					? data.Sprites.IndexOf(tile.SpriteDefinition)
+					: data.Backgrounds.IndexOf(tile.BackgroundDefinition);
 
 				var tileAsset = new Tile()
 				{
 					X = tile.X,
 					Y = tile.Y,
-					Definition = 0,
+					Definition = definition,
+					SpriteMode = tile.spriteMode,
 					SourceLeft = (int)tile.SourceX,
 					SourceTop = (int)tile.SourceY,
 					SourceHeight = (int)tile.Height,

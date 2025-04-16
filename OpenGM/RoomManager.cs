@@ -244,6 +244,7 @@ public static class RoomManager
 						X = tile.X,
 						Y = tile.Y,
 						Definition = tile.Definition,
+						SpriteMode = false,
 						left = tile.SourceLeft,
 						top = tile.SourceTop,
 						width = tile.SourceWidth,
@@ -332,7 +333,8 @@ public static class RoomManager
 				XScale = item.ScaleX,
 				YScale = item.ScaleY,
 				Color = item.Color,
-				Definition = 0
+				Definition = item.Definition,
+				SpriteMode = item.SpriteMode
 			};
 
 			CurrentRoom.Tiles.Add(newTile);

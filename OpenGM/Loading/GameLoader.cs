@@ -44,7 +44,8 @@ public static class GameLoader
         LoadCode(reader);
         LoadGlobalInitCode(reader);
         LoadObjects(reader);
-        LoadRooms(reader);
+		LoadBackgrounds(reader);
+		LoadRooms(reader);
         LoadSprites(reader);
         LoadFonts(reader);
         LoadTexturePages(reader);
@@ -52,7 +53,6 @@ public static class GameLoader
         LoadTileSets(reader);
         AudioManager.LoadSounds(reader);
         LoadPaths(reader);
-        LoadBackgrounds(reader);
         LoadShaders(reader);
         
         GC.Collect(); // gc after doing a buncha loading

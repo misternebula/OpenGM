@@ -210,18 +210,6 @@ public static class DrawManager
 	        GL.Clear(ClearBufferMask.ColorBufferBit);
 		}
 
-        // ROOM BACKGROUNDS
-        // this is for undertale, which doesnt do surface stuff... we gotta account for that at some point
-        foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
-        {
-	        if (item == null)
-	        {
-		        continue;
-	        }
-
-	        item.Draw();
-        }
-
         /*
          * PreDraw
          */
@@ -242,15 +230,27 @@ public static class DrawManager
             }
         }
 
-        /*
+		// ROOM BACKGROUNDS
+		// this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
+		foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
+		{
+			if (item == null)
+			{
+				continue;
+			}
+
+			item.Draw();
+		}
+
+		/*
          * DrawViews
          */
-        // TODO: at some point this must be replaced by drawing each view
-        
-        /*
+		// TODO: at some point this must be replaced by drawing each view
+
+		/*
          * DrawTheRoom
          */
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+		if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
         {
             return;
         }

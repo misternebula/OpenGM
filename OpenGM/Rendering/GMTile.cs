@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using OpenGM.IO;
+using OpenGM.Loading;
+using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
 
 namespace OpenGM.Rendering;
@@ -14,8 +17,9 @@ public class GMTile : DrawWithDepth
     public double Y;
 
     public int Definition;
+	public required bool SpriteMode;
 
-    public int left;
+	public int left;
     public int top;
     public int width;
     public int height;
@@ -36,7 +40,18 @@ public class GMTile : DrawWithDepth
             return;
         }
 
-		var sprite = SpriteManager.GetSpritePage(Definition, 0);
+        SpritePageItem sprite; 
+
+        if (SpriteMode == false)
+        {
+			var background = GameLoader.Backgrounds[Definition];
+			sprite = background.Texture!;
+		}
+        else
+        {
+			sprite = SpriteManager.GetSpritePage(Definition, 0);
+		}
+
 		CustomWindow.Draw(new GMSpritePartJob()
 		{
 			texture = sprite,
