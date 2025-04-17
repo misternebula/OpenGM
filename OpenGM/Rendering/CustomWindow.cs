@@ -237,7 +237,8 @@ public class CustomWindow : GameWindow
 
         if (GameLoader.GeneralInfo.Major == 1)
         {
-            textJob.text = Regex.Replace(textJob.text, @"(?<=[^\\])#", Environment.NewLine);
+            // Replace \# with #, replace # with newlines.
+            textJob.text = Regex.Replace(textJob.text, @"(?<=[^\\]|^)#", Environment.NewLine);
             textJob.text = textJob.text.Replace(@"\#", "#");
         }
 
