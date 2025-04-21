@@ -143,7 +143,7 @@ public static partial class VMExecutor
 		{
 			var parentCode = GameLoader.Codes[code.ParentAssetId];
 			// TODO: potentially speed up lookup here, profile to see if thats needed
-			var func = parentCode.Functions.First(x => x.FunctionName == code.Name);
+			var func = parentCode.Functions.First(x => x.FunctionName == codeName);
 			instructionIndex = func.InstructionIndex;
 			code = parentCode;
 		}
@@ -596,7 +596,7 @@ public static partial class VMExecutor
 			case VMOpcode.CALLV:
 			{
 				var method = Call.Stack.Pop(VMType.v) as Method;
-				var idk = Call.Stack.Pop(VMType.v).Conv<int>(); // this is NOT instance id. idk what it is
+				var self = Call.Stack.Pop(VMType.v).Conv<int>(); // TODO: if method.inst is null, use this as self (https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/method_get_self.htm)
 
 				var args = new object?[instruction.IntData];
 
