@@ -34,6 +34,12 @@ internal class Entry
 
 		if (!File.Exists(Path.Combine(DataWinFolder, "data_OpenGM.win")))
 		{
+			if (!File.Exists(dataWinPath))
+			{
+				DebugLog.LogError($"ERROR - data.win not found. Make sure all game files are copied to {DataWinFolder}");
+				return;
+			}
+
 			Console.WriteLine($"Extracting game assets...");
 			using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
 			using var data = UndertaleIO.Read(stream);
