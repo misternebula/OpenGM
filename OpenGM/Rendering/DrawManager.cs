@@ -109,23 +109,26 @@ public static class DrawManager
 
 		var stepList = _drawObjects.OrderBy(x => x.instanceId);
 
-        foreach (var item in stepList)
-        {
-	        if (item is not GamemakerObject gm)
-	        {
-                continue;
-	        }
+        InstanceManager.RememberOldPositions();
+        InstanceManager.UpdateImages();
 
-	        gm.xprevious = gm.x;
-	        gm.yprevious = gm.y;
-        }
+		// g_pLayerManager.UpdateLayers();
 
-        if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
+		if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
         {
             return;
         }
 
-        foreach (var item in stepList)
+		// do resize event
+
+		// g_pASyncManager.Process();
+
+		// HandleTimeLine();
+
+		// HandleTimeSources();
+
+		// HandleAlarm()
+		foreach (var item in stepList)
         {
             if (item is GamemakerObject gm)
             {
@@ -135,13 +138,30 @@ public static class DrawManager
 
         HandleKeyboard();
 
+		// HandleMouse();
+
 		if (RoomManager.New_Room != -1)
         {
             RoomManager.ChangeToWaitingRoom();
             return;
         }
 
-        foreach (var item in stepList)
+		if (RunStepScript(stepList, EventSubtypeStep.Step))
+		{
+			return;
+		}
+
+		//  ProcessSpriteMessageEvents();
+
+        InstanceManager.UpdatePositions(); // UpdateInstancePositions
+
+		// HandleOther();
+
+		// YYPushEventsDispatch();
+
+
+		// UpdateCollisions();	
+		foreach (var item in stepList)
         {
             if (item is GamemakerObject gmo)
             {
@@ -167,11 +187,6 @@ public static class DrawManager
                     }
                 }
             }
-        }
-
-        if (RunStepScript(stepList, EventSubtypeStep.Step))
-        {
-            return;
         }
 
         if (RunStepScript(stepList, EventSubtypeStep.EndStep))
@@ -319,16 +334,6 @@ public static class DrawManager
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd))
         {
             return;
-        }
-
-        // this does animation stuff
-        // html5 does it different, but events move around all the time and nothing breaks yet
-        foreach (var item in drawList)
-        {
-            if (item is GamemakerObject)
-            {
-                item.Draw();
-            }
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();

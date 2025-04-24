@@ -13,6 +13,11 @@ namespace OpenGM;
 /// </summary>
 public class GamemakerObject : DrawWithDepth, IStackContextSelf
 {
+	public override void Draw()
+	{
+		
+	}
+
 	/// <summary>
 	/// CHECK BUILTIN SELF VARS BEFORE THIS!!
 	/// </summary>
@@ -432,62 +437,23 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 	public double frame_overflow;
 
-	public sealed override void Draw()
+	public void Animate()
 	{
-		if (!_createRan || !RoomManager.RoomLoaded)
+		var sprite = SpriteManager.GetSpriteAsset(sprite_index);
+
+		if (sprite == null)
 		{
+			image_index += image_speed;
 			return;
 		}
 
-		AdaptSpeed();
-
-		if (AdaptPath())
+		if (sprite.PlaybackSpeedType == AnimSpeedType.FramesPerGameFrame)
 		{
-			ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
-		}
-
-		if (hspeed != 0 || vspeed != 0)
-		{
-			x += hspeed;
-			y += vspeed;
-		}
-
-		var asset = SpriteManager.GetSpriteAsset(sprite_index);
-		if (asset != null)
-		{
-			var playbackType = asset.PlaybackSpeedType;
-			var playbackSpeed = asset.PlaybackSpeed * image_speed;
-
-			if (playbackType == AnimSpeedType.FramesPerGameFrame)
-			{
-				image_index += playbackSpeed;
-			}
-			else
-			{
-				image_index += playbackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
-			}
-
-			var number = SpriteManager.GetNumberOfFrames(sprite_index);
-
-			if (image_index >= number)
-			{
-				frame_overflow += number;
-				image_index -= number;
-
-				ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-			}
-			else if (image_index < 0)
-			{
-				frame_overflow -= number;
-				image_index += number;
-
-				ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-			}
+			image_index += image_speed * sprite.PlaybackSpeed;
 		}
 		else
 		{
-			// lol this is dumb but i guess it's what GM does???
-			image_index += image_speed;
+			image_index += image_speed * sprite.PlaybackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
 		}
 	}
 

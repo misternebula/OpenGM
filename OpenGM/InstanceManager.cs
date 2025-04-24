@@ -1,6 +1,9 @@
 ﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
+using UndertaleModLib.Models;
+using EventType = OpenGM.VirtualMachine.EventType;
 
 namespace OpenGM;
 public static class InstanceManager
@@ -190,5 +193,77 @@ public static class InstanceManager
 		}
 
 		instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
+	}
+
+	public static void RememberOldPositions()
+	{
+		foreach (var (index, item) in InstanceManager.instances)
+		{
+			item.xprevious = item.x;
+			item.yprevious = item.y;
+			item.path_previousposition = item.path_position;
+
+			item.Animate();
+		}
+	}
+
+	public static void UpdateImages()
+	{
+		foreach (var (index, item) in InstanceManager.instances)
+		{
+			if (item.Marked)
+			{
+				continue;
+			}
+
+			if (!item.Active)
+			{
+				continue;
+			}
+
+			var sprite = SpriteManager.GetSpriteAsset(item.sprite_index);
+
+			if (sprite == null)
+			{
+				continue;
+			}
+
+			var num = sprite.Textures.Count;
+
+			if (item.image_index >= num)
+			{
+				item.frame_overflow += num;
+				item.image_index -= num;
+
+				GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+			}
+			else if (item.image_index < 0)
+			{
+				item.frame_overflow -= num;
+				item.image_index += num;
+
+				GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+			}
+		}
+	}
+
+	public static void UpdatePositions()
+	{
+		foreach (var (index, item) in InstanceManager.instances)
+		{
+			item.AdaptSpeed();
+
+			if (item.AdaptPath())
+			{
+				GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
+			}
+
+			if (item.hspeed != 0 || item.vspeed != 0)
+			{
+				item.x += item.hspeed;
+				item.y += item.vspeed;
+				item.bbox_dirty = true;
+			}
+		}
 	}
 }
