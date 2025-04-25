@@ -402,6 +402,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 	public bool Active = true;
 	public bool Marked = false; // Marked for deletion at the end of the frame
+	public bool IsOutsideRoom = false; // Store state so event isn't called multiple times
 
 	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
 	{
@@ -804,5 +805,25 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		y = newy;
 
 		return atPathEnd;
+	}
+
+	public bool HasEvent(EventType eventType, int eventSubtype)
+	{
+		return eventType switch
+		{
+			EventType.Create => Definition.CreateCode != null,
+			EventType.Destroy => Definition.CreateCode != null,
+			EventType.Alarm => Definition.AlarmScript.ContainsKey(eventSubtype),
+			EventType.Step => Definition.StepScript.ContainsKey((EventSubtypeStep)eventSubtype),
+			EventType.Collision => Definition.CollisionScript.ContainsKey(eventSubtype),
+			EventType.Keyboard => Definition.KeyboardScripts.ContainsKey((EventSubtypeKey)eventSubtype),
+			EventType.Other => Definition.OtherScript.ContainsKey((EventSubtypeOther)eventSubtype),
+			EventType.Draw => Definition.DrawScript.ContainsKey((EventSubtypeDraw)eventSubtype),
+			EventType.KeyPress => Definition.KeyPressScripts.ContainsKey((EventSubtypeKey)eventSubtype),
+			EventType.KeyRelease => Definition.KeyReleaseScripts.ContainsKey((EventSubtypeKey)eventSubtype),
+			EventType.CleanUp => Definition.CleanUpScript != null,
+			EventType.PreCreate => Definition.CreateCode != null,
+			_ => throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null),
+		};
 	}
 }

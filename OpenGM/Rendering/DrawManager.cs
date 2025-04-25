@@ -288,7 +288,41 @@ public static class DrawManager
 
     public static void HandleOther()
     {
-		// TODO: handles Outside, Boundary, OutsideView, and BoundaryView events.
+	    // create copy since events can create new instances
+		var instances = InstanceManager.instances.Values.ToList();
+	    foreach (var instance in instances)
+	    {
+		    if (!instance.Marked)
+		    {
+                if (instance.HasEvent(EventType.Other, (int)EventSubtypeOther.OutsideRoom))
+                {
+	                var outside = false;
+
+	                if (SpriteManager.SpriteExists(instance.sprite_index) || SpriteManager.SpriteExists(instance.mask_index))
+	                {
+		                var bbox = instance.bbox;
+		                outside = ((bbox.right < 0) || (bbox.left > RoomManager.CurrentRoom.SizeX) || (bbox.bottom < 0) || (bbox.top > RoomManager.CurrentRoom.SizeY));
+					}
+	                else
+	                {
+		                outside = ((instance.x < 0) || (instance.x > RoomManager.CurrentRoom.SizeX) || (instance.y < 0) || (instance.y > RoomManager.CurrentRoom.SizeY));
+					}
+
+	                if (outside)
+	                {
+		                if (!instance.IsOutsideRoom)
+		                {
+			                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.OutsideRoom);
+		                }
+	                }
+	                instance.IsOutsideRoom = outside;
+				}
+
+				// boundary events
+
+				// outside/boundary view events
+		    }
+	    }
     }
 
 	public static void FixedUpdate()
