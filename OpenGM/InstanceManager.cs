@@ -209,7 +209,8 @@ public static class InstanceManager
 
 	public static void UpdateImages()
 	{
-		foreach (var (index, item) in InstanceManager.instances)
+		var instanceList = InstanceManager.instances.Values.ToList();
+		foreach (var item in instanceList)
 		{
 			if (item.Marked)
 			{
