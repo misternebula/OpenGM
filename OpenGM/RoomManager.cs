@@ -228,6 +228,8 @@ public static class RoomManager
 					}
 				}
 			}
+
+			PersistentRooms.Remove(room.AssetId);
 		}
 		else
 		{
