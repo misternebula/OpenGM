@@ -13,6 +13,7 @@ public class RoomContainer
 	public RoomContainer(Room room)
 	{
 		RoomAsset = room;
+		Persistent = room.Persistent;
 	}
 
 	public Room RoomAsset;
@@ -20,7 +21,7 @@ public class RoomContainer
 	public int AssetId => RoomAsset.AssetId;
 	public int CameraWidth => RoomAsset.CameraWidth;
 	public int CameraHeight => RoomAsset.CameraHeight;
-	public bool Persistent => RoomAsset.Persistent;
+	public bool Persistent;
 	public int SizeX => RoomAsset.SizeX;
 	public int SizeY => RoomAsset.SizeY;
 	public GamemakerObject? FollowObject => RoomAsset.FollowsObject == -1 ? null : InstanceManager.instances.FirstOrDefault(x => x.Value.Definition.AssetId == RoomAsset.FollowsObject).Value;

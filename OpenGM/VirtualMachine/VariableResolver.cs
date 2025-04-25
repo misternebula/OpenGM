@@ -80,7 +80,7 @@ public static class VariableResolver
 		{ "argument13", (get_argument_13, null) },
 		{ "argument14", (get_argument_14, null) },
 		{ "argument15", (get_argument_15, null) },
-		// { "room_persistent", (get_room_persistent, set_room_persistent)},
+		{ "room_persistent", (get_room_persistent, set_room_persistent)},
 		{ "undefined", (get_undefined, null) },
 		{ "view_current", (get_view_current, null)},
 		{ "view_wport", (get_view_wport, set_view_wport)},
@@ -242,8 +242,14 @@ public static class VariableResolver
 
 	public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
 
-	// public static object get_room_persistent() => RoomManager.CurrentRoom.Persistent;
-	// public static void set_room_persistent(object? value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
+	public static object get_room_persistent() => RoomManager.CurrentRoom.Persistent;
+
+	public static void set_room_persistent(object? value)
+	{
+		var val = value.Conv<bool>();
+		DebugLog.Log($"room_persistent = {val}");
+		RoomManager.CurrentRoom.Persistent = val;
+	}
 
 	public static object get_room_speed() => Entry.GameSpeed;
 	public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
