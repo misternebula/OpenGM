@@ -222,6 +222,10 @@ public static class RoomManager
 					{
 						DrawManager.Register(sprite);
 					}
+					else if (element is GMTile tile)
+					{
+						DrawManager.Register(tile);
+					}
 				}
 			}
 		}
