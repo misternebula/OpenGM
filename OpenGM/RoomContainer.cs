@@ -42,6 +42,37 @@ public class RoomContainer
 			return RoomManager.CurrentRoom.Layers[id];
 		}
 	}
+
+	public void RemoveMarked()
+	{
+		var destroyedList = new List<GamemakerObject>();
+
+		foreach (var (_, instance) in InstanceManager.instances)
+		{
+			if (!instance.Marked)
+			{
+				continue;
+			}
+
+			destroyedList.Add(instance);
+		}
+
+		foreach (var instance in destroyedList)
+		{
+			DeleteInstance(instance);
+		}
+	}
+
+	public void DeleteInstance(GamemakerObject obj)
+	{
+		// physics stuff
+
+		// g_pLayerManager.RemoveInstance(this, pInst);
+		InstanceManager.instances.Remove(obj.instanceId);
+		// this.m_Active.DeleteItem(pInst);
+		// this.m_Deactive.DeleteItem(pInst);
+		obj.Destroy();
+	}
 }
 
 public class LayerContainer
