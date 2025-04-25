@@ -205,6 +205,25 @@ public static class RoomManager
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
 				DrawManager.Register(instance);
 			}
+
+			foreach (var layer in CurrentRoom.Layers)
+			{
+				foreach (var element in layer.Value.ElementsToDraw)
+				{
+					if (element is GMTilesLayer tileLayer)
+					{
+						DrawManager.Register(tileLayer);
+					}
+					else if (element is GMBackground background)
+					{
+						DrawManager.Register(background);
+					}
+					else if (element is GMSprite sprite)
+					{
+						DrawManager.Register(sprite);
+					}
+				}
+			}
 		}
 		else
 		{
