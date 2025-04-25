@@ -4068,7 +4068,7 @@ public static partial class ScriptResolver
 	public static object? event_perform(object?[] args)
 	{
 		var type = args[0].Conv<int>();
-		var numb = args[0].Conv<int>();
+		var numb = args[1].Conv<int>();
 
 		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, (EventType)type + 1, numb);
 		return null;
