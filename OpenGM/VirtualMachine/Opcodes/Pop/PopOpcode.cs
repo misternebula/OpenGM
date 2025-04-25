@@ -38,6 +38,13 @@ public static partial class VMExecutor
 
 	public static void PopToSelf(IStackContextSelf self, string varName, object? value)
 	{
+		// check built in variables beforehand
+		if (VariableResolver.BuiltInVariables.ContainsKey(varName))
+		{
+			VariableResolver.BuiltInVariables[varName].setter!(value);
+			return;
+		}
+
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
 		{
 			gettersetter.setter!(gm, value);
