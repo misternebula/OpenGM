@@ -18,6 +18,7 @@ public static class RoomManager
 	public static RoomContainer CurrentRoom = null!; // its set to room on start
 
 	public static Dictionary<int, Room> RoomList = new();
+	public static Dictionary<int, PersistentRoom> PersistentRooms = new();
 	public static bool RoomLoaded = false;
 	public static bool FirstRoom = false;
 
@@ -63,8 +64,69 @@ public static class RoomManager
 
 		if (CurrentRoom != null && CurrentRoom.Persistent)
 		{
-			// uh oh.
-			throw new NotImplementedException();
+			var instancesToSave = new List<GamemakerObject>();
+
+			// events could destroy other objects, cant modify during iteration
+			var instanceList = new List<GamemakerObject>(InstanceManager.instances.Values);
+			foreach (var instance in instanceList)
+			{
+				if (instance == null)
+				{
+					continue;
+				}
+
+				if (instance.persistent)
+				{
+					continue;
+				}
+
+				// TODO : should we call RoomEnd on marked objects? will any marked objects still exist at this point?
+				if (instance.Marked || instance.Destroyed)
+				{
+					continue;
+				}
+
+				// TODO : if RoomEnd event creates objects, should they be saved??
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+
+				instancesToSave.Add(instance);
+				DrawManager.Unregister(instance);
+			}
+
+			// todo: this seems dumb and slow. do it in a not dumb way
+			InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
+
+			foreach (var item in CurrentRoom.Tiles)
+			{
+				DrawManager.Unregister(item);
+			}
+
+			foreach (var layer in CurrentRoom.Layers)
+			{
+				foreach (var element in layer.Value.ElementsToDraw)
+				{
+					if (element is GMTilesLayer tileLayer)
+					{
+						DrawManager.Unregister(tileLayer);
+					}
+					else if (element is GMBackground background)
+					{
+						DrawManager.Unregister(background);
+					}
+					else if (element is GMSprite sprite)
+					{
+						DrawManager.Unregister(sprite);
+					}
+				}
+			}
+
+			var persistentRoom = new PersistentRoom()
+			{
+				RoomAssetId = CurrentRoom.AssetId,
+				Container = CurrentRoom,
+				Instances = instancesToSave
+			};
+			PersistentRooms.Add(CurrentRoom.AssetId, persistentRoom);
 		}
 		else if (CurrentRoom != null)
 		{
@@ -85,6 +147,7 @@ public static class RoomManager
 					continue;
 				}
 
+				// TODO : if RoomEnd event creates objects, should they be destroyed??
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
@@ -127,11 +190,28 @@ public static class RoomManager
 			}
 		}
 
-		RoomLoaded = false;
+		if (PersistentRooms.TryGetValue(room.AssetId, out var value))
+		{
+			DebugLog.LogInfo($"Loading persistent room AssetID:{room.AssetId} ({value.Container.RoomAsset.AssetId}) Name:{value.Container.RoomAsset.Name}");
+			CurrentRoom = value.Container;
 
-		CurrentRoom = new RoomContainer(room);
+			CustomWindow.Instance.SetPosition(0, 0);
+			CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
+			CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
 
-		OnRoomChanged();
+			foreach (var instance in value.Instances)
+			{
+				InstanceManager.instances.Add(instance.instanceId, instance);
+				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
+				DrawManager.Register(instance);
+			}
+		}
+		else
+		{
+			RoomLoaded = false;
+			CurrentRoom = new RoomContainer(room);
+			OnRoomChanged();
+		}
 	}
 
 	private static void OnRoomChanged()
