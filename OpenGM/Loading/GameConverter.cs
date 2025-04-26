@@ -474,6 +474,13 @@ public static class GameConverter
 			return;
 		}
 
+		if (split.Length == 1)
+		{
+			variableType = VariableType.None;
+			variableName = split[0];
+			return;
+		}
+
 		var context = split[0];
 		variableName = split[1];
 
