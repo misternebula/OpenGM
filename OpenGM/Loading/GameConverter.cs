@@ -529,7 +529,7 @@ public static class GameConverter
 		{
 			// dont even need a class for this
 			var pageName = page.Name.Content;
-			var blob = page.TextureData.TextureBlob;
+			var blob = page.TextureData.Image.ConvertToPng().ToSpan();
 			writer.Write(pageName);
 			writer.Write(blob.Length);
 			writer.Write(blob);
