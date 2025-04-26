@@ -91,7 +91,7 @@ public static partial class ScriptResolver
 		{ "instance_create_depth", instance_create_depth },
 		//{ "instance_create_layer", instance_create_layer },
 		//{ "instance_copy", instance_copy },
-		//{ "instance_change", instance_change },
+		{ "instance_change", instance_change },
 		{ "instance_destroy", instance_destroy },
 		//{ "instance_sprite", instance_sprite },
 		//{ "position_empty", position_empty },
@@ -5272,6 +5272,34 @@ public static partial class ScriptResolver
 					tile.Y = y;
 				}
 			}
+		}
+
+		return null;
+	}
+
+	private static object? instance_change(object?[] args)
+	{
+		var obj = args[0].Conv<int>();
+		var perf = args[1].Conv<bool>();
+
+		var self = VMExecutor.Self.GMSelf;
+
+		if (perf)
+		{
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Destroy);
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.CleanUp);
+		}
+
+		var definition = InstanceManager.ObjectDefinitions[obj];
+
+		self.Definition = definition;
+		self.sprite_index = definition.sprite;
+		self.bbox_dirty = true;
+
+		if (perf)
+		{
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.PreCreate);
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Create);
 		}
 
 		return null;
