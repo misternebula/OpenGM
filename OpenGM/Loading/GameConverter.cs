@@ -949,6 +949,7 @@ public static class GameConverter
 							val.ScaleX = tile.ScaleX;
 							val.ScaleY = tile.ScaleY;
 							val.Color = tile.Color;
+							val.SpriteMode = tile.spriteMode;
 
 							layerasset.Elements.Add(val);
 						}

@@ -349,7 +349,7 @@ public static class RoomManager
 						X = tile.X,
 						Y = tile.Y,
 						Definition = tile.Definition,
-						SpriteMode = false,
+						SpriteMode = tile.SpriteMode,
 						left = tile.SourceLeft,
 						top = tile.SourceTop,
 						width = tile.SourceWidth,
