@@ -476,8 +476,8 @@ public static class GameConverter
 
 		if (split.Length == 1)
 		{
-			variableType = VariableType.None;
-			variableName = split[0];
+			variableType = VariableType.Index;
+			assetIndex = 0;
 			return;
 		}
 
