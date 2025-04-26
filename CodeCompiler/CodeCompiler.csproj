@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Reference Include="UndertaleModLib">
-      <HintPath>..\OpenGM\lib\UndertaleModLib.dll</HintPath>
+      <HintPath>..\OpenGM\UndertaleModLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 
