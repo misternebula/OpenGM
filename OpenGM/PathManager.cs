@@ -8,7 +8,6 @@ using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
-using static UndertaleModLib.Compiler.Compiler.Parser.ExpressionConstant;
 
 namespace OpenGM;
 public static class PathManager

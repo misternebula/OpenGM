@@ -240,7 +240,7 @@ public static partial class VMExecutor
 
 				if (instruction.StringData != null)
 				{
-					if (AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData) != -1)
+					if (instruction.PushFunction)
 					{
 						Call.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
 					}

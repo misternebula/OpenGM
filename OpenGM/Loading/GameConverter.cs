@@ -351,6 +351,13 @@ public static class GameConverter
 								{
 									// Probably dealing with text.
 									instruction.StringData = value;
+
+									if (value.StartsWith("[function]"))
+									{
+										instruction.PushFunction = true;
+										instruction.StringData = value[10..];
+									}
+									
 								}
 
 								break;
