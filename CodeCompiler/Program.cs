@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OpenGM.Loading;
 using UndertaleModLib;
+using UndertaleModLib.Compiler;
 using UndertaleModLib.Decompiler;
 
 namespace CodeCompiler;
