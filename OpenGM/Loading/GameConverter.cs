@@ -734,6 +734,7 @@ public static class GameConverter
 			asset.sprite = data.Sprites.IndexOf(obj.Sprite);
 			asset.visible = obj.Visible;
 			asset.solid = obj.Solid;
+			asset.depth = obj.Depth;
 			asset.persistent = obj.Persistent;
 			asset.textureMaskId = data.Sprites.IndexOf(obj.TextureMaskId);
 

@@ -402,6 +402,7 @@ public static class RoomManager
 
 			//newGM._createRan = true;
 			//newGM.depth = layer.LayerDepth;
+			newGM.depth = definition.depth;
 			newGM.image_xscale = item.ScaleX;
 			newGM.image_yscale = item.ScaleY;
 			newGM.image_blend = (int)item.Color;

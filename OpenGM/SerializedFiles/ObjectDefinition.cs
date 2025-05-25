@@ -18,6 +18,7 @@ public partial class ObjectDefinition
 	public int sprite = -1;
 	public bool visible = true;
 	public bool solid;
+	public int depth;
 	public bool persistent;
 	public int textureMaskId = -1;
 
