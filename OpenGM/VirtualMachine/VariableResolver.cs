@@ -64,22 +64,22 @@ public static class VariableResolver
 		{ "application_surface", (get_application_surface, null) },
 		{ "argument_count", (get_argument_count, null) },
 		{ "argument", (get_argument, null) },
-		{ "argument0", (get_argument_0, null) },
-		{ "argument1", (get_argument_1, null) },
-		{ "argument2", (get_argument_2, null) },
-		{ "argument3", (get_argument_3, null) },
-		{ "argument4", (get_argument_4, null) },
-		{ "argument5", (get_argument_5, null) },
-		{ "argument6", (get_argument_6, null) },
-		{ "argument7", (get_argument_7, null) },
-		{ "argument8", (get_argument_8, null) },
-		{ "argument9", (get_argument_9, null) },
-		{ "argument10", (get_argument_10, null) },
-		{ "argument11", (get_argument_11, null) },
-		{ "argument12", (get_argument_12, null) },
-		{ "argument13", (get_argument_13, null) },
-		{ "argument14", (get_argument_14, null) },
-		{ "argument15", (get_argument_15, null) },
+		{ "argument0", (get_argument_0, (val) => VMExecutor.PopToArgument(0, val)) },
+		{ "argument1", (get_argument_1, (val) => VMExecutor.PopToArgument(1, val)) },
+		{ "argument2", (get_argument_2, (val) => VMExecutor.PopToArgument(2, val)) },
+		{ "argument3", (get_argument_3, (val) => VMExecutor.PopToArgument(3, val)) },
+		{ "argument4", (get_argument_4, (val) => VMExecutor.PopToArgument(4, val)) },
+		{ "argument5", (get_argument_5, (val) => VMExecutor.PopToArgument(5, val)) },
+		{ "argument6", (get_argument_6, (val) => VMExecutor.PopToArgument(6, val)) },
+		{ "argument7", (get_argument_7, (val) => VMExecutor.PopToArgument(7, val)) },
+		{ "argument8", (get_argument_8, (val) => VMExecutor.PopToArgument(8, val)) },
+		{ "argument9", (get_argument_9, (val) => VMExecutor.PopToArgument(9, val)) },
+		{ "argument10", (get_argument_10, (val) => VMExecutor.PopToArgument(10, val)) },
+		{ "argument11", (get_argument_11, (val) => VMExecutor.PopToArgument(11, val)) },
+		{ "argument12", (get_argument_12, (val) => VMExecutor.PopToArgument(12, val)) },
+		{ "argument13", (get_argument_13, (val) => VMExecutor.PopToArgument(13, val)) },
+		{ "argument14", (get_argument_14, (val) => VMExecutor.PopToArgument(14, val)) },
+		{ "argument15", (get_argument_15, (val) => VMExecutor.PopToArgument(15, val)) },
 		{ "room_persistent", (get_room_persistent, set_room_persistent)},
 		{ "undefined", (get_undefined, null) },
 		{ "view_current", (get_view_current, null)},
@@ -279,6 +279,13 @@ public static class VariableResolver
 	public static object? get_argument_13() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[13];
 	public static object? get_argument_14() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[14];
 	public static object? get_argument_15() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[15];
+
+	private static void SetArgumentIndex(int index, object? value)
+	{
+		var args = VMExecutor.Call.Locals["arguments"].Conv<IList>();
+		args[index] = value;
+		VMExecutor.Call.Locals["arguments"] = args;
+	}
 
 	public static object? get_undefined() => null;
 
