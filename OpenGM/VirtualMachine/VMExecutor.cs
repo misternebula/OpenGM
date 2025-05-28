@@ -131,10 +131,17 @@ public static partial class VMExecutor
 
 	public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
 	{
+		object? defaultReturnValue = null;
+		// TODO: this actually changed to being undefined in probably 2.3? don't know how to check that rn, so just going with 2.0
+		if (VersionManager.IsGMS1())
+		{
+			defaultReturnValue = 0;
+		}
+
 		if (code == null)
 		{
 			DebugLog.LogError($"Tried to run null code!");
-			return null;
+			return defaultReturnValue;
 		}
 
 		var codeName = code.Name; // grab script function name and use that instead of script asset name
@@ -150,7 +157,7 @@ public static partial class VMExecutor
 
 		if (code.Instructions.Count == 0)
 		{
-			return null;
+			return defaultReturnValue;
 		}
 
 		if (VerboseStackLogs)
@@ -182,7 +189,7 @@ public static partial class VMExecutor
 			
 			Stack = new(),
 			Locals = new(),
-			ReturnValue = null,
+			ReturnValue = defaultReturnValue,
 			EventType = eventType,
 			EventIndex = eventIndex
 		};
