@@ -224,7 +224,7 @@ public static partial class ScriptResolver
 		{ "string_insert", string_insert },
 		{ "string_lower", string_lower },
 		{ "string_upper", string_upper},
-		//{ "string_repeat", string_repeat },
+		{ "string_repeat", string_repeat },
 		//{ "string_letters", string_letters },
 		{ "string_digits", string_digits },
 		//{ "string_lettersdigits", string_lettersdigits },
@@ -705,6 +705,9 @@ public static partial class ScriptResolver
 		{ "layer_tile_get_y", layer_tile_get_y },
 		{ "layer_tile_x", layer_tile_x },
 		{ "layer_tile_y", layer_tile_y },
+
+		{ "draw_set_circle_precision", draw_set_circle_precision},
+		{ "room_restart", room_restart }
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -5302,6 +5305,50 @@ public static partial class ScriptResolver
 			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Create);
 		}
 
+		return null;
+	}
+
+	private static object? draw_set_circle_precision(object?[] args)
+	{
+		var precision = args[0].Conv<int>();
+
+		if (precision < 4)
+		{
+			precision = 4;
+		}
+
+		if (precision >= 65)
+		{
+			precision = 64;
+		}
+
+		// ensure is a multiple of 4
+		precision = 4 * (int)Math.Truncate(precision / 4.0);
+
+		DrawManager.CirclePrecision = precision;
+
+		// TODO: html/c++ also caches sin/cos values. should we do that?
+
+		return null;
+	}
+
+	private static object? string_repeat(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		var count = args[1].Conv<int>();
+
+		var ret = "";
+		for (var i = 0; i < count; i++)
+		{
+			ret += str;
+		}
+
+		return ret;
+	}
+
+	private static object? room_restart(object?[] args)
+	{
+		RoomManager.New_Room = RoomManager.CurrentRoom.AssetId;
 		return null;
 	}
 }
