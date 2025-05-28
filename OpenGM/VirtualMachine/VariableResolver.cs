@@ -94,7 +94,8 @@ public static class VariableResolver
 		{ "instance_count", (get_instance_count, null)},
 		{ "current_time", (get_current_time, null)},
 		{ "current_month", (get_current_month, null)},
-		{ "debug_mode", (get_debug_mode, null)}
+		{ "debug_mode", (get_debug_mode, null)},
+		{ "background_color", (get_background_color, set_background_color)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -339,4 +340,15 @@ public static class VariableResolver
 	public static object get_current_month() => DateTime.Now.Month;
 
 	public static object get_debug_mode() => false;
+
+	public static object? get_background_color()
+	{
+		// TODO : Implement
+		return null;
+	}
+
+	public static void set_background_color(object? value)
+	{
+		// TODO : Implement
+	}
 }
