@@ -122,6 +122,31 @@ public static partial class ScriptResolver
 		return null;
 	}
 
+	public static object? collision_circle(object?[] args)
+	{
+		var x = args[0].Conv<double>();
+		var y = args[1].Conv<double>();
+		var rad = args[2].Conv<double>();
+		var obj = args[3].Conv<int>();
+		var prec = args[4].Conv<bool>();
+		var notme = args[5].Conv<bool>();
+
+		return CollisionManager.Command_CollisionCircle(VMExecutor.Self.GMSelf, x, y, rad, obj, prec, notme);
+	}
+
+	public static object? collision_ellipse(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var obj = args[4].Conv<int>();
+		var prec = args[5].Conv<bool>();
+		var notme = args[6].Conv<bool>();
+
+		return CollisionManager.Command_CollisionEllipse(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
+	}
+
 	public static object? collision_point(object?[] args)
 	{
 		var x = args[0].Conv<double>();
