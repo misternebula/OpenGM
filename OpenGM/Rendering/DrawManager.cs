@@ -326,7 +326,32 @@ public static class DrawManager
     }
 
 	public static void FixedUpdate()
-    {
+	{
+		VariableResolver.GlobalVariables["debug"] = true;
+
+		var itemsToRemove = new List<DrawWithDepth>();
+		foreach (var item in _drawObjects)
+		{
+			if (item is GamemakerObject gm)
+			{
+				if (gm.Destroyed || gm.Marked)
+				{
+					DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when destroyed/marked!");
+					itemsToRemove.Add(item);
+				}
+
+				if (!InstanceManager.instance_exists_instanceid(gm.instanceId))
+				{
+					// TODO : this really shouldnt happen!! instance wasn't destroyed properly??
+					DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when not in Instance list!");
+					gm.Destroyed = true;
+					gm.Marked = true;
+					itemsToRemove.Add(item);
+				}
+			}
+		}
+		_drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
+
         DoAStep();
         
         /*
