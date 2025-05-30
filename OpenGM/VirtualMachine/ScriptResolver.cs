@@ -639,6 +639,9 @@ public static partial class ScriptResolver
 		{ "action_move", action_move},
 		{ "action_set_alarm", action_set_alarm},
 		{ "action_set_friction", action_set_friction},
+		{ "action_set_gravity", action_set_gravity},
+		{ "action_set_hspeed", action_set_hspeed},
+		{ "action_set_vspeed", action_set_vspeed},
 		{ "sprite_delete", sprite_delete},
 
 		{ "window_enable_borderless_fullscreen", window_enable_borderless_fullscreen},
@@ -4286,6 +4289,45 @@ public static partial class ScriptResolver
 		}
 
 		VMExecutor.Self.GMSelf.friction = friction;
+		return null;
+	}
+
+	public static object? action_set_gravity(object?[] args)
+	{
+		var gravity = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			gravity += VMExecutor.Self.GMSelf.gravity;
+		}
+
+		VMExecutor.Self.GMSelf.gravity = gravity;
+		return null;
+	}
+
+	public static object? action_set_hspeed(object?[] args)
+	{
+		var hspeed = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			hspeed += VMExecutor.Self.GMSelf.hspeed;
+		}
+
+		VMExecutor.Self.GMSelf.hspeed = hspeed;
+		return null;
+	}
+
+	public static object? action_set_vspeed(object?[] args)
+	{
+		var vspeed = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			vspeed += VMExecutor.Self.GMSelf.vspeed;
+		}
+
+		VMExecutor.Self.GMSelf.vspeed = vspeed;
 		return null;
 	}
 
