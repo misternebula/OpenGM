@@ -139,7 +139,8 @@ public static class VariableResolver
 		{ "path_index", (get_path_index, null)},
 		{ "path_position", (get_path_position, set_path_position)},
 		{ "path_speed", (get_path_speed, set_path_speed)},
-		{ "path_scale", (get_path_scale, set_path_scale)}
+		{ "path_scale", (get_path_scale, set_path_scale)},
+		{ "mask_index", (get_mask_index, set_mask_index)}
 	};
 
 	public static object get_working_directory()
@@ -163,6 +164,9 @@ public static class VariableResolver
 
 	public static object get_image_index(GamemakerObject instance) => instance.image_index;
 	public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
+
+	public static object get_mask_index(GamemakerObject instance) => instance.mask_index;
+	public static void set_mask_index(GamemakerObject instance, object? value) => instance.mask_index = value.Conv<int>();
 
 	public static object get_sprite_index(GamemakerObject instance) => instance.sprite_index;
 	public static void set_sprite_index(GamemakerObject instance, object? value) => instance.sprite_index = value.Conv<int>();
