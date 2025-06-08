@@ -3412,11 +3412,19 @@ public static partial class ScriptResolver
 
 	public static object? NewGMLObject(object?[] args)
 	{
-		var constructorIndex = args[0].Conv<int>();
+		var ctor = args[0];
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		VMExecutor.ExecuteCode(ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
+		if (ctor is Method m)
+		{
+			VMExecutor.ExecuteCode(m.func.GetCode(), obj, args: values);
+		}
+		else
+		{
+			var constructorIndex = ctor.Conv<int>();
+			VMExecutor.ExecuteCode(ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
+		}
 
 		return obj;
 	}
