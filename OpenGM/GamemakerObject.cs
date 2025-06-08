@@ -700,11 +700,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			return false;
 		}
 
-		var path = PathManager.Paths[path_index];
-		if (path == null)
+		if (!PathManager.Paths.ContainsKey(path_index))
 		{
 			return false;
 		}
+
+		var path = PathManager.Paths[path_index];
 
 		if (path.length <= 0)
 		{
