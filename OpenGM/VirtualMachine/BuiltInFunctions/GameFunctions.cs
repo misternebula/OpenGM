@@ -402,6 +402,12 @@ public static partial class ScriptResolver
 			execute_event_flag = args[1].Conv<bool>();
 		}
 
+		if (id == GMConstants.noone)
+		{
+			// ??? wtf
+			return null;
+		}
+
 		if (id < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// asset index
