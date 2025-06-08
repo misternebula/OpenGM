@@ -25,6 +25,11 @@ public static class PathManager
 		return number;
 	}
 
+	public static void PathDelete(int index)
+	{
+		Paths.Remove(index);
+	}
+
 	public static void AddPoint(CPath path, double x, double y, double speed)
 	{
 		var point = new PathPoint()

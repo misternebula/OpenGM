@@ -5,16 +5,12 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System.Collections;
-using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 using OpenTK.Graphics.OpenGL;
 using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
-using StbImageSharp;
 using StbVorbisSharp;
-using static UndertaleModLib.Models.UndertaleRoom;
-using static UndertaleModLib.Models.UndertaleBackground;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
@@ -634,6 +630,7 @@ public static partial class ScriptResolver
 		{ "joystick_exists", joystick_exists},
 		{ "keyboard_check_released", keyboard_check_released},
 		{ "ini_section_exists", ini_section_exists},
+		{ "ini_key_exists", ini_key_exists},
 		{ "keyboard_check_direct", keyboard_check_direct},
 
 		{ "action_move", action_move},
@@ -710,7 +707,19 @@ public static partial class ScriptResolver
 		{ "layer_tile_y", layer_tile_y },
 
 		{ "draw_set_circle_precision", draw_set_circle_precision},
-		{ "room_restart", room_restart }
+		{ "room_restart", room_restart },
+		{ "sprite_get_name", sprite_get_name},
+		{ "texture_is_ready", texture_is_ready},
+		{ "draw_line_color", draw_line_color}, 
+		{ "path_delete", path_delete},
+		{ "room_exists", room_exists},
+		{ "rectangle_in_rectangle", rectangle_in_rectangle},
+		{ "vertex_format_begin", vertex_format_begin},
+		{ "vertex_format_add_colour", vertex_format_add_colour},
+		{ "vertex_format_add_position", vertex_format_add_position},
+		{ "vertex_format_add_normal", vertex_format_add_normal},
+		{ "vertex_format_end", vertex_format_end},
+
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -4194,6 +4203,16 @@ public static partial class ScriptResolver
 		return _iniFile!.Sections.Any(x => x.Name == section);
 	}
 
+	public static object? ini_key_exists(object?[] args)
+	{
+		var section = args[0].Conv<string>();
+		var key = args[1].Conv<string>();
+
+		var sec = _iniFile!.Sections.FirstOrDefault(x => x.Name == section);
+
+		return sec != null && sec.Dict.ContainsKey(key);
+	}
+
 	public static object? keyboard_check_direct(object?[] args)
 	{
 		var key = args[0].Conv<int>();
@@ -5407,6 +5426,199 @@ public static partial class ScriptResolver
 	private static object? room_restart(object?[] args)
 	{
 		RoomManager.New_Room = RoomManager.CurrentRoom.AssetId;
+		return null;
+	}
+
+	private static object? sprite_get_name(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		return SpriteManager._spriteDict[index].Name;
+	}
+
+	private static object? texture_is_ready(object?[] args)
+	{
+		// todo : implement?
+		return true;
+	}
+
+	private static object? draw_line_color(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var col1 = args[4].Conv<int>();
+		var col2 = args[5].Conv<int>();
+
+		CustomWindow.Draw(new GMLineJob()
+		{
+			col1 = col1.ABGRToCol4(SpriteManager.DrawAlpha),
+			col2 = col2.ABGRToCol4(SpriteManager.DrawAlpha),
+			width = 1,
+			x1 = (float)x1,
+			y1 = (float)y1,
+			x2 = (float)x2,
+			y2 = (float)y2
+		});
+
+		return null;
+	}
+
+	private static object? path_delete(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		PathManager.PathDelete(index);
+		return null;
+	}
+
+	private static object? room_exists(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		return RoomManager.RoomList.ContainsKey(index);
+	}
+
+	private static object? rectangle_in_rectangle(object?[] args)
+	{
+		var _px1 = args[0].Conv<double>();
+		var _py1 = args[1].Conv<double>();
+		var _px2 = args[2].Conv<double>();
+		var _py2 = args[3].Conv<double>();
+		var _x1 = args[4].Conv<double>();
+		var _y1 = args[5].Conv<double>();
+		var _x2 = args[6].Conv<double>();
+		var _y2 = args[7].Conv<double>();
+
+		// https://github.com/YoYoGames/GameMaker-HTML5/blob/773ffbfff0b6d7895fcab664e5190da9001a5491/scripts/functions/Function_Collision.js#L837
+
+		var IN = 0;
+
+		if (_px1 > _px2)
+		{
+			(_px1, _px2) = (_px2, _px1);
+		}
+
+		if (_py1 > _py2)
+		{
+			(_py1, _py2) = (_py2, _py1);
+		}
+
+		if (_x1 > _x2)
+		{
+			(_x1, _x2) = (_x2, _x1);
+		}
+
+		if (_y1 > _y2)
+		{
+			(_y1, _y2) = (_y2, _y1);
+		}
+
+		// Test point in rect
+		if ((_px1 >= _x1 && _px1 <= _x2) && (_py1 >= _y1 && _py1 <= _y2))
+		{
+			IN |= 1;
+		}
+
+		if ((_px2 >= _x1 && _px2 <= _x2) && (_py1 >= _y1 && _py1 <= _y2))
+		{
+			IN |= 2;
+		}
+
+		if ((_px2 >= _x1 && _px2 <= _x2) && (_py2 >= _y1 && _py2 <= _y2))
+		{
+			IN |= 4;
+		}
+
+		if ((_px1 >= _x1 && _px1 <= _x2) && (_py2 >= _y1 && _py2 <= _y2))
+		{
+			IN |= 8;
+		}
+
+		var result = 0;
+
+		if (IN == 15)
+		{
+			result = 1;
+		}
+		else if (IN == 0)
+		{
+			result = 0;
+			// now for edge cases.. source being intersected by dest 
+			IN = 0;
+			if ((_x1 >= _px1 && _x1 <= _px2) && (_y1 >= _py1 && _y1 <= _py2))
+				IN |= 1;
+			if ((_x2 >= _px1 && _x2 <= _px2) && (_y1 >= _py1 && _y1 <= _py2))
+				IN |= 2;
+			if ((_x2 >= _px1 && _x2 <= _px2) && (_y2 >= _py1 && _y2 <= _py2))
+				IN |= 4;
+			if ((_x1 >= _px1 && _x1 <= _px2) && (_y2 >= _py1 && _y2 <= _py2))
+				IN |= 8;
+			if (0 != IN)
+				result = 2;
+			else
+			{ // lets try another case, source goes over dest in x axis
+				IN = 0;
+				if ((_x1 >= _px1 && _x1 <= _px2) && (_py1 >= _y1 && _py1 <= _y2))
+					IN |= 1;
+				if ((_x2 >= _px1 && _x2 <= _px2) && (_py1 >= _y1 && _py1 <= _y2))
+					IN |= 2;
+				if ((_x2 >= _px1 && _x2 <= _px2) && (_py2 >= _y1 && _py2 <= _y2))
+					IN |= 4;
+				if ((_x1 >= _px1 && _x1 <= _px2) && (_py2 >= _y1 && _py2 <= _y2))
+					IN |= 8;
+				if (0 != IN)
+					result = 2;
+				else
+				{ // one more case, source goes over dest in y axis
+					IN = 0;
+					if ((_px1 >= _x1 && _px1 <= _x2) && (_y1 >= _py1 && _y1 <= _py2))
+						IN |= 1;
+					if ((_px2 >= _x1 && _px2 <= _x2) && (_y1 >= _py1 && _y1 <= _py2))
+						IN |= 2;
+					if ((_px2 >= _x1 && _px2 <= _x2) && (_y2 >= _py1 && _y2 <= _py2))
+						IN |= 4;
+					if ((_px1 >= _x1 && _px1 <= _x2) && (_y2 >= _py1 && _y2 <= _py2))
+						IN |= 8;
+					if (0 != IN)
+						result = 2;
+				}
+			}
+		}
+		else
+		{
+			result = 2;
+		}
+
+		return result;
+	}
+
+	private static object? vertex_format_begin(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_begin not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_add_colour(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_add_colour not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_add_position(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_add_position not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_add_normal(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_add_normal not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_end(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_end not implemented.");
 		return null;
 	}
 }
