@@ -150,6 +150,29 @@ public static partial class VMExecutor
 		VariableResolver.BuiltInVariables[varName].setter!(value);
 	}
 
+	public static void PopToStatic(string varName, object? value)
+	{
+		var currentFunc = CallStack.Peek().Function;
+
+		if (currentFunc == null)
+		{
+			// uhhhhh fuckin uhhh
+			throw new NotImplementedException();
+		}
+
+		if (currentFunc.StaticVariables == null)
+		{
+			currentFunc.StaticVariables = new();
+		}
+
+		if (!currentFunc.StaticVariables.ContainsKey(varName) && currentFunc.HasStaticInitRan)
+		{
+			throw new NotImplementedException("StaticVariables should contain every static variable after initialization!?");
+		}
+
+		currentFunc.StaticVariables[varName] = value;
+	}
+
 	public static (ExecutionResult, object?) DoPop(VMCodeInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -203,6 +226,11 @@ public static partial class VMExecutor
 			else if (variableType == VariableType.Other)
 			{
 				PopToOther(variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Static)
+			{
+				PopToStatic(variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}

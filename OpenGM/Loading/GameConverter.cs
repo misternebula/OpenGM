@@ -209,12 +209,16 @@ public static class GameConverter
 				var operation = opcode.Split('.')[0];
 				var types = opcode.Split(".").Skip(1).ToArray();
 
-				var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
+				//var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
+				if (!Enum.TryParse(typeof(VMOpcode), operation.ToUpper(), true, out var enumOperation))
+				{
+					throw new NotImplementedException($"Unknown opcode! Trying to parse {opcode} from line {line}");
+				}
 
 				var instruction = new VMCodeInstruction
 				{
 					Raw = line,
-					Opcode = enumOperation,
+					Opcode = (VMOpcode)enumOperation,
 					TypeOne = types.Length >= 1 ? (VMType)Enum.Parse(typeof(VMType), types[0]) : VMType.None,
 					TypeTwo = types.Length == 2 ? (VMType)Enum.Parse(typeof(VMType), types[1]) : VMType.None,
 				};
@@ -407,8 +411,12 @@ public static class GameConverter
 						break;
 					case VMOpcode.RESTOREAREF:
 						break;
+					case VMOpcode.SETSTATIC:
+						break;
+					case VMOpcode.ISSTATICOK:
+						break;
 					default:
-						throw new ArgumentOutOfRangeException();
+						throw new NotImplementedException($"{enumOperation} not implemented");
 				}
 
 				if (shouldGetVariableInfo)

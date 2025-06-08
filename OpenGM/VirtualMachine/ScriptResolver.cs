@@ -761,7 +761,7 @@ public static partial class ScriptResolver
 
 	public static object? method(object?[] args)
 	{
-		// seems to always be self or null.
+		// seems to always be self, static, or null.
 		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279
 		var struct_ref_or_instance_id = args[0];
 		var func = args[1].Conv<int>();
@@ -781,6 +781,15 @@ public static partial class ScriptResolver
 			if (num == GMConstants.self)
 			{
 				method.inst = VMExecutor.Self.Self;
+			}
+			else if (num == GMConstants.@static)
+			{
+				/*
+				 * TODO : there are static functions in DR, but they're never called (vector2/3 add and scale)
+				 * just dummy implementing this so it'll run the initialize part of the constructor
+				 */
+				method.inst = null;
+				DebugLog.LogWarning("Method() called with -16 (static) struct ref - not implemented.");
 			}
 			else
 			{
