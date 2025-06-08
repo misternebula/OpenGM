@@ -38,6 +38,7 @@ public static class VariableResolver
 					bool => false,
 					string => "",
 					IList => new List<object?>(),
+					GMLObject => null, // for storing structs
 					null => null,
 					_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 				});
