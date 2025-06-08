@@ -18,12 +18,14 @@ If any errors occur, OpenGM probably does not support features of the GameMaker 
 Ideally, any Gamemaker game should work. However, it's impossible to support every single quirk of every single engine version.
 
 The following games are used in development to test feature parity, and as such OpenGM should support any game running on the same engine version as these games :
-- DELTARUNE (Chapter 1 & 2 DEMO) (LTS Branch) - Engine Version 2023.6.0.0
-- DELTARUNE (Chapter 1 & 2 DEMO) - Engine Version 2022.1.0.0
-- DELTARUNE Chapter 1 (SURVEY_PROGRAM) - Engine Version 2.0.6.0
 
-The following games are either being worked on, or planned to be supported :
-- Undertale - Engine Version 1.0.0.1539
+| Game  | Engine Version |
+| -------------------------------------------- | ------------ |
+| DELTARUNE                                    | 2022.0.3.104 |
+| DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2023.6.0.0?  |
+| DELTARUNE Chapter 1 & 2 DEMO                 | 2022.1.0.0?  |
+| DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | 2.0.6.0?     |
+| Undertale                                    | 1.0.0.1539   |
 
 Not every feature from these games may work, but the game will at least load and try to execute.
 
