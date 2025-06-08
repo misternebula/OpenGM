@@ -2671,8 +2671,7 @@ public static partial class ScriptResolver
 
 	private static object layer_get_all_elements(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(args[0]);
 		return layer.ElementsToDraw.Select(x => x.instanceId).ToList();
 	}
 
