@@ -97,7 +97,8 @@ public enum VMOpcode
 	SAVEAREF,
 	RESTOREAREF,
 	ISSTATICOK,
-	SETSTATIC
+	SETSTATIC,
+	PUSHAC
 }
 
 public enum VMType

@@ -415,6 +415,8 @@ public static class GameConverter
 						break;
 					case VMOpcode.ISSTATICOK:
 						break;
+					case VMOpcode.PUSHAC:
+						break;
 					default:
 						throw new NotImplementedException($"{enumOperation} not implemented");
 				}
