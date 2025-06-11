@@ -31,7 +31,7 @@ public static partial class ScriptResolver
 		var targety = args[1].Conv<double>();
 		var sp = args[2].Conv<double>();
 
-		VMExecutor.Self.GMSelf.direction = (double)point_direction(VMExecutor.Self.GMSelf.x, VMExecutor.Self.GMSelf.y, targetx, targety);
+		VMExecutor.Self.GMSelf.direction = point_direction(VMExecutor.Self.GMSelf.x, VMExecutor.Self.GMSelf.y, targetx, targety).Conv<double>();
 		VMExecutor.Self.GMSelf.speed = sp;
 
 		return null;
