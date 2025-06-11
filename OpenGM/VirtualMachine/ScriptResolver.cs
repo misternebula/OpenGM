@@ -720,6 +720,7 @@ public static partial class ScriptResolver
 		{ "vertex_format_add_normal", vertex_format_add_normal},
 		{ "vertex_format_end", vertex_format_end},
 
+		{ "environment_get_variable", environment_get_variable}
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -5620,6 +5621,13 @@ public static partial class ScriptResolver
 	{
 		DebugLog.LogWarning("vertex_format_end not implemented.");
 		return null;
+	}
+
+	private static object? environment_get_variable(object?[] args)
+	{
+		var name = args[0].Conv<string>();
+		// TODO : is this right? idk
+		return Environment.GetEnvironmentVariable(name);
 	}
 }
 
