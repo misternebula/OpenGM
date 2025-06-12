@@ -2908,14 +2908,14 @@ public static partial class ScriptResolver
 				GL.BlendEquation(BlendEquationMode.FuncAdd);
 				break;
 			case 2:
+				// bm_max
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcColor);
+				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				break;
+			case 3:
 				// bm_subtract
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 				GL.BlendEquation(BlendEquationMode.FuncSubtract);
-				break;
-			case 3:
-				// bm_reverse_subtract
-				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-				GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
 				break;
 			case 4:
 				// bm_min
@@ -2923,9 +2923,9 @@ public static partial class ScriptResolver
 				GL.BlendEquation(BlendEquationMode.Min);
 				break;
 			case 5:
-				// bm_max
-				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcColor);
-				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				// bm_reverse_subtract
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+				GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
 				break;
 		}
 
@@ -2935,33 +2935,33 @@ public static partial class ScriptResolver
 	public static object? gpu_set_blendmode_ext(object?[] args)
 	{
 		var src = args[0].Conv<int>();
-		var dst = args[0].Conv<int>();
+		var dst = args[1].Conv<int>();
 
 		BlendingFactor GetBlend(int arg)
 		{
 			switch (arg)
 			{
-				case 0:
-					return BlendingFactor.Zero;
 				case 1:
-					return BlendingFactor.One;
+					return BlendingFactor.Zero;
 				case 2:
-					return BlendingFactor.SrcColor;
+					return BlendingFactor.One;
 				case 3:
-					return BlendingFactor.OneMinusSrcColor;
+					return BlendingFactor.SrcColor;
 				case 4:
-					return BlendingFactor.SrcAlpha;
+					return BlendingFactor.OneMinusSrcColor;
 				case 5:
-					return BlendingFactor.OneMinusSrcAlpha;
+					return BlendingFactor.SrcAlpha;
 				case 6:
-					return BlendingFactor.DstAlpha;
+					return BlendingFactor.OneMinusSrcAlpha;
 				case 7:
-					return BlendingFactor.OneMinusDstAlpha;
+					return BlendingFactor.DstAlpha;
 				case 8:
-					return BlendingFactor.DstColor;
+					return BlendingFactor.OneMinusDstAlpha;
 				case 9:
-					return BlendingFactor.OneMinusDstColor;
+					return BlendingFactor.DstColor;
 				case 10:
+					return BlendingFactor.OneMinusDstColor;
+				case 11:
 					return BlendingFactor.SrcAlphaSaturate;
 				default:
 					throw new ArgumentException();
