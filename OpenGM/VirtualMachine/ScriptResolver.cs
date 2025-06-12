@@ -1757,6 +1757,7 @@ public static partial class ScriptResolver
 	public static object audio_group_load(object?[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
+		DebugLog.LogWarning("audio_group_load not implemented.");
 		return true;
 	}
 
@@ -1869,18 +1870,21 @@ public static partial class ScriptResolver
 	public static object gamepad_button_check(object?[] args)
 	{
 		// TODO : implement?
+		DebugLog.LogWarning("gamepad_button_check not implemented.");
 		return false;
 	}
 
 	public static object gamepad_axis_value(object?[] args)
 	{
 		// TODO : implement?
+		DebugLog.LogWarning("gamepad_axis_value not implemented.");
 		return 0;
 	}
 
 	public static object gamepad_is_connected(object?[] args)
 	{
 		var device = args[0].Conv<int>();
+		//DebugLog.LogWarning("gamepad_is_connected not implemented.");
 		return false; // TODO : implement
 	}
 
@@ -2052,6 +2056,7 @@ public static partial class ScriptResolver
 	public static object? audio_group_set_gain(object?[] args)
 	{
 		// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
+		DebugLog.LogWarning("audio_group_set_gain not implemented.");
 		return null;
 	}
 
@@ -2104,6 +2109,7 @@ public static partial class ScriptResolver
 	public static object view_get_camera(object?[] args)
 	{
 		// TODO : ughhh implement multiple cameras
+		DebugLog.LogWarning("view_get_camera not implemented.");
 		return 0;
 	}
 
@@ -2895,8 +2901,12 @@ public static partial class ScriptResolver
 	{
 		var mode = args[0].Conv<int>();
 
+		// HTML and C++ have different orders for these!
 		switch (mode)
 		{
+			case -1:
+				// bm_complex
+				throw new Exception("bm_complex is return only, should never be passed to gpu_set_blendmode!");
 			case 0:
 				// bm_normal
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
@@ -3042,6 +3052,7 @@ public static partial class ScriptResolver
 	{
 		var tex_id = args[0].Conv<string>();
 		// TODO : Implement? Or not?
+		DebugLog.LogWarning("texture_prefetch not implemented.");
 		return null;
 	}
 
@@ -3049,6 +3060,7 @@ public static partial class ScriptResolver
 	{
 		var tex_id = args[0].Conv<string>();
 		// TODO : Implement? Or not?
+		DebugLog.LogWarning("texture_flush not implemented.");
 		return null;
 	}
 
@@ -3076,6 +3088,7 @@ public static partial class ScriptResolver
 
 	public static object os_get_language(object?[] args)
 	{
+		DebugLog.LogWarning("os_get_language not implemented.");
 		return "en"; // TODO : actually implement
 	}
 
@@ -3109,6 +3122,7 @@ public static partial class ScriptResolver
 	public static object gamepad_button_check_pressed(object?[] args)
 	{
 		// TODO : implement
+		//DebugLog.LogWarning("gamepad_button_check_pressed not implemented.");
 		return false;
 	}
 
@@ -3142,6 +3156,7 @@ public static partial class ScriptResolver
 	public static object gamepad_get_device_count(object?[] args)
 	{
 		// TODO : implement
+		//DebugLog.LogWarning("gamepad_get_device_count not implemented.");
 		return 0;
 	}
 
@@ -3960,6 +3975,7 @@ public static partial class ScriptResolver
 	public static object os_get_region(object?[] args)
 	{
 		// TODO : implement
+		DebugLog.LogWarning("os_get_region not implemented.");
 		return "GB";
 	}
 
@@ -3985,6 +4001,7 @@ public static partial class ScriptResolver
 	public static object? sprite_prefetch(object?[] args)
 	{
 		// TODO : implement?
+		DebugLog.LogWarning("sprite_prefetch not implemented.");
 		return 0;
 	}
 
@@ -3993,6 +4010,7 @@ public static partial class ScriptResolver
 	public static object? steam_initialised(object?[] args)
 	{
 		// todo : implement
+		DebugLog.LogWarning("steam_initialised not implemented.");
 		return false;
 	}
 
@@ -4475,6 +4493,7 @@ public static partial class ScriptResolver
 	public static object? window_enable_borderless_fullscreen(object?[] args)
 	{
 		// todo : implement
+		DebugLog.LogWarning("window_enable_borderless_fullscreen not implemented.");
 		return null;
 	}
 
@@ -5440,6 +5459,7 @@ public static partial class ScriptResolver
 	private static object? texture_is_ready(object?[] args)
 	{
 		// todo : implement?
+		DebugLog.LogWarning("texture_is_ready not implemented.");
 		return true;
 	}
 
