@@ -13,10 +13,11 @@ namespace OpenGM;
 public static class PathManager
 {
 	public static Dictionary<int, CPath> Paths = new();
+	public static int HighestPathIndex;
 
 	public static int PathAdd()
 	{
-		var number = Paths.Count;
+		var number = HighestPathIndex++;
 		var name = $"__newpath{number}";
 
 		var path = new CPath(name);
