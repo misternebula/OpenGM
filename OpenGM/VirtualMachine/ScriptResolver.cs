@@ -4087,7 +4087,17 @@ public static partial class ScriptResolver
 
 	public static object? draw_surface_ext(object?[] args)
 	{
-		DebugLog.LogWarning("draw_surface_ext not implemented.");
+		var id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+		var y = args[2].Conv<double>();
+		var xscale = args[3].Conv<double>();
+		var yscale = args[4].Conv<double>();
+		var rot = args[5].Conv<double>();
+		var col = args[6].Conv<int>();
+		var alpha = args[7].Conv<double>();
+
+		SurfaceManager.draw_surface_ext(id, x, y, xscale, yscale, rot, col, alpha);
+
 		return null;
 	}
 
