@@ -349,13 +349,11 @@ public static class VariableResolver
 	public static object? get_background_color()
 	{
 		// TODO : Implement
-		DebugLog.LogWarning("get_background_color not implemented.");
 		return null;
 	}
 
 	public static void set_background_color(object? value)
 	{
 		// TODO : Implement
-		DebugLog.LogWarning("set_background_color not implemented.");
 	}
 }

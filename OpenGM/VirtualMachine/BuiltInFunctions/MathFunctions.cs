@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Text;
-using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine;
 
@@ -125,7 +124,6 @@ public static partial class ScriptResolver
 	{
 		// todo : implement
 		//throw new NotImplementedException();
-		DebugLog.LogWarning("randomize not implemented.");
 		return 0;
 	}
 
