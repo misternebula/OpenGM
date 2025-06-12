@@ -152,7 +152,7 @@ public static partial class VMExecutor
 
 	public static void PopToStatic(string varName, object? value)
 	{
-		var currentFunc = CallStack.Peek().Function;
+		var currentFunc = Call.Function;
 
 		if (currentFunc == null)
 		{
@@ -450,6 +450,7 @@ public static partial class VMExecutor
 
 				if (id == GMConstants.@static)
 				{
+					// TODO: do proper static stuff here
 					// static variables are global per function definition
 					PopToGlobal($"static {Call.CodeName} {variableName}", value);
 					return (ExecutionResult.Success, null);

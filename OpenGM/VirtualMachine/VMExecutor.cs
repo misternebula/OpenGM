@@ -629,7 +629,7 @@ public static partial class VMExecutor
 			}
 			case VMOpcode.ISSTATICOK:
 			{
-				var currentFunc = CallStack.Peek().Function;
+				var currentFunc = Call.Function;
 
 				if (currentFunc == null)
 				{
@@ -642,7 +642,7 @@ public static partial class VMExecutor
 			}
 			case VMOpcode.SETSTATIC:
 			{
-				var currentFunc = CallStack.Peek().Function;
+				var currentFunc = Call.Function;
 
 				if (currentFunc == null)
 				{
