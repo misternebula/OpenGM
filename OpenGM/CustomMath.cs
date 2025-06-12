@@ -141,5 +141,6 @@ public static class CustomMath
 	public static float ClampFloat(float f) => DoubleTilde(f * 1000000) / 1000000.0f;
 
 	// Substitute for double bitwise NOT (~~).
-	public static float DoubleTilde(float f) => (float)Math.Round(f, MidpointRounding.ToZero);
+	public static int DoubleTilde(float f) => (int)Math.Round(f, MidpointRounding.ToZero);
+	public static int DoubleTilde(double d) => (int)Math.Round(d, MidpointRounding.ToZero);
 }

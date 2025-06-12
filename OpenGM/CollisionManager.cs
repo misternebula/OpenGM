@@ -651,6 +651,194 @@ public static class CollisionManager
 		return true;
 	}
 
+	public static int Command_CollisionCircle(GamemakerObject self, double x, double y, double radius, int obj, bool precise, bool notme)
+	{
+		return Command_CollisionEllipse(self, x - radius, y - radius, x + radius, y + radius, obj, precise, notme);
+	}
+
+	public static int Command_CollisionEllipse(GamemakerObject self, double x1, double y1, double x2, double y2, int obj, bool precise, bool notme)
+	{
+		bool IsValid(GamemakerObject? instance)
+		{
+			if (instance == null)
+			{
+				return false;
+			}
+
+			if (notme && instance == self)
+			{
+				return false;
+			}
+
+			if (instance.Marked)
+			{
+				return false;
+			}
+
+			if (!instance.Active)
+			{
+				return false;
+			}
+
+			return Collision_Ellipse(instance, x1, y1, x2, y2, precise);
+		}
+
+		if (obj == GMConstants.all)
+		{
+			foreach (var instance in InstanceManager.instances.Values)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else if (obj < GMConstants.FIRST_INSTANCE_ID)
+		{
+			var instances = InstanceManager.FindByAssetId(obj);
+			foreach (var instance in instances)
+			{
+				if (IsValid(instance))
+				{
+					return instance.instanceId;
+				}
+			}
+		}
+		else
+		{
+			// instance id
+			var instance = InstanceManager.FindByInstanceId(obj);
+
+			if (IsValid(instance))
+			{
+				return instance!.instanceId;
+			}
+		}
+
+		return GMConstants.noone;
+	}
+
+	public static bool Collision_Ellipse(GamemakerObject self, double x1, double x2, double y1, double y2, bool precise)
+	{
+		// https://github.com/YoYoGames/GameMaker-HTML5/blob/7e96ef96d44629fc28618d81626f0cf1eaf61ede/scripts/yyInstance.js#L1940
+
+		if (self.Marked)
+		{
+			return false;
+		}
+
+		if (self.bbox_dirty)
+		{
+			self.bbox = CalculateBoundingBox(self);
+		}
+
+		// TODO : round values - how are they rounded?
+		var _x1 = (int)x1;
+		var _y1 = (int)y1;
+		var _x2 = (int)x2;
+		var _y2 = (int)y2;
+
+		int min_x1x2;
+		int max_x1x2;
+		int min_y1y2;
+		int max_y1y2;
+
+		if (_x1 < _x2)
+		{
+			min_x1x2 = _x1;
+			max_x1x2 = _x2;
+		}
+		else
+		{
+			min_x1x2 = _x2;
+			max_x1x2 = _x1;
+		}
+		if (_y1 < _y2)
+		{
+			min_y1y2 = _y1;
+			max_y1y2 = _y2;
+		}
+		else
+		{
+			min_y1y2 = _y2;
+			max_y1y2 = _y1;
+		}
+
+		// easy cases first
+		var bbox = self.bbox;
+		if (min_x1x2 >= bbox.right)
+			return false;
+		if (max_x1x2 < bbox.left)
+			return false;
+		if (min_y1y2 >= bbox.bottom)
+			return false;
+		if (max_y1y2 < bbox.top)
+			return false;
+
+		// check whether single line
+		if ((_x1 == _x2) || (_y1 == _y2))
+		{
+			return Collision_Rectangle(self, x1, y1, x2, y2, precise);
+		}
+
+		// now see whether the ellipse intersect the bounding box
+		var cx = (_x1 + _x2) * 0.5;
+		var cy = (_y1 + _y2) * 0.5;
+		if (!(bbox.left <= cx && bbox.right >= cx) && !(bbox.top <= cy && bbox.bottom >= cy))
+		{
+			var px = (bbox.right <= cx) ? bbox.right : bbox.left;
+			var py = (bbox.bottom <= cy) ? bbox.bottom : bbox.top;
+			if (!PtInEllipse(_x1, _y1, _x2, _y2, px, py))
+				return false;
+		}
+
+		var index = self.mask_index;
+		if (index < 0)
+		{
+			index = self.sprite_index;
+		}
+
+		var spriteData = SpriteManager.GetSpriteAsset(index);
+
+		if (spriteData == null || spriteData.Textures.Count == 0)
+		{
+			return false;
+		}
+
+		if (spriteData.SepMasks == UndertaleSprite.SepMaskType.RotatedRect)
+		{
+			if (!SeparatingAxisCollisionEllipse(self, _x1, _y1, _x2, _y2))
+				return false;
+		}
+
+		if ((!precise) || spriteData.SepMasks == UndertaleSprite.SepMaskType.AxisAlignedRect)
+			return true;
+
+		var g_rr = new BBox
+		{
+			left = min_x1x2,
+			top = min_y1y2,
+			right = max_x1x2,
+			bottom = max_y1y2
+		};
+
+		// TODO : x and y need to be Rounded -- how?
+		return PreciseCollisionEllipse(spriteData, (int)Math.Floor(self.image_index), bbox, (int)self.x, (int)self.y, self.image_xscale, self.image_yscale, self.image_angle, g_rr);
+	}
+
+	public static bool PtInEllipse(double _x1, double _y1, double _x2, double _y2, double _px, double _py)
+	{
+		//find ellipse centre, x&y radius
+		var mx = (_x1 + _x2) * 0.5;
+		var my = (_y1 + _y2) * 0.5;
+		var ww = (_x2 - _x1) * 0.5;
+		var hh = (_y2 - _y1) * 0.5;
+
+		var a = (_px - mx) / ww;
+		var b = (_py - my) / hh;
+		return ((a * a) + (b * b) <= 1) ? true : false;
+	}
+
 	#region Precise Mask Checks
 
 	public static bool PreciseCollision(
@@ -978,6 +1166,100 @@ public static class CollisionManager
 		return false;
 	}
 
+	public static bool PreciseCollisionEllipse(SpriteData sprite, int _img1, BBox _bb1, int _x1, int _y1, double _scalex, double _scaley, double _angle, BBox _rr)
+	{
+		if (sprite.CollisionMasks.Count == 0)
+		{
+			return false;
+		}
+
+		_img1 %= sprite.CollisionMasks.Count;
+		if (_img1 < 0)
+		{
+			_img1 += sprite.CollisionMasks.Count;
+		}
+
+		// Compute overlapping bounding box
+		var l = CustomMath.Max(_bb1.left, _rr.left);
+		var r = CustomMath.Min(_bb1.right, _rr.right);
+		var t = CustomMath.Max(_bb1.top, _rr.top);
+		var b = CustomMath.Min(_bb1.bottom, _rr.bottom);
+
+		var mx = ((_rr.right + _rr.left) / 2);
+		var my = ((_rr.bottom + _rr.top) / 2);
+		var ww = 1.0 / ((_rr.right - _rr.left) / 2);
+		var hh = 1.0 / ((_rr.bottom - _rr.top) / 2);
+
+		if ((_scalex == 1) && (_scaley == 1) && (Math.Abs(_angle) < 0.0001))
+		{
+			// Case without scaling
+			for (var i = (int)l; i <= r; i++)
+			{
+				var tmp = (i - mx) * ww;
+				var sqrxx = tmp * tmp;//Sqr((i - mx) * ww);
+				var xx = i - _x1 + sprite.OriginX;
+				if ((xx < 0) || (xx >= sprite.Width))
+					continue;
+
+				for (var j = (int)t; j <= b; j++)
+				{
+					tmp = (j - my) * hh;
+					//if (sqrxx + Sqr((j - my) * hh) > 1) continue;   // outside ellipse
+					if (sqrxx + (tmp * tmp) > 1)
+						continue;   // outside ellipse
+
+					var yy = j - _y1 + sprite.OriginY;
+					if ((yy < 0) || (yy >= sprite.Height))
+						continue;
+
+					if (ColMaskSet(sprite, xx, yy, sprite.CollisionMasks[_img1]))
+						return true;
+
+				}
+			}
+		}
+		else
+		{
+			// Case with scaling
+			var ss = Math.Sin(-_angle * Math.PI / 180.0);
+			var cc = Math.Cos(-_angle * Math.PI / 180.0);
+			var onescalex = 1.0 / _scalex;
+			var onescaley = 1.0 / _scaley;
+
+			for (var i = (int)l; i <= r; i++)
+			{
+				// common loop terms.
+				var ix1 = (i - _x1);
+				var cc_i_x1 = cc * ix1;
+				var ss_i_x1 = ss * ix1;
+				var tmp = (i - mx) * ww;
+				var sq1 = tmp * tmp;//Sqr((i - mx) * ww);
+
+				for (var j = t; j <= b; j++)	
+				{
+					var jmy = (j - my) * hh;
+					if ((sq1 + (jmy * jmy)) > 1)
+						continue;   // outside ellipse
+
+					var j_y1 = j - _y1;
+					var xx = CustomMath.DoubleTilde(((cc_i_x1 + ss * j_y1) * onescalex) + sprite.OriginX);
+					if ((xx < 0) || (xx >= sprite.Width))
+						continue;
+
+					var yy = CustomMath.DoubleTilde(((cc * j_y1 - ss_i_x1) * onescaley) + sprite.OriginY);
+					if ((yy < 0) || (yy >= sprite.Height))
+						continue;
+
+
+					if (ColMaskSet(sprite, xx, yy, sprite.CollisionMasks[_img1]))
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public static bool ColMaskSet(SpriteData sprite, int u, int v, byte[] pMaskBase)
 	{
 		// TODO : this changed in 2024.6. commenting out code to make it work how it used to do
@@ -1054,6 +1336,16 @@ public static class CollisionManager
 		var p2 = getPointsLine(x1, y1, x2, y2);
 
 		return sa_checkCollisionLine(p1, p2);
+	}
+
+	public static bool SeparatingAxisCollisionEllipse(GamemakerObject self, double x1, double y1, double x2, double y2)
+	{
+		var p1 = getPoints(self);
+		//var pcentre = { "x": (_x1 + _x2) * 0.5, "y": (_y1 + _y2) * 0.5 };
+		var pcentre = new Vector2d((x1 + x2) * 0.5, (y1 + y2) * 0.5);
+		var rx = Math.Abs(x1 - x2) * 0.5;
+		var ry = Math.Abs(y1 - y2) * 0.5;
+		return sa_checkCollisionEllipse(p1, pcentre, rx, ry);
 	}
 
 	public static Vector2d[] getPoints(GamemakerObject self)
@@ -1184,6 +1476,34 @@ public static class CollisionManager
 		}
 
 		return true;
+	}
+
+	public static bool sa_checkCollisionEllipse(Vector2d[] p1, Vector2d pcentre, double rx, double ry)
+	{
+		//apply x scale transform to circle with radius ry
+		var sx = Math.Abs(ry / rx);
+		for (var i = 0; i < 4; ++i)
+			p1[i].X *= sx;
+		pcentre.X *= sx;
+		var r = Math.Abs(ry);
+
+		var p1Axes = sa_getAxes(p1);
+
+		for (var i = 0; i < 2; ++i)
+		{
+			var p1Proj = sa_getProjection(p1, p1Axes[i]);
+			var pCentreProj = pcentre.X * p1Axes[i].X + pcentre.Y * p1Axes[i].Y;
+
+			var min = pCentreProj - r;
+			var max = pCentreProj + r;
+
+			var gap_present = ((p1Proj.max <= min) || (max <= p1Proj.min));
+
+			if (gap_present)
+				return false;
+		}
+
+		return true; //no separating axis found
 	}
 
 	public static Vector2d[] sa_getAxes(Vector2d[] points)

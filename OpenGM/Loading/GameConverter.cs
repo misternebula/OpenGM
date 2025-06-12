@@ -209,12 +209,16 @@ public static class GameConverter
 				var operation = opcode.Split('.')[0];
 				var types = opcode.Split(".").Skip(1).ToArray();
 
-				var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
+				//var enumOperation = (VMOpcode)Enum.Parse(typeof(VMOpcode), operation.ToUpper());
+				if (!Enum.TryParse(typeof(VMOpcode), operation.ToUpper(), true, out var enumOperation))
+				{
+					throw new NotImplementedException($"Unknown opcode! Trying to parse {opcode} from line {line}");
+				}
 
 				var instruction = new VMCodeInstruction
 				{
 					Raw = line,
-					Opcode = enumOperation,
+					Opcode = (VMOpcode)enumOperation,
 					TypeOne = types.Length >= 1 ? (VMType)Enum.Parse(typeof(VMType), types[0]) : VMType.None,
 					TypeTwo = types.Length == 2 ? (VMType)Enum.Parse(typeof(VMType), types[1]) : VMType.None,
 				};
@@ -351,6 +355,13 @@ public static class GameConverter
 								{
 									// Probably dealing with text.
 									instruction.StringData = value;
+
+									if (value.StartsWith("[function]"))
+									{
+										instruction.PushFunction = true;
+										instruction.StringData = value[10..];
+									}
+									
 								}
 
 								break;
@@ -400,8 +411,14 @@ public static class GameConverter
 						break;
 					case VMOpcode.RESTOREAREF:
 						break;
+					case VMOpcode.SETSTATIC:
+						break;
+					case VMOpcode.ISSTATICOK:
+						break;
+					case VMOpcode.PUSHAC:
+						break;
 					default:
-						throw new ArgumentOutOfRangeException();
+						throw new NotImplementedException($"{enumOperation} not implemented");
 				}
 
 				if (shouldGetVariableInfo)
@@ -474,6 +491,13 @@ public static class GameConverter
 			return;
 		}
 
+		if (split.Length == 1)
+		{
+			variableType = VariableType.Index;
+			assetIndex = 0;
+			return;
+		}
+
 		var context = split[0];
 		variableName = split[1];
 
@@ -529,7 +553,7 @@ public static class GameConverter
 		{
 			// dont even need a class for this
 			var pageName = page.Name.Content;
-			var blob = page.TextureData.TextureBlob;
+			var blob = page.TextureData.Image.ConvertToPng().ToSpan();
 			writer.Write(pageName);
 			writer.Write(blob.Length);
 			writer.Write(blob);
@@ -720,6 +744,7 @@ public static class GameConverter
 			asset.sprite = data.Sprites.IndexOf(obj.Sprite);
 			asset.visible = obj.Visible;
 			asset.solid = obj.Solid;
+			asset.depth = obj.Depth;
 			asset.persistent = obj.Persistent;
 			asset.textureMaskId = data.Sprites.IndexOf(obj.TextureMaskId);
 
@@ -942,6 +967,7 @@ public static class GameConverter
 							val.ScaleX = tile.ScaleX;
 							val.ScaleY = tile.ScaleY;
 							val.Color = tile.Color;
+							val.SpriteMode = tile.spriteMode;
 
 							layerasset.Elements.Add(val);
 						}

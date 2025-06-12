@@ -28,4 +28,7 @@ public partial class FunctionDefinition
 {
 	public int InstructionIndex;
 	public string FunctionName = null!;
+
+	public bool HasStaticInitRan;
+	public Dictionary<string, object?> StaticVariables = new();
 }

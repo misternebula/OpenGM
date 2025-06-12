@@ -34,4 +34,6 @@ public partial class VMCodeInstruction
 	public int SecondIntData;
 
 	public VMComparison Comparison = VMComparison.None;
+
+	public bool PushFunction;
 }

@@ -130,21 +130,32 @@ public static partial class VMExecutor
 
 	public static void PushSelfArrayIndex(IStackContextSelf self, string varName, int index)
 	{
+		if (index < 0)
+		{
+			throw new ArgumentOutOfRangeException($"index into {varName} is negative: {index}");
+		}
+
+		IList array;
+
 		if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var bi_gettersetter))
 		{
-			var array = bi_gettersetter.getter().Conv<IList>();
-			Call.Stack.Push(array[index], VMType.v);
+			array = bi_gettersetter.getter().Conv<IList>();
 		}
 		else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var bis_gettersetter) && self is GamemakerObject gm)
 		{
-			var array = bis_gettersetter.getter(gm).Conv<IList>();
-			Call.Stack.Push(array[index], VMType.v);
+			array = bis_gettersetter.getter(gm).Conv<IList>();
 		}
 		else
 		{
-			var array = self.SelfVariables[varName].Conv<IList>();
-			Call.Stack.Push(array[index], VMType.v);
+			array = self.SelfVariables[varName].Conv<IList>();
 		}
+
+		if (index >= array.Count)
+		{
+			throw new ArgumentOutOfRangeException($"index into {varName} is bigger than array: {index} array size: {array.Count}");
+		}
+
+		Call.Stack.Push(array[index], VMType.v);
 	}
 
 	public static void PushArgument(int index)
@@ -240,7 +251,7 @@ public static partial class VMExecutor
 
 				if (instruction.StringData != null)
 				{
-					if (AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData) != -1)
+					if (instruction.PushFunction)
 					{
 						Call.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
 					}

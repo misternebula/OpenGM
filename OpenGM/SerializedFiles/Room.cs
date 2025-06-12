@@ -155,6 +155,7 @@ public partial class CLayerTileElement : CLayerElementBase
 	public float ScaleX;
 	public float ScaleY;
 	public uint Color;
+	public bool SpriteMode;
 }
 
 [MemoryPackable]

@@ -397,7 +397,7 @@ public static class GameLoader
 
             PathManager.ComputeInternal(path);
 
-            PathManager.Paths.Add(PathManager.Paths.Count, path);
+            PathManager.Paths.Add(PathManager.HighestPathIndex++, path);
 		}
 		Console.WriteLine($" Done!");
 	}

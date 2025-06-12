@@ -5,16 +5,12 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System.Collections;
-using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 using OpenTK.Graphics.OpenGL;
 using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
-using StbImageSharp;
 using StbVorbisSharp;
-using static UndertaleModLib.Models.UndertaleRoom;
-using static UndertaleModLib.Models.UndertaleBackground;
 
 namespace OpenGM.VirtualMachine;
 public static partial class ScriptResolver
@@ -73,9 +69,9 @@ public static partial class ScriptResolver
 		//{ "collision_point_list", collision_point_list },
 		{ "collision_rectangle", collision_rectangle },
 		//{ "collision_rectangle_list", collision_rectangle_list },
-		//{ "collision_circle", collision_circle },
+		{ "collision_circle", collision_circle },
 		//{ "collision_circle_list", collision_circle_list },
-		//{ "collision_ellipse", collision_ellipse },
+		{ "collision_ellipse", collision_ellipse },
 		//{ "collision_ellipse_list", collision_ellipse_list },
 		{ "collision_line", collision_line },
 		//{ "collision_line_list", collision_line_list },
@@ -91,7 +87,7 @@ public static partial class ScriptResolver
 		{ "instance_create_depth", instance_create_depth },
 		//{ "instance_create_layer", instance_create_layer },
 		//{ "instance_copy", instance_copy },
-		//{ "instance_change", instance_change },
+		{ "instance_change", instance_change },
 		{ "instance_destroy", instance_destroy },
 		//{ "instance_sprite", instance_sprite },
 		//{ "position_empty", position_empty },
@@ -224,7 +220,7 @@ public static partial class ScriptResolver
 		{ "string_insert", string_insert },
 		{ "string_lower", string_lower },
 		{ "string_upper", string_upper},
-		//{ "string_repeat", string_repeat },
+		{ "string_repeat", string_repeat },
 		//{ "string_letters", string_letters },
 		{ "string_digits", string_digits },
 		//{ "string_lettersdigits", string_lettersdigits },
@@ -634,11 +630,15 @@ public static partial class ScriptResolver
 		{ "joystick_exists", joystick_exists},
 		{ "keyboard_check_released", keyboard_check_released},
 		{ "ini_section_exists", ini_section_exists},
+		{ "ini_key_exists", ini_key_exists},
 		{ "keyboard_check_direct", keyboard_check_direct},
 
 		{ "action_move", action_move},
 		{ "action_set_alarm", action_set_alarm},
 		{ "action_set_friction", action_set_friction},
+		{ "action_set_gravity", action_set_gravity},
+		{ "action_set_hspeed", action_set_hspeed},
+		{ "action_set_vspeed", action_set_vspeed},
 		{ "sprite_delete", sprite_delete},
 
 		{ "window_enable_borderless_fullscreen", window_enable_borderless_fullscreen},
@@ -705,6 +705,22 @@ public static partial class ScriptResolver
 		{ "layer_tile_get_y", layer_tile_get_y },
 		{ "layer_tile_x", layer_tile_x },
 		{ "layer_tile_y", layer_tile_y },
+
+		{ "draw_set_circle_precision", draw_set_circle_precision},
+		{ "room_restart", room_restart },
+		{ "sprite_get_name", sprite_get_name},
+		{ "texture_is_ready", texture_is_ready},
+		{ "draw_line_color", draw_line_color}, 
+		{ "path_delete", path_delete},
+		{ "room_exists", room_exists},
+		{ "rectangle_in_rectangle", rectangle_in_rectangle},
+		{ "vertex_format_begin", vertex_format_begin},
+		{ "vertex_format_add_colour", vertex_format_add_colour},
+		{ "vertex_format_add_position", vertex_format_add_position},
+		{ "vertex_format_add_normal", vertex_format_add_normal},
+		{ "vertex_format_end", vertex_format_end},
+
+		{ "environment_get_variable", environment_get_variable}
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -755,7 +771,7 @@ public static partial class ScriptResolver
 
 	public static object? method(object?[] args)
 	{
-		// seems to always be self or null.
+		// seems to always be self, static, or null.
 		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279
 		var struct_ref_or_instance_id = args[0];
 		var func = args[1].Conv<int>();
@@ -775,6 +791,15 @@ public static partial class ScriptResolver
 			if (num == GMConstants.self)
 			{
 				method.inst = VMExecutor.Self.Self;
+			}
+			else if (num == GMConstants.@static)
+			{
+				/*
+				 * TODO : there are static functions in DR, but they're never called (vector2/3 add and scale)
+				 * just dummy implementing this so it'll run the initialize part of the constructor
+				 */
+				method.inst = null;
+				DebugLog.LogWarning("Method() called with -16 (static) struct ref - not implemented.");
 			}
 			else
 			{
@@ -2656,8 +2681,7 @@ public static partial class ScriptResolver
 
 	private static object layer_get_all_elements(object?[] args)
 	{
-		var layer_id = args[0].Conv<int>();
-		var layer = RoomManager.CurrentRoom.Layers[layer_id];
+		var layer = RoomManager.CurrentRoom.GetLayer(args[0]);
 		return layer.ElementsToDraw.Select(x => x.instanceId).ToList();
 	}
 
@@ -2884,14 +2908,14 @@ public static partial class ScriptResolver
 				GL.BlendEquation(BlendEquationMode.FuncAdd);
 				break;
 			case 2:
+				// bm_max
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcColor);
+				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				break;
+			case 3:
 				// bm_subtract
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 				GL.BlendEquation(BlendEquationMode.FuncSubtract);
-				break;
-			case 3:
-				// bm_reverse_subtract
-				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-				GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
 				break;
 			case 4:
 				// bm_min
@@ -2899,9 +2923,9 @@ public static partial class ScriptResolver
 				GL.BlendEquation(BlendEquationMode.Min);
 				break;
 			case 5:
-				// bm_max
-				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcColor);
-				GL.BlendEquation(BlendEquationMode.FuncAdd);
+				// bm_reverse_subtract
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+				GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
 				break;
 		}
 
@@ -2911,33 +2935,33 @@ public static partial class ScriptResolver
 	public static object? gpu_set_blendmode_ext(object?[] args)
 	{
 		var src = args[0].Conv<int>();
-		var dst = args[0].Conv<int>();
+		var dst = args[1].Conv<int>();
 
 		BlendingFactor GetBlend(int arg)
 		{
 			switch (arg)
 			{
-				case 0:
-					return BlendingFactor.Zero;
 				case 1:
-					return BlendingFactor.One;
+					return BlendingFactor.Zero;
 				case 2:
-					return BlendingFactor.SrcColor;
+					return BlendingFactor.One;
 				case 3:
-					return BlendingFactor.OneMinusSrcColor;
+					return BlendingFactor.SrcColor;
 				case 4:
-					return BlendingFactor.SrcAlpha;
+					return BlendingFactor.OneMinusSrcColor;
 				case 5:
-					return BlendingFactor.OneMinusSrcAlpha;
+					return BlendingFactor.SrcAlpha;
 				case 6:
-					return BlendingFactor.DstAlpha;
+					return BlendingFactor.OneMinusSrcAlpha;
 				case 7:
-					return BlendingFactor.OneMinusDstAlpha;
+					return BlendingFactor.DstAlpha;
 				case 8:
-					return BlendingFactor.DstColor;
+					return BlendingFactor.OneMinusDstAlpha;
 				case 9:
-					return BlendingFactor.OneMinusDstColor;
+					return BlendingFactor.DstColor;
 				case 10:
+					return BlendingFactor.OneMinusDstColor;
+				case 11:
 					return BlendingFactor.SrcAlphaSaturate;
 				default:
 					throw new ArgumentException();
@@ -3398,11 +3422,19 @@ public static partial class ScriptResolver
 
 	public static object? NewGMLObject(object?[] args)
 	{
-		var constructorIndex = args[0].Conv<int>();
+		var ctor = args[0];
 		var values = args[1..];
 		var obj = new GMLObject();
 
-		VMExecutor.ExecuteCode(ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
+		if (ctor is Method m)
+		{
+			VMExecutor.ExecuteCode(m.func.GetCode(), obj, args: values);
+		}
+		else
+		{
+			var constructorIndex = ctor.Conv<int>();
+			VMExecutor.ExecuteCode(ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
+		}
 
 		return obj;
 	}
@@ -4055,7 +4087,17 @@ public static partial class ScriptResolver
 
 	public static object? draw_surface_ext(object?[] args)
 	{
-		DebugLog.LogWarning("draw_surface_ext not implemented.");
+		var id = args[0].Conv<int>();
+		var x = args[1].Conv<double>();
+		var y = args[2].Conv<double>();
+		var xscale = args[3].Conv<double>();
+		var yscale = args[4].Conv<double>();
+		var rot = args[5].Conv<double>();
+		var col = args[6].Conv<int>();
+		var alpha = args[7].Conv<double>();
+
+		SurfaceManager.draw_surface_ext(id, x, y, xscale, yscale, rot, col, alpha);
+
 		return null;
 	}
 
@@ -4068,7 +4110,7 @@ public static partial class ScriptResolver
 	public static object? event_perform(object?[] args)
 	{
 		var type = args[0].Conv<int>();
-		var numb = args[0].Conv<int>();
+		var numb = args[1].Conv<int>();
 
 		GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, (EventType)type + 1, numb);
 		return null;
@@ -4170,6 +4212,16 @@ public static partial class ScriptResolver
 	{
 		var section = args[0].Conv<string>();
 		return _iniFile!.Sections.Any(x => x.Name == section);
+	}
+
+	public static object? ini_key_exists(object?[] args)
+	{
+		var section = args[0].Conv<string>();
+		var key = args[1].Conv<string>();
+
+		var sec = _iniFile!.Sections.FirstOrDefault(x => x.Name == section);
+
+		return sec != null && sec.Dict.ContainsKey(key);
 	}
 
 	public static object? keyboard_check_direct(object?[] args)
@@ -4283,6 +4335,45 @@ public static partial class ScriptResolver
 		}
 
 		VMExecutor.Self.GMSelf.friction = friction;
+		return null;
+	}
+
+	public static object? action_set_gravity(object?[] args)
+	{
+		var gravity = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			gravity += VMExecutor.Self.GMSelf.gravity;
+		}
+
+		VMExecutor.Self.GMSelf.gravity = gravity;
+		return null;
+	}
+
+	public static object? action_set_hspeed(object?[] args)
+	{
+		var hspeed = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			hspeed += VMExecutor.Self.GMSelf.hspeed;
+		}
+
+		VMExecutor.Self.GMSelf.hspeed = hspeed;
+		return null;
+	}
+
+	public static object? action_set_vspeed(object?[] args)
+	{
+		var vspeed = args[0].Conv<double>();
+
+		if (Action_Relative)
+		{
+			vspeed += VMExecutor.Self.GMSelf.vspeed;
+		}
+
+		VMExecutor.Self.GMSelf.vspeed = vspeed;
 		return null;
 	}
 
@@ -5275,6 +5366,278 @@ public static partial class ScriptResolver
 		}
 
 		return null;
+	}
+
+	private static object? instance_change(object?[] args)
+	{
+		var obj = args[0].Conv<int>();
+		var perf = args[1].Conv<bool>();
+
+		var self = VMExecutor.Self.GMSelf;
+
+		if (perf)
+		{
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Destroy);
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.CleanUp);
+		}
+
+		var definition = InstanceManager.ObjectDefinitions[obj];
+
+		self.Definition = definition;
+		self.sprite_index = definition.sprite;
+		self.bbox_dirty = true;
+
+		if (perf)
+		{
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.PreCreate);
+			GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Create);
+		}
+
+		return null;
+	}
+
+	private static object? draw_set_circle_precision(object?[] args)
+	{
+		var precision = args[0].Conv<int>();
+
+		if (precision < 4)
+		{
+			precision = 4;
+		}
+
+		if (precision >= 65)
+		{
+			precision = 64;
+		}
+
+		// ensure is a multiple of 4
+		precision = 4 * (int)Math.Truncate(precision / 4.0);
+
+		DrawManager.CirclePrecision = precision;
+
+		// TODO: html/c++ also caches sin/cos values. should we do that?
+
+		return null;
+	}
+
+	private static object? string_repeat(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		var count = args[1].Conv<int>();
+
+		var ret = "";
+		for (var i = 0; i < count; i++)
+		{
+			ret += str;
+		}
+
+		return ret;
+	}
+
+	private static object? room_restart(object?[] args)
+	{
+		RoomManager.New_Room = RoomManager.CurrentRoom.AssetId;
+		return null;
+	}
+
+	private static object? sprite_get_name(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+
+		return SpriteManager._spriteDict[index].Name;
+	}
+
+	private static object? texture_is_ready(object?[] args)
+	{
+		// todo : implement?
+		return true;
+	}
+
+	private static object? draw_line_color(object?[] args)
+	{
+		var x1 = args[0].Conv<double>();
+		var y1 = args[1].Conv<double>();
+		var x2 = args[2].Conv<double>();
+		var y2 = args[3].Conv<double>();
+		var col1 = args[4].Conv<int>();
+		var col2 = args[5].Conv<int>();
+
+		CustomWindow.Draw(new GMLineJob()
+		{
+			col1 = col1.ABGRToCol4(SpriteManager.DrawAlpha),
+			col2 = col2.ABGRToCol4(SpriteManager.DrawAlpha),
+			width = 1,
+			x1 = (float)x1,
+			y1 = (float)y1,
+			x2 = (float)x2,
+			y2 = (float)y2
+		});
+
+		return null;
+	}
+
+	private static object? path_delete(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		PathManager.PathDelete(index);
+		return null;
+	}
+
+	private static object? room_exists(object?[] args)
+	{
+		var index = args[0].Conv<int>();
+		return RoomManager.RoomList.ContainsKey(index);
+	}
+
+	private static object? rectangle_in_rectangle(object?[] args)
+	{
+		var _px1 = args[0].Conv<double>();
+		var _py1 = args[1].Conv<double>();
+		var _px2 = args[2].Conv<double>();
+		var _py2 = args[3].Conv<double>();
+		var _x1 = args[4].Conv<double>();
+		var _y1 = args[5].Conv<double>();
+		var _x2 = args[6].Conv<double>();
+		var _y2 = args[7].Conv<double>();
+
+		// https://github.com/YoYoGames/GameMaker-HTML5/blob/773ffbfff0b6d7895fcab664e5190da9001a5491/scripts/functions/Function_Collision.js#L837
+
+		var IN = 0;
+
+		if (_px1 > _px2)
+		{
+			(_px1, _px2) = (_px2, _px1);
+		}
+
+		if (_py1 > _py2)
+		{
+			(_py1, _py2) = (_py2, _py1);
+		}
+
+		if (_x1 > _x2)
+		{
+			(_x1, _x2) = (_x2, _x1);
+		}
+
+		if (_y1 > _y2)
+		{
+			(_y1, _y2) = (_y2, _y1);
+		}
+
+		// Test point in rect
+		if ((_px1 >= _x1 && _px1 <= _x2) && (_py1 >= _y1 && _py1 <= _y2))
+		{
+			IN |= 1;
+		}
+
+		if ((_px2 >= _x1 && _px2 <= _x2) && (_py1 >= _y1 && _py1 <= _y2))
+		{
+			IN |= 2;
+		}
+
+		if ((_px2 >= _x1 && _px2 <= _x2) && (_py2 >= _y1 && _py2 <= _y2))
+		{
+			IN |= 4;
+		}
+
+		if ((_px1 >= _x1 && _px1 <= _x2) && (_py2 >= _y1 && _py2 <= _y2))
+		{
+			IN |= 8;
+		}
+
+		var result = 0;
+
+		if (IN == 15)
+		{
+			result = 1;
+		}
+		else if (IN == 0)
+		{
+			result = 0;
+			// now for edge cases.. source being intersected by dest 
+			IN = 0;
+			if ((_x1 >= _px1 && _x1 <= _px2) && (_y1 >= _py1 && _y1 <= _py2))
+				IN |= 1;
+			if ((_x2 >= _px1 && _x2 <= _px2) && (_y1 >= _py1 && _y1 <= _py2))
+				IN |= 2;
+			if ((_x2 >= _px1 && _x2 <= _px2) && (_y2 >= _py1 && _y2 <= _py2))
+				IN |= 4;
+			if ((_x1 >= _px1 && _x1 <= _px2) && (_y2 >= _py1 && _y2 <= _py2))
+				IN |= 8;
+			if (0 != IN)
+				result = 2;
+			else
+			{ // lets try another case, source goes over dest in x axis
+				IN = 0;
+				if ((_x1 >= _px1 && _x1 <= _px2) && (_py1 >= _y1 && _py1 <= _y2))
+					IN |= 1;
+				if ((_x2 >= _px1 && _x2 <= _px2) && (_py1 >= _y1 && _py1 <= _y2))
+					IN |= 2;
+				if ((_x2 >= _px1 && _x2 <= _px2) && (_py2 >= _y1 && _py2 <= _y2))
+					IN |= 4;
+				if ((_x1 >= _px1 && _x1 <= _px2) && (_py2 >= _y1 && _py2 <= _y2))
+					IN |= 8;
+				if (0 != IN)
+					result = 2;
+				else
+				{ // one more case, source goes over dest in y axis
+					IN = 0;
+					if ((_px1 >= _x1 && _px1 <= _x2) && (_y1 >= _py1 && _y1 <= _py2))
+						IN |= 1;
+					if ((_px2 >= _x1 && _px2 <= _x2) && (_y1 >= _py1 && _y1 <= _py2))
+						IN |= 2;
+					if ((_px2 >= _x1 && _px2 <= _x2) && (_y2 >= _py1 && _y2 <= _py2))
+						IN |= 4;
+					if ((_px1 >= _x1 && _px1 <= _x2) && (_y2 >= _py1 && _y2 <= _py2))
+						IN |= 8;
+					if (0 != IN)
+						result = 2;
+				}
+			}
+		}
+		else
+		{
+			result = 2;
+		}
+
+		return result;
+	}
+
+	private static object? vertex_format_begin(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_begin not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_add_colour(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_add_colour not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_add_position(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_add_position not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_add_normal(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_add_normal not implemented.");
+		return null;
+	}
+
+	private static object? vertex_format_end(object?[] args)
+	{
+		DebugLog.LogWarning("vertex_format_end not implemented.");
+		return null;
+	}
+
+	private static object? environment_get_variable(object?[] args)
+	{
+		var name = args[0].Conv<string>();
+		// TODO : is this right? idk
+		return Environment.GetEnvironmentVariable(name);
 	}
 }
 

@@ -13,6 +13,11 @@ namespace OpenGM;
 /// </summary>
 public class GamemakerObject : DrawWithDepth, IStackContextSelf
 {
+	public override void Draw()
+	{
+		
+	}
+
 	/// <summary>
 	/// CHECK BUILTIN SELF VARS BEFORE THIS!!
 	/// </summary>
@@ -397,6 +402,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 	public bool Active = true;
 	public bool Marked = false; // Marked for deletion at the end of the frame
+	public bool IsOutsideRoom = false; // Store state so event isn't called multiple times
 
 	public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
 	{
@@ -432,62 +438,23 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
 	public double frame_overflow;
 
-	public sealed override void Draw()
+	public void Animate()
 	{
-		if (!_createRan || !RoomManager.RoomLoaded)
+		var sprite = SpriteManager.GetSpriteAsset(sprite_index);
+
+		if (sprite == null)
 		{
+			image_index += image_speed;
 			return;
 		}
 
-		AdaptSpeed();
-
-		if (AdaptPath())
+		if (sprite.PlaybackSpeedType == AnimSpeedType.FramesPerGameFrame)
 		{
-			ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
-		}
-
-		if (hspeed != 0 || vspeed != 0)
-		{
-			x += hspeed;
-			y += vspeed;
-		}
-
-		var asset = SpriteManager.GetSpriteAsset(sprite_index);
-		if (asset != null)
-		{
-			var playbackType = asset.PlaybackSpeedType;
-			var playbackSpeed = asset.PlaybackSpeed * image_speed;
-
-			if (playbackType == AnimSpeedType.FramesPerGameFrame)
-			{
-				image_index += playbackSpeed;
-			}
-			else
-			{
-				image_index += playbackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
-			}
-
-			var number = SpriteManager.GetNumberOfFrames(sprite_index);
-
-			if (image_index >= number)
-			{
-				frame_overflow += number;
-				image_index -= number;
-
-				ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-			}
-			else if (image_index < 0)
-			{
-				frame_overflow -= number;
-				image_index += number;
-
-				ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-			}
+			image_index += image_speed * sprite.PlaybackSpeed;
 		}
 		else
 		{
-			// lol this is dumb but i guess it's what GM does???
-			image_index += image_speed;
+			image_index += image_speed * sprite.PlaybackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
 		}
 	}
 
@@ -733,11 +700,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			return false;
 		}
 
-		var path = PathManager.Paths[path_index];
-		if (path == null)
+		if (!PathManager.Paths.ContainsKey(path_index))
 		{
 			return false;
 		}
+
+		var path = PathManager.Paths[path_index];
 
 		if (path.length <= 0)
 		{
@@ -838,5 +806,25 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 		y = newy;
 
 		return atPathEnd;
+	}
+
+	public bool HasEvent(EventType eventType, int eventSubtype)
+	{
+		return eventType switch
+		{
+			EventType.Create => Definition.CreateCode != null,
+			EventType.Destroy => Definition.CreateCode != null,
+			EventType.Alarm => Definition.AlarmScript.ContainsKey(eventSubtype),
+			EventType.Step => Definition.StepScript.ContainsKey((EventSubtypeStep)eventSubtype),
+			EventType.Collision => Definition.CollisionScript.ContainsKey(eventSubtype),
+			EventType.Keyboard => Definition.KeyboardScripts.ContainsKey((EventSubtypeKey)eventSubtype),
+			EventType.Other => Definition.OtherScript.ContainsKey((EventSubtypeOther)eventSubtype),
+			EventType.Draw => Definition.DrawScript.ContainsKey((EventSubtypeDraw)eventSubtype),
+			EventType.KeyPress => Definition.KeyPressScripts.ContainsKey((EventSubtypeKey)eventSubtype),
+			EventType.KeyRelease => Definition.KeyReleaseScripts.ContainsKey((EventSubtypeKey)eventSubtype),
+			EventType.CleanUp => Definition.CleanUpScript != null,
+			EventType.PreCreate => Definition.CreateCode != null,
+			_ => throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null),
+		};
 	}
 }
