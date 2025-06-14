@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using OpenGM.IO;
+using OpenGM.Rendering;
+using OpenTK.Graphics.ES11;
 
 namespace OpenGM;
 public static class BufferManager
@@ -280,5 +282,32 @@ public static class BufferManager
 		}
 
 		return 1024;
+	}
+
+	public static void BufferSetSurface(int bufferId, int surfaceId, int offset)
+	{
+		// Copy data from buffer into surface
+
+		var buffer = Buffers[bufferId];
+
+		if (buffer == null || !SurfaceManager.surface_exists(surfaceId))
+		{
+			return;
+		}
+
+		var w = SurfaceManager.GetSurfaceWidth(surfaceId);
+		var h = SurfaceManager.GetSurfaceHeight(surfaceId);
+
+		if (offset + (w * h * 4) > buffer.Data.Length)
+		{
+			return;
+		}
+
+		SurfaceManager.BindSurfaceTexture(surfaceId);
+		// TODO : account for offset
+		GL.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data);
+		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+		GL.BindTexture(TextureTarget.Texture2D, 0);
 	}
 }

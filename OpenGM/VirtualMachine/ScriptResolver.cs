@@ -421,7 +421,7 @@ public static partial class ScriptResolver
 		//{ "buffer_sizeof", buffer_sizeof },
 		//{ "buffer_get_address", buffer_get_address },
 		//{ "buffer_get_surface", buffer_get_surface },
-		//{ "buffer_set_surface", buffer_set_surface },
+		{ "buffer_set_surface", buffer_set_surface },
 		//{ "buffer_create_from_vertex_buffer", buffer_create_from_vertex_buffer },
 		//{ "buffer_create_from_vertex_buffer_ext", buffer_create_from_vertex_buffer_ext },
 		//{ "buffer_copy_from_vertex_buffer", buffer_copy_from_vertex_buffer },
@@ -720,7 +720,9 @@ public static partial class ScriptResolver
 		{ "vertex_format_add_normal", vertex_format_add_normal},
 		{ "vertex_format_end", vertex_format_end},
 
-		{ "environment_get_variable", environment_get_variable}
+		{ "environment_get_variable", environment_get_variable},
+		{ "video_open", video_open}, 
+		{ "video_draw", video_draw}
 	};
 
 	public static object? room_set_persistent(object?[] args)
@@ -5674,6 +5676,17 @@ public static partial class ScriptResolver
 		var name = args[0].Conv<string>();
 		// TODO : is this right? idk
 		return Environment.GetEnvironmentVariable(name);
+	}
+
+	private static object? buffer_set_surface(object?[] args)
+	{
+		var buffer = args[0].Conv<int>();
+		var surface = args[1].Conv<int>();
+		var offset = args[2].Conv<int>();
+
+		BufferManager.BufferSetSurface(buffer, surface, offset);
+
+		return null;
 	}
 }
 

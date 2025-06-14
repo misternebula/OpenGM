@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MotionTK\MotionTK.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Magick.Native-Q8-x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
