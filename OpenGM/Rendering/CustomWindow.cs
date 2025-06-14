@@ -651,7 +651,24 @@ public class CustomWindow : GameWindow
         }
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
-    }
+	}
+
+    public static void Draw(GMTexturedPolygonJob texPolyJob)
+    {
+	    var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
+	    GL.BindTexture(TextureTarget.Texture2D, id);
+	    GL.Uniform1(VertexManager.u_doTex, 1);
+
+	    var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
+	    for (var i = 0; i < texPolyJob.Vertices.Length; i++)
+	    {
+		    vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.blend, texPolyJob.UVs[i]);
+	    }
+	    VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
+
+		GL.BindTexture(TextureTarget.Texture2D, 0);
+	    GL.Uniform1(VertexManager.u_doTex, 0);
+	}
 }
 
 public class GMLineJob : GMBaseJob
@@ -709,6 +726,13 @@ public class GMPolygonJob : GMBaseJob
     public Vector2d[] Vertices = null!;
     public Color4[] Colors = null!;
     public bool Outline;
+}
+
+public class GMTexturedPolygonJob : GMBaseJob
+{
+	public required Vector2d[] Vertices = null!;
+	public required Vector2d[] UVs = null!;
+	public required SpritePageItem Texture = null!;
 }
 
 public abstract class GMBaseJob

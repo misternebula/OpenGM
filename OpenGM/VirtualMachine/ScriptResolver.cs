@@ -3894,7 +3894,43 @@ public static partial class ScriptResolver
 
 	public static object? draw_sprite_pos(object?[] args)
 	{
-		DebugLog.LogWarning("draw_sprite_pos not implemented.");
+		var sprite = args[0].Conv<int>();
+		var subimg = args[1].Conv<int>();
+		var x1 = args[2].Conv<double>();
+		var y1 = args[3].Conv<double>();
+		var x2 = args[4].Conv<double>();
+		var y2 = args[5].Conv<double>();
+		var x3 = args[6].Conv<double>();
+		var y3 = args[7].Conv<double>();
+		var x4 = args[8].Conv<double>();
+		var y4 = args[9].Conv<double>();
+		var alpha = args[10].Conv<double>();
+
+		var col = 16777215.ABGRToCol4(alpha); // c_white
+		var pageItem = SpriteManager.GetSpritePage(sprite, subimg);
+		var (pageTexture, id) = PageManager.TexturePages[pageItem.Page];
+
+		var x = (double)pageItem.SourcePosX / pageTexture.Width;
+		var y = (double)pageItem.SourcePosY / pageTexture.Height;
+		var w = (double)pageItem.SourceSizeX / pageTexture.Width;
+		var h = (double)pageItem.SourceSizeY / pageTexture.Height;
+
+		CustomWindow.Draw(new GMTexturedPolygonJob()
+		{
+			Texture = pageItem,
+			blend = col,
+			Vertices = new Vector2d[] { new(x1, y1), new(x2, y2), new(x3, y3) },
+			UVs = new Vector2d[] { new(x, y), new (x + w, y), new(x + w, y + h) }
+		});
+
+		CustomWindow.Draw(new GMTexturedPolygonJob()
+		{
+			Texture = pageItem,
+			blend = col,
+			Vertices = new Vector2d[] { new(x3, y3), new(x4, y4), new(x1, y1) },
+			UVs = new Vector2d[] { new(x + w, y + h), new(x, y + h), new(x, y) }
+		});
+
 		return null;
 	}
 
