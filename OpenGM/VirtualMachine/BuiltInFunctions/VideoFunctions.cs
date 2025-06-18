@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MotionTK;
+﻿using MotionTK;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
-using static UndertaleModLib.Models.UndertaleRoom;
 
-namespace OpenGM.VirtualMachine;
+namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
-public static partial class ScriptResolver
+public static class VideoFunctions
 {
 	private static DataSource? VideoDataSource;
 	private static VideoPlayback VideoPlayback => VideoDataSource!.VideoPlayback;

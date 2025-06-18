@@ -20,6 +20,9 @@ internal class Entry
 
 	static void Main(string[] args)
 	{
+		// only has to be ran once, even across game_changes
+		ScriptResolver.InitGMLFunctions();
+
 		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
 		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
 		var defaultPath = Path.Combine(exeLocation, "game", "data.win");
@@ -61,6 +64,7 @@ internal class Entry
 		GameSpeed = GameLoader.GeneralInfo.FPS;
 		InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
 
+		// TODO : is RNG re-initialized after game_change?
 		GMRandom.InitialiseRNG(0);
 
 		var firstRoom = RoomManager.RoomList[0];

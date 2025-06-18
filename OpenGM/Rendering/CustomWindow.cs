@@ -96,6 +96,7 @@ public class CustomWindow : GameWindow
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
     {
         base.OnFramebufferResize(e);
+        DebugLog.LogInfo($"OnFramebufferResize {e.Width}x{e.Height}");
         GL.Viewport(0, 0, e.Width, e.Height); // draw to entire framebuffer
     }
 
@@ -114,10 +115,11 @@ public class CustomWindow : GameWindow
     /// </summary>
     public void SetResolution(int width, int height)
     {
-        Width = (uint)width;
+	    DebugLog.LogInfo($"SetResolution {Width}x{Height} -> {width}x{height}");
+		Width = (uint)width;
         Height = (uint)height;
-        // UpdatePositionResolution();
-    }
+		// UpdatePositionResolution();
+	}
 
     /// <summary>
     /// sets the view uniform

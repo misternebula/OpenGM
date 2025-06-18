@@ -430,7 +430,7 @@ public static class DrawManager
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
             // BUG: one new game in ch2, this becomes unbalanced. i have no idea why.
             // i dont feel like actually fixing this right now
-            Debugger.Break();
+            //Debugger.Break();
             while (SurfaceManager.SurfaceStack.Count != 0)
             {
                 SurfaceManager.surface_reset_target();
