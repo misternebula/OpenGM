@@ -38,6 +38,7 @@ public static class VariableResolver
 					bool => false,
 					string => "",
 					IList => new List<object?>(),
+					GMLObject => null, // for storing structs
 					null => null,
 					_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 				});
@@ -64,23 +65,23 @@ public static class VariableResolver
 		{ "application_surface", (get_application_surface, null) },
 		{ "argument_count", (get_argument_count, null) },
 		{ "argument", (get_argument, null) },
-		{ "argument0", (get_argument_0, null) },
-		{ "argument1", (get_argument_1, null) },
-		{ "argument2", (get_argument_2, null) },
-		{ "argument3", (get_argument_3, null) },
-		{ "argument4", (get_argument_4, null) },
-		{ "argument5", (get_argument_5, null) },
-		{ "argument6", (get_argument_6, null) },
-		{ "argument7", (get_argument_7, null) },
-		{ "argument8", (get_argument_8, null) },
-		{ "argument9", (get_argument_9, null) },
-		{ "argument10", (get_argument_10, null) },
-		{ "argument11", (get_argument_11, null) },
-		{ "argument12", (get_argument_12, null) },
-		{ "argument13", (get_argument_13, null) },
-		{ "argument14", (get_argument_14, null) },
-		{ "argument15", (get_argument_15, null) },
-		// { "room_persistent", (get_room_persistent, set_room_persistent)},
+		{ "argument0", (get_argument_0, (val) => VMExecutor.PopToArgument(0, val)) },
+		{ "argument1", (get_argument_1, (val) => VMExecutor.PopToArgument(1, val)) },
+		{ "argument2", (get_argument_2, (val) => VMExecutor.PopToArgument(2, val)) },
+		{ "argument3", (get_argument_3, (val) => VMExecutor.PopToArgument(3, val)) },
+		{ "argument4", (get_argument_4, (val) => VMExecutor.PopToArgument(4, val)) },
+		{ "argument5", (get_argument_5, (val) => VMExecutor.PopToArgument(5, val)) },
+		{ "argument6", (get_argument_6, (val) => VMExecutor.PopToArgument(6, val)) },
+		{ "argument7", (get_argument_7, (val) => VMExecutor.PopToArgument(7, val)) },
+		{ "argument8", (get_argument_8, (val) => VMExecutor.PopToArgument(8, val)) },
+		{ "argument9", (get_argument_9, (val) => VMExecutor.PopToArgument(9, val)) },
+		{ "argument10", (get_argument_10, (val) => VMExecutor.PopToArgument(10, val)) },
+		{ "argument11", (get_argument_11, (val) => VMExecutor.PopToArgument(11, val)) },
+		{ "argument12", (get_argument_12, (val) => VMExecutor.PopToArgument(12, val)) },
+		{ "argument13", (get_argument_13, (val) => VMExecutor.PopToArgument(13, val)) },
+		{ "argument14", (get_argument_14, (val) => VMExecutor.PopToArgument(14, val)) },
+		{ "argument15", (get_argument_15, (val) => VMExecutor.PopToArgument(15, val)) },
+		{ "room_persistent", (get_room_persistent, set_room_persistent)},
 		{ "undefined", (get_undefined, null) },
 		{ "view_current", (get_view_current, null)},
 		{ "view_wport", (get_view_wport, set_view_wport)},
@@ -94,7 +95,8 @@ public static class VariableResolver
 		{ "instance_count", (get_instance_count, null)},
 		{ "current_time", (get_current_time, null)},
 		{ "current_month", (get_current_month, null)},
-		{ "debug_mode", (get_debug_mode, null)}
+		{ "debug_mode", (get_debug_mode, null)},
+		{ "background_color", (get_background_color, set_background_color)}
 	};
 
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
@@ -138,7 +140,8 @@ public static class VariableResolver
 		{ "path_index", (get_path_index, null)},
 		{ "path_position", (get_path_position, set_path_position)},
 		{ "path_speed", (get_path_speed, set_path_speed)},
-		{ "path_scale", (get_path_scale, set_path_scale)}
+		{ "path_scale", (get_path_scale, set_path_scale)},
+		{ "mask_index", (get_mask_index, set_mask_index)}
 	};
 
 	public static object get_working_directory()
@@ -162,6 +165,9 @@ public static class VariableResolver
 
 	public static object get_image_index(GamemakerObject instance) => instance.image_index;
 	public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
+
+	public static object get_mask_index(GamemakerObject instance) => instance.mask_index;
+	public static void set_mask_index(GamemakerObject instance, object? value) => instance.mask_index = value.Conv<int>();
 
 	public static object get_sprite_index(GamemakerObject instance) => instance.sprite_index;
 	public static void set_sprite_index(GamemakerObject instance, object? value) => instance.sprite_index = value.Conv<int>();
@@ -242,8 +248,14 @@ public static class VariableResolver
 
 	public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
 
-	// public static object get_room_persistent() => RoomManager.CurrentRoom.Persistent;
-	// public static void set_room_persistent(object? value) => RoomManager.CurrentRoom.Persistent = VMExecutor.Conv<bool>(value);
+	public static object get_room_persistent() => RoomManager.CurrentRoom.Persistent;
+
+	public static void set_room_persistent(object? value)
+	{
+		var val = value.Conv<bool>();
+		DebugLog.Log($"room_persistent = {val}");
+		RoomManager.CurrentRoom.Persistent = val;
+	}
 
 	public static object get_room_speed() => Entry.GameSpeed;
 	public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
@@ -273,6 +285,13 @@ public static class VariableResolver
 	public static object? get_argument_13() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[13];
 	public static object? get_argument_14() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[14];
 	public static object? get_argument_15() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[15];
+
+	private static void SetArgumentIndex(int index, object? value)
+	{
+		var args = VMExecutor.Call.Locals["arguments"].Conv<IList>();
+		args[index] = value;
+		VMExecutor.Call.Locals["arguments"] = args;
+	}
 
 	public static object? get_undefined() => null;
 
@@ -326,4 +345,15 @@ public static class VariableResolver
 	public static object get_current_month() => DateTime.Now.Month;
 
 	public static object get_debug_mode() => false;
+
+	public static object? get_background_color()
+	{
+		// TODO : Implement
+		return null;
+	}
+
+	public static void set_background_color(object? value)
+	{
+		// TODO : Implement
+	}
 }

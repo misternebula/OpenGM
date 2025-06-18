@@ -68,10 +68,10 @@ public static class AudioManager
 
         Console.WriteLine(AL.Get(ALGetString.Version));
         CheckALError();
-        Console.WriteLine(AL.Get(ALGetString.Vendor));
-        CheckALError();
-        Console.WriteLine(AL.Get(ALGetString.Extensions));
-        CheckALError();
+        //Console.WriteLine(AL.Get(ALGetString.Vendor));
+        //CheckALError();
+        //Console.WriteLine(AL.Get(ALGetString.Extensions));
+        //CheckALError();
 
         _inited = true;
 

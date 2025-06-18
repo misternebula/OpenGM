@@ -98,105 +98,261 @@ public static class DrawManager
         return false;
     }
 
-    public static void FixedUpdate()
+    public static void DoAStep()
     {
-        /*
-         * https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L1716
-         * GameMaker_DoAStep
-         */
-        
-		//VariableResolver.GlobalVariables["debug"] = true;
+		// g_pBuiltIn.delta_time = (g_CurrentTime - g_pBuiltIn.last_time)*1000;
+		// g_pBuiltIn.last_time = g_CurrentTime;
+		// ResetSpriteMessageEvents();
+		// g_pIOManager.StartStep();
+		// HandleOSEvents();
+		// g_pGamepadManager.Update();
+
+		InstanceManager.RememberOldPositions();
+	    InstanceManager.UpdateImages();
+
+        // UpdateActiveLists();
+	    if (RoomManager.New_Room != -1)
+	    {
+		    RoomManager.ChangeToWaitingRoom();
+		    return;
+	    }
+
+		// g_pLayerManager.UpdateLayers();
+		// g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
 
 		var stepList = _drawObjects.OrderBy(x => x.instanceId);
-
-        foreach (var item in stepList)
-        {
-	        if (item is not GamemakerObject gm)
-	        {
-                continue;
-	        }
-
-	        gm.xprevious = gm.x;
-	        gm.yprevious = gm.y;
-        }
-
-        if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
-        {
-            return;
-        }
-
-        foreach (var item in stepList)
-        {
-            if (item is GamemakerObject gm)
-            {
-                gm.UpdateAlarms();
-            }
-        }
-
-        HandleKeyboard();
-
-		if (RoomManager.New_Room != -1)
-        {
-            RoomManager.ChangeToWaitingRoom();
-            return;
-        }
-
-        foreach (var item in stepList)
-        {
-            if (item is GamemakerObject gmo)
-            {
-                foreach (var id in gmo.Definition.CollisionScript.Keys)
-                {
-                    //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
-
-                    var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
-
-                    if (instanceId == GMConstants.noone)
-                    {
-	                    continue;
-                    }
-
-                    var collide = InstanceManager.instances[instanceId];
-
-					if (collide != null)
-                    {
-                        // makes it so `other` is the collided thing
-                        VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
-                        GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
-                        VMExecutor.EnvStack.Pop();
-                    }
-                }
-            }
-        }
-
-        if (RunStepScript(stepList, EventSubtypeStep.Step))
-        {
-            return;
-        }
-
-        if (RunStepScript(stepList, EventSubtypeStep.EndStep))
-        {
-            return;
-        }
-
-        var destroyedList = new List<int>();
-        foreach (var (instanceId, instance) in InstanceManager.instances)
-        {
-			if (!instance.Marked)
-	        {
-                continue;
-	        }
-
-			//DebugLog.Log($"DESTROY {instance.Definition.Name}");
-
-			destroyedList.Add(instanceId);
-			instance.Destroy();
+		if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
+		{
+			return;
 		}
 
-        foreach (var id in destroyedList)
+		// resize event
+
+		// g_pASyncManager.Process();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		// HandleTimeLine();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		// HandleTimeSources();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		HandleAlarm(stepList);
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		HandleKeyboard();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		// HandleMouse();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		// g_pEffectsManager.StepEffectsForRoom(g_RunRoom);
+
+		// g_pSequenceManager.UpdateInstancesForRoom(g_RunRoom);
+		// g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_NORMAL);
+
+		if (RunStepScript(stepList, EventSubtypeStep.Step))
+		{
+			return;
+		}
+
+		// ProcessSpriteMessageEvents();
+		InstanceManager.UpdatePositions(); // UpdateInstancePositions
+
+		HandleOther();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		// YYPushEventsDispatch();
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		UpdateCollisions(stepList);
+
+		// UpdateActiveLists();
+		if (RoomManager.New_Room != -1)
+		{
+			RoomManager.ChangeToWaitingRoom();
+			return;
+		}
+
+		// g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_END);
+
+		if (RunStepScript(stepList, EventSubtypeStep.EndStep))
+		{
+			return;
+		}
+
+		// ParticleSystem_UpdateAll();
+
+		/*
+		if (g_RunRoom!=null) 
         {
-	        InstanceManager.instances.Remove(id);
+			g_RunRoom.RemoveMarked();
+			if (Draw_Automatic) 
+			{
+				g_RunRoom.Draw();
+				UpdateActiveLists();
+			}
         }
+        */
+	}
+
+    public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)
+    {
+	    foreach (var item in stepList)
+	    {
+		    if (item is GamemakerObject gm)
+		    {
+			    gm.UpdateAlarms();
+		    }
+	    }
+	}
+
+    public static void UpdateCollisions(IOrderedEnumerable<DrawWithDepth> stepList)
+    {
+	    foreach (var item in stepList)
+	    {
+		    if (item is GamemakerObject gmo)
+		    {
+			    foreach (var id in gmo.Definition.CollisionScript.Keys)
+			    {
+				    //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
+
+				    var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
+
+				    if (instanceId == GMConstants.noone)
+				    {
+					    continue;
+				    }
+
+				    var collide = InstanceManager.instances[instanceId];
+
+				    if (collide != null)
+				    {
+					    // makes it so `other` is the collided thing
+					    VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
+					    GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
+					    VMExecutor.EnvStack.Pop();
+				    }
+			    }
+		    }
+	    }
+	}
+
+    public static void HandleOther()
+    {
+	    // create copy since events can create new instances
+		var instances = InstanceManager.instances.Values.ToList();
+	    foreach (var instance in instances)
+	    {
+		    if (!instance.Marked)
+		    {
+                if (instance.HasEvent(EventType.Other, (int)EventSubtypeOther.OutsideRoom))
+                {
+	                var outside = false;
+
+	                if (SpriteManager.SpriteExists(instance.sprite_index) || SpriteManager.SpriteExists(instance.mask_index))
+	                {
+		                var bbox = instance.bbox;
+		                outside = ((bbox.right < 0) || (bbox.left > RoomManager.CurrentRoom.SizeX) || (bbox.bottom < 0) || (bbox.top > RoomManager.CurrentRoom.SizeY));
+					}
+	                else
+	                {
+		                outside = ((instance.x < 0) || (instance.x > RoomManager.CurrentRoom.SizeX) || (instance.y < 0) || (instance.y > RoomManager.CurrentRoom.SizeY));
+					}
+
+	                if (outside)
+	                {
+		                if (!instance.IsOutsideRoom)
+		                {
+			                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.OutsideRoom);
+		                }
+	                }
+	                instance.IsOutsideRoom = outside;
+				}
+
+				// boundary events
+
+				// outside/boundary view events
+		    }
+	    }
+    }
+
+	public static void FixedUpdate()
+	{
+		VariableResolver.GlobalVariables["debug"] = true;
+
+		var itemsToRemove = new List<DrawWithDepth>();
+		foreach (var item in _drawObjects)
+		{
+			if (item is GamemakerObject gm)
+			{
+				if (gm.Destroyed || gm.Marked)
+				{
+					DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when destroyed/marked!");
+					itemsToRemove.Add(item);
+				}
+
+				if (!InstanceManager.instance_exists_instanceid(gm.instanceId))
+				{
+					// TODO : this really shouldnt happen!! instance wasn't destroyed properly??
+					DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when not in Instance list!");
+					gm.Destroyed = true;
+					gm.Marked = true;
+					itemsToRemove.Add(item);
+				}
+			}
+		}
+		_drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
+
+        DoAStep();
         
         /*
          * https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L4168
@@ -274,7 +430,7 @@ public static class DrawManager
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
             // BUG: one new game in ch2, this becomes unbalanced. i have no idea why.
             // i dont feel like actually fixing this right now
-            Debugger.Break();
+            //Debugger.Break();
             while (SurfaceManager.SurfaceStack.Count != 0)
             {
                 SurfaceManager.surface_reset_target();
@@ -321,18 +477,13 @@ public static class DrawManager
             return;
         }
 
-        // this does animation stuff
-        // html5 does it different, but events move around all the time and nothing breaks yet
-        foreach (var item in drawList)
+        if (RoomManager.CurrentRoom != null)
         {
-            if (item is GamemakerObject)
-            {
-                item.Draw();
-            }
+	        RoomManager.CurrentRoom.RemoveMarked();
         }
 
-        //GamemakerCamera.Instance.GetComponent<Camera>().Render();
-    }
+		//GamemakerCamera.Instance.GetComponent<Camera>().Render();
+	}
 
     public static void HandleKeyboard()
     {

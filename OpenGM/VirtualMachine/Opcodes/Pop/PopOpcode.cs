@@ -38,6 +38,13 @@ public static partial class VMExecutor
 
 	public static void PopToSelf(IStackContextSelf self, string varName, object? value)
 	{
+		// check built in variables beforehand
+		if (VariableResolver.BuiltInVariables.ContainsKey(varName))
+		{
+			VariableResolver.BuiltInVariables[varName].setter!(value);
+			return;
+		}
+
 		if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
 		{
 			gettersetter.setter!(gm, value);
@@ -143,6 +150,29 @@ public static partial class VMExecutor
 		VariableResolver.BuiltInVariables[varName].setter!(value);
 	}
 
+	public static void PopToStatic(string varName, object? value)
+	{
+		var currentFunc = Call.Function;
+
+		if (currentFunc == null)
+		{
+			// uhhhhh fuckin uhhh
+			throw new NotImplementedException();
+		}
+
+		if (currentFunc.StaticVariables == null)
+		{
+			currentFunc.StaticVariables = new();
+		}
+
+		if (!currentFunc.StaticVariables.ContainsKey(varName) && currentFunc.HasStaticInitRan)
+		{
+			throw new NotImplementedException("StaticVariables should contain every static variable after initialization!?");
+		}
+
+		currentFunc.StaticVariables[varName] = value;
+	}
+
 	public static (ExecutionResult, object?) DoPop(VMCodeInstruction instruction)
 	{
 		if (instruction.TypeOne == VMType.e)
@@ -196,6 +226,11 @@ public static partial class VMExecutor
 			else if (variableType == VariableType.Other)
 			{
 				PopToOther(variableName, dataPopped);
+				return (ExecutionResult.Success, null);
+			}
+			else if (variableType == VariableType.Static)
+			{
+				PopToStatic(variableName, dataPopped);
 				return (ExecutionResult.Success, null);
 			}
 		}
@@ -415,6 +450,7 @@ public static partial class VMExecutor
 
 				if (id == GMConstants.@static)
 				{
+					// TODO: do proper static stuff here
 					// static variables are global per function definition
 					PopToGlobal($"static {Call.CodeName} {variableName}", value);
 					return (ExecutionResult.Success, null);

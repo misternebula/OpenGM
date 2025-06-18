@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OpenGM.Loading;
 using UndertaleModLib;
+using UndertaleModLib.Compiler;
 using UndertaleModLib.Decompiler;
 
 namespace CodeCompiler;
@@ -28,19 +29,34 @@ internal class Program
 			File.Delete(file);
 		}
 
+		var compileGroup = new CompileGroup(data);
+		var codeNames = new List<string>();
+
 		foreach (var file in scriptFiles)
 		{
 			Console.WriteLine(file);
 
-			var code = data.Code.First(x => x.Name.Content == Path.GetFileNameWithoutExtension(file));
-			Console.WriteLine($" - Found code, replacing GML...");
-			code.ReplaceGML(File.ReadAllText(file), data);
-			Console.WriteLine($" - Dissassembling...");
+			var codeName = Path.GetFileNameWithoutExtension(file);
+			codeNames.Add(codeName);
+
+			var code = data.Code.First(x => x.Name.Content == codeName);
+			compileGroup.QueueCodeReplace(code, File.ReadAllText(file));
+		}
+
+		var result = compileGroup.Compile();
+
+		if (!result.Successful)
+		{
+			throw new Exception();
+		}
+
+		foreach (var codeName in codeNames)
+		{
+			var code = data.Code.First(x => x.Name.Content == codeName);
+
 			var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
-			Console.WriteLine($" - Converting to VMCode...");
 			var vmCode = GameConverter.ConvertAssembly(asmFile);
 			vmCode.Name = code.Name.Content;
-			Console.WriteLine($" - Serializing and writing...");
 			var json = JsonConvert.SerializeObject(vmCode);
 			File.WriteAllText(Path.Combine(asmFolder, $"{code.Name.Content}.json"), json);
 			File.WriteAllText(Path.Combine(asmFolder, $"{code.Name.Content}.asm"), asmFile);

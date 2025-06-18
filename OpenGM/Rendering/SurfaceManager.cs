@@ -296,6 +296,36 @@ public static class SurfaceManager
         GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
+    public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
+    {
+	    var w = GetSurfaceWidth(id);
+	    var h = GetSurfaceHeight(id);
+
+		BindSurfaceTexture(id);
+	    GL.Uniform1(VertexManager.u_doTex, 1);
+
+		var scaledWidth = w * xscale;
+		var scaledHeight = h * yscale;
+		var drawColor = col.ABGRToCol4(alpha);
+
+	    var pivot = new Vector2d(x, y);
+	    var vertexOne = new Vector2d(x, y).RotateAroundPoint(pivot, rot);
+	    var vertexTwo = new Vector2d(x + scaledWidth, y).RotateAroundPoint(pivot, rot);
+	    var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
+	    var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
+
+	    VertexManager.Draw(PrimitiveType.TriangleFan, new VertexManager.Vertex[]
+	    {
+            new(vertexOne, drawColor, new(0, 0)),
+            new(vertexTwo, drawColor, new(1, 0)),
+            new(vertexThree, drawColor, new(1, 1)),
+            new(vertexFour, drawColor, new(0, 1))
+		});
+
+		GL.BindTexture(TextureTarget.Texture2D, 0);
+	    GL.Uniform1(VertexManager.u_doTex, 0);
+	}
+
     public static void BindSurfaceTexture(int surfaceId)
     {
         var buffer = _framebuffers[surfaceId];

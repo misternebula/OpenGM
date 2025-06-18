@@ -55,6 +55,7 @@ public class VMCallFrame
 	public object? ReturnValue;
 	public EventType EventType;
 	public int EventIndex;
+	public FunctionDefinition? Function;
 }
 
 public static partial class VMExecutor
@@ -131,26 +132,34 @@ public static partial class VMExecutor
 
 	public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
 	{
+		object? defaultReturnValue = null;
+		// TODO: this actually changed to being undefined in probably 2.3? don't know how to check that rn, so just going with 2.0
+		if (VersionManager.IsGMS1())
+		{
+			defaultReturnValue = 0;
+		}
+
 		if (code == null)
 		{
 			DebugLog.LogError($"Tried to run null code!");
-			return null;
+			return defaultReturnValue;
 		}
 
 		var codeName = code.Name; // grab script function name and use that instead of script asset name
 		var instructionIndex = 0;
+		FunctionDefinition? func = null;
 		if (code.ParentAssetId != -1) // deltarune calls script functions (empty code) that point to the script asset
 		{
 			var parentCode = GameLoader.Codes[code.ParentAssetId];
 			// TODO: potentially speed up lookup here, profile to see if thats needed
-			var func = parentCode.Functions.First(x => x.FunctionName == codeName);
+			func = parentCode.Functions.First(x => x.FunctionName == codeName);
 			instructionIndex = func.InstructionIndex;
 			code = parentCode;
 		}
 
 		if (code.Instructions.Count == 0)
 		{
-			return null;
+			return defaultReturnValue;
 		}
 
 		if (VerboseStackLogs)
@@ -182,9 +191,10 @@ public static partial class VMExecutor
 			
 			Stack = new(),
 			Locals = new(),
-			ReturnValue = null,
+			ReturnValue = defaultReturnValue,
 			EventType = eventType,
-			EventIndex = eventIndex
+			EventIndex = eventIndex,
+			Function = func
 		};
 		CallStack.Push(call);
 
@@ -615,6 +625,32 @@ public static partial class VMExecutor
 
 				Call.Stack.Push(ExecuteCode(method.func.GetCode(), method.inst, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
 
+				break;
+			}
+			case VMOpcode.ISSTATICOK:
+			{
+				var currentFunc = Call.Function;
+
+				if (currentFunc == null)
+				{
+					// uhhhhh fuckin uhhh
+					throw new NotImplementedException();
+				}
+
+				Call.Stack.Push(currentFunc.HasStaticInitRan, VMType.b);
+				break;
+			}
+			case VMOpcode.SETSTATIC:
+			{
+				var currentFunc = Call.Function;
+
+				if (currentFunc == null)
+				{
+					// uhhhhh fuckin uhhh
+					throw new NotImplementedException();
+				}
+
+				currentFunc.HasStaticInitRan = true;
 				break;
 			}
 			case VMOpcode.BREAK:

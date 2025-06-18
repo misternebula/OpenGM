@@ -8,22 +8,27 @@ using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
-using static UndertaleModLib.Compiler.Compiler.Parser.ExpressionConstant;
 
 namespace OpenGM;
 public static class PathManager
 {
 	public static Dictionary<int, CPath> Paths = new();
+	public static int HighestPathIndex;
 
 	public static int PathAdd()
 	{
-		var number = Paths.Count;
+		var number = HighestPathIndex++;
 		var name = $"__newpath{number}";
 
 		var path = new CPath(name);
 		Paths.Add(number, path);
 
 		return number;
+	}
+
+	public static void PathDelete(int index)
+	{
+		Paths.Remove(index);
 	}
 
 	public static void AddPoint(CPath path, double x, double y, double speed)

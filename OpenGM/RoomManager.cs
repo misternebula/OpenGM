@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using Newtonsoft.Json.Linq;
+using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
@@ -18,6 +19,7 @@ public static class RoomManager
 	public static RoomContainer CurrentRoom = null!; // its set to room on start
 
 	public static Dictionary<int, Room> RoomList = new();
+	public static Dictionary<int, PersistentRoom> PersistentRooms = new();
 	public static bool RoomLoaded = false;
 	public static bool FirstRoom = false;
 
@@ -38,9 +40,127 @@ public static class RoomManager
 		ChangeToWaitingRoom();
 	}
 
+	private static void SavePersistentRoom()
+	{
+		DebugLog.LogInfo("SAVING PERSISTENT ROOM");
+
+		var instancesToSave = new List<GamemakerObject>();
+
+		// events could destroy other objects, cant modify during iteration
+		var instanceList = new List<GamemakerObject>(InstanceManager.instances.Values);
+		foreach (var instance in instanceList)
+		{
+			if (instance == null)
+			{
+				continue;
+			}
+
+			if (instance.persistent)
+			{
+				continue;
+			}
+
+			// TODO : should we call RoomEnd on marked objects? will any marked objects still exist at this point?
+			if (instance.Marked || instance.Destroyed)
+			{
+				continue;
+			}
+
+			// TODO : if RoomEnd event creates objects, should they be saved??
+			GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+
+			instancesToSave.Add(instance);
+			DrawManager.Unregister(instance);
+		}
+
+		// todo: this seems dumb and slow. do it in a not dumb way
+		InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
+
+		foreach (var item in CurrentRoom.Tiles)
+		{
+			DrawManager.Unregister(item);
+		}
+
+		foreach (var layer in CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tileLayer)
+				{
+					DrawManager.Unregister(tileLayer);
+				}
+				else if (element is GMBackground background)
+				{
+					DrawManager.Unregister(background);
+				}
+				else if (element is GMSprite sprite)
+				{
+					DrawManager.Unregister(sprite);
+				}
+			}
+		}
+
+		var persistentRoom = new PersistentRoom()
+		{
+			RoomAssetId = CurrentRoom.AssetId,
+			Container = CurrentRoom,
+			Instances = instancesToSave
+		};
+		PersistentRooms.Add(CurrentRoom.AssetId, persistentRoom);
+	}
+
+	private static void LoadPersistentRoom(Room room, PersistentRoom value)
+	{
+		DebugLog.LogInfo($"LOADING PERSISTENT ROOM AssetID:{room.AssetId} ({value.Container.RoomAsset.AssetId}) Name:{value.Container.RoomAsset.Name}");
+		CurrentRoom = value.Container;
+
+		CustomWindow.Instance.SetPosition(0, 0);
+		CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
+		CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
+
+		foreach (var instance in value.Instances)
+		{
+			DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name}");
+			InstanceManager.instances.Add(instance.instanceId, instance);
+			GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
+			DrawManager.Register(instance);
+		}
+
+		foreach (var tile in CurrentRoom.Tiles)
+		{
+			DrawManager.Register(tile);
+		}
+
+		foreach (var layer in CurrentRoom.Layers)
+		{
+			foreach (var element in layer.Value.ElementsToDraw)
+			{
+				if (element is GMTilesLayer tileLayer)
+				{
+					DrawManager.Register(tileLayer);
+				}
+				else if (element is GMBackground background)
+				{
+					DrawManager.Register(background);
+				}
+				else if (element is GMSprite sprite)
+				{
+					DrawManager.Register(sprite);
+				}
+				else if (element is GMTile tile)
+				{
+					DrawManager.Register(tile);
+				}
+			}
+		}
+
+		PersistentRooms.Remove(room.AssetId);
+	}
+
 	public static void ChangeToWaitingRoom()
 	{
-		if (New_Room == GMConstants.ROOM_ENDOFGAME || New_Room == GMConstants.ROOM_ABORTGAME)
+		// TODO : What's the difference between ENDOFGAME and ABORTGAME?
+		if (New_Room is GMConstants.ROOM_ENDOFGAME or GMConstants.ROOM_ABORTGAME)
 		{
 			EndGame();
 			return;
@@ -53,7 +173,7 @@ public static class RoomManager
 		}
 		else if (New_Room == GMConstants.ROOM_LOADGAME)
 		{
-			return;
+			throw new NotImplementedException();
 		}
 
 		var room = RoomList[New_Room];
@@ -63,8 +183,7 @@ public static class RoomManager
 
 		if (CurrentRoom != null && CurrentRoom.Persistent)
 		{
-			// uh oh.
-			throw new NotImplementedException();
+			SavePersistentRoom();
 		}
 		else if (CurrentRoom != null)
 		{
@@ -82,9 +201,11 @@ public static class RoomManager
 
 				if (instance.persistent)
 				{
+					DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name} is persistent!");
 					continue;
 				}
 
+				// TODO : if RoomEnd event creates objects, should they be destroyed??
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
@@ -99,9 +220,9 @@ public static class RoomManager
 			{
 				item.Destroy();
 			}
-			CurrentRoom.Tiles.Clear();
+			//CurrentRoom.Tiles.Clear();
 
-			CurrentRoom.OldBackgrounds.Clear();
+			//CurrentRoom.OldBackgrounds.Clear();
 
 			foreach (var layer in CurrentRoom.Layers)
 			{
@@ -127,11 +248,16 @@ public static class RoomManager
 			}
 		}
 
-		RoomLoaded = false;
-
-		CurrentRoom = new RoomContainer(room);
-
-		OnRoomChanged();
+		if (PersistentRooms.TryGetValue(room.AssetId, out var value))
+		{
+			LoadPersistentRoom(room, value);
+		}
+		else
+		{
+			RoomLoaded = false;
+			CurrentRoom = new RoomContainer(room);
+			OnRoomChanged();
+		}
 	}
 
 	private static void OnRoomChanged()
@@ -244,7 +370,7 @@ public static class RoomManager
 						X = tile.X,
 						Y = tile.Y,
 						Definition = tile.Definition,
-						SpriteMode = false,
+						SpriteMode = tile.SpriteMode,
 						left = tile.SourceLeft,
 						top = tile.SourceTop,
 						width = tile.SourceWidth,
@@ -297,6 +423,7 @@ public static class RoomManager
 
 			//newGM._createRan = true;
 			//newGM.depth = layer.LayerDepth;
+			newGM.depth = definition.depth;
 			newGM.image_xscale = item.ScaleX;
 			newGM.image_yscale = item.ScaleY;
 			newGM.image_blend = (int)item.Color;

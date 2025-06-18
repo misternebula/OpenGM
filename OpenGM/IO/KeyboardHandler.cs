@@ -1,4 +1,5 @@
-﻿using OpenGM.VirtualMachine;
+﻿using System.Diagnostics;
+using OpenGM.VirtualMachine;
 using System.Runtime.InteropServices;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenGM.Rendering;
@@ -63,6 +64,28 @@ public class KeyboardHandler
             VMExecutor.DebugMode = !VMExecutor.DebugMode;
             VariableResolver.GlobalVariables["debug"] = VMExecutor.DebugMode;
 			DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
+        }
+
+        if (state.IsKeyPressed(Keys.KeyPad0))
+        {
+            DebugLog.Log("INSTANCES :");
+            foreach (var instance in InstanceManager.instances.Values)
+            {
+                DebugLog.Log($" - {instance.Definition.Name} ({instance.instanceId}) Persistent:{instance.persistent} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}");
+            }
+
+            DebugLog.Log("DRAW OBJECTS :");
+            foreach (var item in DrawManager._drawObjects)
+            {
+	            if (item is GamemakerObject gm)
+	            {
+		            DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
+				}
+	            else
+	            {
+		            DebugLog.Log($" - ??? InstanceID:{item.instanceId} Depth:{item.depth}");
+				}
+            }
         }
     }
 

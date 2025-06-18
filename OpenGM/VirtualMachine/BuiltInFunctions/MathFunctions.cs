@@ -1,28 +1,108 @@
-﻿using System.Collections;
+﻿using OpenGM.IO;
+using System.Collections;
 using System.Text;
 
-namespace OpenGM.VirtualMachine;
+namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
-public static partial class ScriptResolver
+public static class MathFunctions
 {
+	// is_bool
+
+	[GMLFunction("is_real")]
 	public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
 
+	// is_numeric
+
+	[GMLFunction("is_string")]
 	public static object is_string(object?[] args) => args[0] is string;
 
+	// is_array
+
+	[GMLFunction("is_undefined")]
 	public static object is_undefined(object?[] args) => args[0] is null;
 
+	// is_int32
+	// is_int64
+	// is_ptr
+	// is_vec3
+	// is_vec4
+	// is_matrix
+	// is_struct
+	// yyAsm
+
+	[GMLFunction("method")]
+	public static object? method(object?[] args)
+	{
+		// seems to always be self, static, or null.
+		// https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279
+		var struct_ref_or_instance_id = args[0];
+		var func = args[1].Conv<int>();
+
+		var method = new Method
+		{
+			func = ScriptResolver.ScriptsByIndex[func]
+		};
+
+		if (struct_ref_or_instance_id is null)
+		{
+			method.inst = null;
+		}
+		else if (struct_ref_or_instance_id is bool or int or short or long or double or float)
+		{
+			var num = struct_ref_or_instance_id.Conv<int>();
+			if (num == GMConstants.self)
+			{
+				method.inst = VMExecutor.Self.Self;
+			}
+			else if (num == GMConstants.@static)
+			{
+				/*
+				 * TODO : there are static functions in DR, but they're never called (vector2/3 add and scale)
+				 * just dummy implementing this so it'll run the initialize part of the constructor
+				 */
+				method.inst = null;
+				DebugLog.LogWarning("Method() called with -16 (static) struct ref - not implemented.");
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+		else if (struct_ref_or_instance_id is GMLObject gmlo)
+		{
+			method.inst = gmlo;
+		}
+		else
+		{
+			throw new NotImplementedException();
+		}
+
+		return method;
+	}
+
+	// method_get_index
+	// method_get_self
+	// is_method
+	// is_nan
+	// is_infinity
+	// typeof
+	// instanceof
+
+	[GMLFunction("array_length")]
+	public static object array_length(object?[] args)
+	{
+		var array = args[0].Conv<IList>();
+		return array.Count;
+	}
+
+	[GMLFunction("array_length_1d")]
 	public static object array_length_1d(object?[] args)
 	{
 		var array = args[0].Conv<IList>();
 		return array.Count;
 	}
 
-	public static object array_height_2d(object?[] args)
-	{
-		var array = args[0].Conv<IList>();
-		return array.Count;
-	}
-
+	[GMLFunction("array_length_2d")]
 	public static object array_length_2d(object?[] args)
 	{
 		var array = args[0].Conv<IList>();
@@ -30,18 +110,79 @@ public static partial class ScriptResolver
 		return (index0 as IList)!.Count;
 	}
 
-	public static object array_length(object?[] args)
+	[GMLFunction("array_height_2d")]
+	public static object array_height_2d(object?[] args)
 	{
 		var array = args[0].Conv<IList>();
 		return array.Count;
 	}
 
+	// array_get
+	// array_set
+	// array_set_pre
+	// array_set_post
+	// array_get_2D
+	// array_set_2D
+	// array_set_2D_pre
+	// array_set_2D_post
+	// array_equals
+	// array_create
+	// array_copy
+	// array_resize
+
+	[GMLFunction("array_push")]
+	public static object? array_push(object?[] args)
+	{
+		var variable = args[0].Conv<IList>();
+		for (var i = 1; i < args.Length; i++)
+		{
+			// TODO : is variable actually a reference to the stored array, or is it just a value copy?
+			variable.Add(args[i]);
+		}
+
+		return null;
+	}
+
+	// array_pop
+	// array_insert
+	// array_delete
+
+	/*private static object? array_sort(object?[] args)
+	{
+		var variable = args[0].Conv<IList>();
+		var sorttype_or_function = args[1];
+
+		// Strings sorted alphabetically with default asc/desc functionality
+		// uses qsort
+
+		if (sorttype_or_function is bool)
+		{
+			var ascending = sorttype_or_function.Conv<bool>();
+		}
+		else
+		{
+			// function ugh
+
+			*//*
+			 * arguments: CURRENT ELEMENT and NEXT ELEMENT
+			 * returns:
+			 *	0		: elements equal
+			 *	<= -1	: current element goes before next element
+			 *  >= 1	: current element goes after next element
+			 *//*
+		}
+	}*/
+
+	// @@array_set_owner@@
+
+	[GMLFunction("random")]
 	public static object random(object?[] args)
 	{
 		var upper = args[0].Conv<double>();
 		return GMRandom.fYYRandom() * upper;
 	}
 
+	[GMLFunction("random_range")]
 	public static object random_range(object?[] args)
 	{
 		var n1 = args[0].Conv<double>();
@@ -66,6 +207,7 @@ public static partial class ScriptResolver
 		return result;
 	}
 
+	[GMLFunction("irandom")]
 	public static object irandom(object?[] args)
 	{
 		/*
@@ -95,6 +237,7 @@ public static partial class ScriptResolver
 		return anded % (doubleSign * (nSign + n)) * doubleSign;
 	}
 
+	[GMLFunction("irandom_range")]
 	public static object irandom_range(object?[] args)
 	{
 		var lower = args[0].Conv<long>();
@@ -120,6 +263,11 @@ public static partial class ScriptResolver
 		return (anded % (doubleSign * (difference + 1)) * doubleSign) + lower;
 	}
 
+	// random_set_seed
+	// random_get_seed
+
+	[GMLFunction("randomise")]
+	[GMLFunction("randomize")]
 	public static object? randomize(object?[] args)
 	{
 		// todo : implement
@@ -127,30 +275,35 @@ public static partial class ScriptResolver
 		return 0;
 	}
 
+	[GMLFunction("abs")]
 	public static object abs(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		return Math.Abs(val);
 	}
 
+	[GMLFunction("round")]
 	public static object round(object?[] args)
 	{
 		var num = args[0].Conv<double>();
 		return CustomMath.RoundToInt((float)num); // BUG: shouldnt this just do Math.Round?
 	}
 
+	[GMLFunction("floor")]
 	public static object floor(object?[] args)
 	{
 		var n = args[0].Conv<double>();
 		return Math.Floor(n);
 	}
 
+	[GMLFunction("ceil")]
 	public static object ceil(object?[] args)
 	{
 		var n = args[0].Conv<double>();
 		return Math.Ceiling(n);
 	}
 
+	[GMLFunction("sign")]
 	public static object sign(object?[] args)
 	{
 		// TODO : handle NaN somehow????
@@ -158,18 +311,53 @@ public static partial class ScriptResolver
 		return Math.Sign(n);
 	}
 
+	[GMLFunction("frac")]
+	public static object? frac(object?[] args)
+	{
+		var n = args[0].Conv<double>();
+		var integral = Math.Truncate(n); // with sign
+		return n - integral;
+	}
+
+	[GMLFunction("sqrt")]
+	public static object sqrt(object?[] args)
+	{
+		var val = args[0].Conv<double>();
+
+		// TODO : Docs say that values [-epsilon,0) are set to 0, probably added in newer GM versions
+
+		return Math.Sqrt(val);
+	}
+
+	[GMLFunction("sqr")]
+	public static object sqr(object?[] args)
+	{
+		var val = args[0].Conv<double>();
+		return val * val;
+	}
+
+	// exp
+	// ln
+	// log2
+	// log10
+
+	[GMLFunction("sin")]
 	public static object sin(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		return Math.Sin(val);
 	}
 
+	[GMLFunction("cos")]
 	public static object cos(object?[] args)
 	{
 		var val = args[0].Conv<double>();
 		return Math.Cos(val);
 	}
 
+	// tan
+
+	[GMLFunction("arcsin")]
 	public static object arcsin(object?[] args)
 	{
 		var x = args[0].Conv<double>(); // in radians
@@ -182,6 +370,7 @@ public static partial class ScriptResolver
 		return Math.Asin(x);
 	}
 
+	[GMLFunction("arccos")]
 	public static object arccos(object?[] args)
 	{
 		var x = args[0].Conv<double>(); // in radians
@@ -194,30 +383,44 @@ public static partial class ScriptResolver
 		return Math.Acos(x);
 	}
 
+	// arctan
+	// arctan2
+
+	[GMLFunction("dsin")]
 	public static object dsin(object?[] args)
 	{
 		var a = args[0].Conv<double>(); // degrees
 		return Math.Sin(a * CustomMath.Deg2Rad);
 	}
 
+	[GMLFunction("dcos")]
 	public static object dcos(object?[] args)
 	{
 		var val = args[0].Conv<double>(); // degrees
 		return Math.Cos(val * CustomMath.Deg2Rad);
 	}
 
+	// dtan
+	// darcsin
+	// darccos
+	// darctan
+	// darctan2
+
+	[GMLFunction("degtorad")]
 	public static object degtorad(object?[] args)
 	{
 		var deg = args[0].Conv<double>();
 		return deg * double.Pi / 180;
 	}
 
+	[GMLFunction("radtodeg")]
 	public static object radtodeg(object?[] args)
 	{
 		var rad = args[0].Conv<double>();
 		return rad * 180 / double.Pi;
 	}
 
+	[GMLFunction("power")]
 	public static object power(object?[] args)
 	{
 		var x = args[0].Conv<double>();
@@ -226,11 +429,9 @@ public static partial class ScriptResolver
 		return Math.Pow(x, n);
 	}
 
-	private static int realToInt(double value)
-	{
-		return value < 0 ? CustomMath.CeilToInt((float)value) : CustomMath.FloorToInt((float)value);
-	}
+	// logn
 
+	[GMLFunction("min")]
 	public static object min(object?[] args)
 	{
 		var arguments = new double[args.Length];
@@ -242,6 +443,7 @@ public static partial class ScriptResolver
 		return arguments.Min();
 	}
 
+	[GMLFunction("max")]
 	public static object max(object?[] args)
 	{
 		var arguments = new double[args.Length];
@@ -253,11 +455,34 @@ public static partial class ScriptResolver
 		return arguments.Max();
 	}
 
+	// mean
+
+	[GMLFunction("median")]
+	public static object median(object?[] args)
+	{
+		if (args.Length == 0)
+		{
+			return 0;
+		}
+
+		var realValues = new double[args.Length];
+		for (var i = 0; i < args.Length; i++)
+		{
+			realValues[i] = args.Conv<double>();
+		}
+
+		Array.Sort(realValues);
+
+		return realValues[CustomMath.FloorToInt(args.Length / 2f)];
+	}
+
+	[GMLFunction("choose")]
 	public static object? choose(object?[] args)
 	{
 		return args[GMRandom.YYRandom(args.Length)];
 	}
 
+	[GMLFunction("clamp")]
 	public static object? clamp(object?[] args)
 	{
 		var val = args[0].Conv<double>();
@@ -279,6 +504,7 @@ public static partial class ScriptResolver
 		return val;
 	}
 
+	[GMLFunction("lerp")]
 	public static object? lerp(object?[] args)
 	{
 		var a = args[0].Conv<double>();
@@ -288,12 +514,16 @@ public static partial class ScriptResolver
 		return a + ((b - a) * amt);
 	}
 
+	[GMLFunction("real")]
 	public static object real(object?[] args)
 	{
 		var str = args[0].Conv<string>();
 		return str.Conv<double>();
 	}
 
+	// bool
+
+	[GMLFunction("string")]
 	public static object @string(params object?[] args)
 	{
 		var valueOrFormat = args[0];
@@ -400,6 +630,58 @@ public static partial class ScriptResolver
 		}
 	}
 
+	// int64
+	// ptr
+
+	[GMLFunction("string_format")]
+	public static object? string_format(object?[] args)
+	{
+		var val = args[0].Conv<double>();
+		var total = args[1].Conv<int>();
+		var dec = args[2].Conv<int>();
+
+		// TODO : is a negative sign included in the number of digits??
+
+		var integral = Math.Truncate(val);
+		var integralString = integral.ToString().PadLeft(total);
+
+		// if val is an integer
+		if (val.ToString().Length == integral.ToString().Length)
+		{
+			return integralString;
+		}
+
+		var fractional = val - integral;
+		var fractionalString = fractional.ToString().PadRight(dec, '0');
+
+		return integralString + '.' + fractionalString;
+	}
+
+	[GMLFunction("chr")]
+	public static object chr(object?[] args)
+	{
+		var val = args[0].Conv<int>();
+
+		// TODO : "This character depends on the current drawing fonts character set code page and if no font is set, it will use the default code page for the machine."
+		// what the fuck does this mean
+
+		/*var currentFont = TextManager.fontAsset;
+
+		if (currentFont.entriesDict.ContainsKey(val))
+		{
+			return Convert.ToChar(val).ToString();
+		}
+		else
+		{
+			throw new NotImplementedException();
+		}*/
+
+		return Convert.ToChar(val).ToString();
+	}
+
+	// ansi_char
+
+	[GMLFunction("ord")]
 	public static object ord(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -407,6 +689,7 @@ public static partial class ScriptResolver
 		return (int)Encoding.UTF8.GetBytes(str)[0];
 	}
 
+	[GMLFunction("string_length")]
 	public static object string_length(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -419,6 +702,7 @@ public static partial class ScriptResolver
 		return str.Length;
 	}
 
+	[GMLFunction("string_pos")]
 	public static object string_pos(object?[] args)
 	{
 		var substr = args[0].Conv<string>();
@@ -427,6 +711,11 @@ public static partial class ScriptResolver
 		return str.IndexOf(substr) + 1;
 	}
 
+	// string_pos_ext
+	// string_last_pos
+	// string_last_pos_ext
+
+	[GMLFunction("string_copy")]
 	public static object string_copy(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -449,6 +738,7 @@ public static partial class ScriptResolver
 		return str.Substring(index - 1, count);
 	}
 
+	[GMLFunction("string_char_at")]
 	public static object string_char_at(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -468,6 +758,12 @@ public static partial class ScriptResolver
 		return str[index - 1].ToString();
 	}
 
+	// string_ord_at
+	// string_byte_length
+	// string_byte_at
+	// string_set_byte_at
+
+	[GMLFunction("string_delete")]
 	public static object string_delete(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -477,6 +773,7 @@ public static partial class ScriptResolver
 		return str.Remove(index - 1, count);
 	}
 
+	[GMLFunction("string_insert")]
 	public static object string_insert(object?[] args)
 	{
 		var substr = args[0].Conv<string>();
@@ -486,6 +783,7 @@ public static partial class ScriptResolver
 		return str.Insert(index - 1, substr);
 	}
 
+	[GMLFunction("string_lower")]
 	public static object string_lower(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -493,6 +791,7 @@ public static partial class ScriptResolver
 		return str.ToLower();
 	}
 
+	[GMLFunction("string_upper")]
 	public static object string_upper(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -500,6 +799,45 @@ public static partial class ScriptResolver
 		return str.ToUpper();
 	}
 
+	[GMLFunction("string_repeat")]
+	public static object? string_repeat(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		var count = args[1].Conv<int>();
+
+		var ret = "";
+		for (var i = 0; i < count; i++)
+		{
+			ret += str;
+		}
+
+		return ret;
+	}
+
+	// string_letters
+
+	[GMLFunction("string_digits")]
+	public static object string_digits(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+
+		var result = "";
+
+		foreach (var c in str)
+		{
+			if (char.IsAsciiDigit(c))
+			{
+				result += c;
+			}
+		}
+
+		return result;
+	}
+
+	// string_lettersdigits
+	// string_replace
+
+	[GMLFunction("string_replace_all")]
 	public static object string_replace_all(object?[] args)
 	{
 		var str = args[0].Conv<string>();
@@ -509,6 +847,9 @@ public static partial class ScriptResolver
 		return str.Replace(substr, newstr);
 	}
 
+	// string_count
+
+	[GMLFunction("string_hash_to_newline")]
 	public static object string_hash_to_newline(object?[] args)
 	{
 		var text = args[0].Conv<string>();
@@ -521,6 +862,7 @@ public static partial class ScriptResolver
 		return text.Replace('#', '\n');
 	}
 
+	[GMLFunction("point_distance")]
 	public static object point_distance(object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
@@ -534,6 +876,7 @@ public static partial class ScriptResolver
 		return Math.Sqrt((horizDistance * horizDistance) + (vertDistance * vertDistance));
 	}
 
+	[GMLFunction("point_direction")]
 	public static object point_direction(params object?[] args)
 	{
 		var x1 = args[0].Conv<double>();
@@ -584,6 +927,7 @@ public static partial class ScriptResolver
 		return 180 + angle;
 	}
 
+	[GMLFunction("lengthdir_x")]
 	public static object? lengthdir_x(object?[] args)
 	{
 		var len = args[0].Conv<double>();
@@ -592,6 +936,7 @@ public static partial class ScriptResolver
 		return len * Math.Cos(dir * CustomMath.Deg2Rad);
 	}
 
+	[GMLFunction("lengthdir_y")]
 	public static object? lengthdir_y(object?[] args)
 	{
 		var len = args[0].Conv<double>();
@@ -600,10 +945,23 @@ public static partial class ScriptResolver
 		return -len * Math.Sin(dir * CustomMath.Deg2Rad);
 	}
 
+	// point_distance_3d
+	// dot_product
+	// dot_product_normalised
+	// dot_product_3d
+	// dot_product_3d_normalised
+	// math_set_epsilon
+	// math_get_epsilon
+
+	[GMLFunction("angle_difference")]
 	public static object? angle_difference(object?[] args)
 	{
 		var dest = args[0].Conv<double>();
 		var src = args[1].Conv<double>();
 		return CustomMath.Mod(dest - src + 180, 360) - 180;
 	}
+
+	// weak_ref_create
+	// weak_ref_alive
+	// weak_ref_any_alive
 }

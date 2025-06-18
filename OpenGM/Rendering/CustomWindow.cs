@@ -96,6 +96,7 @@ public class CustomWindow : GameWindow
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
     {
         base.OnFramebufferResize(e);
+        DebugLog.LogInfo($"OnFramebufferResize {e.Width}x{e.Height}");
         GL.Viewport(0, 0, e.Width, e.Height); // draw to entire framebuffer
     }
 
@@ -114,10 +115,11 @@ public class CustomWindow : GameWindow
     /// </summary>
     public void SetResolution(int width, int height)
     {
-        Width = (uint)width;
+	    DebugLog.LogInfo($"SetResolution {Width}x{Height} -> {width}x{height}");
+		Width = (uint)width;
         Height = (uint)height;
-        // UpdatePositionResolution();
-    }
+		// UpdatePositionResolution();
+	}
 
     /// <summary>
     /// sets the view uniform
@@ -235,7 +237,7 @@ public class CustomWindow : GameWindow
             return;
         }
 
-        if (GameLoader.GeneralInfo.Major == 1)
+        if (VersionManager.IsGMS1())
         {
             // Replace \# with #, replace # with newlines.
             textJob.text = Regex.Replace(textJob.text, @"(?<=[^\\]|^)#", Environment.NewLine);
@@ -651,7 +653,24 @@ public class CustomWindow : GameWindow
         }
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
-    }
+	}
+
+    public static void Draw(GMTexturedPolygonJob texPolyJob)
+    {
+	    var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
+	    GL.BindTexture(TextureTarget.Texture2D, id);
+	    GL.Uniform1(VertexManager.u_doTex, 1);
+
+	    var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
+	    for (var i = 0; i < texPolyJob.Vertices.Length; i++)
+	    {
+		    vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.blend, texPolyJob.UVs[i]);
+	    }
+	    VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
+
+		GL.BindTexture(TextureTarget.Texture2D, 0);
+	    GL.Uniform1(VertexManager.u_doTex, 0);
+	}
 }
 
 public class GMLineJob : GMBaseJob
@@ -709,6 +728,13 @@ public class GMPolygonJob : GMBaseJob
     public Vector2d[] Vertices = null!;
     public Color4[] Colors = null!;
     public bool Outline;
+}
+
+public class GMTexturedPolygonJob : GMBaseJob
+{
+	public required Vector2d[] Vertices = null!;
+	public required Vector2d[] UVs = null!;
+	public required SpritePageItem Texture = null!;
 }
 
 public abstract class GMBaseJob
