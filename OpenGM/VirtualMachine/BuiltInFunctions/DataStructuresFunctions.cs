@@ -251,6 +251,32 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return dict[key];
 		}
 
+		// ds_map_is_map
+		// ds_map_is_list
+		// ds_map_find_previous
+		// ds_map_find_next
+		// ds_map_find_first
+		// ds_map_find_last
+		// ds_map_write
+		// ds_map_read
+		// ds_map_secure_save
+		// ds_map_secure_load
+		// ds_map_secure_load_buffer
+		// ds_map_secure_save_buffer
+
+		// priority stuff
+
+		// ds_grid_create
+		// ds_grid_destroy
+		// ds_grid_copy
+		// ds_grid_resize
+		// ds_grid_width
+		// ds_grid_height
+		// ds_grid_clear
+		// ds_grid_set
+		// ds_grid_set_pre
+		// ds_grid_set_post
+
 		// ...
 	}
 }

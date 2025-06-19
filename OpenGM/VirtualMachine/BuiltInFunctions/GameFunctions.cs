@@ -173,7 +173,68 @@ public static class GameFunctions
 	// mp_potential_step_object
 	// mp_potential_path_object
 
-	// ...
+	[GMLFunction("mp_grid_create")]
+	public static object? mp_grid_create(object?[] args)
+	{
+		return MotionPlanningManager.GridCreate(
+			args[0].Conv<int>(),
+			args[1].Conv<int>(),
+			args[2].Conv<int>(),
+			args[3].Conv<int>(),
+			args[4].Conv<int>(),
+			args[5].Conv<int>());
+	}
+
+	[GMLFunction("mp_grid_destroy")]
+	public static object? mp_grid_destroy(object?[] args)
+	{
+		MotionPlanningManager.GridDestroy(args[0].Conv<int>());
+		return null;
+	}
+
+	// mp_grid_clear_all
+
+	[GMLFunction("mp_grid_clear_cell")]
+	public static object? mp_grid_clear_cell(object?[] args)
+	{
+		MotionPlanningManager.GridClearCell(
+			args[0].Conv<int>(),
+			args[1].Conv<int>(),
+			args[2].Conv<int>());
+		return null;
+	}
+
+	// mp_grid_clear_rectangle
+
+	[GMLFunction("mp_grid_add_cell")]
+	public static object? mp_grid_add_cell(object?[] args)
+	{
+		MotionPlanningManager.GridAddCell(
+			args[0].Conv<int>(), 
+			args[1].Conv<int>(), 
+			args[2].Conv<int>());
+		return null;
+	}
+
+	// mp_grid_get_cell
+	// mp_grid_add_rectangle
+	// mp_grid_add_instances
+
+	[GMLFunction("mp_grid_path")]
+	public static object? mp_grid_path(object?[] args)
+	{
+		return MotionPlanningManager.GridPath(
+			args[0].Conv<int>(),
+			args[1].Conv<int>(),
+			args[2].Conv<int>(),
+			args[3].Conv<int>(),
+			args[4].Conv<int>(),
+			args[5].Conv<int>(),
+			args[6].Conv<bool>());
+	}
+
+	// mp_grid_draw
+	// mp_grid_to_ds_grid
 
 	[GMLFunction("collision_point")]
 	public static object? collision_point(object?[] args)

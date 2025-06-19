@@ -269,6 +269,24 @@ public static class PathManager
 
 		return pNode;
 	}
+
+	public static void Clear(CPath path)
+	{
+		path.points = new List<PathPoint>();
+		path.intpoints = Array.Empty<InternalPoint>();
+		path.count = 0;
+		path.intcount = 0;
+		path.length = 0;
+	}
+
+	public static void Reverse(CPath path)
+	{
+		if (path.count <= 1)
+			return;
+
+		path.points.Reverse();
+		ComputeInternal(path);
+	}
 }
 
 public class CPath(string name)
