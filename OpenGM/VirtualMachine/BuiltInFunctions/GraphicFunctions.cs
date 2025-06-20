@@ -310,12 +310,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var col = args[0].Conv<int>();
 			var alpha = args[1].Conv<double>();
 
-			// this is wrong. it makes the start of cyber dw white. what
-			// var realCol = col.ABGRToCol4();
-			// realCol.A = (float)alpha;
-			// GL.ClearColor(realCol);
-			DebugLog.LogWarning("draw_clear_alpha not implemented");
-
+			GL.ClearColor(col.ABGRToCol4(alpha));
+			GL.Clear(ClearBufferMask.ColorBufferBit);
+			GL.ClearColor(0, 0, 0, 0);
 			return null;
 		}
 
