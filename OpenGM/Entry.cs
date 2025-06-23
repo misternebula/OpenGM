@@ -2,6 +2,7 @@
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
