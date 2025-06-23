@@ -33,10 +33,16 @@ public static class AssetIndexManager
 		for (int i = 0; i < lines.Length; i++)
 		{
 			var line = lines[i];
+			Console.WriteLine(line);
 			if (line.StartsWith("@@") && line.EndsWith("@@"))
 			{
 				headerLineNumber = i;
 				currentAssetType = Enum.Parse<AssetType>(line.Trim('@'));
+				continue;
+			}
+
+			if (line == "(null)")
+			{
 				continue;
 			}
 

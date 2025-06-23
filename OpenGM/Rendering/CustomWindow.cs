@@ -1,7 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.SerializedFiles;
-using OpenGM.VirtualMachine;
 using OpenTK.Core.Native;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -46,8 +45,6 @@ public class CustomWindow : GameWindow
             // UpdatePositionResolution();
         }
     }
-
-    public GamemakerObject? FollowInstance = null!;
 
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, uint width, uint height)
         : base(gameWindowSettings, nativeWindowSettings)
@@ -138,16 +135,13 @@ public class CustomWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        ViewportManager.UpdateViews();
+        CameraManager.UpdateViews();
 
 		KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
         DrawManager.FixedUpdate();
         AudioManager.Update();
-
-        // this should be moved at some point into view code
-		UpdateInstanceFollow();
 
 		foreach (var item in DebugJobs)
 		{
@@ -158,50 +152,6 @@ public class CustomWindow : GameWindow
 
 		SwapBuffers();
     }
-
-    public void UpdateInstanceFollow()
-    {
-	    if (FollowInstance == null)
-	    {
-		    if (RoomManager.CurrentRoom.FollowObject == null)
-		    {
-			    return;
-			}
-
-		    FollowInstance = RoomManager.CurrentRoom.FollowObject;
-	    }
-
-	    var x = FollowInstance.x + (FollowInstance.sprite_width / 2);
-	    var y = FollowInstance.y + (FollowInstance.sprite_height / 2);
-
-	    var roomWidth = RoomManager.CurrentRoom.SizeX;
-        var roomHeight = RoomManager.CurrentRoom.SizeY;
-        var viewWidth = RoomManager.CurrentRoom.CameraWidth;
-        var viewHeight = RoomManager.CurrentRoom.CameraHeight;
-
-        x -= viewWidth / 2d;
-        y -= viewHeight / 2d;
-
-        if (y <= 0) // top of screen
-        {
-            y = 0;
-        }
-        else if (y >= roomHeight - viewHeight) // bottom of screen
-        {
-	        y = roomHeight - viewHeight;
-        }
-
-        if (x <= 0) // left of screen
-        {
-	        x = 0;
-        }
-        else if (x >= roomWidth - viewWidth) // right of screen
-        {
-	        x = roomWidth - viewWidth;
-        }
-
-        SetPosition(x, y);
-	}
 
     public static void Draw(GMBaseJob baseJob)
     {
@@ -341,7 +291,6 @@ public class CustomWindow : GameWindow
                     }
 
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
-                    GL.Uniform1(VertexManager.u_doTex, 1);
 
                     /*
                     GL.Begin(PrimitiveType.Quads);
@@ -378,7 +327,6 @@ public class CustomWindow : GameWindow
                     ]);
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);
-                    GL.Uniform1(VertexManager.u_doTex, 0);
 
                     xOffset += glyph.shift * textJob.scale.X;
                 }
@@ -388,12 +336,13 @@ public class CustomWindow : GameWindow
 
     public static void Draw(GMSpriteJob spriteJob)
     {
+        DebugLog.Log("Draw GMSpriteJob");
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
-        // GL.Begin(PrimitiveType.Quads);
-        // GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
-        var color = spriteJob.blend;
+        DebugLog.Log($" - Bound texture {id}");
+		// GL.Begin(PrimitiveType.Quads);
+		// GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
+		var color = spriteJob.blend;
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -448,14 +397,12 @@ public class CustomWindow : GameWindow
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
         // GL.Begin(PrimitiveType.Quads);
         // GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
         var color = partJob.blend;
@@ -559,7 +506,6 @@ public class CustomWindow : GameWindow
 
         // GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -659,7 +605,6 @@ public class CustomWindow : GameWindow
     {
 	    var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
 	    GL.BindTexture(TextureTarget.Texture2D, id);
-	    GL.Uniform1(VertexManager.u_doTex, 1);
 
 	    var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
 	    for (var i = 0; i < texPolyJob.Vertices.Length; i++)
@@ -669,7 +614,6 @@ public class CustomWindow : GameWindow
 	    VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
 
 		GL.BindTexture(TextureTarget.Texture2D, 0);
-	    GL.Uniform1(VertexManager.u_doTex, 0);
 	}
 }
 
