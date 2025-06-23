@@ -22,6 +22,7 @@ internal class Entry
 	{
 		// only has to be ran once, even across game_changes
 		ScriptResolver.InitGMLFunctions();
+		GraphicFunctions.draw_set_circle_precision(24); // to generate sin/cos cache
 
 		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
 		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
