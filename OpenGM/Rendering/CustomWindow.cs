@@ -326,8 +326,6 @@ public class CustomWindow : GameWindow
 	                    new(new(topLeftX, topLeftY + glyph.h * textJob.scale.Y), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX), new(leftX, bottomY)),
                     ]);
 
-                    GL.BindTexture(TextureTarget.Texture2D, 0);
-
                     xOffset += glyph.shift * textJob.scale.X;
                 }
             }
@@ -395,8 +393,6 @@ public class CustomWindow : GameWindow
 	        new(drawAreaBottomRight, color, bottomRightUV),
 	        new(drawAreaBottomLeft, color, bottomLeftUV),
         ]);
-        
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
@@ -505,7 +501,6 @@ public class CustomWindow : GameWindow
 		}
 
         // GL.End();
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -536,6 +531,7 @@ public class CustomWindow : GameWindow
 
 		GL.End();
 		*/
+        GL.BindTexture(TextureTarget.Texture2D, VertexManager.DefaultTexture);
         VertexManager.Draw(PrimitiveType.TriangleFan, [
 	        new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
 	        new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
@@ -557,6 +553,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
+        GL.BindTexture(TextureTarget.Texture2D, VertexManager.DefaultTexture);
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
         {
@@ -592,6 +589,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
 		*/
+        GL.BindTexture(TextureTarget.Texture2D, VertexManager.DefaultTexture);
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
@@ -612,8 +610,6 @@ public class CustomWindow : GameWindow
 		    vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.blend, texPolyJob.UVs[i]);
 	    }
 	    VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
-
-		GL.BindTexture(TextureTarget.Texture2D, 0);
 	}
 }
 

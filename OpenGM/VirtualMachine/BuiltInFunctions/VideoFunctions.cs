@@ -132,7 +132,6 @@ public static class VideoFunctions
 			fixed (byte* ptr = pixels)
 				GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
 		}
-		GL.BindTexture(TextureTarget.Texture2D, 0);
 
 		if (buffer.Data.Length < pixels.Length)
 		{

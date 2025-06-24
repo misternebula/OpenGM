@@ -27,6 +27,11 @@ public static class VertexManager
     }
 
     /// <summary>
+    /// 1x1 white image is used when for things that dont need textures
+    /// </summary>
+    public static int DefaultTexture;
+
+    /// <summary>
     /// setup shader and buffer
     /// </summary>
     public static void Init()
@@ -34,6 +39,12 @@ public static class VertexManager
 	    DebugLog.LogInfo($"Compiling shaders...");
 	    ShaderManager.CompileShaders();
 
+        DefaultTexture = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, DefaultTexture);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        
         // use one buffer for everything
         var vao = GL.GenVertexArray();
         var vbo = GL.GenBuffer();
