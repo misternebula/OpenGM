@@ -318,7 +318,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 					break;
 				case 3:
 					// bm_subtract
-					GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+					GL.BlendFunc(BlendingFactor.Zero, BlendingFactor.OneMinusSrcColor);
 					GL.BlendEquation(BlendEquationMode.FuncSubtract);
 					break;
 				case 4:
