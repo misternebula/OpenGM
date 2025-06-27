@@ -318,8 +318,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 					break;
 				case 3:
 					// bm_subtract
+					// https://github.com/YoYoGames/GameMaker-Bugs/issues/11061#issuecomment-3005485747
 					GL.BlendFunc(BlendingFactor.Zero, BlendingFactor.OneMinusSrcColor);
-					GL.BlendEquation(BlendEquationMode.FuncSubtract);
+					GL.BlendEquation(BlendEquationMode.FuncAdd);
 					break;
 				case 4:
 					// bm_min
