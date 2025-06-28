@@ -1387,5 +1387,44 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		// draw_surface_stretched
+		// draw_surface_stretched_ext
+		// draw_surface_part
+		// draw_surface_part_ext
+		// draw_surface_general
+		// draw_surface_tiled
+		// draw_surface_tiled_ext
+		// surface_save
+		// surface_save_part
+		// surface_getpixel
+
+		[GMLFunction("surface_getpixel_ext")]
+		public static object? surface_getpixel_ext(object?[] args)
+		{
+			var surfaceid = args[0].Conv<int>();
+			var x = args[1].Conv<int>();
+			var y = args[2].Conv<int>();
+
+			SurfaceManager.BindSurfaceTexture(surfaceid);
+
+			var values = new byte[4];
+			unsafe
+			{
+				fixed (byte* ptr = values)
+					GL.ReadPixels(x, y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
+			}
+			GL.BindTexture(TextureTarget.Texture2D, 0);
+
+			// TODO : check this
+			var r = values[0];
+			var g = values[1];
+			var b = values[2];
+			var a = values[3];
+			return r | g << 8 | b << 16 | a << 24;
+		}
+
+		// surface_copy
+		// surface_copy_part
+
+		// skeleton stuff
 	}
 }
