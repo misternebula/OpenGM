@@ -48,6 +48,12 @@ public class GMSprite : DrawWithDepth
 			return;
 		}
 
+		if (!Element.Layer.Visible)
+		{
+			// TODO : does animation still happen if not visible?
+			return;
+		}
+
 		if (AnimationSpeedType == AnimationSpeedType.FPS)
 		{
 			// Frames per second
