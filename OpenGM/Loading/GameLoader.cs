@@ -24,7 +24,7 @@ public static class GameLoader
 
         _replacementVMCodes.Clear();
 
-		var replacementFolder = Path.Combine(Directory.GetCurrentDirectory(), "game", "replacement_scripts");
+		var replacementFolder = Path.Combine(Entry.DataWinFolder, "replacement_scripts");
         if (Directory.Exists(replacementFolder))
         {
 	        var replacementScripts = Directory.GetFiles(replacementFolder, "*.json");

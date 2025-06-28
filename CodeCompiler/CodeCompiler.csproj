@@ -35,8 +35,12 @@
   <ItemGroup>
     <None Remove="scripts\gml_GlobalScript_scr_debug.gml" />
     <None Remove="scripts\gml_GlobalScript_scr_gameover.gml" />
-    <None Remove="scripts\gml_Object_obj_alleySwitch_Step_0.gml" />
-    <None Remove="scripts\gml_Object_obj_controller_dw_city_big_2_Step_0.gml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Scripts\chapter1_windows\" />
+    <Folder Include="Scripts\chapter3_windows\" />
+    <Folder Include="Scripts\chapter4_windows\" />
   </ItemGroup>
 
 </Project>
