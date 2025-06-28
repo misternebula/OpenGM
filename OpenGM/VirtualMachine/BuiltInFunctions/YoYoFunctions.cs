@@ -4,7 +4,12 @@
     {
 		// ...
 
-		// get_timer
+		[GMLFunction("get_timer")]
+		public static object get_timer(object?[] args)
+		{
+			return (int)(DateTime.Now - Entry.GameLoadTime).TotalMicroseconds; // TODO : is this floored? i assume it is
+		}
+
 		// os_get_config
 		// os_get_info
 
