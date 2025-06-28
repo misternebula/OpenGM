@@ -45,6 +45,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		{
 			var layer_id = args[0];
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				throw new Exception();
+			}
+
 			return layer.Depth;
 		}
 
@@ -142,6 +148,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var x = args[1].Conv<double>();
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return null;
+			}
+
 			layer.X = (float)x;
 			return null;
 		}
@@ -153,6 +165,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var y = args[1].Conv<double>();
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return null;
+			}
+
 			layer.Y = (float)y;
 			return null;
 		}
@@ -163,6 +181,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var layer_id = args[0];
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return 0;
+			}
+
 			return layer.X;
 		}
 
@@ -170,8 +194,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		public static object layer_get_y(object?[] args)
 		{
 			var layer_id = args[0];
-
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return 0;
+			}
+
 			return layer.Y;
 		}
 
@@ -182,6 +211,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var hspd = args[1].Conv<double>();
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return null;
+			}
+
 			layer.HSpeed = (float)hspd;
 			return null;
 		}
@@ -193,6 +228,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var vspd = args[1].Conv<double>();
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return null;
+			}
+
 			layer.VSpeed = (float)vspd;
 			return null;
 		}
@@ -203,6 +244,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var layer_id = args[0];
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return 0;
+			}
+
 			return layer.HSpeed;
 		}
 
@@ -212,6 +259,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var layer_id = args[0];
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return 0;
+			}
+
 			return layer.VSpeed;
 		}
 
@@ -235,6 +288,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		public static object layer_get_all_elements(object?[] args)
 		{
 			var layer = RoomManager.CurrentRoom.GetLayer(args[0]);
+
+			if (layer == null)
+			{
+				throw new Exception();
+			}
+
 			return layer.ElementsToDraw.Select(x => x.instanceId).ToList();
 		}
 
@@ -252,6 +311,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var depth = args[1].Conv<int>();
 
 			var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+			if (layer == null)
+			{
+				return null;
+			}
+
 			layer.Depth = depth;
 			return null;
 		}

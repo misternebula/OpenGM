@@ -31,7 +31,7 @@ public class RoomContainer
 	public List<GamemakerObject> LooseObjects = new();
 	public List<GMOldBackground> OldBackgrounds = new();
 
-	public LayerContainer GetLayer(object? layer_id)
+	public LayerContainer? GetLayer(object? layer_id)
 	{
 		if (layer_id is string s)
 		{
@@ -40,7 +40,7 @@ public class RoomContainer
 		else
 		{
 			var id = layer_id.Conv<int>();
-			return RoomManager.CurrentRoom.Layers[id];
+			return RoomManager.CurrentRoom.Layers.TryGetValue(id, out var value) ? value : null;
 		}
 	}
 
