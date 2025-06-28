@@ -405,6 +405,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 
 			GL.ColorMask(r, g, b, a);
+			ColorMask = new[] { r, g, b, a };
 			return null;
 		}
 
@@ -444,7 +445,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// gpu_set_tex_max_aniso_ext
 		// gpu_set_tex_mip_enable
 		// gpu_set_tex_mip_enable_ext
-		// gpu_get_blendenable
+
+		public static bool[] ColorMask = new bool[] { true, true, true, true };
+
+		[GMLFunction("gpu_get_blendenable")]
+		public static object? gpu_get_blendenable(object?[] args)
+		{
+			return GL.GetBoolean(GetPName.Blend); // TODO : better to cache this?
+		}
+
 		// gpu_get_ztestenable
 		// gpu_get_zfunc
 		// gpu_get_zwriteenable
@@ -457,8 +466,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// gpu_get_blendmode_dest
 		// gpu_get_blendmode_srcalpha
 		// gpu_get_blendmode_destalpha
-		// gpu_get_colorwriteenable
-		// gpu_get_colourwriteenable
+
+		[GMLFunction("gpu_get_colorwriteenable")]
+		[GMLFunction("gpu_get_colourwriteenable")]
+		public static object? gpu_get_colourwriteenable(object?[] args)
+		{
+			return ColorMask;
+		}
+
 		// gpu_get_alphatestenable
 		// gpu_get_alphatestref
 		// gpu_get_texfilter
