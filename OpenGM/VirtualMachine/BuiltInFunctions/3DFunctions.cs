@@ -406,7 +406,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 
 			GL.ColorMask(r, g, b, a);
-			ColorMask = new[] { r, g, b, a };
 			return null;
 		}
 
@@ -447,12 +446,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// gpu_set_tex_mip_enable
 		// gpu_set_tex_mip_enable_ext
 
-		public static bool[] ColorMask = new bool[] { true, true, true, true };
-
 		[GMLFunction("gpu_get_blendenable")]
 		public static object? gpu_get_blendenable(object?[] args)
 		{
-			return GL.GetBoolean(GetPName.Blend); // TODO : better to cache this?
+			return GL.GetBoolean(GetPName.Blend); // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendFunc.xhtml
 		}
 
 		// gpu_get_ztestenable
@@ -472,7 +469,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("gpu_get_colourwriteenable")]
 		public static object? gpu_get_colourwriteenable(object?[] args)
 		{
-			return ColorMask;
+			var bools = new bool[4];
+			GL.GetBoolean(GetPName.ColorWritemask, bools); // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glColorMask.xhtml
+			return bools;
 		}
 
 		// gpu_get_alphatestenable
