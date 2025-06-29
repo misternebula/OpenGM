@@ -427,7 +427,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// object_get_visible
 		// object_get_persistent
 		// object_get_mask
-		// object_get_parent
+
+		[GMLFunction("object_get_parent")]
+		public static object? object_get_parent(object?[] args)
+		{
+			var obj = args[0].Conv<int>();
+
+			if (!InstanceManager.ObjectDefinitions.TryGetValue(obj, out var objectDef))
+			{
+				return -1;
+			}
+
+			if (objectDef.parent == null)
+			{
+				return -100; // lmao
+			}
+
+			return objectDef.parent.AssetId;
+		}
+
 		// object_get_physics
 
 		[GMLFunction("object_is_ancestor")]
