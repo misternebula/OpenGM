@@ -147,7 +147,8 @@ public static class MathFunctions
 	// array_insert
 	// array_delete
 
-	/*private static object? array_sort(object?[] args)
+	[GMLFunction("array_sort")]
+	public static object? array_sort(object?[] args)
 	{
 		var variable = args[0].Conv<IList>();
 		var sorttype_or_function = args[1];
@@ -163,15 +164,18 @@ public static class MathFunctions
 		{
 			// function ugh
 
-			*//*
+			/*
 			 * arguments: CURRENT ELEMENT and NEXT ELEMENT
 			 * returns:
 			 *	0		: elements equal
 			 *	<= -1	: current element goes before next element
 			 *  >= 1	: current element goes after next element
-			 *//*
+			 */
 		}
-	}*/
+
+		DebugLog.LogWarning("array_sort is not implemented");
+		return null;
+	}
 
 	// @@array_set_owner@@
 

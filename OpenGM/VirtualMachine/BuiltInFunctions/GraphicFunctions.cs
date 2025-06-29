@@ -1391,7 +1391,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_surface_part
 		// draw_surface_part_ext
 		// draw_surface_general
-		// draw_surface_tiled
+
+		[GMLFunction("draw_surface_tiled")]
+		public static object? draw_surface_tiled(object?[] args)
+		{
+			DebugLog.LogWarning("draw_surface_tiled not implemented");
+			return null;
+		}
+
 		// draw_surface_tiled_ext
 		// surface_save
 		// surface_save_part
@@ -1422,7 +1429,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return r | g << 8 | b << 16 | a << 24;
 		}
 
-		// surface_copy
+		[GMLFunction("surface_copy")]
+		public static object? surface_copy(object?[] args)
+		{
+			var destination = args[0].Conv<int>();
+			var x = args[1].Conv<int>();
+			var y = args[2].Conv<int>();
+			var source = args[3].Conv<int>();
+
+			DebugLog.LogWarning("surface_copy not implemented");
+
+			return null;
+		}
+
 		// surface_copy_part
 
 		// skeleton stuff
