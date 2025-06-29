@@ -54,6 +54,7 @@ public static class VariableResolver
 	public static readonly Dictionary<string, object?> GlobalVariables = new();
 
 	public static Dictionary<string, object?> CustomBuiltInVariableValues = new();
+	// InitGlobalVariables
 	public static Dictionary<string, (Func<object?> getter, Action<object?>? setter)> BuiltInVariables = new()
 	{
 		{ "working_directory", (get_working_directory, null) },
@@ -100,6 +101,7 @@ public static class VariableResolver
 		{ "background_color", (get_background_color, set_background_color)}
 	};
 
+	// InitLocalVariables
 	public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
 	{
 		{ "x", (get_x, set_x) },
