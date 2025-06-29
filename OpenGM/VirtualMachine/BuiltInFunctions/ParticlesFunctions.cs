@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenGM.IO;
+using OpenGM.Particles;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
 	public static class ParticlesFunctions
-    {
-	    [GMLFunction("part_type_create")]
-	    public static object? part_type_create(object?[] args)
-	    {
-		    DebugLog.LogWarning("part_type_create not implemented.");
-		    return null;
-	    }
+	{
+		[GMLFunction("part_type_create")]
+		public static object? part_type_create(object?[] args)
+		{
+			return ParticleManager.ParticleTypeCreate();
+		}
 
 		// part_type_destroy
 		// part_type_exists
@@ -24,14 +24,36 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_type_sprite")]
 		public static object? part_type_sprite(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_sprite not implemented.");
+			var ind = args[0].Conv<int>();
+			var sprite = args[1].Conv<int>();
+			var animate = args[2].Conv<bool>();
+			var stretch = args[3].Conv<bool>();
+			var random = args[4].Conv<bool>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.Sprite = sprite;
+			type.SpriteAnim = animate;
+			type.SpriteStretch = stretch;
+			type.SpriteRandom = random;
+
 			return null;
 		}
 
 		[GMLFunction("part_type_size")]
 		public static object? part_type_size(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_size not implemented.");
+			var ind = args[0].Conv<int>();
+			var size_min = args[1].Conv<double>();
+			var size_max = args[2].Conv<double>();
+			var size_incr = args[3].Conv<double>();
+			var size_wiggle = args[4].Conv<double>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.SizeMin = size_min;
+			type.SizeMax = size_max;
+			type.SizeIncr = size_incr;
+			type.SizeRandom = size_wiggle;
+
 			return null;
 		}
 
@@ -40,7 +62,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_type_life")]
 		public static object? part_type_life(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_life not implemented.");
+			var ind = args[0].Conv<int>();
+			var life_min = args[1].Conv<int>();
+			var life_max = args[2].Conv<int>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.LifeMin = life_min;
+			type.LifeMax = life_max;
+
 			return null;
 		}
 
@@ -50,14 +79,35 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_type_speed")]
 		public static object? part_type_speed(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_speed not implemented.");
+			var ind = args[0].Conv<int>();
+			var speed_min = args[1].Conv<double>();
+			var speed_max = args[2].Conv<double>();
+			var speed_incr = args[3].Conv<double>();
+			var speed_wiggle = args[4].Conv<double>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.SpeedMin = speed_min;
+			type.SpeedMax = speed_max;
+			type.SpeedIncr = speed_incr;
+			type.SpeedRandom = speed_wiggle;
+
 			return null;
 		}
 
 		[GMLFunction("part_type_direction")]
 		public static object? part_type_direction(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_direction not implemented.");
+			var ind = args[0].Conv<int>();
+			var dir_min = args[1].Conv<double>();
+			var dir_max = args[2].Conv<double>();
+			var dir_incr = args[3].Conv<double>();
+			var dir_wiggle = args[4].Conv<double>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.DirMin = dir_min;
+			type.DirMax = dir_max;
+			type.DirIncr = dir_incr;
+			type.DirRandom = dir_wiggle;
 			return null;
 		}
 
@@ -81,20 +131,36 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_type_alpha3")]
 		public static object? part_type_alpha3(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_alpha3 not implemented.");
+			var ind = args[0].Conv<int>();
+			var alpha1 = args[1].Conv<double>();
+			var alpha2 = args[2].Conv<double>();
+			var alpha3 = args[3].Conv<double>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.AlphaStart = alpha1;
+			type.AlphaMiddle = alpha2;
+			type.AlphaEnd = alpha3;
+
 			return null;
 		}
 
 		[GMLFunction("part_type_blend")]
 		public static object? part_type_blend(object?[] args)
 		{
-			DebugLog.LogWarning("part_type_blend not implemented.");
+			var ind = args[0].Conv<int>();
+			var additive = args[1].Conv<bool>();
+
+			var type = ParticleManager.PartTypes[ind];
+			type.AdditiveBlend = additive;
+
 			return null;
 		}
 
 		[GMLFunction("part_system_create")]
 		public static object? part_system_create(object?[] args)
 		{
+			// create a "managed" layer with depth of 0
+
 			DebugLog.LogWarning("part_system_create not implemented.");
 			return null;
 		}
@@ -102,6 +168,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_system_destroy")]
 		public static object? part_system_destroy(object?[] args)
 		{
+			//var ind = args[0].Conv<int>();
+
 			DebugLog.LogWarning("part_system_destroy not implemented.");
 			return null;
 		}
@@ -116,20 +184,30 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_system_automatic_draw")]
 		public static object? part_system_automatic_draw(object?[] args)
 		{
-			DebugLog.LogWarning("part_system_automatic_draw not implemented");
+			var ind = args[0].Conv<int>();
+			var automatic = args[1].Conv<bool>();
+
+			var sys = ParticleManager.PartSystems[ind];
+			sys.AutomaticDraw = automatic;
+
 			return null;
 		}
 
 		[GMLFunction("part_system_update")]
 		public static object? part_system_update(object?[] args)
 		{
-			DebugLog.LogWarning("part_system_update not implemented");
+			var ind = args[0].Conv<int>();
+
+			ParticleManager.UpdateSystem(ind);
+
 			return null;
 		}
 
 		[GMLFunction("part_system_drawit")]
 		public static object? part_system_drawit(object?[] args)
 		{
+			//var ind = args[0].Conv<int>();
+
 			DebugLog.LogWarning("part_system_drawit not implemented");
 			return null;
 		}
@@ -146,8 +224,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_emitter_create")]
 		public static object? part_emitter_create(object?[] args)
 		{
-			DebugLog.LogWarning("part_emitter_create not implemented");
-			return null;
+			var ps = args[0].Conv<int>();
+			return ParticleManager.ParticleEmitterCreate(ps);
 		}
 
 		// part_emitter_destroy
@@ -155,6 +233,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_emitter_destroy_all")]
 		public static object? part_emitter_destroy_all(object?[] args)
 		{
+			//var ps = args[0].Conv<int>();
+
 			DebugLog.LogWarning("part_emitter_destroy_all not implemented");
 			return null;
 		}
@@ -165,7 +245,26 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_emitter_region")]
 		public static object? part_emitter_region(object?[] args)
 		{
-			DebugLog.LogWarning("part_emitter_region not implemented");
+			var ps = args[0].Conv<int>();
+			var ind = args[1].Conv<int>();
+			var xmin = args[2].Conv<double>();
+			var xmax = args[3].Conv<double>();
+			var ymin = args[4].Conv<double>();
+			var ymax = args[5].Conv<double>();
+			var shape = args[6].Conv<int>();
+			var distribution = args[7].Conv<int>();
+
+			// currently not used as we store emitters with global ids, instead of per system
+			//var sys = ParticleManager.PartSystems[ps]; 
+			var emitter = ParticleManager.PartEmitters[ind];
+
+			emitter.XMin = xmin;
+			emitter.XMax = xmax;
+			emitter.YMin = ymin;
+			emitter.YMax = ymax;
+			emitter.Shape = shape;
+			emitter.Distribution = distribution;
+
 			return null;
 		}
 
@@ -174,7 +273,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_emitter_stream")]
 		public static object? part_emitter_stream(object?[] args)
 		{
-			DebugLog.LogWarning("part_emitter_stream not implemented");
+			var ps = args[0].Conv<int>();
+			var ind = args[1].Conv<int>();
+			var parttype = args[2].Conv<int>();
+			var number = args[3].Conv<int>();
+
+			// currently not used as we store emitters with global ids, instead of per system
+			//var sys = ParticleManager.PartSystems[ps]; 
+			var emitter = ParticleManager.PartEmitters[ind];
+
+			emitter.Number = number;
+			emitter.PartType = parttype;
+
 			return null;
 		}
 
