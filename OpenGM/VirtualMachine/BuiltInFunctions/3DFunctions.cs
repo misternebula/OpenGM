@@ -378,7 +378,81 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// gpu_set_blendmode_ext_sepalpha
+		[GMLFunction("gpu_set_blendmode_ext_sepalpha")]
+		public static object? gpu_set_blendmode_ext_sepalpha(object?[] args)
+		{
+			var src = args[0].Conv<int>();
+			var dest = args[1].Conv<int>();
+			var alphasrc = args[2].Conv<int>();
+			var alphadest = args[3].Conv<int>();
+
+			// TODO : theres gotta be a better way then repeating all these switch cases
+
+			BlendingFactorSrc GetBlendSrc(int arg)
+			{
+				switch (arg)
+				{
+					case 1:
+						return BlendingFactorSrc.Zero;
+					case 2:
+						return BlendingFactorSrc.One;
+					case 3:
+						return BlendingFactorSrc.SrcColor;
+					case 4:
+						return BlendingFactorSrc.OneMinusSrcColor;
+					case 5:
+						return BlendingFactorSrc.SrcAlpha;
+					case 6:
+						return BlendingFactorSrc.OneMinusSrcAlpha;
+					case 7:
+						return BlendingFactorSrc.DstAlpha;
+					case 8:
+						return BlendingFactorSrc.OneMinusDstAlpha;
+					case 9:
+						return BlendingFactorSrc.DstColor;
+					case 10:
+						return BlendingFactorSrc.OneMinusDstColor;
+					case 11:
+						return BlendingFactorSrc.SrcAlphaSaturate;
+					default:
+						throw new ArgumentException();
+				}
+			}
+
+			BlendingFactorDest GetBlendDest(int arg)
+			{
+				switch (arg)
+				{
+					case 1:
+						return BlendingFactorDest.Zero;
+					case 2:
+						return BlendingFactorDest.One;
+					case 3:
+						return BlendingFactorDest.SrcColor;
+					case 4:
+						return BlendingFactorDest.OneMinusSrcColor;
+					case 5:
+						return BlendingFactorDest.SrcAlpha;
+					case 6:
+						return BlendingFactorDest.OneMinusSrcAlpha;
+					case 7:
+						return BlendingFactorDest.DstAlpha;
+					case 8:
+						return BlendingFactorDest.OneMinusDstAlpha;
+					case 9:
+						return BlendingFactorDest.DstColor;
+					case 10:
+						return BlendingFactorDest.OneMinusDstColor;
+					case 11:
+						return BlendingFactorDest.SrcAlphaSaturate;
+					default:
+						throw new ArgumentException();
+				}
+			}
+
+			GL.BlendFuncSeparate(GetBlendSrc(src), GetBlendDest(src), GetBlendSrc(src), GetBlendDest(src));
+			return null;
+		}
 
 		[GMLFunction("gpu_set_colorwriteenable")]
 		[GMLFunction("gpu_set_colourwriteenable")]
