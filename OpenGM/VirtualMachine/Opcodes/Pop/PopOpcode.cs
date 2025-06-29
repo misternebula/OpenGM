@@ -77,26 +77,6 @@ public static partial class VMExecutor
 
 	public static void PopToIndex(int assetId, string varName, object? value)
 	{
-		if (assetId == GMConstants.builtin)
-		{
-			if (Self.Self == null)
-			{
-				// for global scripts
-				PopToGlobal(varName, value);
-				return;
-			}
-
-			if (!Self.Self.SelfVariables.TryAdd(varName, value))
-			{
-				Self.Self.SelfVariables[varName] = value;
-			}
-
-			VariableResolver.BuiltInSelfVariables.Add(varName, (
-					(obj) => obj.SelfVariables[varName]!,
-					(obj, val) => obj.SelfVariables[varName] = val));
-			return;
-		}
-
 		if (assetId < GMConstants.FIRST_INSTANCE_ID)
 		{
 			// Asset Index
@@ -395,6 +375,41 @@ public static partial class VMExecutor
 				{
 					// uh what the fuck
 					DebugLog.LogWarning($"Tried to pop {value} into {variableName} on no object???");
+					return (ExecutionResult.Success, null);
+				}
+				else if (id == GMConstants.builtin)
+				{
+					if (Self.Self == null)
+					{
+						// for global scripts
+						PopToGlobal(variableName, value);
+						return (ExecutionResult.Success, null);
+					}
+
+					// todo : wtf is this?? what was i on when i wrote this
+					if (!Self.Self.SelfVariables.TryAdd(variableName, value))
+					{
+						Self.Self.SelfVariables[variableName] = value;
+					}
+
+					DebugLog.LogWarning($"idk what's meant to happen here aaaa!!!! varname:{variableName} value:{value}");
+					DebugLog.LogWarning($"--Stacktrace--");
+					foreach (var item in VMExecutor.CallStack)
+					{
+						DebugLog.LogWarning($" - {item.CodeName}");
+					}
+
+					/*if (VariableResolver.BuiltInSelfVariables.ContainsKey(variableName))
+					{
+						VariableResolver.BuiltInSelfVariables[variableName].setter!(Self.GMSelf, value);
+					}
+					else
+					{
+						VariableResolver.BuiltInSelfVariables.Add(variableName, (
+							(obj) => obj.SelfVariables[variableName]!,
+							(obj, val) => obj.SelfVariables[variableName] = val));
+					}*/
+
 					return (ExecutionResult.Success, null);
 				}
 
