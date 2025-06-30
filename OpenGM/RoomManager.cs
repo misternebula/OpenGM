@@ -496,16 +496,13 @@ public static class RoomManager
 			}
 		}
 
-		if (CurrentRoom.RoomAsset.CreationCodeId != -1)
+		// room creation code is called with a dummy object that gets de-referenced immediately after
+		var code = GetCodeFromCodeIndex(CurrentRoom.RoomAsset.CreationCodeId);
+		if (code != null)
 		{
-			// room creation code is called with a dummy object that gets de-referenced immediately after
-			var code = GetCodeFromCodeIndex(CurrentRoom.RoomAsset.CreationCodeId);
-			if (code != null)
-			{
-				var dummy = new DummyInstance();
-				VMExecutor.ExecuteCode(code, dummy);
-				dummy = null;
-			}
+			var dummy = new DummyInstance();
+			VMExecutor.ExecuteCode(code, dummy);
+			dummy = null;
 		}
 
 		DebugLog.LogInfo($"Calling RoomStart...");

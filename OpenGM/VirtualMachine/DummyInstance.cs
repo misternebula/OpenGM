@@ -2,8 +2,6 @@
 {
 	public class DummyInstance : IStackContextSelf
 	{
-		public Dictionary<string, object?> SelfVariables { get; }
-
-		public DummyInstance() => SelfVariables = new();
+		public Dictionary<string, object?> SelfVariables { get; } = new();
 	}
 }
