@@ -818,7 +818,23 @@ public static class MathFunctions
 		return ret;
 	}
 
-	// string_letters
+	[GMLFunction("string_letters")]
+	public static object string_letters(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+
+		var result = "";
+
+		foreach (var c in str)
+		{
+			if (char.IsAsciiLetter(c))
+			{
+				result += c;
+			}
+		}
+
+		return result;
+	}
 
 	[GMLFunction("string_digits")]
 	public static object string_digits(object?[] args)
