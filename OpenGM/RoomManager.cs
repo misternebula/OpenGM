@@ -484,13 +484,6 @@ public static class RoomManager
 			CurrentRoom.OldBackgrounds.Add(oldBackground);
 		}
 
-		if (CurrentRoom.RoomAsset.CreationCodeId != -1)
-		{
-			// TODO: no idea what should be passed as the context here, but sure just wing it for now
-			DebugLog.LogInfo($"Calling room creation code...");
-			VMExecutor.ExecuteCode(GameLoader.Codes[CurrentRoom.RoomAsset.CreationCodeId], null, null, EventType.Other, (int)EventSubtypeOther.RoomStart);
-		}
-
 		var currentInstances = InstanceManager.instances.Values.ToList();
 
 		if (FirstRoom)
