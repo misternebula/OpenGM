@@ -93,6 +93,7 @@ public enum ElementType
 [MemoryPackUnion(2, typeof(CLayerBackgroundElement))]
 [MemoryPackUnion(3, typeof(CLayerTileElement))]
 [MemoryPackUnion(4, typeof(CLayerSpriteElement))]
+[MemoryPackUnion(5, typeof(CLayerParticleElement))]
 public abstract partial class CLayerElementBase
 {
 	public ElementType Type;
@@ -171,6 +172,12 @@ public partial class CLayerSpriteElement : CLayerElementBase
 	public AnimationSpeedType AnimationSpeedType;
 	public double FrameIndex;
 	public double Rotation;
+}
+
+[MemoryPackable]
+public partial class CLayerParticleElement : CLayerElementBase
+{
+	public int SystemID;
 }
 
 // not serialized

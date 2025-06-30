@@ -175,7 +175,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		[GMLFunction("make_color_rgb")]
 		[GMLFunction("make_colour_rgb")]
-		public static object make_color_rgb(object?[] args)
+		public static object make_color_rgb(params object?[] args)
 		{
 			var r = args[0].Conv<int>();
 			var g = args[1].Conv<int>();
@@ -186,7 +186,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		[GMLFunction("make_color_hsv")]
 		[GMLFunction("make_colour_hsv")]
-		public static object? make_color_hsv(object?[] args)
+		public static object make_color_hsv(params object?[] args)
 		{
 			var hue = args[0].Conv<double>();
 			var sat = args[1].Conv<double>() / 255;
@@ -270,7 +270,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		[GMLFunction("merge_color")]
 		[GMLFunction("merge_colour")]
-		public static object merge_colour(object?[] args)
+		public static object merge_colour(params object?[] args)
 		{
 			var col1 = args[0].Conv<int>();
 			var col2 = args[1].Conv<int>();

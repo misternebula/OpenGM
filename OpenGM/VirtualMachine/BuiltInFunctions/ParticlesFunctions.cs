@@ -159,10 +159,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		[GMLFunction("part_system_create")]
 		public static object? part_system_create(object?[] args)
 		{
-			// create a "managed" layer with depth of 0
-
-			DebugLog.LogWarning("part_system_create not implemented.");
-			return null;
+			return ParticleManager.ParticleSystemCreate();
 		}
 
 		[GMLFunction("part_system_destroy")]
