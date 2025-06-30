@@ -26,6 +26,7 @@ The following games are used in development to test feature parity, and as such 
 | DELTARUNE Chapter 1 & 2 DEMO                 | Unknown	  |
 | DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | Unknown      |
 | Undertale                                    | 1.0.0.1539   |
+| Pizza Tower SAGE 2019 Demo				   | 2.2.2.302	  |
 
 Not every feature from these games may work, but the game will at least load and try to execute.
 
