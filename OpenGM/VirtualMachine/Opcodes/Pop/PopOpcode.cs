@@ -111,7 +111,7 @@ public static partial class VMExecutor
 	{
 		var args = (object?[])Call.Locals["arguments"].Conv<IList>();
 
-		if (index >= args.Length)
+		if (index >= args.Length) // could change ExecuteCode to make args a list, but its fine
 		{
 			Array.Resize(ref args, index + 1);
 		}

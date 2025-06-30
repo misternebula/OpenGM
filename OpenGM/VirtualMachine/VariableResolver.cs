@@ -57,15 +57,7 @@ public static class VariableResolver
 	// InitGlobalVariables
 	public static Dictionary<string, (Func<object?> getter, Action<object?>? setter)> BuiltInVariables = new()
 	{
-		{ "working_directory", (get_working_directory, null) },
-		{ "fps", (get_fps, null) },
-		{ "room_width", (get_room_width, null) },
-		{ "room_height", (get_room_height, null) },
-		{ "room", (get_room, set_room) },
-		{ "room_speed", (get_room_speed, set_room_speed) },
-		{ "os_type", (get_os_type, null) },
-		{ "application_surface", (get_application_surface, null) },
-		{ "argument_count", (get_argument_count, null) },
+		// argument_relative
 		{ "argument", (get_argument, null) },
 		{ "argument0", (get_argument_0, (val) => VMExecutor.PopToArgument(0, val)) },
 		{ "argument1", (get_argument_1, (val) => VMExecutor.PopToArgument(1, val)) },
@@ -83,22 +75,52 @@ public static class VariableResolver
 		{ "argument13", (get_argument_13, (val) => VMExecutor.PopToArgument(13, val)) },
 		{ "argument14", (get_argument_14, (val) => VMExecutor.PopToArgument(14, val)) },
 		{ "argument15", (get_argument_15, (val) => VMExecutor.PopToArgument(15, val)) },
-		{ "room_persistent", (get_room_persistent, set_room_persistent)},
+		{ "argument_count", (get_argument_count, null) },
+		{ "debug_mode", (get_debug_mode, null)},
+		// pointer_invalid
+		{ "pointer_null", (get_pointer_null, null)},
 		{ "undefined", (get_undefined, null) },
+		// NaN
+		// infinity
+		{ "room", (get_room, set_room) },
+		// room_first
+		// room_last
+		// ...
+		{ "working_directory", (get_working_directory, null) },
+		// temp_directory
+		// program_directory
+		{ "instance_count", (get_instance_count, null)},
+		// instance_id
+		{ "room_width", (get_room_width, null) },
+		{ "room_height", (get_room_height, null) },
+		// room_caption
+		{ "room_speed", (get_room_speed, set_room_speed) },
+		{ "room_persistent", (get_room_persistent, set_room_persistent)},
+		{ "background_color", (get_background_color, set_background_color)},
+		// ...
+		// view_enabled
 		{ "view_current", (get_view_current, null)},
-		{ "view_wport", (get_view_wport, set_view_wport)},
-		{ "view_hport", (get_view_hport, set_view_hport)},
+		// view_visible
 		{ "view_xview", (get_view_xview, set_view_xview)},
 		{ "view_yview", (get_view_yview, set_view_yview)},
 		{ "view_wview", (get_view_wview, set_view_wview)},
 		{ "view_hview", (get_view_hview, set_view_hview)},
+		// view_xport
+		// view_yport
+		{ "view_wport", (get_view_wport, set_view_wport)},
+		{ "view_hport", (get_view_hport, set_view_hport)},
+		// ...
 		{ "view_camera", (get_view_camera, set_view_camera)},
-		{ "pointer_null", (get_pointer_null, null)},
-		{ "instance_count", (get_instance_count, null)},
+		// ...
+		{ "fps", (get_fps, null) },
 		{ "current_time", (get_current_time, null)},
+		// ...
 		{ "current_month", (get_current_month, null)},
-		{ "debug_mode", (get_debug_mode, null)},
-		{ "background_color", (get_background_color, set_background_color)}
+		// ...
+		{ "application_surface", (get_application_surface, null) },
+		// ...
+		{ "os_type", (get_os_type, null) },
+		// ...
 	};
 
 	// InitLocalVariables
@@ -106,45 +128,52 @@ public static class VariableResolver
 	{
 		{ "x", (get_x, set_x) },
 		{ "y", (get_y, set_y) },
-		{ "image_index", (get_image_index, set_image_index) },
-		{ "sprite_index", (get_sprite_index, set_sprite_index) },
-		{ "sprite_height", (get_sprite_height, null) },
-		{ "sprite_width", (get_sprite_width, null) },
+		{ "xprevious", (get_xprevious, set_xprevious)},
+		{ "yprevious", (get_yprevious, set_yprevious)},
 		{ "xstart", (get_xstart, set_xstart) },
 		{ "ystart", (get_ystart, set_ystart) },
-		{ "object_index", (get_object_index, null) },
-		{ "image_blend", (get_image_blend, set_image_blend) },
-		{ "depth", (get_depth, set_depth) },
-		{ "bbox_bottom", (get_bbox_bottom, null) },
-		{ "bbox_top", (get_bbox_top, null) },
-		{ "bbox_left", (get_bbox_left, null) },
-		{ "bbox_right", (get_bbox_right, null) },
-		{ "image_yscale", (get_image_yscale, set_image_yscale) },
-		{ "image_xscale", (get_image_xscale, set_image_xscale) },
-		{ "image_speed", (get_image_speed, set_image_speed) },
-		{ "visible", (get_visible, set_visible) },
-		{ "image_alpha", (get_image_alpha, set_image_alpha) },
-		{ "image_angle", (get_image_angle, set_image_angle) },
-		{ "speed", (get_speed, set_speed) },
 		{ "hspeed", (get_hspeed, set_hspeed) },
 		{ "vspeed", (get_vspeed, set_vspeed) },
 		{ "direction", (get_direction, set_direction) },
-		{ "persistent", (get_persistent, set_persistent) },
-		{ "id", (get_id, null) },
-		{ "gravity", (get_gravity, set_gravity) },
+		{ "speed", (get_speed, set_speed) },
 		{ "friction", (get_friction, set_friction) },
+		{ "gravity", (get_gravity, set_gravity) },
 		{ "gravity_direction", (get_gravity_direction, set_gravity_direction) },
-		{ "image_number", (get_image_number, null) },
+		// in_collision_tree
+		{ "object_index", (get_object_index, null) },
+		{ "id", (get_id, null) },
 		{ "alarm", (get_alarm, set_alarm) },
-		{ "xprevious", (get_xprevious, set_xprevious)},
-		{ "yprevious", (get_yprevious, set_yprevious)},
+		// solid
+		{ "visible", (get_visible, set_visible) },
+		{ "persistent", (get_persistent, set_persistent) },
+		{ "depth", (get_depth, set_depth) },
+		{ "bbox_left", (get_bbox_left, null) },
+		{ "bbox_right", (get_bbox_right, null) },
+		{ "bbox_top", (get_bbox_top, null) },
+		{ "bbox_bottom", (get_bbox_bottom, null) },
+		{ "sprite_index", (get_sprite_index, set_sprite_index) },
+		{ "image_index", (get_image_index, set_image_index) },
+		// image_single
+		{ "image_number", (get_image_number, null) },
+		{ "sprite_width", (get_sprite_width, null) },
+		{ "sprite_height", (get_sprite_height, null) },
 		{ "sprite_xoffset", (get_sprite_xoffset, null)},
 		{ "sprite_yoffset", (get_sprite_yoffset, null)},
+		{ "image_xscale", (get_image_xscale, set_image_xscale) },
+		{ "image_yscale", (get_image_yscale, set_image_yscale) },
+		{ "image_angle", (get_image_angle, set_image_angle) },
+		{ "image_alpha", (get_image_alpha, set_image_alpha) },
+		{ "image_blend", (get_image_blend, set_image_blend) },
+		{ "image_speed", (get_image_speed, set_image_speed) },
+		{ "mask_index", (get_mask_index, set_mask_index)},
 		{ "path_index", (get_path_index, null)},
 		{ "path_position", (get_path_position, set_path_position)},
+		// path_positionprevious
 		{ "path_speed", (get_path_speed, set_path_speed)},
 		{ "path_scale", (get_path_scale, set_path_scale)},
-		{ "mask_index", (get_mask_index, set_mask_index)}
+		// path_orientation
+		// path_endaction
+		// ...
 	};
 
 	public static object get_working_directory()
