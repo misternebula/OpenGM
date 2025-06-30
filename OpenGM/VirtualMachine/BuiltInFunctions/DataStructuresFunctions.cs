@@ -68,7 +68,32 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// ds_list_insert
 		// ds_list_replace
 		// ds_list_delete
-		// ds_list_find_index
+
+		[GMLFunction("ds_list_find_index")]
+		public static object? ds_list_find_index(params object?[] args)
+		{
+			var id = args[0].Conv<int>();
+			var value = args[1];
+
+			if (!_dsListDict.ContainsKey(id))
+			{
+				return -1;
+			}
+
+			if (value is null) 
+			{
+				return -1;
+			}
+
+			var list = _dsListDict[id];
+
+			if (id >= list.Count)
+			{
+				return -1;
+			}
+
+			return list.IndexOf(value);
+		}
 
 		[GMLFunction("ds_list_find_value")]
 		public static object? ds_list_find_value(params object?[] args)

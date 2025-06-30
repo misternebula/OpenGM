@@ -372,7 +372,27 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// layer_is_draw_depth_forced
 		// layer_get_forced_depth
-		// layer_background_get_id
+
+		[GMLFunction("layer_background_get_id")]
+		public static object? layer_background_get_id(object?[] args)
+		{
+			var layer_id = args[0].Conv<int>();
+
+			if (!RoomManager.CurrentRoom.Layers.TryGetValue(layer_id, out var layer))
+			{
+				return -1;
+			}
+
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMBackground back)
+				{
+					return back.Element.Id;
+				}
+			}
+
+			return -1;
+		}
 
 		[GMLFunction("layer_background_exists")]
 		public static object? layer_background_exists(object?[] args)
@@ -592,7 +612,27 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// layer_background_index
+
+		[GMLFunction("layer_background_index")]
+		public static object? layer_background_index(object?[] args)
+		{
+			var background_element_id = args[0].Conv<int>();
+			var index = args[0].Conv<int>();
+
+			foreach (var layer in RoomManager.CurrentRoom.Layers)
+			{
+				foreach (var element in layer.Value.ElementsToDraw)
+				{
+					if (element is GMBackground back && back.Element.Id == background_element_id)
+					{
+						back.Element.Index = index;
+					}
+				}
+			}
+
+			return null;
+		}
+
 		// layer_background_speed
 		// layer_background_sprite
 		// layer_background_change
@@ -678,9 +718,38 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// layer_sprite_change
+		[GMLFunction("layer_sprite_change")]
+		public static object? layer_sprite_change(object?[] args)
+		{
+			var element_id = args[0].Conv<int>();
+			var sprite_id = args[0].Conv<int>();
+
+			DebugLog.LogWarning("layer_sprite_change not implemented.");
+			return null;
+		}
+
 		// layer_sprite_index
-		// layer_sprite_speed
+
+		[GMLFunction("layer_sprite_speed")]
+		public static object? layer_sprite_speed(object?[] args)
+		{
+			var element_id = args[0].Conv<int>();
+			var speed = args[0].Conv<double>();
+
+			foreach (var layer in RoomManager.CurrentRoom.Layers)
+			{
+				foreach (var element in layer.Value.ElementsToDraw)
+				{
+					if (element is GMSprite sprite && sprite.Element.Id == element_id)
+					{
+						sprite.AnimationSpeed = speed;
+					}
+				}
+			}
+
+			return null;
+		}
+
 		// layer_sprite_xscale
 		// layer_sprite_yscale
 		// layer_sprite_angle
@@ -721,6 +790,27 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 					{
 						return sprite.FrameIndex;
 					}
+				}
+			}
+
+			return -1;
+		}
+
+		[GMLFunction("layer_sprite_get_id")]
+		public static object? layer_sprite_get_id(object?[] args)
+		{
+			var layer_id = args[0].Conv<int>();
+
+			if (!RoomManager.CurrentRoom.Layers.TryGetValue(layer_id, out var layer))
+			{
+				return -1;
+			}
+
+			foreach (var element in layer.ElementsToDraw)
+			{
+				if (element is GMSprite sprite)
+				{
+					return sprite.Element.Id;
 				}
 			}
 

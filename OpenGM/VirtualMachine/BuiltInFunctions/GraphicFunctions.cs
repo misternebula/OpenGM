@@ -43,6 +43,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// display_get_timing_method
 		// display_set_sleep_margin
 		// display_get_sleep_margin
+
+		[GMLFunction("display_set_gui_size")]
+		public static object? display_set_gui_size(object?[] args)
+		{
+			DebugLog.LogWarning("display_set_gui_size not implemented.");
+			return null;
+		}
+
 		// window_set_visible
 		// window_get_visible
 
@@ -1456,6 +1464,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		// surface_copy_part
+		
+		[GMLFunction("application_surface_draw_enable")]
+		public static object? application_surface_draw_enable(object?[] args)
+		{
+			var enabled = args[0].Conv<bool>();
+
+			DebugLog.LogWarning("application_surface_draw_enable not implemented");
+
+			return null;
+		}
 
 		// skeleton stuff
 	}
