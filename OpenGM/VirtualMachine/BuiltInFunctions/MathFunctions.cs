@@ -472,7 +472,7 @@ public static class MathFunctions
 		var realValues = new double[args.Length];
 		for (var i = 0; i < args.Length; i++)
 		{
-			realValues[i] = args.Conv<double>();
+			realValues[i] = args[i].Conv<double>();
 		}
 
 		Array.Sort(realValues);

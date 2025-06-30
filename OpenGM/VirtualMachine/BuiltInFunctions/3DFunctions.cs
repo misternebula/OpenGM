@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Collections;
@@ -500,7 +501,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		// gpu_set_texfilter
-		// gpu_set_texfilter_ext
+
+		[GMLFunction("gpu_set_texfilter_ext")]
+		public static object? gpu_set_texfilter_ext(object?[] args)
+		{
+			DebugLog.LogWarning("gpu_set_texfilter_ext not implemented.");
+			return null;
+		}
+
 		// gpu_set_texrepeat
 		// gpu_set_texrepeat_ext
 		// gpu_set_tex_filter
