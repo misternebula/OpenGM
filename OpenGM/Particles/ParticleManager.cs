@@ -115,10 +115,29 @@ namespace OpenGM.Particles
 				var type = PartTypes[p.PartType];
 				var spriteExists = SpriteManager.SpriteExists(type.Sprite);
 				SpriteData data;
+				int spriteStart;
 
 				if (spriteExists)
 				{
 					data = SpriteManager.GetSpriteAsset(type.Sprite)!;
+
+					if (data.Textures.Count < 1)
+					{
+						return;
+					}
+
+					if (!type.SpriteAnim)
+					{
+						spriteStart = p.SpriteStart;
+					}
+					else if (!type.SpriteStretch)
+					{
+						spriteStart = p.SpriteStart + p.Age;
+					}
+					else
+					{
+						spriteStart = p.SpriteStart + ((p.Age * data.Textures.Count) / p.Lifetime);
+					}
 				}
 				else
 				{
