@@ -494,7 +494,7 @@ public static partial class VMExecutor
 
 				if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
-					Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.GMSelf, Self.ObjectDefinition, args: args), VMType.v);
+					Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.Self, Self.ObjectDefinition, args: args), VMType.v);
 					break;
 				}
 
