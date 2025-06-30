@@ -503,6 +503,15 @@ public static class RoomManager
 			}
 		}
 
+		// room creation code is called with a dummy object that gets de-referenced immediately after
+		var createCode = GetCodeFromCodeIndex(CurrentRoom.RoomAsset.CreationCodeId);
+		if (createCode != null)
+		{
+			var dummy = new DummyInstance();
+			VMExecutor.ExecuteCode(createCode, dummy);
+			dummy = null;
+		}
+
 		DebugLog.LogInfo($"Calling RoomStart...");
 		foreach (var obj in currentInstances)
 		{

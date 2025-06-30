@@ -95,10 +95,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// window_set_cursor
 		// window_get_cursor
-		// window_set_color
-		// window_set_colour
-		// window_get_color
-		// window_get_colour
+
+		[GMLFunction("window_set_color")]
+		[GMLFunction("window_set_colour")]
+		public static object? window_set_color(object?[] args)
+		{
+			DebugLog.LogWarning("window_set_color not implemented");
+			return null;
+		}
+
+		[GMLFunction("window_get_color")]
+		[GMLFunction("window_get_colour")]
+		public static object? window_get_color(object?[] args)
+		{
+			DebugLog.LogWarning("window_get_color not implemented");
+			return null;
+		}
+
 		// window_set_min_width
 		// window_set_max_width
 		// window_set_min_height
