@@ -147,7 +147,8 @@ public static class MathFunctions
 	// array_insert
 	// array_delete
 
-	/*private static object? array_sort(object?[] args)
+	[GMLFunction("array_sort")]
+	public static object? array_sort(object?[] args)
 	{
 		var variable = args[0].Conv<IList>();
 		var sorttype_or_function = args[1];
@@ -163,15 +164,18 @@ public static class MathFunctions
 		{
 			// function ugh
 
-			*//*
+			/*
 			 * arguments: CURRENT ELEMENT and NEXT ELEMENT
 			 * returns:
 			 *	0		: elements equal
 			 *	<= -1	: current element goes before next element
 			 *  >= 1	: current element goes after next element
-			 *//*
+			 */
 		}
-	}*/
+
+		DebugLog.LogWarning("array_sort is not implemented");
+		return null;
+	}
 
 	// @@array_set_owner@@
 
@@ -468,7 +472,7 @@ public static class MathFunctions
 		var realValues = new double[args.Length];
 		for (var i = 0; i < args.Length; i++)
 		{
-			realValues[i] = args.Conv<double>();
+			realValues[i] = args[i].Conv<double>();
 		}
 
 		Array.Sort(realValues);
@@ -814,7 +818,23 @@ public static class MathFunctions
 		return ret;
 	}
 
-	// string_letters
+	[GMLFunction("string_letters")]
+	public static object string_letters(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+
+		var result = "";
+
+		foreach (var c in str)
+		{
+			if (char.IsAsciiLetter(c))
+			{
+				result += c;
+			}
+		}
+
+		return result;
+	}
 
 	[GMLFunction("string_digits")]
 	public static object string_digits(object?[] args)

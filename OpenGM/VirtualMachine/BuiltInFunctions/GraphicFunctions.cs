@@ -46,6 +46,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// display_get_timing_method
 		// display_set_sleep_margin
 		// display_get_sleep_margin
+
+		[GMLFunction("display_set_gui_size")]
+		public static object? display_set_gui_size(object?[] args)
+		{
+			DebugLog.LogWarning("display_set_gui_size not implemented.");
+			return null;
+		}
+
 		// window_set_visible
 		// window_get_visible
 
@@ -90,10 +98,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// window_set_cursor
 		// window_get_cursor
-		// window_set_color
-		// window_set_colour
-		// window_get_color
-		// window_get_colour
+
+		[GMLFunction("window_set_color")]
+		[GMLFunction("window_set_colour")]
+		public static object? window_set_color(object?[] args)
+		{
+			DebugLog.LogWarning("window_set_color not implemented");
+			return null;
+		}
+
+		[GMLFunction("window_get_color")]
+		[GMLFunction("window_get_colour")]
+		public static object? window_get_color(object?[] args)
+		{
+			DebugLog.LogWarning("window_get_color not implemented");
+			return null;
+		}
+
 		// window_set_min_width
 		// window_set_max_width
 		// window_set_min_height
@@ -178,7 +199,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		[GMLFunction("make_color_rgb")]
 		[GMLFunction("make_colour_rgb")]
-		public static object make_color_rgb(object?[] args)
+		public static object make_color_rgb(params object?[] args)
 		{
 			var r = args[0].Conv<int>();
 			var g = args[1].Conv<int>();
@@ -189,7 +210,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		[GMLFunction("make_color_hsv")]
 		[GMLFunction("make_colour_hsv")]
-		public static object? make_color_hsv(object?[] args)
+		public static object make_color_hsv(params object?[] args)
 		{
 			var hue = args[0].Conv<double>();
 			var sat = args[1].Conv<double>() / 255;
@@ -273,7 +294,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		[GMLFunction("merge_color")]
 		[GMLFunction("merge_colour")]
-		public static object merge_colour(object?[] args)
+		public static object merge_colour(params object?[] args)
 		{
 			var col1 = args[0].Conv<int>();
 			var col2 = args[1].Conv<int>();
@@ -1460,5 +1481,73 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		// draw_surface_stretched
+		// draw_surface_stretched_ext
+		// draw_surface_part
+		// draw_surface_part_ext
+		// draw_surface_general
+
+		[GMLFunction("draw_surface_tiled")]
+		public static object? draw_surface_tiled(object?[] args)
+		{
+			DebugLog.LogWarning("draw_surface_tiled not implemented");
+			return null;
+		}
+
+		// draw_surface_tiled_ext
+		// surface_save
+		// surface_save_part
+		// surface_getpixel
+
+		[GMLFunction("surface_getpixel_ext")]
+		public static object? surface_getpixel_ext(object?[] args)
+		{
+			var surfaceid = args[0].Conv<int>();
+			var x = args[1].Conv<int>();
+			var y = args[2].Conv<int>();
+
+			SurfaceManager.BindSurfaceTexture(surfaceid);
+
+			var values = new byte[4];
+			unsafe
+			{
+				fixed (byte* ptr = values)
+					GL.ReadPixels(x, y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
+			}
+			GL.BindTexture(TextureTarget.Texture2D, 0);
+
+			// TODO : check this
+			var r = values[0];
+			var g = values[1];
+			var b = values[2];
+			var a = values[3];
+			return r | g << 8 | b << 16 | a << 24;
+		}
+
+		[GMLFunction("surface_copy")]
+		public static object? surface_copy(object?[] args)
+		{
+			var destination = args[0].Conv<int>();
+			var x = args[1].Conv<int>();
+			var y = args[2].Conv<int>();
+			var source = args[3].Conv<int>();
+
+			DebugLog.LogWarning("surface_copy not implemented");
+
+			return null;
+		}
+
+		// surface_copy_part
+		
+		[GMLFunction("application_surface_draw_enable")]
+		public static object? application_surface_draw_enable(object?[] args)
+		{
+			var enabled = args[0].Conv<bool>();
+
+			DebugLog.LogWarning("application_surface_draw_enable not implemented");
+
+			return null;
+		}
+
+		// skeleton stuff
 	}
 }

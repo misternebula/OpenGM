@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Collections;
@@ -318,8 +319,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 					break;
 				case 3:
 					// bm_subtract
-					GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-					GL.BlendEquation(BlendEquationMode.FuncSubtract);
+					// https://github.com/YoYoGames/GameMaker-Bugs/issues/11061#issuecomment-3005485747
+					GL.BlendFunc(BlendingFactor.Zero, BlendingFactor.OneMinusSrcColor);
+					GL.BlendEquation(BlendEquationMode.FuncAdd);
 					break;
 				case 4:
 					// bm_min
@@ -377,7 +379,81 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// gpu_set_blendmode_ext_sepalpha
+		[GMLFunction("gpu_set_blendmode_ext_sepalpha")]
+		public static object? gpu_set_blendmode_ext_sepalpha(object?[] args)
+		{
+			var src = args[0].Conv<int>();
+			var dest = args[1].Conv<int>();
+			var alphasrc = args[2].Conv<int>();
+			var alphadest = args[3].Conv<int>();
+
+			// TODO : theres gotta be a better way then repeating all these switch cases
+
+			BlendingFactorSrc GetBlendSrc(int arg)
+			{
+				switch (arg)
+				{
+					case 1:
+						return BlendingFactorSrc.Zero;
+					case 2:
+						return BlendingFactorSrc.One;
+					case 3:
+						return BlendingFactorSrc.SrcColor;
+					case 4:
+						return BlendingFactorSrc.OneMinusSrcColor;
+					case 5:
+						return BlendingFactorSrc.SrcAlpha;
+					case 6:
+						return BlendingFactorSrc.OneMinusSrcAlpha;
+					case 7:
+						return BlendingFactorSrc.DstAlpha;
+					case 8:
+						return BlendingFactorSrc.OneMinusDstAlpha;
+					case 9:
+						return BlendingFactorSrc.DstColor;
+					case 10:
+						return BlendingFactorSrc.OneMinusDstColor;
+					case 11:
+						return BlendingFactorSrc.SrcAlphaSaturate;
+					default:
+						throw new ArgumentException();
+				}
+			}
+
+			BlendingFactorDest GetBlendDest(int arg)
+			{
+				switch (arg)
+				{
+					case 1:
+						return BlendingFactorDest.Zero;
+					case 2:
+						return BlendingFactorDest.One;
+					case 3:
+						return BlendingFactorDest.SrcColor;
+					case 4:
+						return BlendingFactorDest.OneMinusSrcColor;
+					case 5:
+						return BlendingFactorDest.SrcAlpha;
+					case 6:
+						return BlendingFactorDest.OneMinusSrcAlpha;
+					case 7:
+						return BlendingFactorDest.DstAlpha;
+					case 8:
+						return BlendingFactorDest.OneMinusDstAlpha;
+					case 9:
+						return BlendingFactorDest.DstColor;
+					case 10:
+						return BlendingFactorDest.OneMinusDstColor;
+					case 11:
+						return BlendingFactorDest.SrcAlphaSaturate;
+					default:
+						throw new ArgumentException();
+				}
+			}
+
+			GL.BlendFuncSeparate(GetBlendSrc(src), GetBlendDest(src), GetBlendSrc(src), GetBlendDest(src));
+			return null;
+		}
 
 		[GMLFunction("gpu_set_colorwriteenable")]
 		[GMLFunction("gpu_set_colourwriteenable")]
@@ -425,7 +501,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		// gpu_set_texfilter
-		// gpu_set_texfilter_ext
+
+		[GMLFunction("gpu_set_texfilter_ext")]
+		public static object? gpu_set_texfilter_ext(object?[] args)
+		{
+			DebugLog.LogWarning("gpu_set_texfilter_ext not implemented.");
+			return null;
+		}
+
 		// gpu_set_texrepeat
 		// gpu_set_texrepeat_ext
 		// gpu_set_tex_filter
@@ -444,7 +527,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// gpu_set_tex_max_aniso_ext
 		// gpu_set_tex_mip_enable
 		// gpu_set_tex_mip_enable_ext
-		// gpu_get_blendenable
+
+		[GMLFunction("gpu_get_blendenable")]
+		public static object? gpu_get_blendenable(object?[] args)
+		{
+			return GL.GetBoolean(GetPName.Blend); // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendFunc.xhtml
+		}
+
 		// gpu_get_ztestenable
 		// gpu_get_zfunc
 		// gpu_get_zwriteenable
@@ -457,8 +546,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// gpu_get_blendmode_dest
 		// gpu_get_blendmode_srcalpha
 		// gpu_get_blendmode_destalpha
-		// gpu_get_colorwriteenable
-		// gpu_get_colourwriteenable
+
+		[GMLFunction("gpu_get_colorwriteenable")]
+		[GMLFunction("gpu_get_colourwriteenable")]
+		public static object? gpu_get_colourwriteenable(object?[] args)
+		{
+			var bools = new bool[4];
+			GL.GetBoolean(GetPName.ColorWritemask, bools); // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glColorMask.xhtml
+			return bools;
+		}
+
 		// gpu_get_alphatestenable
 		// gpu_get_alphatestref
 		// gpu_get_texfilter

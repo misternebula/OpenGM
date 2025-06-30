@@ -29,7 +29,12 @@ namespace OpenGM.IO
 			return null;
 		}
 
-		// shader_current
+		[GMLFunction("shader_current")]
+		public static object? shader_current(object?[] args)
+		{
+			DebugLog.LogWarning("shader_current not implemented.");
+			return null;
+		}
 
 		[GMLFunction("shader_get_uniform")]
 		public static object? shader_get_uniform(object?[] args)

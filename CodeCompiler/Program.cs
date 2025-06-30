@@ -8,19 +8,43 @@ namespace CodeCompiler;
 
 internal class Program
 {
+	private static string GamePath = "";
+
 	static void Main(string[] args)
 	{
-		var gamePath = Path.GetFullPath(Environment.CurrentDirectory + "../../../OpenGM/bin/game");
+		GamePath = Path.GetFullPath(Environment.CurrentDirectory + "../../../OpenGM/bin/game");
+
+		CompileScripts(Path.Combine(GamePath, "data.win"), Directory.GetFiles("Scripts"));
+		CompileScripts(GetChapterDataWin(1), GetChapterScripts(1));
+		CompileScripts(GetChapterDataWin(2), GetChapterScripts(2));
+		CompileScripts(GetChapterDataWin(3), GetChapterScripts(3));
+		CompileScripts(GetChapterDataWin(4), GetChapterScripts(4));
+	}
+
+	public static string GetChapterDataWin(int chapterNum)
+	{
+		return Path.Combine(GamePath, $"chapter{chapterNum}_windows", "data.win");
+	}
+
+	public static string[]? GetChapterScripts(int chapterNum)
+	{
+		var scriptsFolder = Path.Combine("Scripts", $"chapter{chapterNum}_windows");
+		return !Path.Exists(scriptsFolder) ? null : Directory.GetFiles(scriptsFolder);
+	}
+
+	public static void CompileScripts(string winPath, string[]? scriptPaths)
+	{
+		if (scriptPaths == null || scriptPaths.Length == 0)
+		{
+			return;
+		}
 
 		Console.WriteLine($"Creating FileStream...");
-		using var stream = new FileStream(Path.Combine(gamePath, "chapter2_windows/data.win"), FileMode.Open, FileAccess.Read);
+		using var stream = new FileStream(winPath, FileMode.Open, FileAccess.Read);
 		Console.WriteLine($"Reading data.win...");
 		var data = UndertaleIO.Read(stream);
 
-		Console.WriteLine($"Finding GML scripts...");
-		var scriptFiles = Directory.GetFiles("Scripts");
-
-		var asmFolder = Path.Combine(gamePath, "replacement_scripts");
+		var asmFolder = Path.Combine(Path.GetDirectoryName(winPath)!, "replacement_scripts");
 		Directory.CreateDirectory(asmFolder);
 
 		Console.WriteLine($"Clearing output folder...");
@@ -32,7 +56,7 @@ internal class Program
 		var compileGroup = new CompileGroup(data);
 		var codeNames = new List<string>();
 
-		foreach (var file in scriptFiles)
+		foreach (var file in scriptPaths)
 		{
 			Console.WriteLine(file);
 

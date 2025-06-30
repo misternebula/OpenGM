@@ -58,6 +58,16 @@ public static class CollisionManager
 		var right = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale);
 		var bottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale);
 
+		if (gm.image_xscale < 0)
+		{
+			(left, right) = (right, left);
+		}
+
+		if (gm.image_yscale < 0)
+		{
+			(top, bottom) = (bottom, top);
+		}
+
 		// Dont bother rotating if not needed
 		if (CustomMath.ApproxEqual(gm.image_angle % 360, 0))
 		{

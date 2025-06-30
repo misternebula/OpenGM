@@ -140,4 +140,11 @@ public static class ScriptResolver
 
 		return splits;
 	}
+
+	[GMLFunction("steam_is_screenshot_requested")]
+	public static object? steam_is_screenshot_requested(object?[] args)
+	{
+		// TODO : implement
+		return false;
+	}
 }

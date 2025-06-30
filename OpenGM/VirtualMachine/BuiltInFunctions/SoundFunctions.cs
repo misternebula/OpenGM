@@ -166,7 +166,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 		}
 
-		// audio_is_paused
+		[GMLFunction("audio_is_paused")]
+		public static object? audio_is_paused(object?[] args)
+		{
+			return !(bool?)audio_is_playing(args);
+		}
+
 		// audio_exists
 		// audio_system_is_available
 		// audio_sound_is_playable

@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine.BuiltInFunctions
+﻿using OpenGM.IO;
+
+namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class GamepadFunctions
     {
@@ -22,7 +24,14 @@
 		// gamepad_get_button_threshold
 		// gamepad_set_button_threshold
 		// gamepad_get_axis_deadzone
-		// gamepad_set_axis_deadzone
+
+		[GMLFunction("gamepad_set_axis_deadzone")]
+		public static object? gamepad_set_axis_deadzone(object?[] args)
+		{
+			DebugLog.LogWarning("gamepad_set_axis_deadzone not implemented.");
+			return null;
+		}
+
 		// gamepad_button_count
 
 		[GMLFunction("gamepad_button_check")]

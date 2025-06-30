@@ -31,8 +31,12 @@ internal class Entry
 		LoadGame(defaultPath, args);
 	}
 
+	public static DateTime GameLoadTime;
+
 	public static void LoadGame(string dataWinPath, string[] parameters)
 	{
+		GameLoadTime = DateTime.Now;
+
 		LaunchParameters = parameters;
 
 		DataWinFolder = new FileInfo(dataWinPath).DirectoryName!;
@@ -68,8 +72,6 @@ internal class Entry
 
 		// TODO : is RNG re-initialized after game_change?
 		GMRandom.InitialiseRNG(0);
-
-		var firstRoom = RoomManager.RoomList[0];
 
 		if (window == null)
 		{

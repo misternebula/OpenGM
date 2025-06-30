@@ -6,6 +6,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
 public static class VideoFunctions
 {
+	// InitYoYoFunctions
+	// todo: move to the right file?
+	
 	private static DataSource? VideoDataSource;
 	private static VideoPlayback VideoPlayback => VideoDataSource!.VideoPlayback;
 	private static AudioPlayback AudioPlayback => VideoDataSource!.AudioPlayback;

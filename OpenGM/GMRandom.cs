@@ -31,7 +31,7 @@ public static class GMRandom
 	// Generates a random uint, from 0 to uint.Max_Value (probably -1?)
 	// Taken from https://github.com/YoYoGames/GameMaker-HTML5/blob/d1b6b3c407470e23d13c736f97cb64cb722c71d1/scripts/functions/Function_Maths.js#L460
 	// (I've verified that this generates the same numbers as the C++ implementation)
-	public static uint YYRandom()
+	public static uint YYRandom() // rand() in HTML, YYRandom() in C++
 	{
 		var a = State[Index];
 		var c = State[(Index - 3) & 15];
