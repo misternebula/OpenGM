@@ -98,7 +98,8 @@ public enum VMOpcode
 	RESTOREAREF,
 	ISSTATICOK,
 	SETSTATIC,
-	PUSHAC
+	PUSHAC,
+	PUSHREF
 }
 
 public enum VMType

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenGM.Loading;
+using OpenGM.SerializedFiles;
+using OpenGM.Rendering;
 
 namespace OpenGM.IO
 {
@@ -13,7 +16,7 @@ namespace OpenGM.IO
 		public static object? shader_set(object?[] args)
 		{
 			var shaderId = args[0].Conv<int>();
-			DebugLog.LogWarning("shader_set not implemented.");
+			ShaderManager.ShaderSet(shaderId);
 			return null;
 		}
 
@@ -22,7 +25,7 @@ namespace OpenGM.IO
 		[GMLFunction("shader_reset")]
 		public static object? shader_reset(object?[] args)
 		{
-			DebugLog.LogWarning("shader_reset not implemented.");
+			ShaderManager.ShaderReset();
 			return null;
 		}
 

@@ -1,19 +1,18 @@
 #version 330 core
 
-uniform bool alphaTestEnabled;
-uniform float alphaRefValue;
+uniform bool gm_AlphaTestEnabled;
+uniform float gm_AlphaRefValue;
 
-in vec4 fcolor;
-in vec2 texc;
+in vec4 v_vColour;
+in vec2 v_vTexcoord;
 
-uniform sampler2D u_tex;
-uniform bool u_doTex; // maybe i could set the tex uniform to -1 too but idc
+uniform sampler2D gm_BaseTexture;
 
 void DoAlphaTest(vec4 SrcColour)
 {
-    if (alphaTestEnabled)
+    if (gm_AlphaTestEnabled)
     {
-        if (SrcColour.a <= alphaRefValue)
+        if (SrcColour.a <= gm_AlphaRefValue)
         {
             discard;
         }
@@ -21,7 +20,7 @@ void DoAlphaTest(vec4 SrcColour)
 }
 
 void main() {
-    vec4 color = fcolor * (u_doTex ? texture2D(u_tex, texc) : vec4(1));
+    vec4 color = v_vColour * texture2D(gm_BaseTexture, v_vTexcoord);
     DoAlphaTest(color);
     gl_FragColor = color;
 }

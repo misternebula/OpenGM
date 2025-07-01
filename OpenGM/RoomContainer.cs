@@ -19,12 +19,11 @@ public class RoomContainer
 	public Room RoomAsset;
 
 	public int AssetId => RoomAsset.AssetId;
-	public int CameraWidth => RoomAsset.CameraWidth;
-	public int CameraHeight => RoomAsset.CameraHeight;
 	public bool Persistent;
 	public int SizeX => RoomAsset.SizeX;
 	public int SizeY => RoomAsset.SizeY;
-	public GamemakerObject? FollowObject => RoomAsset.FollowsObject == -1 ? null : InstanceManager.instances.FirstOrDefault(x => x.Value.Definition.AssetId == RoomAsset.FollowsObject).Value;
+
+	public RuntimeView[] Views = new RuntimeView[8];
 
 	public Dictionary<int, LayerContainer> Layers = new();
 	public List<DrawWithDepth> Tiles = new();
