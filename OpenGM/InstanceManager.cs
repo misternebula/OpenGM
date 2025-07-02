@@ -172,13 +172,13 @@ public static class InstanceManager
 
 		if (!obj.Marked && obj.Active)
 		{
+			obj.Marked = true;
 			if (executeEvent)
 			{
 				GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Destroy);
 			}
 
 			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.CleanUp);
-			obj.Marked = true;
 		}
 	}
 

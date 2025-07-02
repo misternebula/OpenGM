@@ -467,7 +467,15 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			return false;
 		}
 
-		if (obj.Marked)
+		// HACK: 
+		//   as a temporary fix for objects which destroy themselves within
+		//   their own destroy events, we mark the object first then allow 
+		//   Destroy and CleanUp events to pass. 
+		//
+		//   `InstanceManager.MarkForDestruction()` prevents these events from
+		//   being called again for destruction if the object is already marked.
+
+		if (obj.Marked && eventType != EventType.Destroy && eventType != EventType.CleanUp)
 		{
 			return false;
 		}
