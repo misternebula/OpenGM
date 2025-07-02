@@ -207,7 +207,6 @@ public static class RoomManager
 
 				// TODO : if RoomEnd event creates objects, should they be destroyed??
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
-				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Destroy);
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
 				instance.Destroy();
