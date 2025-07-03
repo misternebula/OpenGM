@@ -15,18 +15,52 @@ internal class Entry
 
 	private static CustomWindow window = null!;
 
-	public static string[] LaunchParameters = new string[0];
+	public static string[] LaunchParameters = [];
 	public static string DataWinFolder = "";
 
 	static void Main(string[] args)
 	{
+		var passedArgs = ProcessArgs(args);
+
 		// only has to be ran once, even across game_changes
 		ScriptResolver.InitGMLFunctions();
 
 		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
 		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
 		var defaultPath = Path.Combine(exeLocation, "game", "data.win");
-		LoadGame(defaultPath, args);
+		LoadGame(defaultPath, [.. passedArgs]);
+	}
+
+	static string[] ProcessArgs(string[] args)
+	{
+		var passedArgs = new List<string>();
+		var endOfOptions = false;
+		foreach (var arg in args)
+		{
+			if (endOfOptions)
+			{
+				passedArgs.Add(arg);
+				continue;
+			}
+
+			switch (arg)
+			{
+				case "--warnings-only":
+					DebugLog.Verbosity = DebugLog.LogType.Warning;
+					break;
+				case "--errors-only":
+					DebugLog.Verbosity = DebugLog.LogType.Error;
+					break;
+				case "--":
+					endOfOptions = true;
+					break;
+				default:
+					passedArgs.Add(arg);
+					break;
+			}
+		}
+
+		return [.. passedArgs];
 	}
 
 	public static DateTime GameLoadTime;
