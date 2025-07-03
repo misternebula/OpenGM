@@ -653,6 +653,18 @@ public static partial class VMExecutor
 				currentFunc.HasStaticInitRan = true;
 				break;
 			}
+			case VMOpcode.PUSHREF:
+			{
+				var encodedInt = instruction.IntData;
+
+				var assetReferenceId = encodedInt & 0xFFFFFF;
+				var assetReferenceType = (AssetType)(encodedInt >> 24);
+
+				// TODO actually push an asset reference object! this is super hacky and dumb and bad and will inevitably break
+				Call.Stack.Push(assetReferenceId, VMType.v);
+
+				break;
+			}
 			case VMOpcode.BREAK:
 				throw new UnreachableException("break is used as an extended opcode marker, so it should never show up as an instruction");
 			default:

@@ -127,7 +127,16 @@ public static partial class VMExecutor
 
 	public static void PopToBuiltIn(string varName, object? value)
 	{
-		VariableResolver.BuiltInVariables[varName].setter!(value);
+		if (!VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtinGetSet))
+		{
+			// "Welcome to hell" - colin
+			// At some point, self started only being used when explicitly doing "self.", and builtin is used instead.
+			PopToSelf(Self.Self, varName, value);
+		}
+		else
+		{
+			builtinGetSet.setter!(value);
+		}
 	}
 
 	public static void PopToStatic(string varName, object? value)

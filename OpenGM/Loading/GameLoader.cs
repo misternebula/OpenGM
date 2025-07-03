@@ -228,7 +228,9 @@ public static class GameLoader
             item.FileStorage = null!; // not used after here, so let it gc
         }
 
-        Console.WriteLine($" Done!");
+        InstanceManager.InitObjectMap();
+
+		Console.WriteLine($" Done!");
     }
 
     private static void LoadRooms(BinaryReader reader)

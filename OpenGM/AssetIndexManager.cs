@@ -1,18 +1,24 @@
 ﻿namespace OpenGM;
 
+// TODO "Exact value must be adapted depending on GameMaker version."
+// https://github.com/UnderminersTeam/Underanalyzer/blob/36f19d67de5f0e51376b0199be120f0508d1d931/Underanalyzer/IGameContext.cs#L16
 public enum AssetType
 {
-	sounds,
+	objects,
 	sprites,
+	sounds,
+	rooms,
 	backgrounds,
 	paths,
 	scripts,
 	fonts,
-	objects,
 	timelines,
-	rooms,
 	shaders,
-	extensions,
+	sequences,
+	animcurves,
+	particlesystems,
+	roominstances,
+	extensions // not actual an assettype, but i just want one enum
 }
 
 public static class AssetIndexManager
@@ -37,6 +43,11 @@ public static class AssetIndexManager
 			{
 				headerLineNumber = i;
 				currentAssetType = Enum.Parse<AssetType>(line.Trim('@'));
+				continue;
+			}
+
+			if (line == "(null)")
+			{
 				continue;
 			}
 
