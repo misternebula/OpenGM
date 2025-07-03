@@ -70,6 +70,7 @@ public class RoomContainer
 
 		// g_pLayerManager.RemoveInstance(this, pInst);
 		InstanceManager.instances.Remove(obj.instanceId);
+		InstanceManager.ObjectMap[obj.Definition.AssetId].Instances.Remove(obj);
 		// this.m_Active.DeleteItem(pInst);
 		// this.m_Deactive.DeleteItem(pInst);
 		obj.Destroy();

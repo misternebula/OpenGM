@@ -6,12 +6,38 @@ using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
 namespace OpenGM;
+
+public class ObjectDictEntry
+{
+	public List<GamemakerObject> Instances = new();
+	public List<int> ChildrenIndexes = new();
+}
+
 public static class InstanceManager
 {
 	public static Dictionary<int, GamemakerObject> instances = new();
 	public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
 	public static int NextInstanceID;
+
+	public static Dictionary<int, ObjectDictEntry> ObjectMap = new();
+
+	public static void InitObjectMap()
+	{
+		ObjectMap = new();
+
+		foreach (var item in ObjectDefinitions)
+		{
+			var entry = new ObjectDictEntry
+			{
+				ChildrenIndexes = ObjectDefinitions
+					.Where(x => x.Value.parent == item.Value)
+					.Select(x => x.Key).ToList()
+			};
+
+			ObjectMap.Add(item.Key, entry);
+		}
+	}
 
 	public static void RegisterInstance(GamemakerObject obj)
 	{
@@ -41,6 +67,9 @@ public static class InstanceManager
 		}
 
 		instances.Add(obj.instanceId, obj);
+
+		var entry = ObjectMap[obj.Definition.AssetId];
+		entry.Instances.Add(obj);
 	}
 
 	public static int instance_create(double x, double y, int obj)
@@ -97,7 +126,7 @@ public static class InstanceManager
 			throw new Exception($"Tried to find instances with asset id {assetId}");
 		}
 
-		var result = new List<GamemakerObject>();
+		/*var result = new List<GamemakerObject>();
 		foreach (var (instanceId, instance) in instances)
 		{
 			var definition = instance.Definition;
@@ -109,6 +138,20 @@ public static class InstanceManager
 					break; // continue for loop
 				}
 				definition = definition.parent;
+			}
+		}
+
+		return result;*/
+
+		var result = new List<GamemakerObject>();
+		AddChild(assetId);
+
+		void AddChild(int id)
+		{
+			result.AddRange(ObjectMap[id].Instances);
+			foreach (var child in ObjectMap[id].ChildrenIndexes)
+			{
+				AddChild(child);
 			}
 		}
 
@@ -182,6 +225,39 @@ public static class InstanceManager
 		}
 	}
 
+	public static void ClearNullInstances()
+	{
+		var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
+		ClearInstances(toRemove);
+	}
+
+	public static void ClearNonPersistent()
+	{
+		var toRemove = instances.Where(x => !x.Value.persistent).Select(x => x.Key);
+		ClearInstances(toRemove);
+	}
+
+	public static void ClearInstancesExcept(List<GamemakerObject> instancesToKeep)
+	{
+		var toRemove = instances.Where(x => !instancesToKeep.Contains(x.Value)).Select(x => x.Key);
+		ClearInstances(toRemove);
+	}
+
+	public static void ClearInstances(IEnumerable<int> toRemove)
+	{
+		foreach (var id in toRemove)
+		{
+			var instance = instances[id];
+
+			if (instance != null)
+			{
+				ObjectMap[instance.Definition.AssetId].Instances.Remove(instance);
+			}
+
+			instances.Remove(id);
+		}
+	}
+
 	public static void RoomChange()
 	{
 		foreach (var (instanceId, instance) in instances)
@@ -192,7 +268,9 @@ public static class InstanceManager
 			}
 		}
 
-		instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
+		//instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
+		ClearNullInstances();
+		ClearNonPersistent();
 	}
 
 	public static void RememberOldPositions()

@@ -74,7 +74,8 @@ public static class RoomManager
 		}
 
 		// todo: this seems dumb and slow. do it in a not dumb way
-		InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
+		//InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
+		InstanceManager.ClearInstancesExcept(instancesToSave);
 
 		foreach (var item in CurrentRoom.Tiles)
 		{
@@ -214,7 +215,9 @@ public static class RoomManager
 				//Destroy(instance.gameObject);
 			}
 
-			InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
+			//InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
+			InstanceManager.ClearNullInstances();
+			InstanceManager.ClearNonPersistent();
 
 			foreach (var item in CurrentRoom.Tiles)
 			{
