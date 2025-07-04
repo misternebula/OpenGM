@@ -306,7 +306,33 @@ public class CustomWindow : GameWindow
                 {
                     // sprite font
 
-                    // TODO: Implement
+                    // returns the index corresponding to the given character,
+                    // or -1 if there isn't one
+                    var idx = textJob.asset.entries
+                        .Select((entry, index) => (entry, index))
+                        .Where(b => b.entry.characterIndex == character)
+                        .Select(b => b.index)
+                        .FirstOrDefault(-1);
+
+                    if (idx == -1)
+                    {
+                        if (character == ' ')
+                        {
+                            xOffset += textJob.asset.Size;
+                        }
+
+                        continue;
+                    }
+
+                    var sprite = SpriteManager.GetSpritePage(textJob.asset.spriteIndex, idx);
+                    Draw(new GMSpriteJob()
+                    {
+                        texture = sprite,
+                        screenPos = textJob.screenPos + (xOffset, 0),
+                        blend = textJob.blend
+                    });
+
+                    xOffset += sprite.TargetSizeX * textJob.scale.X;
                 }
                 else
                 {
@@ -371,10 +397,10 @@ public class CustomWindow : GameWindow
                     GL.End();
                     */
                     VertexManager.Draw(PrimitiveType.TriangleFan, [
-	                    new(new(topLeftX, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX), new(leftX, topY)),
-	                    new(new(topLeftX + glyph.w * textJob.scale.X, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, topY)),
-	                    new(new(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y)), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, bottomY)),
-	                    new(new(topLeftX, topLeftY + glyph.h * textJob.scale.Y), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX), new(leftX, bottomY)),
+                        new(new(topLeftX, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX), new(leftX, topY)),
+                        new(new(topLeftX + glyph.w * textJob.scale.X, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, topY)),
+                        new(new(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y)), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, bottomY)),
+                        new(new(topLeftX, topLeftY + glyph.h * textJob.scale.Y), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX), new(leftX, bottomY)),
                     ]);
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);

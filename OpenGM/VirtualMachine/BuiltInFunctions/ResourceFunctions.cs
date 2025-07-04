@@ -244,12 +244,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 			for (var i = 0; i < string_map.Length; i++)
 			{
+				var page = SpriteManager.GetSpritePage(spriteAssetIndex, i);
 				var fontAssetEntry = new Glyph
 				{
-					characterIndex = string_map[i]
+					characterIndex = string_map[i],
+					x = page.SourcePosX,
+					y = page.SourcePosY,
+					w = page.SourceSizeX,
+					h = page.SourceSizeY,
+					shift = page.TargetPosX
 				};
 
+				// TODO: no way to get the frame index from entriesDict right now
 				newFont.entries.Add(fontAssetEntry);
+				newFont.entriesDict.Add(fontAssetEntry.characterIndex, fontAssetEntry);
 			}
 
 			TextManager.FontAssets.Add(newFont);

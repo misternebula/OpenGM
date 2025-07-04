@@ -1084,6 +1084,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var x = args[2].Conv<double>();
 			var y = args[3].Conv<double>();
 
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
+
 			SpriteManager.DrawSprite(sprite, subimg, x, y);
 			return null;
 		}
@@ -1100,6 +1105,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var rot = args[6].Conv<double>();
 			var colour = args[7].Conv<int>();
 			var alpha = args[8].Conv<double>();
+
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
 
 			SpriteManager.DrawSpriteExt(sprite, subimg, x, y, xscale, yscale, rot, colour, alpha);
 			return null;
@@ -1119,6 +1129,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var x4 = args[8].Conv<double>();
 			var y4 = args[9].Conv<double>();
 			var alpha = args[10].Conv<double>();
+
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
 
 			var col = 16777215.ABGRToCol4(alpha); // c_white
 			var pageItem = SpriteManager.GetSpritePage(sprite, subimg);
@@ -1158,6 +1173,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var w = args[4].Conv<double>();
 			var h = args[5].Conv<double>();
 
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
+
 			SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, 0x00FFFFFF, 1);
 			return null;
 		}
@@ -1174,6 +1194,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var colour = args[6].Conv<int>();
 			var alpha = args[7].Conv<double>();
 
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
+
 			SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, colour, alpha);
 			return null;
 		}
@@ -1189,6 +1214,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var height = args[5].Conv<int>();
 			var x = args[6].Conv<double>();
 			var y = args[7].Conv<double>();
+
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
 
 			SpriteManager.DrawSpritePart(sprite, subimg, left, top, width, height, x, y);
 
@@ -1211,6 +1241,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var colour = args[10].Conv<int>();
 			var alpha = args[11].Conv<double>();
 
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
+
 			SpriteManager.DrawSpritePartExt(sprite, subimg, left, top, width, height, x, y, xscale, yscale, colour, alpha);
 
 			return null;
@@ -1230,6 +1265,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var yscale = args[5].Conv<double>();
 			var colour = args[6].Conv<int>();
 			var alpha = args[7].Conv<double>();
+
+			if (subimg == -1)
+			{
+				subimg = (int)VMExecutor.Self.GMSelf.image_index;
+			}
 
 			var spriteTex = SpriteManager.GetSpritePage(sprite, subimg);
 

@@ -38,7 +38,7 @@ public static class TextManager
 
 	public static int FontHeight()
 	{
-		if (fontAsset.entriesDict.TryGetValue(77, out var glyph))
+		if (fontAsset.entriesDict.TryGetValue('M', out var glyph))
 		{
 			return glyph.h;
 		}
@@ -233,16 +233,46 @@ public static class TextManager
 		var tallestChar = 0;
 		foreach (var character in lines[^1])
 		{
-			if (!fontAsset.entriesDict.TryGetValue(character, out var glyph))
+			if (fontAsset.texture == null && fontAsset.spriteIndex != -1)
 			{
-				continue;
+				// sprite font
+
+				// returns the index corresponding to the given character,
+				// or -1 if there isn't one
+				var idx = fontAsset.entries
+					.Select((entry, index) => (entry, index))
+					.Where(b => b.entry.characterIndex == character)
+					.Select(b => b.index)
+					.FirstOrDefault(-1);
+
+				if (idx == -1)
+				{
+					continue;
+				}
+
+				var sprite = SpriteManager.GetSpritePage(fontAsset.spriteIndex, idx);
+				var height = sprite.TargetSizeY;
+
+				if (height > tallestChar)
+				{
+					tallestChar = height;
+				}
 			}
-
-			var height = glyph.h;
-
-			if (height > tallestChar)
+			else
 			{
-				tallestChar = height;
+				// normal font
+
+				if (!fontAsset.entriesDict.TryGetValue(character, out var glyph))
+				{
+					continue;
+				}
+
+				var height = glyph.h;
+
+				if (height > tallestChar)
+				{
+					tallestChar = height;
+				}
 			}
 		}
 
@@ -261,18 +291,48 @@ public static class TextManager
 			{
 				var asciiIndex = (int)line[i];
 
-				if (!fontAsset.entriesDict.TryGetValue(asciiIndex, out var entry))
+				if (fontAsset.texture == null && fontAsset.spriteIndex != -1)
 				{
-					continue;
-				}
+					// sprite font
 
-				if (i == line.Length - 1)
-				{
-					totalWidth += entry.w + entry.offset;
+					// returns the index corresponding to the given character,
+					// or -1 if there isn't one
+					var idx = fontAsset.entries
+						.Select((entry, index) => (entry, index))
+						.Where(b => b.entry.characterIndex == asciiIndex)
+						.Select(b => b.index)
+						.FirstOrDefault(-1);
+
+					if (idx == -1)
+					{
+						if (asciiIndex == ' ')
+						{
+							totalWidth += (int)fontAsset.Size;
+						}
+
+						continue;
+					}
+
+					var sprite = SpriteManager.GetSpritePage(fontAsset.spriteIndex, idx);
+
+					totalWidth += sprite.TargetSizeX;
 				}
 				else
 				{
-					totalWidth += entry.shift;
+					// normal font
+					if (!fontAsset.entriesDict.TryGetValue(asciiIndex, out var entry))
+					{
+						continue;
+					}
+
+					if (i == line.Length - 1)
+					{
+						totalWidth += entry.w + entry.offset;
+					}
+					else
+					{
+						totalWidth += entry.shift;
+					}
 				}
 			}
 
