@@ -1,0 +1,3 @@
+[submodule "OpenGM/UndertaleModTool"]
+	path = UndertaleModTool
+	url = https://github.com/UnderminersTeam/UndertaleModTool
