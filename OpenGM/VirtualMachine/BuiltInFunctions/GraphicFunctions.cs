@@ -10,11 +10,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     public static class GraphicFunctions
     {
 		// not in 2022.500, no idea where in the list it goes
-		[GMLFunction("window_enable_borderless_fullscreen")]
+		[GMLFunction("window_enable_borderless_fullscreen", GMLFunctionFlags.Stub)]
 		public static object? window_enable_borderless_fullscreen(object?[] args)
 		{
 			// todo : implement
-			DebugLog.LogWarning("window_enable_borderless_fullscreen not implemented");
 			return null;
 		}
 
@@ -44,10 +43,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// display_set_sleep_margin
 		// display_get_sleep_margin
 
-		[GMLFunction("display_set_gui_size")]
+		[GMLFunction("display_set_gui_size", GMLFunctionFlags.Stub)]
 		public static object? display_set_gui_size(object?[] args)
 		{
-			DebugLog.LogWarning("display_set_gui_size not implemented.");
 			return null;
 		}
 
@@ -96,19 +94,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// window_set_cursor
 		// window_get_cursor
 
-		[GMLFunction("window_set_color")]
-		[GMLFunction("window_set_colour")]
+		[GMLFunction("window_set_color", GMLFunctionFlags.Stub)]
+		[GMLFunction("window_set_colour", GMLFunctionFlags.Stub)]
 		public static object? window_set_color(object?[] args)
 		{
-			DebugLog.LogWarning("window_set_color not implemented");
 			return null;
 		}
 
-		[GMLFunction("window_get_color")]
-		[GMLFunction("window_get_colour")]
+		[GMLFunction("window_get_color", GMLFunctionFlags.Stub)]
+		[GMLFunction("window_get_colour", GMLFunctionFlags.Stub)]
 		public static object? window_get_color(object?[] args)
 		{
-			DebugLog.LogWarning("window_get_color not implemented");
 			return null;
 		}
 
@@ -801,11 +797,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_circle_color")]
-		[GMLFunction("draw_circle_colour")]
+		[GMLFunction("draw_circle_color", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_circle_colour", GMLFunctionFlags.Stub)]
 		public static object? draw_circle_color(object?[] args)
 		{
-			DebugLog.LogWarning("draw_circle_color not implemented");
 			return null;
 		}
 
@@ -848,12 +843,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_vertex_texture_color
 		// draw_vertex_texture_colour
 
-		[GMLFunction("sprite_get_uvs")]
+		[GMLFunction("sprite_get_uvs", GMLFunctionFlags.Stub)]
 		public static object? sprite_get_uvs(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
 			var subimg = args[0].Conv<int>();
-			DebugLog.LogWarning("sprite_get_uvs not implemented.");
+
 			return new int[8];
 		}
 
@@ -861,12 +856,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// font_get_info
 		// font_cache_glyph
 
-		[GMLFunction("sprite_get_texture")]
+		[GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub)]
 		public static object? sprite_get_texture(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
 			var subimg = args[0].Conv<int>();
-			DebugLog.LogWarning("sprite_get_texture not implemented.");
+
 			return 0;
 		}
 
@@ -1056,11 +1051,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_text_transformed_color")]
-		[GMLFunction("draw_text_transformed_colour")]
+		[GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub)]
 		public static object? draw_text_transformed_colour(object?[] args)
 		{
-			DebugLog.LogWarning("draw_text_transformed_color not implemented");
 			return null;
 		}
 
@@ -1384,10 +1378,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return SurfaceManager.GetSurfaceHeight(surface_id);
 		}
 
-		[GMLFunction("surface_get_texture")]
+		[GMLFunction("surface_get_texture", GMLFunctionFlags.Stub)]
 		public static object? surface_get_texture(object?[] args)
 		{
-			DebugLog.LogWarning("surface_get_texture not implemented.");
 			return -1;
 		}
 
@@ -1453,10 +1446,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_surface_part_ext
 		// draw_surface_general
 
-		[GMLFunction("draw_surface_tiled")]
+		[GMLFunction("draw_surface_tiled", GMLFunctionFlags.Stub)]
 		public static object? draw_surface_tiled(object?[] args)
 		{
-			DebugLog.LogWarning("draw_surface_tiled not implemented");
 			return null;
 		}
 
@@ -1490,7 +1482,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return r | g << 8 | b << 16 | a << 24;
 		}
 
-		[GMLFunction("surface_copy")]
+		[GMLFunction("surface_copy", GMLFunctionFlags.Stub)]
 		public static object? surface_copy(object?[] args)
 		{
 			var destination = args[0].Conv<int>();
@@ -1498,19 +1490,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var y = args[2].Conv<int>();
 			var source = args[3].Conv<int>();
 
-			DebugLog.LogWarning("surface_copy not implemented");
-
 			return null;
 		}
 
 		// surface_copy_part
 		
-		[GMLFunction("application_surface_draw_enable")]
+		[GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub)]
 		public static object? application_surface_draw_enable(object?[] args)
 		{
 			var enabled = args[0].Conv<bool>();
-
-			DebugLog.LogWarning("application_surface_draw_enable not implemented");
 
 			return null;
 		}

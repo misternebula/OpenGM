@@ -8,43 +8,38 @@ namespace OpenGM.IO
 {
     public static class VertexFormatFunctions
     {
-		[GMLFunction("vertex_format_begin")]
+		[GMLFunction("vertex_format_begin", GMLFunctionFlags.Stub)]
 	    public static object? vertex_format_begin(object?[] args)
 	    {
-		    DebugLog.LogWarning("vertex_format_begin not implemented.");
 		    return null;
 	    }
 
 		// vertex_format_delete
 
-		[GMLFunction("vertex_format_end")]
+		[GMLFunction("vertex_format_end", GMLFunctionFlags.Stub)]
 		public static object? vertex_format_end(object?[] args)
 		{
-			DebugLog.LogWarning("vertex_format_end not implemented.");
 			return null;
 		}
 
-		[GMLFunction("vertex_format_add_position")]
+		[GMLFunction("vertex_format_add_position", GMLFunctionFlags.Stub)]
 		public static object? vertex_format_add_position(object?[] args)
 		{
-			DebugLog.LogWarning("vertex_format_add_position not implemented.");
 			return null;
 		}
 
 		// vertex_format_add_position_3d
 
-		[GMLFunction("vertex_format_add_color")]
-		[GMLFunction("vertex_format_add_colour")]
+		[GMLFunction("vertex_format_add_color", GMLFunctionFlags.Stub)]
+		[GMLFunction("vertex_format_add_colour", GMLFunctionFlags.Stub)]
 		public static object? vertex_format_add_colour(object?[] args)
 		{
-			DebugLog.LogWarning("vertex_format_add_colour not implemented.");
 			return null;
 		}
 
-		[GMLFunction("vertex_format_add_normal")]
+		[GMLFunction("vertex_format_add_normal", GMLFunctionFlags.Stub)]
 		public static object? vertex_format_add_normal(object?[] args)
 		{
-			DebugLog.LogWarning("vertex_format_add_normal not implemented.");
 			return null;
 		}
 

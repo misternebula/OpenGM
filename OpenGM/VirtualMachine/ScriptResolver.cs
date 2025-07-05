@@ -1,17 +1,8 @@
-﻿using OpenGM.SerializedFiles;
-using Newtonsoft.Json.Linq;
-using OpenTK.Audio.OpenAL;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using System.Collections;
+﻿using OpenTK.Mathematics;
 using System.Reflection;
-using UndertaleModLib.Models;
-using OpenTK.Graphics.OpenGL;
 using OpenGM.Rendering;
 using OpenGM.IO;
 using OpenGM.Loading;
-using StbVorbisSharp;
 
 namespace OpenGM.VirtualMachine;
 public static class ScriptResolver
@@ -19,29 +10,49 @@ public static class ScriptResolver
 	public static Dictionary<string, VMScript> ScriptsByName = new();
 	public static Dictionary<int, VMScript> ScriptsByIndex = new();
 	public static List<VMCode> GlobalInit = new();
-
-	public static Dictionary<string, Func<object?[], object?>> BuiltInFunctions = new();
+	
+	public static Dictionary<string, GMLFunctionType> BuiltInFunctions = new();
 
 	public static void InitGMLFunctions()
 	{
+		GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName) 
+		{
+			return (object?[] args) =>
+			{
+				DebugLog.LogVerbose($"{functionName} not implemented.");
+				return function.Invoke(args);
+			};
+		};
+
 		var assembly = Assembly.GetExecutingAssembly();
 		var methods = assembly.GetTypes()
 			.SelectMany(t => t.GetMethods())
 			.Where(m => m.GetCustomAttributes(typeof(GMLFunctionAttribute), false).Length > 0)
 			.ToArray();
 
+		var stubCount = 0;
+
 		foreach (var methodInfo in methods)
 		{
-			var func = (Func<object?[], object?>)Delegate.CreateDelegate(typeof(Func<object?[], object?>), methodInfo);
+			var func = (GMLFunctionType)Delegate.CreateDelegate(typeof(GMLFunctionType), methodInfo);
 			var attributes = (GMLFunctionAttribute[])methodInfo.GetCustomAttributes(typeof(GMLFunctionAttribute), false);
 
 			foreach (var attribute in attributes)
 			{
-				BuiltInFunctions.Add(attribute.FunctionName, func);
+				var newFunc = func;
+				if (attribute.FunctionFlags.HasFlag(GMLFunctionFlags.Stub))
+				{
+					newFunc = MakeStubFunction(func, attribute.FunctionName);
+					stubCount++;
+				}
+
+				BuiltInFunctions.Add(attribute.FunctionName, newFunc);
 			}
 		}
 
-		DebugLog.LogInfo($"Registered {BuiltInFunctions.Count} GML functions.");
+		var totalCount = BuiltInFunctions.Count;
+		var realCount = totalCount - stubCount;
+		DebugLog.LogInfo($"Registered {totalCount} GML functions ({realCount} implemented, {stubCount} stubbed.)");
 	}
 
 	// any functions in here aren't in 2022.500 so idk where they go rn
@@ -147,4 +158,6 @@ public static class ScriptResolver
 		// TODO : implement
 		return false;
 	}
+
+	public delegate object? GMLFunctionType(object?[] args);
 }

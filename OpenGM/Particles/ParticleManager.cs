@@ -75,17 +75,17 @@ namespace OpenGM.Particles
 
 		public static void HandleLife(ParticleSystem sys)
 		{
-			DebugLog.LogWarning("HandleLife not implemented");
+			DebugLog.LogWarning("Method HandleLife not implemented.");
 		}
 
 		public static void HandleMotion(ParticleSystem sys)
 		{
-			DebugLog.LogWarning("HandleMotion not implemented");
+			DebugLog.LogWarning("Method HandleMotion not implemented.");
 		}
 
 		public static void HandleShape(ParticleSystem sys)
 		{
-			DebugLog.LogWarning("HandleShape not implemented");
+			DebugLog.LogWarning("Method HandleShape not implemented.");
 		}
 
 		public static void Draw(int ind)
@@ -160,7 +160,7 @@ namespace OpenGM.Particles
 				number = 1;
 			}
 
-			DebugLog.LogWarning("emitterburst not implemented");
+			DebugLog.LogWarning("Method EmitterBurst not implemented.");
 		}
 
 		public static Particle CreateParticle(double x, double y, int particleTypeId)

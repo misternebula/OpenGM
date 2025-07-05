@@ -547,7 +547,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			case EventType.Gesture:
 			case EventType.Mouse:
 			default:
-				DebugLog.LogError($"{eventType} not implemented!");
+				DebugLog.LogError($"Event type {eventType} not implemented.");
 				return false;
 		}
 	}

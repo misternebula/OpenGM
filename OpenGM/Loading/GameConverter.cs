@@ -439,7 +439,7 @@ public static class GameConverter
 						break;
 					}
 					default:
-						throw new NotImplementedException($"{enumOperation} not implemented");
+						throw new NotImplementedException($"Opcode {enumOperation} not implemented");
 				}
 
 				if (shouldGetVariableInfo)

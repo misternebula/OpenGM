@@ -502,10 +502,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// gpu_set_texfilter
 
-		[GMLFunction("gpu_set_texfilter_ext")]
+		[GMLFunction("gpu_set_texfilter_ext", GMLFunctionFlags.Stub)]
 		public static object? gpu_set_texfilter_ext(object?[] args)
 		{
-			DebugLog.LogWarning("gpu_set_texfilter_ext not implemented.");
 			return null;
 		}
 

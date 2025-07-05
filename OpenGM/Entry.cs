@@ -51,6 +51,10 @@ internal class Entry
 				case "--errors-only":
 					DebugLog.Verbosity = DebugLog.LogType.Error;
 					break;
+				case "--verbose":
+				case "-v":
+					DebugLog.Verbosity = DebugLog.LogType.Verbose;
+					break;
 				case "--":
 					endOfOptions = true;
 					break;
