@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCompiler", "CodeCompile
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MotionTK", "MotionTK\MotionTK.csproj", "{E3879949-34E8-4875-9DFB-4959C7CBD795}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndertaleModLib", "UndertaleModTool\UndertaleModLib\UndertaleModLib.csproj", "{464F738D-5EE9-4B3B-BE3D-6827F371842F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Underanalyzer", "UndertaleModTool\Underanalyzer\Underanalyzer\Underanalyzer.csproj", "{9DBB7031-397E-484E-AEEC-523C15E16BC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{E3879949-34E8-4875-9DFB-4959C7CBD795}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3879949-34E8-4875-9DFB-4959C7CBD795}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3879949-34E8-4875-9DFB-4959C7CBD795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{464F738D-5EE9-4B3B-BE3D-6827F371842F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{464F738D-5EE9-4B3B-BE3D-6827F371842F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{464F738D-5EE9-4B3B-BE3D-6827F371842F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{464F738D-5EE9-4B3B-BE3D-6827F371842F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DBB7031-397E-484E-AEEC-523C15E16BC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DBB7031-397E-484E-AEEC-523C15E16BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DBB7031-397E-484E-AEEC-523C15E16BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DBB7031-397E-484E-AEEC-523C15E16BC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
