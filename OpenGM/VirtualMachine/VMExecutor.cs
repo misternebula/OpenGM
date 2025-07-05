@@ -486,15 +486,15 @@ public static partial class VMExecutor
 					args[i] = Call.Stack.Pop(VMType.v);
 				}
 
-				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
-				{
-					Call.Stack!.Push(builtInFunction!(args), VMType.v);
-					break;
-				}
-
 				if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
 					Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.Self, Self.ObjectDefinition, args: args), VMType.v);
+					break;
+				}
+
+				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
+				{
+					Call.Stack!.Push(builtInFunction!(args), VMType.v);
 					break;
 				}
 
