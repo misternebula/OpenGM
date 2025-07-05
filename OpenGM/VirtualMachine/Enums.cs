@@ -91,6 +91,7 @@ public enum VMOpcode
 	CALLV,
 	BREAK,
 	CHKINDEX,
+	CHKNULLISH,
 	SETOWNER,
 	PUSHAF,
 	POPAF,

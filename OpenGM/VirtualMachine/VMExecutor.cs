@@ -546,7 +546,14 @@ public static partial class VMExecutor
 
 				throw new Exception($"CHKINDEX failed - {index} ({type})");
 			}
-			case VMOpcode.EXIT:
+            case VMOpcode.CHKNULLISH:
+			{
+				// TODO: is this right? remains to be seen
+				var value = Call.Stack.Pop(VMType.v);
+				Call.Stack.Push(value == null, VMType.b);
+				break;
+			}
+            case VMOpcode.EXIT:
 				return (ExecutionResult.ReturnedValue, instruction.TypeOne switch
 				{
 					VMType.i or VMType.e or VMType.d or VMType.l => 0,

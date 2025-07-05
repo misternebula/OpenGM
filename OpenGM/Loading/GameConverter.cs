@@ -236,6 +236,9 @@ public static class GameConverter
 					case VMOpcode.CHKINDEX:
 						// no data
 						break;
+					case VMOpcode.CHKNULLISH:
+						// no data
+						break;
 					case VMOpcode.CONV:
 						// no data
 						break;
