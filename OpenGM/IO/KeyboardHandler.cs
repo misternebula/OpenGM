@@ -31,6 +31,10 @@ public class KeyboardHandler
         }
     }
 
+    /// <summary>
+    /// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    /// most virtual keys map to opentk keys, but some dont, so we gotta do that here
+    /// </summary>
     public static Keys[] Convert(int keyid)
     {
         return keyid switch
