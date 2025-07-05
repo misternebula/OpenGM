@@ -25,7 +25,7 @@ internal class Entry
 		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
 		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
 		var defaultPath = Path.Combine(exeLocation, "game", "data.win");
-		LoadGame(defaultPath, [.. passedArgs]);
+		LoadGame(defaultPath, passedArgs);
 	}
 
 	static string[] ProcessArgs(string[] args)
@@ -61,7 +61,7 @@ internal class Entry
 			}
 		}
 
-		return [.. passedArgs];
+		return passedArgs.ToArray();
 	}
 
 	public static DateTime GameLoadTime;
