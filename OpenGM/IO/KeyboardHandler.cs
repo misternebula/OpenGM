@@ -73,15 +73,21 @@ public class KeyboardHandler
             var keysHeld = keys.Select(state.IsKeyDown);
             return keysHeld.Any(v => v);
         }
-        
-        for (var i = 0; i < 256; i++)
+        void CalculateKey(int vk, bool isDown)
         {
-            var isDown = CustomWindow.Instance.IsFocused && AnyKeysDown(Convert(i));
-            var wasDown = KeyDown[i];
+            var wasDown = KeyDown[vk];
 
-            KeyPressed[i] = isDown && !wasDown;
-            KeyReleased[i] = !isDown && wasDown;
-            KeyDown[i] = isDown;
+            KeyPressed[vk] = isDown && !wasDown;
+            KeyReleased[vk] = !isDown && wasDown;
+            KeyDown[vk] = isDown;
+        }
+
+        CalculateKey(0, !state.IsAnyKeyDown); // vk_nokey
+        CalculateKey(1, state.IsAnyKeyDown); // vk_anykey
+
+        for (var i = 2; i < 256; i++)
+        {
+            CalculateKey(i, CustomWindow.Instance.IsFocused && AnyKeysDown(Convert(i)));
         }
 
         // debug
