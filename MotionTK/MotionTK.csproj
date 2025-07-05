@@ -3,8 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+<!--    <Nullable>enable</Nullable>-->
+<!--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

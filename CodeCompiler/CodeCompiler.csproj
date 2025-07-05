@@ -21,12 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="UndertaleModLib">
-      <HintPath>..\OpenGM\UndertaleModLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Scripts\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
