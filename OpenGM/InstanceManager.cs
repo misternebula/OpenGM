@@ -258,6 +258,11 @@ public static class InstanceManager
 		}
 	}
 
+	public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove)
+	{
+		ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
+	}
+
 	public static void RoomChange()
 	{
 		foreach (var (instanceId, instance) in instances)

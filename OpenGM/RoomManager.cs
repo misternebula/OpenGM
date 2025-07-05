@@ -75,7 +75,7 @@ public static class RoomManager
 
 		// todo: this seems dumb and slow. do it in a not dumb way
 		//InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
-		InstanceManager.ClearInstancesExcept(instancesToSave);
+		InstanceManager.ClearInstances(instancesToSave);
 
 		foreach (var item in CurrentRoom.Tiles)
 		{
