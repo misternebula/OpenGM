@@ -1,7 +1,6 @@
 ﻿using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
-using UndertaleModLib.Decompiler;
 
 namespace OpenGM;
 public static class TextManager
@@ -325,14 +324,7 @@ public static class TextManager
 						continue;
 					}
 
-					if (i == line.Length - 1)
-					{
-						totalWidth += entry.w + entry.offset;
-					}
-					else
-					{
-						totalWidth += entry.shift;
-					}
+					totalWidth += (int)(entry.shift * fontAsset.ScaleX);
 				}
 			}
 
