@@ -55,7 +55,7 @@ public static class RoomManager
 				continue;
 			}
 
-			if (instance.persistent)
+			if (instance.persistent) // dont bother saving thing that is already going to be saved
 			{
 				continue;
 			}
@@ -74,7 +74,8 @@ public static class RoomManager
 		}
 
 		// todo: this seems dumb and slow. do it in a not dumb way
-		InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
+		//InstanceManager.instances = InstanceManager.instances.Where(x => !instancesToSave.Contains(x.Value)).ToDictionary();
+		InstanceManager.ClearInstances(instancesToSave);
 
 		foreach (var item in CurrentRoom.Tiles)
 		{
@@ -207,13 +208,16 @@ public static class RoomManager
 
 				// TODO : if RoomEnd event creates objects, should they be destroyed??
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+				// no destroy event https://forum.gamemaker.io/index.php?threads/hold-up-room-change-doesnt-trigger-destroy-event-of-objects.43007/
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
 				instance.Destroy();
 				//Destroy(instance.gameObject);
 			}
 
-			InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
+			//InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
+			InstanceManager.ClearNullInstances();
+			InstanceManager.ClearNonPersistent();
 
 			foreach (var item in CurrentRoom.Tiles)
 			{

@@ -332,7 +332,7 @@ public class CustomWindow : GameWindow
                         blend = textJob.blend
                     });
 
-                    xOffset += sprite.TargetSizeX * textJob.scale.X;
+                    xOffset += (sprite.TargetSizeX + textJob.asset.sep) * textJob.scale.X;
                 }
                 else
                 {

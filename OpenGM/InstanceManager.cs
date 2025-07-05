@@ -6,12 +6,43 @@ using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
 namespace OpenGM;
+
+// this could also be in ObjectDefinition. it dont matter
+public class ObjectDictEntry
+{
+	public List<GamemakerObject> Instances = new();
+	public List<int> ChildrenIndexes = new();
+}
+
 public static class InstanceManager
 {
 	public static Dictionary<int, GamemakerObject> instances = new();
 	public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
 	public static int NextInstanceID;
+
+	/// <summary>
+	/// for faster lookup when finding instances by asset id.
+	/// gamemaker does something similar and this was a bottleneck in one of nebula's test programs.
+	/// </summary>
+	public static Dictionary<int, ObjectDictEntry> ObjectMap = new();
+
+	public static void InitObjectMap()
+	{
+		ObjectMap.Clear();
+
+		foreach (var item in ObjectDefinitions)
+		{
+			var entry = new ObjectDictEntry
+			{
+				ChildrenIndexes = ObjectDefinitions
+					.Where(x => x.Value.parent == item.Value)
+					.Select(x => x.Key).ToList()
+			};
+
+			ObjectMap.Add(item.Key, entry);
+		}
+	}
 
 	public static void RegisterInstance(GamemakerObject obj)
 	{
@@ -41,6 +72,9 @@ public static class InstanceManager
 		}
 
 		instances.Add(obj.instanceId, obj);
+
+		var entry = ObjectMap[obj.Definition.AssetId];
+		entry.Instances.Add(obj);
 	}
 
 	public static int instance_create(double x, double y, int obj)
@@ -97,7 +131,7 @@ public static class InstanceManager
 			throw new Exception($"Tried to find instances with asset id {assetId}");
 		}
 
-		var result = new List<GamemakerObject>();
+		/*var result = new List<GamemakerObject>();
 		foreach (var (instanceId, instance) in instances)
 		{
 			var definition = instance.Definition;
@@ -109,6 +143,20 @@ public static class InstanceManager
 					break; // continue for loop
 				}
 				definition = definition.parent;
+			}
+		}
+
+		return result;*/
+
+		var result = new List<GamemakerObject>();
+		AddChild(assetId);
+
+		void AddChild(int id)
+		{
+			result.AddRange(ObjectMap[id].Instances);
+			foreach (var child in ObjectMap[id].ChildrenIndexes)
+			{
+				AddChild(child);
 			}
 		}
 
@@ -182,6 +230,38 @@ public static class InstanceManager
 		}
 	}
 
+	public static void ClearNullInstances() // TODO: we dont need to null check instances??????
+	{
+		var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
+		ClearInstances(toRemove);
+	}
+
+	public static void ClearNonPersistent()
+	{
+		var toRemove = instances.Where(x => !x.Value.persistent).Select(x => x.Key);
+		ClearInstances(toRemove);
+	}
+
+	public static void ClearInstances(IEnumerable<int> toRemove)
+	{
+		foreach (var id in toRemove)
+		{
+			var instance = instances[id];
+
+			if (instance != null)
+			{
+				ObjectMap[instance.Definition.AssetId].Instances.Remove(instance);
+			}
+
+			instances.Remove(id);
+		}
+	}
+
+	public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove) // this doesnt need to be nullable but i dont care enough to change and test it
+	{
+		ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
+	}
+
 	public static void RoomChange()
 	{
 		foreach (var (instanceId, instance) in instances)
@@ -192,7 +272,9 @@ public static class InstanceManager
 			}
 		}
 
-		instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
+		//instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
+		ClearNullInstances();
+		ClearNonPersistent();
 	}
 
 	public static void RememberOldPositions()

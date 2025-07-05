@@ -486,15 +486,15 @@ public static partial class VMExecutor
 					args[i] = Call.Stack.Pop(VMType.v);
 				}
 
-				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
-				{
-					Call.Stack!.Push(builtInFunction!(args), VMType.v);
-					break;
-				}
-
 				if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
 				{
 					Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.Self, Self.ObjectDefinition, args: args), VMType.v);
+					break;
+				}
+
+				if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
+				{
+					Call.Stack!.Push(builtInFunction!(args), VMType.v);
 					break;
 				}
 
@@ -651,6 +651,18 @@ public static partial class VMExecutor
 				}
 
 				currentFunc.HasStaticInitRan = true;
+				break;
+			}
+			case VMOpcode.PUSHREF:
+			{
+				var encodedInt = instruction.IntData;
+
+				var assetReferenceId = encodedInt & 0xFFFFFF;
+				var assetReferenceType = (AssetType)(encodedInt >> 24);
+
+				// TODO actually push an asset reference object! this is super hacky and dumb and bad and will inevitably break
+				Call.Stack.Push(assetReferenceId, VMType.v);
+
 				break;
 			}
 			case VMOpcode.BREAK:

@@ -99,7 +99,13 @@ public static class GameConverter
 		writer.Write(codes.Count);
 		foreach (var code in codes)
 		{
-			var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
+			UndertaleCodeLocals? codeLocals = null;
+			if (data.CodeLocals != null)
+			{
+				codeLocals = data.CodeLocals.For(code);
+			}
+
+			var asmFile = code.Disassemble(data.Variables, codeLocals);
 
 			var asset = ConvertAssembly(asmFile);
 
@@ -417,6 +423,21 @@ public static class GameConverter
 						break;
 					case VMOpcode.PUSHAC:
 						break;
+					case VMOpcode.PUSHREF:
+					{
+						var parameterString = line.Substring(opcode.Length + 1);
+						var parameters = parameterString.Split(' ');
+						if (parameters.Length == 1)
+						{
+							instruction.IntData = int.Parse(parameterString);
+						}
+						else
+						{
+							throw new NotImplementedException();
+						}
+
+						break;
+					}
 					default:
 						throw new NotImplementedException($"Opcode {enumOperation} not implemented");
 				}
@@ -631,97 +652,67 @@ public static class GameConverter
 		Console.Write($"Exporting asset order...");
 
 		// jank, but it works and its fast to load
+
+		void WriteAssetNames<T>(StringBuilder writer, IList<T> assets) where T : UndertaleNamedResource
+		{
+			if (assets.Count == 0)
+				return;
+			foreach (var asset in assets)
+			{
+				if (asset is not null)
+					writer.AppendLine(asset.Name?.Content ?? assets.IndexOf(asset).ToString());
+				else
+					writer.AppendLine("(null)");
+			}
+		}
+
 		var streamWriter = new StringBuilder();
 		{
-			// https://github.com/UnderminersTeam/UndertaleModTool/blob/4e98560d3eea85dbeac89285c9bebe1385c3207c/UndertaleModTool/Scripts/Resource%20Unpackers/ExportAssetOrder.csx
+			// https://github.com/UnderminersTeam/UndertaleModTool/blob/482f5597f18c7833134971790311db8b28ec27c1/UndertaleModTool/Scripts/Technical%20Scripts/ExportAssetOrder.csx
 
 			// Write Sounds.
 			streamWriter.AppendLine("@@sounds@@");
-			if (data.Sounds.Count > 0)
-			{
-				foreach (UndertaleSound sound in data.Sounds)
-					streamWriter.AppendLine(sound.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Sounds);
 
 			// Write Sprites.
 			streamWriter.AppendLine("@@sprites@@");
-			if (data.Sprites.Count > 0)
-			{
-				foreach (var sprite in data.Sprites)
-					streamWriter.AppendLine(sprite.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Sprites);
 
 			// Write Backgrounds.
 			streamWriter.AppendLine("@@backgrounds@@");
-			if (data.Backgrounds.Count > 0)
-			{
-				foreach (var background in data.Backgrounds)
-					streamWriter.AppendLine(background.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Backgrounds);
 
 			// Write Paths.
 			streamWriter.AppendLine("@@paths@@");
-			if (data.Paths.Count > 0)
-			{
-				foreach (UndertalePath path in data.Paths)
-					streamWriter.AppendLine(path.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Paths);
 
 			// Write Scripts.
 			streamWriter.AppendLine("@@scripts@@");
-			if (data.Scripts.Count > 0)
-			{
-				foreach (UndertaleScript script in data.Scripts)
-					streamWriter.AppendLine(script.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Scripts);
 
 			// Write Fonts.
 			streamWriter.AppendLine("@@fonts@@");
-			if (data.Fonts.Count > 0)
-			{
-				foreach (UndertaleFont font in data.Fonts)
-					streamWriter.AppendLine(font.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Fonts);
 
 			// Write Objects.
 			streamWriter.AppendLine("@@objects@@");
-			if (data.GameObjects.Count > 0)
-			{
-				foreach (UndertaleGameObject gameObject in data.GameObjects)
-					streamWriter.AppendLine(gameObject.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.GameObjects);
 
 			// Write Timelines.
 			streamWriter.AppendLine("@@timelines@@");
-			if (data.Timelines.Count > 0)
-			{
-				foreach (UndertaleTimeline timeline in data.Timelines)
-					streamWriter.AppendLine(timeline.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Timelines);
 
 			// Write Rooms.
 			streamWriter.AppendLine("@@rooms@@");
-			if (data.Rooms.Count > 0)
-			{
-				foreach (UndertaleRoom room in data.Rooms)
-					streamWriter.AppendLine(room.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Rooms);
 
 			// Write Shaders.
 			streamWriter.AppendLine("@@shaders@@");
-			if (data.Shaders.Count > 0)
-			{
-				foreach (UndertaleShader shader in data.Shaders)
-					streamWriter.AppendLine(shader.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Shaders);
 
 			// Write Extensions.
 			streamWriter.AppendLine("@@extensions@@");
-			if (data.Extensions.Count > 0)
-			{
-				foreach (UndertaleExtension extension in data.Extensions)
-					streamWriter.AppendLine(extension.Name.Content);
-			}
+			WriteAssetNames(streamWriter, data.Extensions);
 
 			// TODO: Perhaps detect GMS2.3, export those asset names as well.
 		}
@@ -1399,9 +1390,14 @@ public static class GameConverter
 	{
 		Console.Write($"Exporting shaders...");
 
-		writer.Write(data.Shaders.Count);
+		writer.Write(data.Shaders.Count(x => x != null));
 		foreach (var shader in data.Shaders)
 		{
+			if (shader == null)
+			{
+				continue;
+			}
+
 			var asset = new Shader();
 			asset.AssetIndex = data.Shaders.IndexOf(shader);
 			asset.Name = shader.Name.Content;
