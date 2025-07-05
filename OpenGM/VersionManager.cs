@@ -34,7 +34,7 @@ namespace OpenGM
         }
 
         public readonly bool IsGMS1() => Major == 1;
-        public readonly bool IsGMS2() => Major == 2;
+        public readonly bool IsGMS2() => Major >= 2;
 
         public override readonly string ToString()
         {
@@ -143,13 +143,13 @@ namespace OpenGM
     public static class VersionManager
     {
         /// <summary>
-        /// Version stored in the WAD, stuck at 2.0.0.0 after GMS2.
+        /// GameMaker version as detected by UTMT.
         /// </summary>
-        public static GMVersion WADVersion;
+        public static GMVersion EngineVersion;
 
         public static void Init()
         {
-            WADVersion = new GMVersion(
+            EngineVersion = new GMVersion(
                 GameLoader.GeneralInfo.Major,
                 GameLoader.GeneralInfo.Minor,
                 GameLoader.GeneralInfo.Release,
@@ -157,7 +157,7 @@ namespace OpenGM
             );
         }
 
-        public static bool IsGMS1() => WADVersion.IsGMS1();
-        public static bool IsGMS2() => WADVersion.IsGMS2();
+        public static bool IsGMS1() => EngineVersion.IsGMS1();
+        public static bool IsGMS2() => EngineVersion.IsGMS2();
     }
 }

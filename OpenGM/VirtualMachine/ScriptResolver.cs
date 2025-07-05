@@ -43,23 +43,12 @@ public static class ScriptResolver
 				// game version isnt being initialized at this point yet so this is commented out for now
 
 				/*
-				if (attribute.AddedVersion != null) {
-					if (VersionManager.IsGMS1() && attribute.AddedVersion > VersionManager.WADVersion)
-					{
-						continue;
-					}
+				if (attribute.AddedVersion != null && attribute.AddedVersion > VersionManager.GameVersion) {
+					continue;
 				}
 
-				if (attribute.RemovedVersion != null) {
-					if (VersionManager.IsGMS1() && attribute.RemovedVersion <= VersionManager.WADVersion)
-					{
-						continue;
-					}
-
-					if (VersionManager.IsGMS2() && attribute.RemovedVersion == GMVersion.GMS2)
-					{
-						continue;
-					}
+				if (attribute.RemovedVersion != null && attribute.RemovedVersion <= VersionManager.GameVersion) {
+					continue;
 				}
 				*/
 
