@@ -33,9 +33,6 @@ namespace OpenGM
             Build = versionParts[3];
         }
 
-        public readonly bool IsGMS1() => Major == 1;
-        public readonly bool IsGMS2() => Major >= 2;
-
         public override readonly string ToString()
         {
             return $"{Major}.{Minor}.{Release}.{Build}";
