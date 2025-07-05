@@ -50,10 +50,23 @@ public static class DebugLog
         Console.ResetColor();
     }
 
+    public static void LogVerbose(string message)
+    {
+        if (Verbosity < LogType.Verbose)
+        {
+            return;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine(message);
+        Console.ResetColor();
+    }
+
     public enum LogType
     {
         Error = 0,
         Warning = 1,
-        Info = 2
+        Info = 2,
+        Verbose = 3
     }
 }

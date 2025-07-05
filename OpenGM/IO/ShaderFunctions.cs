@@ -9,51 +9,45 @@ namespace OpenGM.IO
 {
 	public static class ShaderFunctions
 	{
-		[GMLFunction("shader_set")]
+		[GMLFunction("shader_set", GMLFunctionFlags.Stub)]
 		public static object? shader_set(object?[] args)
 		{
 			var shaderId = args[0].Conv<int>();
-			DebugLog.LogWarning("shader_set not implemented.");
 			return null;
 		}
 
 		// shader_get_name
 
-		[GMLFunction("shader_reset")]
+		[GMLFunction("shader_reset", GMLFunctionFlags.Stub)]
 		public static object? shader_reset(object?[] args)
 		{
-			DebugLog.LogWarning("shader_reset not implemented.");
 			return null;
 		}
 
-		[GMLFunction("shader_current")]
+		[GMLFunction("shader_current", GMLFunctionFlags.Stub)]
 		public static object? shader_current(object?[] args)
 		{
-			DebugLog.LogWarning("shader_current not implemented.");
 			return null;
 		}
 
-		[GMLFunction("shader_get_uniform")]
+		[GMLFunction("shader_get_uniform", GMLFunctionFlags.Stub)]
 		public static object? shader_get_uniform(object?[] args)
 		{
-			DebugLog.LogWarning("shader_get_uniform not implemented.");
 			return null;
 		}
 
-		[GMLFunction("shader_get_sampler_index")]
+		[GMLFunction("shader_get_sampler_index", GMLFunctionFlags.Stub)]
 		public static object? shader_get_sampler_index(object?[] args)
 		{
-			DebugLog.LogWarning("shader_get_sampler_index not implemented.");
 			return -1;
 		}
 
 		// shader_set_uniform_i
 		// shader_set_uniform_i_array
 
-		[GMLFunction("shader_set_uniform_f")]
+		[GMLFunction("shader_set_uniform_f", GMLFunctionFlags.Stub)]
 		public static object? shader_set_uniform_f(object?[] args)
 		{
-			DebugLog.LogWarning("shader_set_uniform_f not implemented.");
 			return null;
 		}
 
@@ -63,24 +57,21 @@ namespace OpenGM.IO
 		// shader_is_compiled
 		// shaders_are_supported
 
-		[GMLFunction("texture_set_stage")]
+		[GMLFunction("texture_set_stage", GMLFunctionFlags.Stub)]
 		public static object? texture_set_stage(object?[] args)
 		{
-			DebugLog.LogWarning("texture_set_stage not implemented.");
 			return null;
 		}
 
-		[GMLFunction("texture_get_texel_width")]
+		[GMLFunction("texture_get_texel_width", GMLFunctionFlags.Stub)]
 		public static object? texture_get_texel_width(object?[] args)
 		{
-			DebugLog.LogWarning("texture_get_texel_width not implemented.");
 			return 0;
 		}
 
-		[GMLFunction("texture_get_texel_height")]
+		[GMLFunction("texture_get_texel_height", GMLFunctionFlags.Stub)]
 		public static object? texture_get_texel_height(object?[] args)
 		{
-			DebugLog.LogWarning("texture_get_texel_height not implemented.");
 			return 0;
 		}
 	}

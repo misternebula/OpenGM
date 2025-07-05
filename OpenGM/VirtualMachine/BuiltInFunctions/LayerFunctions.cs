@@ -356,16 +356,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// layer_element_move
 
-		[GMLFunction("layer_force_draw_depth")]
+		[GMLFunction("layer_force_draw_depth", GMLFunctionFlags.Stub)]
 		public static object? layer_force_draw_depth(object?[] args)
 		{
 			var force = args[0].Conv<bool>();
 			var depth = args[1].Conv<int>();
-			//Debug.Log($"layer_force_draw_depth force:{force} depth:{depth}");
 
 			// not implementing yet because uhhhhhhhhhhhhhhhhhhh
-
-			DebugLog.LogWarning("layer_force_draw_depth not implemented.");
 
 			return null;
 		}
@@ -718,13 +715,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("layer_sprite_change")]
+		[GMLFunction("layer_sprite_change", GMLFunctionFlags.Stub)]
 		public static object? layer_sprite_change(object?[] args)
 		{
 			var element_id = args[0].Conv<int>();
 			var sprite_id = args[0].Conv<int>();
 
-			DebugLog.LogWarning("layer_sprite_change not implemented.");
 			return null;
 		}
 

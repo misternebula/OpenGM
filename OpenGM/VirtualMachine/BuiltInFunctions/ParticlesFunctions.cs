@@ -162,12 +162,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return ParticleManager.ParticleSystemCreate();
 		}
 
-		[GMLFunction("part_system_destroy")]
+		[GMLFunction("part_system_destroy", GMLFunctionFlags.Stub)]
 		public static object? part_system_destroy(object?[] args)
 		{
 			//var ind = args[0].Conv<int>();
 
-			DebugLog.LogWarning("part_system_destroy not implemented.");
 			return null;
 		}
 
@@ -200,12 +199,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("part_system_drawit")]
+		[GMLFunction("part_system_drawit", GMLFunctionFlags.Stub)]
 		public static object? part_system_drawit(object?[] args)
 		{
 			//var ind = args[0].Conv<int>();
 
-			DebugLog.LogWarning("part_system_drawit not implemented");
 			return null;
 		}
 
@@ -227,12 +225,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// part_emitter_destroy
 
-		[GMLFunction("part_emitter_destroy_all")]
+		[GMLFunction("part_emitter_destroy_all", GMLFunctionFlags.Stub)]
 		public static object? part_emitter_destroy_all(object?[] args)
 		{
 			//var ps = args[0].Conv<int>();
 
-			DebugLog.LogWarning("part_emitter_destroy_all not implemented");
 			return null;
 		}
 
