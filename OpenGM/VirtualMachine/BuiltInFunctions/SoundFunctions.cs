@@ -414,7 +414,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 		}
 
-		[GMLFunction("audio_group_load")]
+		[GMLFunction("audio_group_load", GMLFunctionFlags.Stub)]
 		public static object audio_group_load(object?[] args)
 		{
 			// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
@@ -423,7 +423,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// audio_group_unload
 
-		[GMLFunction("audio_group_is_loaded")]
+		[GMLFunction("audio_group_is_loaded", GMLFunctionFlags.Stub)]
 		public static object audio_group_is_loaded(object?[] args)
 		{
 			// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)
@@ -434,7 +434,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// audio_group_name
 		// audio_group_stop_all
 
-		[GMLFunction("audio_group_set_gain")]
+		[GMLFunction("audio_group_set_gain", GMLFunctionFlags.Stub)]
 		public static object? audio_group_set_gain(object?[] args)
 		{
 			// TODO : actually implement this properly? DELTARUNITY doesnt use audio groups or any GM storage files (yet?)

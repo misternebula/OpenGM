@@ -6,13 +6,13 @@
 
 		public static bool Action_Relative = false;
 
-		[GMLFunction("action_kill_object")]
+		[GMLFunction("action_kill_object", before: "2.0.0.0")]
 		public static object? action_kill_object(object?[] args)
 		{
 			return GameFunctions.instance_destroy(args);
 		}
 
-		[GMLFunction("action_move")]
+		[GMLFunction("action_move", before: "2.0.0.0")]
 		public static object? action_move(object?[] args)
 		{
 			var dirString = args[0].Conv<string>();
@@ -87,7 +87,7 @@
 			return null;
 		}
 
-		[GMLFunction("action_set_alarm")]
+		[GMLFunction("action_set_alarm", before: "2.0.0.0")]
 		public static object? action_set_alarm(object?[] args)
 		{
 			var value = args[0].Conv<int>();
@@ -107,7 +107,7 @@
 			return null;
 		}
 
-		[GMLFunction("action_set_friction")]
+		[GMLFunction("action_set_friction", before: "2.0.0.0")]
 		public static object? action_set_friction(object?[] args)
 		{
 			var friction = args[0].Conv<double>();
@@ -121,7 +121,7 @@
 			return null;
 		}
 
-		[GMLFunction("action_set_gravity")]
+		[GMLFunction("action_set_gravity", before: "2.0.0.0")]
 		public static object? action_set_gravity(object?[] args)
 		{
 			var gravity = args[0].Conv<double>();
@@ -135,7 +135,7 @@
 			return null;
 		}
 
-		[GMLFunction("action_set_hspeed")]
+		[GMLFunction("action_set_hspeed", before: "2.0.0.0")]
 		public static object? action_set_hspeed(object?[] args)
 		{
 			var hspeed = args[0].Conv<double>();
@@ -149,7 +149,7 @@
 			return null;
 		}
 
-		[GMLFunction("action_set_vspeed")]
+		[GMLFunction("action_set_vspeed", before: "2.0.0.0")]
 		public static object? action_set_vspeed(object?[] args)
 		{
 			var vspeed = args[0].Conv<double>();
@@ -163,7 +163,7 @@
 			return null;
 		}
 
-		[GMLFunction("action_move_to")]
+		[GMLFunction("action_move_to", before: "2.0.0.0")]
 		public static object? action_move_to(object?[] args)
 		{
 			var x = args[0].Conv<double>();

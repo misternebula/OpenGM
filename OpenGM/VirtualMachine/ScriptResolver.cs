@@ -30,6 +30,7 @@ public static class ScriptResolver
 			.Where(m => m.GetCustomAttributes(typeof(GMLFunctionAttribute), false).Length > 0)
 			.ToArray();
 
+		var addedCount = 0;
 		var stubCount = 0;
 
 		foreach (var methodInfo in methods)
@@ -39,6 +40,18 @@ public static class ScriptResolver
 
 			foreach (var attribute in attributes)
 			{
+				// game version isnt being initialized at this point yet so this is commented out for now
+
+				/*
+				if (attribute.AddedVersion != null && attribute.AddedVersion > VersionManager.GameVersion) {
+					continue;
+				}
+
+				if (attribute.RemovedVersion != null && attribute.RemovedVersion <= VersionManager.GameVersion) {
+					continue;
+				}
+				*/
+
 				var newFunc = func;
 				if (attribute.FunctionFlags.HasFlag(GMLFunctionFlags.Stub))
 				{
@@ -47,17 +60,18 @@ public static class ScriptResolver
 				}
 
 				BuiltInFunctions.Add(attribute.FunctionName, newFunc);
+				addedCount++;
 			}
 		}
 
 		var totalCount = BuiltInFunctions.Count;
-		var realCount = totalCount - stubCount;
-		DebugLog.LogInfo($"Registered {totalCount} GML functions ({realCount} implemented, {stubCount} stubbed.)");
+		var realCount = addedCount - stubCount;
+		DebugLog.LogInfo($"Registered {addedCount}/{totalCount} GML functions ({realCount} implemented, {stubCount} stubbed.)");
 	}
 
 	// any functions in here aren't in 2022.500 so idk where they go rn
 
-	[GMLFunction("draw_background")]
+	[GMLFunction("draw_background", before: "2.0.0.0")]
 	public static object? draw_background(object?[] args)
 	{
 		var index = args[0].Conv<int>();
@@ -95,7 +109,7 @@ public static class ScriptResolver
 		return false;
 	}
 
-	[GMLFunction("instance_create")]
+	[GMLFunction("instance_create", before: "2.0.0.0")]
 	public static object? instance_create(object?[] args)
 	{
 		var x = args[0].Conv<double>();
@@ -105,7 +119,7 @@ public static class ScriptResolver
 		return InstanceManager.instance_create(x, y, obj);
 	}
 
-	[GMLFunction("joystick_exists")]
+	[GMLFunction("joystick_exists", GMLFunctionFlags.Stub)]
 	public static object? joystick_exists(object?[] args) => false; // TODO : implement
 
 	[GMLFunction("game_change")]
@@ -152,7 +166,7 @@ public static class ScriptResolver
 		return splits;
 	}
 
-	[GMLFunction("steam_is_screenshot_requested")]
+	[GMLFunction("steam_is_screenshot_requested", GMLFunctionFlags.Stub)]
 	public static object? steam_is_screenshot_requested(object?[] args)
 	{
 		// TODO : implement

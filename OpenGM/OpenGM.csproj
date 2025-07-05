@@ -21,6 +21,7 @@
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
     <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
     <PackageReference Include="System.Text.Json" Version="9.0.4" />
+    <PackageReference Include="Magick.NET.Core" Version="14.6.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,15 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Magick.Native-Q8-x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Magick.NET-Q8-AnyCPU.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Magick.NET.Core.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Underanalyzer.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
