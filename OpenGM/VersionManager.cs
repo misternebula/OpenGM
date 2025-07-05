@@ -142,22 +142,22 @@ namespace OpenGM
 
     public static class VersionManager
     {
-		/// <summary>
-		/// Version stored in the WAD, stuck at 2.0.0.0 after GMS2.
-		/// </summary>
-	    public static GMVersion WADVersion;
+        /// <summary>
+        /// Version stored in the WAD, stuck at 2.0.0.0 after GMS2.
+        /// </summary>
+        public static GMVersion WADVersion;
 
-	    public static void Init()
-	    {
-		    WADVersion = new GMVersion(
-			    GameLoader.GeneralInfo.Major,
-			    GameLoader.GeneralInfo.Minor,
-			    GameLoader.GeneralInfo.Release,
-			    GameLoader.GeneralInfo.Build
-			);
-	    }
+        public static void Init()
+        {
+            WADVersion = new GMVersion(
+                GameLoader.GeneralInfo.Major,
+                GameLoader.GeneralInfo.Minor,
+                GameLoader.GeneralInfo.Release,
+                GameLoader.GeneralInfo.Build
+            );
+        }
 
-	    public static bool IsGMS1() => WADVersion.IsGMS1();
-		public static bool IsGMS2() => WADVersion.IsGMS2();
+        public static bool IsGMS1() => WADVersion.IsGMS1();
+        public static bool IsGMS2() => WADVersion.IsGMS2();
     }
 }
