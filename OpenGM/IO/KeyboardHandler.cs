@@ -31,11 +31,24 @@ public class KeyboardHandler
         }
     }
 
+    public static Keys Convert(int keyid)
+    {
+        if (keyid == 0x0D) return Keys.Enter;
+        if (keyid == 0x1B) return Keys.Escape;
+        if (keyid == 0x25) return Keys.Left;
+        if (keyid == 0x26) return Keys.Up;
+        if (keyid == 0x27) return Keys.Right;
+        if (keyid == 0x28) return Keys.Down;
+        if (keyid == 0xA0) return Keys.LeftShift;
+        if (keyid == 0xA1) return Keys.RightShift;
+        return (Keys)keyid;
+    }
+
     public static void UpdateKeyboardState(KeyboardState state)
     {
         for (var i = 0; i < 256; i++)
         {
-            var isDown = CustomWindow.Instance.IsFocused && IsKeyDown(i);
+            var isDown = CustomWindow.Instance.IsFocused && state.IsKeyDown(Convert(i));
             var wasDown = KeyDown[i];
 
             KeyPressed[i] = isDown && !wasDown;
@@ -46,13 +59,13 @@ public class KeyboardHandler
         // debug
         VMExecutor.VerboseStackLogs = state.IsKeyDown(Keys.F1);
 
-		if (state.IsKeyDown(Keys.F2))
+        if (state.IsKeyDown(Keys.F2))
         {
             CustomWindow.Instance.UpdateFrequency = 0.0; // This means fastest
         }
         else if (state.IsKeyDown(Keys.F3))
         {
-	        CustomWindow.Instance.UpdateFrequency = 2;
+            CustomWindow.Instance.UpdateFrequency = 2;
         }
         else
         {
@@ -63,7 +76,7 @@ public class KeyboardHandler
         {
             VMExecutor.DebugMode = !VMExecutor.DebugMode;
             VariableResolver.GlobalVariables["debug"] = VMExecutor.DebugMode;
-			DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
+            DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
         }
 
         if (state.IsKeyPressed(Keys.KeyPad0))
@@ -77,14 +90,14 @@ public class KeyboardHandler
             DebugLog.Log("DRAW OBJECTS :");
             foreach (var item in DrawManager._drawObjects)
             {
-	            if (item is GamemakerObject gm)
-	            {
-		            DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
-				}
-	            else
-	            {
-		            DebugLog.Log($" - ??? InstanceID:{item.instanceId} Depth:{item.depth}");
-				}
+                if (item is GamemakerObject gm)
+                {
+                    DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
+                }
+                else
+                {
+                    DebugLog.Log($" - ??? InstanceID:{item.instanceId} Depth:{item.depth}");
+                }
             }
         }
     }
@@ -99,12 +112,4 @@ public class KeyboardHandler
 
         return false;
     }
-
-    private static bool IsKeyDown(int key) => ((ushort)GetKeyState(key) & 0x8000) != 0;
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
-    private static extern short GetKeyState(int keyCode);
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
-    private static extern short GetAsyncKeyState(int keyCode);
 }
