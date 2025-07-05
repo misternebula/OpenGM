@@ -55,7 +55,7 @@ public class VMCallFrame
 	public object? ReturnValue;
 	public EventType EventType;
 	public int EventIndex;
-	public FunctionDefinition? Function;
+	public FunctionDefinition? Function; // undertale doesnt have script functions, only script assets, so this will be null
 }
 
 public static partial class VMExecutor
