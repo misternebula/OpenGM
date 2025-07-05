@@ -246,6 +246,7 @@ public class CustomWindow : GameWindow
 
         var lines = textJob.text.SplitLines();
         var textHeight = TextManager.StringHeight(textJob.text);
+        var lineYOffset = 0;
 
         for (var i = 0; i < lines.Length; i++)
         {
@@ -255,7 +256,7 @@ public class CustomWindow : GameWindow
             var xOffset = 0d;
             if (textJob.halign == HAlign.fa_center)
             {
-                xOffset = -(width / 2f);
+                xOffset = -(width / 2);
             }
             else if (textJob.halign == HAlign.fa_right)
             {
@@ -272,7 +273,10 @@ public class CustomWindow : GameWindow
                 yOffset = -textHeight;
             }
 
-            var stringLeft = textJob.screenPos.X + xOffset;
+            yOffset += lineYOffset;
+            lineYOffset += textJob.lineSep;
+
+			var stringLeft = textJob.screenPos.X + xOffset;
             var stringRight = textJob.screenPos.X + xOffset + width;
             var stringTop = -textJob.screenPos.Y - yOffset;
             var stringBottom = -textJob.screenPos.Y - yOffset - TextManager.StringHeight(line);
@@ -369,33 +373,7 @@ public class CustomWindow : GameWindow
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
                     GL.Uniform1(VertexManager.u_doTex, 1);
 
-                    /*
-                    GL.Begin(PrimitiveType.Quads);
-
                     // TODO : this will make the different lines of a string have the gradient applied seperately.
-
-                    // top left of letter
-                    GL.TexCoord2(leftX, topY);
-                    GL.Color4(LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX));
-                    GL.Vertex2(topLeftX, topLeftY);
-
-                    // top right of letter
-                    GL.TexCoord2(rightX, topY);
-                    GL.Color4(LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w));
-                    GL.Vertex2(topLeftX + glyph.w * textJob.scale.X, topLeftY);
-
-                    // bottom right of letter
-                    GL.TexCoord2(rightX, bottomY);
-                    GL.Color4(LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w));
-                    GL.Vertex2(topLeftX + glyph.w * textJob.scale.X, topLeftY + glyph.h * textJob.scale.Y);
-
-                    // bottom left of letter
-                    GL.TexCoord2(leftX, bottomY);
-                    GL.Color4(LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX));
-                    GL.Vertex2(topLeftX, topLeftY + glyph.h * textJob.scale.Y);
-
-                    GL.End();
-                    */
                     VertexManager.Draw(PrimitiveType.TriangleFan, [
                         new(new(topLeftX, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX), new(leftX, topY)),
                         new(new(topLeftX + glyph.w * textJob.scale.X, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, topY)),
@@ -746,7 +724,7 @@ public class GMTextJob : GMBaseJob
     public Color4 c3 = Color4.White;
     public Color4 c4 = Color4.White;
     public FontAsset asset = null!;
-    public int sep;
+    public int lineSep;
 }
 
 public class GMPolygonJob : GMBaseJob

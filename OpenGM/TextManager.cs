@@ -1,7 +1,6 @@
 ﻿using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
-using UndertaleModLib.Decompiler;
 
 namespace OpenGM;
 public static class TextManager
@@ -32,7 +31,7 @@ public static class TextManager
 			asset = fontAsset,
 			// gamemaker is weird
 			// "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
-			sep = FontHeight()
+			lineSep = FontHeight()
 		});
 	}
 
@@ -325,14 +324,7 @@ public static class TextManager
 						continue;
 					}
 
-					if (i == line.Length - 1)
-					{
-						totalWidth += entry.w + entry.offset;
-					}
-					else
-					{
-						totalWidth += entry.shift;
-					}
+					totalWidth += (int)(entry.shift * fontAsset.ScaleX);
 				}
 			}
 
@@ -364,7 +356,7 @@ public static class TextManager
 			asset = fontAsset,
 			// gamemaker is weird
 			// "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
-			sep = FontHeight()
+			lineSep = FontHeight()
 		});
 	}
 }
