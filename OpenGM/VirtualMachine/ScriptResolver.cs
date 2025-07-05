@@ -75,8 +75,8 @@ public static class ScriptResolver
 			}
 		}
 
-        var totalCount = BuiltInFunctions.Count;
-        var realCount = addedCount - stubCount;
+		var totalCount = BuiltInFunctions.Count;
+		var realCount = addedCount - stubCount;
 		DebugLog.LogInfo($"Registered {addedCount}/{totalCount} GML functions ({realCount} implemented, {stubCount} stubbed.)");
 	}
 
