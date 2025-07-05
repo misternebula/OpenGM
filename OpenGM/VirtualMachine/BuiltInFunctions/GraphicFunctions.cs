@@ -983,7 +983,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 				asset = TextManager.fontAsset,
 				halign = TextManager.halign,
 				valign = TextManager.valign,
-				sep = sep,
+				lineSep = sep,
 				text = str,
 				screenPos = new Vector2d(x, y),
 				scale = Vector2d.One
@@ -1026,7 +1026,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 				halign = TextManager.halign,
 				valign = TextManager.valign,
 				scale = new Vector2d(xscale, yscale),
-				sep = sep,
+				lineSep = sep,
 				text = str
 			});
 

@@ -32,7 +32,7 @@ public static class TextManager
 			asset = fontAsset,
 			// gamemaker is weird
 			// "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
-			sep = FontHeight()
+			lineSep = FontHeight()
 		});
 	}
 
@@ -364,7 +364,7 @@ public static class TextManager
 			asset = fontAsset,
 			// gamemaker is weird
 			// "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
-			sep = FontHeight()
+			lineSep = FontHeight()
 		});
 	}
 }
