@@ -7,6 +7,7 @@ using EventType = OpenGM.VirtualMachine.EventType;
 
 namespace OpenGM;
 
+// this could also be in ObjectDefinition. it dont matter
 public class ObjectDictEntry
 {
 	public List<GamemakerObject> Instances = new();
@@ -20,11 +21,15 @@ public static class InstanceManager
 
 	public static int NextInstanceID;
 
+	/// <summary>
+	/// for faster lookup when finding instances by asset id.
+	/// gamemaker does something similar and this was a bottleneck in one of nebula's test programs.
+	/// </summary>
 	public static Dictionary<int, ObjectDictEntry> ObjectMap = new();
 
 	public static void InitObjectMap()
 	{
-		ObjectMap = new();
+		ObjectMap.Clear();
 
 		foreach (var item in ObjectDefinitions)
 		{
@@ -225,7 +230,7 @@ public static class InstanceManager
 		}
 	}
 
-	public static void ClearNullInstances()
+	public static void ClearNullInstances() // TODO: we dont need to null check instances??????
 	{
 		var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
 		ClearInstances(toRemove);
@@ -234,12 +239,6 @@ public static class InstanceManager
 	public static void ClearNonPersistent()
 	{
 		var toRemove = instances.Where(x => !x.Value.persistent).Select(x => x.Key);
-		ClearInstances(toRemove);
-	}
-
-	public static void ClearInstancesExcept(List<GamemakerObject> instancesToKeep)
-	{
-		var toRemove = instances.Where(x => !instancesToKeep.Contains(x.Value)).Select(x => x.Key);
 		ClearInstances(toRemove);
 	}
 
@@ -258,7 +257,7 @@ public static class InstanceManager
 		}
 	}
 
-	public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove)
+	public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove) // this doesnt need to be nullable but i dont care enough to change and test it
 	{
 		ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
 	}

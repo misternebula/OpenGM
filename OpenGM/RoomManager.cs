@@ -55,7 +55,7 @@ public static class RoomManager
 				continue;
 			}
 
-			if (instance.persistent)
+			if (instance.persistent) // dont bother saving thing that is already going to be saved
 			{
 				continue;
 			}
@@ -208,6 +208,7 @@ public static class RoomManager
 
 				// TODO : if RoomEnd event creates objects, should they be destroyed??
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+				// no destroy event https://forum.gamemaker.io/index.php?threads/hold-up-room-change-doesnt-trigger-destroy-event-of-objects.43007/
 				GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
 				instance.Destroy();
