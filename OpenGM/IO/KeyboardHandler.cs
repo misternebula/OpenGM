@@ -31,24 +31,52 @@ public class KeyboardHandler
         }
     }
 
-    public static Keys Convert(int keyid)
+    public static Keys[] Convert(int keyid)
     {
-        if (keyid == 0x0D) return Keys.Enter;
-        if (keyid == 0x1B) return Keys.Escape;
-        if (keyid == 0x25) return Keys.Left;
-        if (keyid == 0x26) return Keys.Up;
-        if (keyid == 0x27) return Keys.Right;
-        if (keyid == 0x28) return Keys.Down;
-        if (keyid == 0xA0) return Keys.LeftShift;
-        if (keyid == 0xA1) return Keys.RightShift;
-        return (Keys)keyid;
+        return keyid switch
+        {
+            0x0D => [Keys.Enter],
+            0x10 => [Keys.LeftShift, Keys.RightShift],
+            0x11 => [Keys.LeftControl, Keys.RightControl],
+            0x12 => [Keys.LeftAlt, Keys.RightAlt],
+            0x1B => [Keys.Escape],
+
+            0x25 => [Keys.Left],
+            0x26 => [Keys.Up],
+            0x27 => [Keys.Right],
+            0x28 => [Keys.Down],
+
+            0x70 => [Keys.F1],
+            0x71 => [Keys.F2],
+            0x72 => [Keys.F3],
+            0x73 => [Keys.F4],
+            0x74 => [Keys.F5],
+            0x75 => [Keys.F6],
+            0x76 => [Keys.F7],
+            0x77 => [Keys.F8],
+            0x78 => [Keys.F9],
+            0x79 => [Keys.F10],
+            0x7A => [Keys.F11],
+            0x7B => [Keys.F12],
+
+            0xA0 => [Keys.LeftShift],
+            0xA1 => [Keys.RightShift],
+
+            _ => [(Keys)keyid]
+        };
     }
 
     public static void UpdateKeyboardState(KeyboardState state)
     {
+        bool AnyKeysDown(Keys[] keys)
+        {
+            var keysHeld = keys.Select(state.IsKeyDown);
+            return keysHeld.Any(v => v);
+        }
+        
         for (var i = 0; i < 256; i++)
         {
-            var isDown = CustomWindow.Instance.IsFocused && state.IsKeyDown(Convert(i));
+            var isDown = CustomWindow.Instance.IsFocused && AnyKeysDown(Convert(i));
             var wasDown = KeyDown[i];
 
             KeyPressed[i] = isDown && !wasDown;
