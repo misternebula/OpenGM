@@ -315,7 +315,7 @@ public static class TextManager
 
 					var sprite = SpriteManager.GetSpritePage(fontAsset.spriteIndex, idx);
 
-					totalWidth += sprite.TargetSizeX += fontAsset.sep;
+					totalWidth += sprite.TargetSizeX + fontAsset.sep;
 				}
 				else
 				{
