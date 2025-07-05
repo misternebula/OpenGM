@@ -68,11 +68,6 @@ public class KeyboardHandler
 
     public static void UpdateKeyboardState(KeyboardState state)
     {
-        bool AnyKeysDown(Keys[] keys)
-        {
-            var keysHeld = keys.Select(state.IsKeyDown);
-            return keysHeld.Any(v => v);
-        }
         void CalculateKey(int vk, bool isDown)
         {
             var wasDown = KeyDown[vk];
@@ -87,7 +82,7 @@ public class KeyboardHandler
 
         for (var i = 2; i < 256; i++)
         {
-            CalculateKey(i, CustomWindow.Instance.IsFocused && AnyKeysDown(Convert(i)));
+            CalculateKey(i, CustomWindow.Instance.IsFocused && Convert(i).Any(state.IsKeyDown));
         }
 
         // debug

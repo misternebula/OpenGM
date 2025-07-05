@@ -134,7 +134,7 @@ public static partial class VMExecutor
 	{
 		object? defaultReturnValue = null;
 		// TODO: this actually changed to being undefined in probably 2.3? don't know how to check that rn, so just going with 2.0
-		if (VersionManager.IsGMS1())
+		if (VersionManager.EngineVersion.Major >= 2)
 		{
 			defaultReturnValue = 0;
 		}

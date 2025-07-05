@@ -22,9 +22,6 @@ internal class Entry
 	{
 		var passedArgs = ProcessArgs(args);
 
-		// only has to be ran once, even across game_changes
-		ScriptResolver.InitGMLFunctions();
-
 		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
 		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
 		var defaultPath = Path.Combine(exeLocation, "game", "data.win");
@@ -97,6 +94,7 @@ internal class Entry
 		AudioManager.Init();
 		GameLoader.LoadGame();
 		VersionManager.Init();
+		ScriptResolver.InitGMLFunctions(); // needs version stuff
 
 		VMExecutor.EnvStack.Clear();
 		VMExecutor.CallStack.Clear();

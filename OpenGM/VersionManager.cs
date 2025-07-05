@@ -7,7 +7,7 @@ using OpenGM.Loading;
 
 namespace OpenGM
 {
-    public struct GMVersion 
+    public struct GMVersion
     {
         public uint Major; // also known as Year in the newer version format
         public uint Minor;
@@ -32,9 +32,6 @@ namespace OpenGM
             Release = versionParts[2];
             Build = versionParts[3];
         }
-
-        public readonly bool IsGMS1() => Major == 1;
-        public readonly bool IsGMS2() => Major >= 2;
 
         public override readonly string ToString()
         {
@@ -135,9 +132,6 @@ namespace OpenGM
         {
             return left.Equals(right) || left.GreaterThan(right);
         }
-
-        public static readonly GMVersion GMS1 = new("1.0.0.0");
-        public static readonly GMVersion GMS2 = new("2.0.0.0");
     }
 
     public static class VersionManager
@@ -156,8 +150,5 @@ namespace OpenGM
                 GameLoader.GeneralInfo.Build
             );
         }
-
-        public static bool IsGMS1() => EngineVersion.IsGMS1();
-        public static bool IsGMS2() => EngineVersion.IsGMS2();
     }
 }
