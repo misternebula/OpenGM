@@ -255,7 +255,7 @@ public class CustomWindow : GameWindow
             var xOffset = 0d;
             if (textJob.halign == HAlign.fa_center)
             {
-                xOffset = -(width / 2f);
+                xOffset = -(width / 2);
             }
             else if (textJob.halign == HAlign.fa_right)
             {
