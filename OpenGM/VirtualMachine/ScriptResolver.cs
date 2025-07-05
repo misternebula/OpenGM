@@ -15,6 +15,8 @@ public static class ScriptResolver
 
 	public static void InitGMLFunctions()
 	{
+		if (BuiltInFunctions.Count > 0) return; // already init'd
+		
 		GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName) 
 		{
 			return (object?[] args) =>
@@ -40,17 +42,13 @@ public static class ScriptResolver
 
 			foreach (var attribute in attributes)
 			{
-				// game version isnt being initialized at this point yet so this is commented out for now
-
-				/*
-				if (attribute.AddedVersion != null && attribute.AddedVersion > VersionManager.GameVersion) {
+				if (attribute.AddedVersion != null && VersionManager.EngineVersion < attribute.AddedVersion) {
 					continue;
 				}
 
-				if (attribute.RemovedVersion != null && attribute.RemovedVersion <= VersionManager.GameVersion) {
+				if (attribute.RemovedVersion != null && VersionManager.EngineVersion >= attribute.RemovedVersion) {
 					continue;
 				}
-				*/
 
 				var newFunc = func;
 				if (attribute.FunctionFlags.HasFlag(GMLFunctionFlags.Stub))

@@ -237,7 +237,7 @@ public class CustomWindow : GameWindow
             return;
         }
 
-        if (VersionManager.IsGMS1())
+        if (VersionManager.EngineVersion.Major <= 1)
         {
             // Replace \# with #, replace # with newlines.
             textJob.text = Regex.Replace(textJob.text, @"(?<=[^\\]|^)#", Environment.NewLine);
