@@ -6,14 +6,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     {
 		// gamepad_is_supported
 
-		[GMLFunction("gamepad_get_device_count")]
+		[GMLFunction("gamepad_get_device_count", GMLFunctionFlags.Stub)]
 		public static object gamepad_get_device_count(object?[] args)
 		{
 			// TODO : implement
 			return 0;
 		}
 
-		[GMLFunction("gamepad_is_connected")]
+		[GMLFunction("gamepad_is_connected", GMLFunctionFlags.Stub)]
 		public static object gamepad_is_connected(object?[] args)
 		{
 			var device = args[0].Conv<int>();
@@ -33,14 +33,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 		// gamepad_button_count
 
-		[GMLFunction("gamepad_button_check")]
+		[GMLFunction("gamepad_button_check", GMLFunctionFlags.Stub)]
 		public static object gamepad_button_check(object?[] args)
         {
 	        // TODO : implement?
 	        return false;
         }
 
-		[GMLFunction("gamepad_button_check_pressed")]
+		[GMLFunction("gamepad_button_check_pressed", GMLFunctionFlags.Stub)]
 		public static object gamepad_button_check_pressed(object?[] args)
 		{
 			// TODO : implement
@@ -51,7 +51,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// gamepad_button_value
 		// gamepad_axis_count
 
-		[GMLFunction("gamepad_axis_value")]
+		[GMLFunction("gamepad_axis_value", GMLFunctionFlags.Stub)]
 		public static object gamepad_axis_value(object?[] args)
 		{
 			// TODO : implement?
