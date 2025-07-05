@@ -151,7 +151,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// sprite_merge
 		// sprite_save
 
-		[GMLFunction("sprite_prefetch")]
+		[GMLFunction("sprite_prefetch", GMLFunctionFlags.Stub)]
 		public static object? sprite_prefetch(object?[] args)
 		{
 			// TODO : implement?
@@ -168,14 +168,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// sprite_set_nineslice
 		// sprite_nineslice_create
 
-		[GMLFunction("texture_is_ready")]
+		[GMLFunction("texture_is_ready", GMLFunctionFlags.Stub)]
 		public static object? texture_is_ready(object?[] args)
 		{
 			// todo : implement?
 			return true;
 		}
 
-		[GMLFunction("texture_prefetch")]
+		[GMLFunction("texture_prefetch", GMLFunctionFlags.Stub)]
 		public static object? texture_prefetch(object?[] args)
 		{
 			var tex_id = args[0].Conv<string>();
@@ -183,7 +183,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("texture_flush")]
+		[GMLFunction("texture_flush", GMLFunctionFlags.Stub)]
 		public static object? texture_flush(object?[] args)
 		{
 			var tex_id = args[0].Conv<string>();

@@ -13,13 +13,13 @@
 		// os_get_config
 		// os_get_info
 
-		[GMLFunction("os_get_language")]
+		[GMLFunction("os_get_language", GMLFunctionFlags.Stub)]
 		public static object os_get_language(object?[] args)
 		{
 			return "en"; // TODO : actually implement
 		}
 
-		[GMLFunction("os_get_region")]
+		[GMLFunction("os_get_region", GMLFunctionFlags.Stub)]
 		public static object os_get_region(object?[] args)
 		{
 			// TODO : implement
