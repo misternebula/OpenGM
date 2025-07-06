@@ -132,9 +132,9 @@ public static partial class VMExecutor
 
 	public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
 	{
-		object? defaultReturnValue = null;
+		object? defaultReturnValue = VersionManager.EngineVersion.Major == 1 ? 0 : null;
 		// TODO: this actually changed to being undefined in probably 2.3? don't know how to check that rn, so just going with 2.0
-		if (VersionManager.EngineVersion.Major >= 2)
+		if (VersionManager.EngineVersion.Major == 1)
 		{
 			defaultReturnValue = 0;
 		}
