@@ -1,5 +1,4 @@
-﻿using OpenGM.IO;
-using OpenGM.Rendering;
+﻿using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Collections;
@@ -51,17 +50,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		{
 			var type = args[0].Conv<int>();
 
-			switch (type)
+			return type switch
 			{
-				case 0:
-					return MatrixToList(ViewMatrix);
-				case 1:
-					return MatrixToList(ProjectionMatrix);
-				case 2:
-					return MatrixToList(WorldMatrix);
-				default:
-					throw new Exception("Illegal matrix type");
-			}
+				0 => MatrixToList(ViewMatrix),
+				1 => MatrixToList(ProjectionMatrix),
+				2 => MatrixToList(WorldMatrix),
+				_ => throw new Exception("Illegal matrix type"),
+			};
 		}
 
 		[GMLFunction("matrix_set")]
@@ -344,36 +339,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var src = args[0].Conv<int>();
 			var dst = args[1].Conv<int>();
 
-			BlendingFactor GetBlend(int arg)
+			BlendingFactor GetBlend(int arg) => arg switch
 			{
-				switch (arg)
-				{
-					case 1:
-						return BlendingFactor.Zero;
-					case 2:
-						return BlendingFactor.One;
-					case 3:
-						return BlendingFactor.SrcColor;
-					case 4:
-						return BlendingFactor.OneMinusSrcColor;
-					case 5:
-						return BlendingFactor.SrcAlpha;
-					case 6:
-						return BlendingFactor.OneMinusSrcAlpha;
-					case 7:
-						return BlendingFactor.DstAlpha;
-					case 8:
-						return BlendingFactor.OneMinusDstAlpha;
-					case 9:
-						return BlendingFactor.DstColor;
-					case 10:
-						return BlendingFactor.OneMinusDstColor;
-					case 11:
-						return BlendingFactor.SrcAlphaSaturate;
-					default:
-						throw new ArgumentException();
-				}
-			}
+				1 => BlendingFactor.Zero,
+				2 => BlendingFactor.One,
+				3 => BlendingFactor.SrcColor,
+				4 => BlendingFactor.OneMinusSrcColor,
+				5 => BlendingFactor.SrcAlpha,
+				6 => BlendingFactor.OneMinusSrcAlpha,
+				7 => BlendingFactor.DstAlpha,
+				8 => BlendingFactor.OneMinusDstAlpha,
+				9 => BlendingFactor.DstColor,
+				10 => BlendingFactor.OneMinusDstColor,
+				11 => BlendingFactor.SrcAlphaSaturate,
+				_ => throw new ArgumentException(),
+			};
 
 			GL.BlendFunc(GetBlend(src), GetBlend(dst));
 			return null;
@@ -389,67 +369,37 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 			// TODO : theres gotta be a better way then repeating all these switch cases
 
-			BlendingFactorSrc GetBlendSrc(int arg)
+			BlendingFactorSrc GetBlendSrc(int arg) => arg switch
 			{
-				switch (arg)
-				{
-					case 1:
-						return BlendingFactorSrc.Zero;
-					case 2:
-						return BlendingFactorSrc.One;
-					case 3:
-						return BlendingFactorSrc.SrcColor;
-					case 4:
-						return BlendingFactorSrc.OneMinusSrcColor;
-					case 5:
-						return BlendingFactorSrc.SrcAlpha;
-					case 6:
-						return BlendingFactorSrc.OneMinusSrcAlpha;
-					case 7:
-						return BlendingFactorSrc.DstAlpha;
-					case 8:
-						return BlendingFactorSrc.OneMinusDstAlpha;
-					case 9:
-						return BlendingFactorSrc.DstColor;
-					case 10:
-						return BlendingFactorSrc.OneMinusDstColor;
-					case 11:
-						return BlendingFactorSrc.SrcAlphaSaturate;
-					default:
-						throw new ArgumentException();
-				}
-			}
+				1 => BlendingFactorSrc.Zero,
+				2 => BlendingFactorSrc.One,
+				3 => BlendingFactorSrc.SrcColor,
+				4 => BlendingFactorSrc.OneMinusSrcColor,
+				5 => BlendingFactorSrc.SrcAlpha,
+				6 => BlendingFactorSrc.OneMinusSrcAlpha,
+				7 => BlendingFactorSrc.DstAlpha,
+				8 => BlendingFactorSrc.OneMinusDstAlpha,
+				9 => BlendingFactorSrc.DstColor,
+				10 => BlendingFactorSrc.OneMinusDstColor,
+				11 => BlendingFactorSrc.SrcAlphaSaturate,
+				_ => throw new ArgumentException(),
+			};
 
-			BlendingFactorDest GetBlendDest(int arg)
+			BlendingFactorDest GetBlendDest(int arg) => arg switch
 			{
-				switch (arg)
-				{
-					case 1:
-						return BlendingFactorDest.Zero;
-					case 2:
-						return BlendingFactorDest.One;
-					case 3:
-						return BlendingFactorDest.SrcColor;
-					case 4:
-						return BlendingFactorDest.OneMinusSrcColor;
-					case 5:
-						return BlendingFactorDest.SrcAlpha;
-					case 6:
-						return BlendingFactorDest.OneMinusSrcAlpha;
-					case 7:
-						return BlendingFactorDest.DstAlpha;
-					case 8:
-						return BlendingFactorDest.OneMinusDstAlpha;
-					case 9:
-						return BlendingFactorDest.DstColor;
-					case 10:
-						return BlendingFactorDest.OneMinusDstColor;
-					case 11:
-						return BlendingFactorDest.SrcAlphaSaturate;
-					default:
-						throw new ArgumentException();
-				}
-			}
+				1 => BlendingFactorDest.Zero,
+				2 => BlendingFactorDest.One,
+				3 => BlendingFactorDest.SrcColor,
+				4 => BlendingFactorDest.OneMinusSrcColor,
+				5 => BlendingFactorDest.SrcAlpha,
+				6 => BlendingFactorDest.OneMinusSrcAlpha,
+				7 => BlendingFactorDest.DstAlpha,
+				8 => BlendingFactorDest.OneMinusDstAlpha,
+				9 => BlendingFactorDest.DstColor,
+				10 => BlendingFactorDest.OneMinusDstColor,
+				11 => BlendingFactorDest.SrcAlphaSaturate,
+				_ => throw new ArgumentException(),
+			};
 
 			GL.BlendFuncSeparate(GetBlendSrc(src), GetBlendDest(src), GetBlendSrc(src), GetBlendDest(src));
 			return null;
@@ -488,7 +438,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		public static object? gpu_set_alphatestenable(object?[] args)
 		{
 			var enabled = args[0].Conv<bool>();
-			GL.Uniform1(VertexManager.alphaTestEnabled, enabled == true ? 1 : 0);
+			GL.Uniform1(VertexManager.alphaTestEnabled, enabled ? 1 : 0);
 			return null;
 		}
 
