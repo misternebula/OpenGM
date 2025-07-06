@@ -708,10 +708,6 @@ public static class GameConverter
 			streamWriter.AppendLine("@@shaders@@");
 			WriteAssetNames(streamWriter, data.Shaders);
 
-			// Write Extensions.
-			streamWriter.AppendLine("@@extensions@@");
-			WriteAssetNames(streamWriter, data.Extensions);
-
 			// TODO: Perhaps detect GMS2.3, export those asset names as well.
 		}
 		writer.Write(streamWriter.ToString());

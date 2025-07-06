@@ -17,8 +17,7 @@ public enum AssetType
 	sequences,
 	animcurves,
 	particlesystems,
-	roominstances,
-	extensions // not actual an assettype, but i just want one enum
+	roominstances
 }
 
 public static class AssetIndexManager
