@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using OpenGM.IO;
+﻿using OpenGM.IO;
+using System.Collections;
 
 namespace OpenGM.VirtualMachine;
 

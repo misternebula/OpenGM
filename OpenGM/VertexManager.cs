@@ -1,7 +1,7 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace OpenGM;
 

@@ -1,8 +1,8 @@
-﻿using OpenTK.Mathematics;
-using System.Reflection;
-using OpenGM.Rendering;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenGM.Loading;
+using OpenGM.Rendering;
+using OpenTK.Mathematics;
+using System.Reflection;
 
 namespace OpenGM.VirtualMachine;
 public static class ScriptResolver

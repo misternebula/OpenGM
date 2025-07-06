@@ -1,7 +1,7 @@
-﻿using System.Text;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Graphics.ES11;
+using System.Text;
 
 namespace OpenGM;
 public static class BufferManager

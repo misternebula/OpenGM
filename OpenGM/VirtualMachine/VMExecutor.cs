@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+﻿using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.SerializedFiles;
 using System.Collections;
-using OpenGM.IO;
-using OpenGM.Loading;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 

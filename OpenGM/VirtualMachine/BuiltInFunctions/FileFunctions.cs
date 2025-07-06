@@ -1,5 +1,5 @@
-﻿using OpenGM.IO;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using OpenGM.IO;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions;
 

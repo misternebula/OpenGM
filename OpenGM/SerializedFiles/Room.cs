@@ -1,6 +1,4 @@
 ﻿using MemoryPack;
-using Newtonsoft.Json;
-using OpenGM.Rendering;
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 

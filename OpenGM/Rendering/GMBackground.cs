@@ -1,6 +1,4 @@
 ﻿using OpenGM.SerializedFiles;
-using System.Xml.Linq;
-using System;
 
 namespace OpenGM.Rendering;
 

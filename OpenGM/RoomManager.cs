@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;

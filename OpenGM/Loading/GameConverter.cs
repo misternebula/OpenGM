@@ -1,17 +1,12 @@
-﻿using MemoryPack;
+﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
-using System.Diagnostics;
+using OpenTK.Mathematics;
+using System.Text;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
-using OpenGM.IO;
-using System.Numerics;
-using System.Text;
-using System.Linq;
-using OpenGM.Rendering;
-using OpenTK.Mathematics;
 
 namespace OpenGM.Loading;
 

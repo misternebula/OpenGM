@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using OpenGM.SerializedFiles;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGM.SerializedFiles;
-using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace OpenGM.Rendering;

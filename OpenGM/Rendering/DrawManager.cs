@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 

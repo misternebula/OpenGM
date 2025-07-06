@@ -1,6 +1,4 @@
-﻿using OpenGM.IO;
-
-namespace OpenGM.VirtualMachine.BuiltInFunctions
+﻿namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class GamepadFunctions
     {

@@ -1,6 +1,4 @@
-﻿using System.Drawing.Drawing2D;
-
-namespace OpenGM.VirtualMachine;
+﻿namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {

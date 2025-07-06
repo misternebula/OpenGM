@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGM.Loading;
+﻿using OpenGM.Loading;
 using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 
 namespace OpenGM.Rendering;
 

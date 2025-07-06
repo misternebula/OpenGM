@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OpenGM.VirtualMachine.BuiltInFunctions
+﻿namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
 	// wrapper around c# datetime stuff that emulates JS Date stuff because im really lazy
 	// TODO : get rid of this

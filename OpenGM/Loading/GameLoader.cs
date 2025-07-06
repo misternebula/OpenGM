@@ -1,13 +1,9 @@
-﻿using MemoryPack;
-using System.Collections;
-using System.Text;
+﻿using Newtonsoft.Json;
+using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
-using Newtonsoft.Json;
-using OpenGM.IO;
 using StbImageSharp;
-using OpenGM.Rendering;
-using System.Diagnostics;
 
 namespace OpenGM.Loading;
 public static class GameLoader

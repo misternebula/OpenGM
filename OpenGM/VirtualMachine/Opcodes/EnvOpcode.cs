@@ -1,5 +1,4 @@
 ﻿using OpenGM.IO;
-using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 

@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
+﻿using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
-using System.Runtime.InteropServices;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using OpenGM.Rendering;
 
 namespace OpenGM.IO;
 

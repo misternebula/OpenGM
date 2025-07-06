@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 

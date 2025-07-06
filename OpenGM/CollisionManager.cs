@@ -1,8 +1,8 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
-using OpenGM.SerializedFiles;
 using UndertaleModLib.Models;
 
 namespace OpenGM;

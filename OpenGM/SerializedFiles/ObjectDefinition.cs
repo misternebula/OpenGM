@@ -1,6 +1,5 @@
 ﻿using MemoryPack;
 using OpenGM.VirtualMachine;
-using Newtonsoft.Json;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;

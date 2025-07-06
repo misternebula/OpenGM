@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OpenGM;
+﻿namespace OpenGM;
 public static class GMRandom
 {
 	public static uint[] State = new uint[16];
