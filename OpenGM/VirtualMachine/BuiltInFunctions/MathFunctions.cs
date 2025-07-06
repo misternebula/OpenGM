@@ -24,21 +24,11 @@ public static class MathFunctions
 	[GMLFunction("is_undefined")]
 	public static object is_undefined(object?[] args) => args[0] is null;
 
-	[GMLFunction("is_int32")]
-	public static object is_int32(object?[] args) => args[0] is Int32;
-
-	[GMLFunction("is_int64")]
-	public static object is_int64(object?[] args) => args[0] is Int64;
-
-	[GMLFunction("is_ptr")]
-	public static object is_ptr(object?[] args) => args[0] is IntPtr;
-
-	[GMLFunction("is_vec3")]
-	public static object is_vec3(object?[] args) => args[0] is Vector3;
-
-	[GMLFunction("is_vec4")]
-	public static object is_vec4(object?[] args) => args[0] is Vector4;
-
+	// is_int32
+	// is_int64
+	// is_ptr
+	// is_vec3
+	// is_vec4
 	// is_matrix
 	// is_struct
 	// yyAsm

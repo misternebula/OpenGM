@@ -5,8 +5,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class DataStructuresFunctions
     {
-	    private static Dictionary<int, List<object>> _dsListDict = new();
-	    private static Dictionary<int, Dictionary<object, object>> _dsMapDict = new();
+	    private static Dictionary<int, List<object?>> _dsListDict = new();
+	    private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
 
 		// ...
 
@@ -36,7 +36,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		{
 			var id = args[0].Conv<int>();
 			if (!_dsListDict.ContainsKey(id)) return null;
-			_dsListDict[id] = new List<object>();
+			_dsListDict[id] = new List<object?>();
 			return null;
 		}
 
@@ -89,7 +89,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var id = args[0].Conv<int>();
 			var pos = args[1].Conv<int>();
 			var val = args[2];
-			if ((!_dsListDict.ContainsKey(id)) || (val is null)) return null;
+			if (!_dsListDict.ContainsKey(id)) return null;
 
 			var list = _dsListDict[id];
 			list.Insert(pos, val);
@@ -102,7 +102,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var id = args[0].Conv<int>();
 			var pos = args[1].Conv<int>();
 			var val = args[2];
-			if ((!_dsListDict.ContainsKey(id)) || (val is null)) return null;
+			if (!_dsListDict.ContainsKey(id)) return null;
 
 			var list = _dsListDict[id];
 			list[pos] = val;
@@ -344,7 +344,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var id = args[0].Conv<int>();
 			var source = args[1].Conv<int>();
 			if ((!_dsMapDict.ContainsKey(id)) || (!_dsMapDict.ContainsKey(source))) return null;
-			_dsMapDict[id] = new Dictionary<object, object>(_dsMapDict[source]);
+			_dsMapDict[id] = new Dictionary<object, object?>(_dsMapDict[source]);
 			return null;
 		}
 
