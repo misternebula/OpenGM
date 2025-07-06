@@ -833,12 +833,72 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_primitive_begin
+		public static PrimitiveType PrimType;
+		public static List<VertexManager.Vertex> Vertices = new();
+
+		[GMLFunction("draw_primitive_begin")]
+		public static object? draw_primitive_begin(object?[] args)
+		{
+			var kind = args[0].Conv<int>();
+
+			// cant just convert straight to PrimitiveType bc LineLoop isnt used grr
+			PrimType = kind switch
+			{
+				1 => PrimitiveType.Points,
+				2 => PrimitiveType.Lines,
+				3 => PrimitiveType.LineStrip,
+				4 => PrimitiveType.Triangles,
+				5 => PrimitiveType.TriangleStrip,
+				6 => PrimitiveType.TriangleFan,
+				_ => throw new ArgumentOutOfRangeException(),
+			};
+
+			/* i think on c++ you could use draw_primitive_begin multiple times, and since it only
+			 * sets g_NumPrims to 0, it should leave the newer vertices intact while overwritting older ones
+			 * on html it just creates a new vbuffer so that doesnt happen
+			 */
+
+			Vertices = new();
+
+			return null;
+		}
+
 		// draw_primitive_begin_texture
-		// draw_primitive_end
-		// draw_vertex
-		// draw_vertex_color
-		// draw_vertex_colour
+
+		[GMLFunction("draw_primitive_end")]
+		public static object? draw_primitive_end(object?[] args)
+		{
+			VertexManager.Draw(PrimType, Vertices.ToArray());
+			return null;
+		}
+
+		[GMLFunction("draw_vertex")]
+		public static object? draw_vertex(object?[] args)
+		{
+			var x = args[0].Conv<double>();
+			var y = args[1].Conv<double>();
+
+			// TODO : C++ imposes a limit of 1001 vertices, should we do the same?
+
+			Vertices.Add(new(new(x, y), SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha), new(0, 0)));
+			return null;
+		}
+
+		[GMLFunction("draw_vertex_color")]
+		[GMLFunction("draw_vertex_colour")]
+		public static object? draw_vertex_colour(object?[] args)
+		{
+			var x = args[0].Conv<double>();
+			var y = args[1].Conv<double>();
+			var col = args[2].Conv<int>();
+			var alpha = args[3].Conv<double>();
+
+			// TODO : C++ imposes a limit of 1001 vertices, should we do the same?
+
+			Vertices.Add(new(new(x, y), col.ABGRToCol4(alpha), new(0, 0)));
+			return null;
+		}
+
 		// draw_vertex_texture
 		// draw_vertex_texture_color
 		// draw_vertex_texture_colour
