@@ -1,12 +1,15 @@
 ﻿using OpenGM.IO;
 using System.Collections;
 using System.Text;
+using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
 public static class MathFunctions
 {
-	// is_bool
+	[GMLFunction("is_bool")]
+	public static object is_bool(object?[] args) => args[0] is bool;
 
 	[GMLFunction("is_real")]
 	public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
@@ -21,11 +24,21 @@ public static class MathFunctions
 	[GMLFunction("is_undefined")]
 	public static object is_undefined(object?[] args) => args[0] is null;
 
-	// is_int32
-	// is_int64
-	// is_ptr
-	// is_vec3
-	// is_vec4
+	[GMLFunction("is_int32")]
+	public static object is_int32(object?[] args) => args[0] is Int32;
+
+	[GMLFunction("is_int64")]
+	public static object is_int64(object?[] args) => args[0] is Int64;
+
+	[GMLFunction("is_ptr")]
+	public static object is_ptr(object?[] args) => args[0] is IntPtr;
+
+	[GMLFunction("is_vec3")]
+	public static object is_vec3(object?[] args) => args[0] is Vector3;
+
+	[GMLFunction("is_vec4")]
+	public static object is_vec4(object?[] args) => args[0] is Vector4;
+
 	// is_matrix
 	// is_struct
 	// yyAsm
@@ -853,8 +866,25 @@ public static class MathFunctions
 		return result;
 	}
 
-	// string_lettersdigits
-	// string_replace
+	[GMLFunction("string_lettersdigits")]
+	public static object string_lettersdigits(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		return Regex.Replace(str, "[^a-zA-Z0-9]", "");
+	}
+
+	[GMLFunction("string_replace")]
+	public static object string_replace(object?[] args)
+	{
+		var str = args[0].Conv<string>();
+		var substr = args[1].Conv<string>();
+		var newstr = args[2].Conv<string>();
+
+		int pos = str.IndexOf(substr);
+		if (pos == -1)
+			return str;
+		return string.Concat(str.AsSpan(0, pos), newstr, str.AsSpan(pos + substr.Length));
+	}
 
 	[GMLFunction("string_replace_all")]
 	public static object string_replace_all(object?[] args)
@@ -866,7 +896,22 @@ public static class MathFunctions
 		return str.Replace(substr, newstr);
 	}
 
-	// string_count
+	[GMLFunction("string_count")]
+	public static object string_count(object?[] args)
+	{
+		var substr = args[0].Conv<string>();
+		var str = args[1].Conv<string>();
+
+		int count = 0;
+		int index = 0;
+
+		while ((index = str.IndexOf(substr, index, StringComparison.Ordinal)) != -1)
+		{
+			count++;
+			index += substr.Length;
+		}
+		return count;
+	}
 
 	[GMLFunction("string_hash_to_newline")]
 	public static object string_hash_to_newline(object?[] args)

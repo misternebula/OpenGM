@@ -7,6 +7,7 @@ namespace OpenGM.SerializedFiles;
 public partial class GameData
 {
 	public required string Filename;
+	public required string Config;
 	public required int LastObjectID;
 	public required int LastTileID;
 	public required string Name;
@@ -17,6 +18,7 @@ public partial class GameData
 	public required uint Build;
 	public required Vector2i DefaultWindowSize;
 	public required float FPS;
+	public required bool IsYYC;
 }
 
 public enum BranchType
