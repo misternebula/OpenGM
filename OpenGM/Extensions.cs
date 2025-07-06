@@ -56,7 +56,7 @@ public static class Extensions
 	}
 
 	// https://stackoverflow.com/a/1262619/17543401
-	private static Random rng = new Random();  
+	private static Random rng = new();  
 	public static void Shuffle<T>(this IList<T> list)
 	{
 		var n = list.Count;

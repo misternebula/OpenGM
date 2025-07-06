@@ -428,9 +428,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
 				Vertices = new Vector2d[]
 				{
-					new Vector2d(x1, y1),
-					new Vector2d(x2, y2),
-					new Vector2d(x3, y3)
+					new(x1, y1),
+					new(x2, y2),
+					new(x3, y3)
 				},
 				Outline = outline
 			});
