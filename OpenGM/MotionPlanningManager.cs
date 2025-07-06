@@ -8,7 +8,7 @@
 	    public static int GridCreate(int left, int top, int hcells, int vcells, int cellwidth, int cellheight)
 	    {
 			var id = MPGridIndex++;
-			MPGrids.Add(id, new MPGrid(left, top, hcells, vcells, cellwidth, cellheight));
+			MPGrids.Add(id, new(left, top, hcells, vcells, cellwidth, cellheight));
 			return id;
 	    }
 
@@ -60,13 +60,13 @@
 
 			(bool result, int cx, int cy) CheckPosition(int x, int y)
 			{
-				if ((x < grid.Left) || (x >= (grid.Left + grid.HCells * grid.CellWidth)))
+				if (x < grid.Left || x >= grid.Left + grid.HCells * grid.CellWidth)
 				{
 					// x invalid
 					return (false, 0, 0);
 				}
 
-				if ((y < grid.Top) || (y >= (grid.Top + grid.VCells * grid.CellHeight)))
+				if (y < grid.Top || y >= grid.Top + grid.VCells * grid.CellHeight)
 				{
 					// y invalid
 					return (false, 0, 0);
@@ -108,21 +108,21 @@
 				var xx = CustomMath.DoubleTilde((double)val / grid.VCells);
 				var yy = CustomMath.DoubleTilde((double)val % grid.VCells);
 
-				if ((xx == cxg) && (yy == cyg))
+				if (xx == cxg && yy == cyg)
 				{
 					result = true;
 					break;
 				}
 
 				var d = grid.Cells[val] + 1;
-				var f1 = (xx > 0) && (yy < grid.VCells - 1) && (grid.Cells[(xx - 1) * grid.VCells + (yy + 1)] == 0);
-				var f2 = (yy < grid.VCells - 1) && (grid.Cells[(xx) * grid.VCells + (yy + 1)] == 0);
-				var f3 = (xx < grid.HCells - 1) && (yy < grid.VCells - 1) && (grid.Cells[(xx + 1) * grid.VCells + (yy + 1)] == 0);
-				var f4 = (xx > 0) && (grid.Cells[(xx - 1) * grid.VCells + (yy)] == 0);
-				var f6 = (xx < grid.HCells - 1) && (grid.Cells[(xx + 1) * grid.VCells + (yy)] == 0);
-				var f7 = (xx > 0) && (yy > 0) && (grid.Cells[(xx - 1) * grid.VCells + (yy - 1)] == 0);
-				var f8 = (yy > 0) && (grid.Cells[(xx) * grid.VCells + (yy - 1)] == 0);
-				var f9 = (xx < grid.HCells - 1) && (yy > 0) && (grid.Cells[(xx + 1) * grid.VCells + (yy - 1)] == 0);
+				var f1 = xx > 0 && yy < grid.VCells - 1 && grid.Cells[(xx - 1) * grid.VCells + yy + 1] == 0;
+				var f2 = yy < grid.VCells - 1 && grid.Cells[xx * grid.VCells + yy + 1] == 0;
+				var f3 = xx < grid.HCells - 1 && yy < grid.VCells - 1 && grid.Cells[(xx + 1) * grid.VCells + yy + 1] == 0;
+				var f4 = xx > 0 && grid.Cells[(xx - 1) * grid.VCells + yy] == 0;
+				var f6 = xx < grid.HCells - 1 && grid.Cells[(xx + 1) * grid.VCells + yy] == 0;
+				var f7 = xx > 0 && yy > 0 && grid.Cells[(xx - 1) * grid.VCells + (yy - 1)] == 0;
+				var f8 = yy > 0 && grid.Cells[xx * grid.VCells + (yy - 1)] == 0;
+				var f9 = xx < grid.HCells - 1 && yy > 0 && grid.Cells[(xx + 1) * grid.VCells + (yy - 1)] == 0;
 
 				// Handle horizontal && vertical moves
 				if (f4)
@@ -179,38 +179,60 @@
 				var xx = cxg;
 				var yy = cyg;
 
-				while ((xx != cxs) || (yy != cys))
+				while (xx != cxs || yy != cys)
 				{
 					var val = grid.Cells[xx * grid.VCells + yy];
-					var f1 = (xx > 0) && (yy < grid.VCells - 1) && (grid.Cells[(xx - 1) * grid.VCells + (yy + 1)] == val - 1);
-					var f2 = (yy < grid.VCells - 1) && (grid.Cells[(xx) * grid.VCells + (yy + 1)] == val - 1);
-					var f3 = (xx < grid.HCells - 1) && (yy < grid.VCells - 1) && (grid.Cells[(xx + 1) * grid.VCells + (yy + 1)] == val - 1);
-					var f4 = (xx > 0) && (grid.Cells[(xx - 1) * grid.VCells + (yy)] == val - 1);
-					var f6 = (xx < grid.HCells - 1) && (grid.Cells[(xx + 1) * grid.VCells + (yy)] == val - 1);
-					var f7 = (xx > 0) && (yy > 0) && (grid.Cells[(xx - 1) * grid.VCells + (yy - 1)] == val - 1);
-					var f8 = (yy > 0) && (grid.Cells[(xx) * grid.VCells + (yy - 1)] == val - 1);
-					var f9 = (xx < grid.HCells - 1) && (yy > 0) && (grid.Cells[(xx + 1) * grid.VCells + (yy - 1)] == val - 1);
+					var f1 = xx > 0 && yy < grid.VCells - 1 && grid.Cells[(xx - 1) * grid.VCells + yy + 1] == val - 1;
+					var f2 = yy < grid.VCells - 1 && grid.Cells[xx * grid.VCells + yy + 1] == val - 1;
+					var f3 = xx < grid.HCells - 1 && yy < grid.VCells - 1 && grid.Cells[(xx + 1) * grid.VCells + yy + 1] == val - 1;
+					var f4 = xx > 0 && grid.Cells[(xx - 1) * grid.VCells + yy] == val - 1;
+					var f6 = xx < grid.HCells - 1 && grid.Cells[(xx + 1) * grid.VCells + yy] == val - 1;
+					var f7 = xx > 0 && yy > 0 && grid.Cells[(xx - 1) * grid.VCells + (yy - 1)] == val - 1;
+					var f8 = yy > 0 && grid.Cells[xx * grid.VCells + (yy - 1)] == val - 1;
+					var f9 = xx < grid.HCells - 1 && yy > 0 && grid.Cells[(xx + 1) * grid.VCells + (yy - 1)] == val - 1;
 
 					// Four directions movement
 					if (f4)
-						xx = xx - 1;
+					{
+						xx--;
+					}
 					else if (f6)
-						xx = xx + 1;
+					{
+						xx += 1;
+					}
 					else if (f8)
-						yy = yy - 1;
+					{
+						yy -= 1;
+					}
 					else if (f2)
-						yy = yy + 1;
-					else if (allowdiag && f1)
-					{ xx = xx - 1; yy = yy + 1; }
-					else if (allowdiag && f3)
-					{ xx = xx + 1; yy = yy + 1; }
-					else if (allowdiag && f7)
-					{ xx = xx - 1; yy = yy - 1; }
-					else if (allowdiag && f9)
-					{ xx = xx + 1; yy = yy - 1; }
-					;
+					{
+						yy += 1;
+					}
+					else if (allowdiag)
+					{
+						if (f1)
+						{
+							xx -= 1;
+							yy += 1;
+						}
+						else if (f3)
+						{
+							xx += 1;
+							yy += 1;
+						}
+						else if (f7)
+						{
+							xx -= 1;
+							yy -= 1;
+						}
+						else if (f9)
+						{
+							xx += 1;
+							yy -= 1;
+						}
+					}
 
-					if ((xx != cxs) || (yy != cys))
+					if (xx != cxs || yy != cys)
 					{
 						PathManager.AddPoint(
 							path,
