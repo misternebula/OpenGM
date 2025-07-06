@@ -279,8 +279,19 @@ public static class MathFunctions
 		return (anded % (doubleSign * (difference + 1)) * doubleSign) + lower;
 	}
 
-	// random_set_seed
-	// random_get_seed
+	[GMLFunction("random_set_seed")]
+	public static object? random_set_seed(object?[] args)
+	{
+		var val = args[0].Conv<uint>();
+		GMRandom.Seed = val;
+		return null;
+	}
+
+	[GMLFunction("random_get_seed")]
+	public static object? random_get_seed(object?[] args)
+	{
+		return GMRandom.Seed;
+	}
 
 	[GMLFunction("randomise")]
 	[GMLFunction("randomize")]

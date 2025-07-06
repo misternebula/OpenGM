@@ -65,7 +65,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		[GMLFunction("ds_list_empty")]
-		public static object? ds_list_empty(params object?[] args) => (args.Length == 0);
+		public static object? ds_list_empty(params object?[] args) => (_dsListDict[args[0].Conv<int>()].Count == 0);
 
 		[GMLFunction("ds_list_add")]
 		public static object? ds_list_add(params object?[] args)
@@ -330,8 +330,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// ds_map_clear
-		// ds_map_copy
+		[GMLFunction("ds_map_clear")]
+		public static object? ds_map_clear(object?[] args)
+		{
+			var index = args[0].Conv<int>();
+			_dsMapDict[index] = [];
+			return null;
+		}
+
+		[GMLFunction("ds_map_copy")]
+		public static object? ds_map_copy(object?[] args)
+		{
+			var id = args[0].Conv<int>();
+			var source = args[1].Conv<int>();
+			if ((!_dsMapDict.ContainsKey(id)) || (!_dsMapDict.ContainsKey(source))) return null;
+			_dsMapDict[id] = new Dictionary<object, object>(_dsMapDict[source]);
+			return null;
+		}
 
 		[GMLFunction("ds_map_size")]
 		public static object ds_map_size(object?[] args)
@@ -340,7 +355,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return _dsMapDict[id].Count;
 		}
 
-		// ds_map_empty
+		[GMLFunction("ds_map_empty")]
+		public static object ds_map_empty(object?[] args) => (_dsMapDict[args[0].Conv<int>()].Count == 0);
 
 		[GMLFunction("ds_map_add")]
 		public static object ds_map_add(params object?[] args)
@@ -389,7 +405,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// ds_map_replace
 		// ds_map_replace_list
 		// ds_map_replace_map
-		// ds_map_delete
+
+		[GMLFunction("ds_map_delete")]
+		public static object? ds_map_delete(params object?[] args)
+		{
+			var id = args[0].Conv<int>();
+			var key = args[1].Conv<string>();
+
+			if (!_dsMapDict.ContainsKey(id)) return null;
+			_dsMapDict[id].Remove(key);
+			return null;
+		}
 
 		[GMLFunction("ds_map_exists")]
 		public static object? ds_map_exists(object?[] args)
