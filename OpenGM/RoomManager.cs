@@ -503,7 +503,7 @@ public static class RoomManager
 		var createCode = GetCodeFromCodeIndex(CurrentRoom.RoomAsset.CreationCodeId);
 		if (createCode != null)
 		{
-			var dummy = new DummyInstance();
+			var dummy = new GMLObject();
 			VMExecutor.ExecuteCode(createCode, dummy);
 			dummy = null;
 		}
