@@ -130,7 +130,7 @@ public static class GameLoader
 
 		var count = reader.ReadInt32();
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             ScriptResolver.GlobalInit.Add(Codes[reader.ReadInt32()]);
         }

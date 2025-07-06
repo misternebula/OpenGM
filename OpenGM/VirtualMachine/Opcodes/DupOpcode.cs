@@ -97,9 +97,9 @@ public static partial class VMExecutor
 			}
 
 			// Push data back to the stack twice (duplicating it, while maintaining internal order)
-			for (int i = 0; i < 2; i++)
+			for (var i = 0; i < 2; i++)
 			{
-				for (int j = toDuplicate.Count - 1; j >= 0; j--)
+				for (var j = toDuplicate.Count - 1; j >= 0; j--)
 				{
 #pragma warning disable CS0618
 					Call.Stack.Push(toDuplicate[j]);

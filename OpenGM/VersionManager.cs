@@ -19,8 +19,8 @@ namespace OpenGM
 
         public GMVersion(string version) 
         {
-            string[] splitVersion = version.Split('.');
-            uint[] versionParts = splitVersion.Select(uint.Parse).ToArray();
+            var splitVersion = version.Split('.');
+            var versionParts = splitVersion.Select(uint.Parse).ToArray();
 
             Major = versionParts[0];
             Minor = versionParts[1];

@@ -138,7 +138,7 @@ public static class GameConverter
 
 		var localVariables = new List<string>();
 
-		int startLine = -1;
+		var startLine = -1;
 		for (var i = 0; i < asmFileLines.Length; i++)
 		{
 			if (asmFileLines[i] == ":[0]")

@@ -129,7 +129,7 @@ public static class SurfaceManager
 
 			var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
 			GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-			GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+			GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
 			GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 			GL.DeleteTexture(textureId);
 
@@ -224,7 +224,7 @@ public static class SurfaceManager
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
         // delete existing texture if there is one
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
         GL.DeleteTexture(textureId);
 
         // Generate texture to attach to framebuffer
@@ -331,7 +331,7 @@ public static class SurfaceManager
         
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out int textureId);
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 
         GL.BindTexture(TextureTarget.Texture2D, textureId);

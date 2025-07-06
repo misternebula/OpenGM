@@ -36,7 +36,7 @@ public static class AssetIndexManager
 		var lines = reader.ReadString().SplitLines();
 		var headerLineNumber = 0;
 		AssetType currentAssetType = 0;
-		for (int i = 0; i < lines.Length; i++)
+		for (var i = 0; i < lines.Length; i++)
 		{
 			var line = lines[i];
 			if (line.StartsWith("@@") && line.EndsWith("@@"))
