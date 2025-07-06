@@ -102,7 +102,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var instanceId = args[0].Conv<int>();
 			var name = args[1].Conv<string>();
 
-			var instance = InstanceManager.FindByInstanceId(instanceId);
+			GamemakerObject? instance;
+
+			if (instanceId == GMConstants.global)
+			{
+				throw new NotImplementedException();
+			}
+			else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+			{
+				// todo : first how?
+				instance = InstanceManager.FindByAssetId(instanceId).First();
+			}
+			else
+			{
+				instance = InstanceManager.FindByInstanceId(instanceId);
+			}
 
 			if (instance == null)
 			{
@@ -125,17 +139,45 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var name = args[1].Conv<string>();
 			var value = args[2];
 
-			var instance = InstanceManager.FindByInstanceId(instanceId)!;
-
-			if (VariableResolver.BuiltInSelfVariables.TryGetValue(name, out var getset))
+			if (instanceId == GMConstants.global)
 			{
-				var (getter, setter) = getset;
-				setter?.Invoke(instance, value);
+				throw new NotImplementedException();
+			}
+			else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+			{
+				// asset id
+				// TODO : does this actually iterate? html seems to, but not sure about c++
+				var instances = InstanceManager.FindByAssetId(instanceId);
 
-				return null;
+				foreach (var instance in instances)
+				{
+					if (VariableResolver.BuiltInSelfVariables.TryGetValue(name, out var getset))
+					{
+						var (getter, setter) = getset;
+						setter?.Invoke(instance, value);
+
+						return null;
+					}
+
+					instance.SelfVariables[name] = value;
+				}
+			}
+			else
+			{
+				// instance id
+				var instance = InstanceManager.FindByInstanceId(instanceId)!;
+
+				if (VariableResolver.BuiltInSelfVariables.TryGetValue(name, out var getset))
+				{
+					var (getter, setter) = getset;
+					setter?.Invoke(instance, value);
+
+					return null;
+				}
+
+				instance.SelfVariables[name] = value;
 			}
 
-			instance.SelfVariables[name] = value;
 			return null;
 		}
 
