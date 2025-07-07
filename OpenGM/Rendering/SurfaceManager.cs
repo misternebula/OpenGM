@@ -125,7 +125,6 @@ public static class SurfaceManager
     {
 	    if (id == -1)
 	    {
-            DebugLog.LogWarning("Tried to free surface -1");
 		    return;
 	    }
 
@@ -256,7 +255,6 @@ public static class SurfaceManager
     {
 	    if (!surface_exists(id))
 	    {
-		    DebugLog.LogWarning("Tried to get width of surface -1");
 			return -1;
 	    }
 
@@ -270,7 +268,6 @@ public static class SurfaceManager
     {
 	    if (!surface_exists(id))
 	    {
-		    DebugLog.LogWarning("Tried to get height of surface -1");
 			return -1;
 	    }
 
