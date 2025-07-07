@@ -634,29 +634,29 @@ public class CustomWindow : GameWindow
 
 public class GMLineJob : GMBaseJob
 {
-	public float x1;
-	public float y1;
-	public float x2;
-	public float y2;
-    public float width = 1;
-    public Color4 col1;
-    public Color4 col2;
+	public required float x1;
+	public required float y1;
+	public required float x2;
+	public required float y2;
+    public required float width;
+    public required Color4 col1;
+    public required Color4 col2;
 }
 
 public class GMLinesJob : GMBaseJob
 {
-	public required Vector2d[] Vertices = null!;
-	public required Color4[] Colors = null!;
+	public required Vector2d[] Vertices;
+	public required Color4[] Colors;
 }
 
 public class GMSpriteJob : GMBaseJob
 {
     public required Vector2d screenPos;
-    public required SpritePageItem texture = null!;
-    public required Vector2d scale = Vector2d.One;
+    public required SpritePageItem texture;
+    public required Vector2d scale;
     public required double angle;
     public required Vector2 origin;
-    public required Color4[] Colors = null!;
+    public required Color4[] Colors;
 }
 
 public class GMSpritePartJob : GMSpriteJob
@@ -670,32 +670,29 @@ public class GMSpritePartJob : GMSpriteJob
 public class GMTextJob : GMBaseJob
 {
     public required Vector2d screenPos;
-    public required string text = null!;
+    public required string text;
     public required Vector2d scale;
     public required HAlign halign;
     public required VAlign valign;
     public required double angle;
-    public required FontAsset asset = null!;
+    public required FontAsset asset;
     public required int lineSep;
-    public required Color4[] Colors = null!;
+    public required Color4[] Colors;
 }
 
 public class GMPolygonJob : GMBaseJob
 {
-    public Vector2d[] Vertices = null!;
-    public Color4[] Colors = null!;
-    public bool Outline;
+    public required Vector2d[] Vertices;
+    public required Color4[] Colors;
+    public required bool Outline;
 }
 
 public class GMTexturedPolygonJob : GMBaseJob
 {
-	public required Vector2d[] Vertices = null!;
-	public required Vector2d[] UVs = null!;
-	public required Color4[] Colors = null!;
-	public required SpritePageItem Texture = null!;
+	public required Vector2d[] Vertices;
+	public required Vector2d[] UVs;
+	public required Color4[] Colors;
+	public required SpritePageItem Texture;
 }
 
-public abstract class GMBaseJob
-{
-
-}
+public abstract class GMBaseJob;
