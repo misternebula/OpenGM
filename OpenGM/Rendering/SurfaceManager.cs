@@ -351,4 +351,23 @@ public static class SurfaceManager
 
         GL.BindTexture(TextureTarget.Texture2D, textureId);
     }
+
+    public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
+    {
+	    if (!surface_exists(dest) || !surface_exists(src))
+	    {
+		    return;
+	    }
+
+	    var srcBuffer = _framebuffers[src];
+	    var dstBuffer = _framebuffers[dest];
+
+        GL.BlitNamedFramebuffer(
+	        srcBuffer, 
+	        dstBuffer,
+	        xs, ys, xs + ws, ys + hs,
+	        x, y, x + ws, y + hs,
+	        ClearBufferMask.ColorBufferBit,
+	        BlitFramebufferFilter.Nearest);
+	}
 }

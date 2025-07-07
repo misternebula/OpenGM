@@ -1553,7 +1553,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_surface_stretched
+		[GMLFunction("draw_surface_stretched")]
+		public static object? draw_surface_stretched(object?[] args)
+		{
+			var id = args[0].Conv<int>();
+			var x = args[1].Conv<double>();
+			var y = args[2].Conv<double>();
+			var w = args[3].Conv<double>();
+			var h = args[4].Conv<double>();
+
+			SurfaceManager.draw_surface_stretched(id, x, y, w, h);
+			return null;
+		}
+
 		// draw_surface_stretched_ext
 		// draw_surface_part
 		// draw_surface_part_ext
@@ -1595,7 +1607,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return r | g << 8 | b << 16 | a << 24;
 		}
 
-		[GMLFunction("surface_copy", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Error)]
+		[GMLFunction("surface_copy")]
 		public static object? surface_copy(object?[] args)
 		{
 			var destination = args[0].Conv<int>();
@@ -1603,11 +1615,28 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var y = args[2].Conv<int>();
 			var source = args[3].Conv<int>();
 
+			SurfaceManager.Copy(destination, x, y, source, 0, 0, SurfaceManager.GetSurfaceWidth(source), SurfaceManager.GetSurfaceHeight(source));
+
 			return null;
 		}
 
-		// surface_copy_part
-		
+		[GMLFunction("surface_copy_part")]
+		public static object? surface_copy_part(object?[] args)
+		{
+			var destination = args[0].Conv<int>();
+			var x = args[1].Conv<int>();
+			var y = args[2].Conv<int>();
+			var source = args[3].Conv<int>();
+			var xs = args[4].Conv<int>();
+			var ys = args[5].Conv<int>();
+			var ws = args[6].Conv<int>();
+			var hs = args[7].Conv<int>();
+
+			SurfaceManager.Copy(destination, x, y, source, xs, ys, ws, hs);
+
+			return null;
+		}
+
 		[GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub)]
 		public static object? application_surface_draw_enable(object?[] args)
 		{
