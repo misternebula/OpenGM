@@ -17,11 +17,27 @@ public static class ScriptResolver
 	{
 		if (BuiltInFunctions.Count > 0) return; // already init'd
 		
-		GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName) 
+		GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName, DebugLog.LogType stubLogType) 
 		{
 			return (object?[] args) =>
 			{
-				DebugLog.LogVerbose($"{functionName} not implemented.");
+				if (stubLogType == DebugLog.LogType.Verbose)
+				{
+					DebugLog.LogVerbose($"{functionName} not implemented.");
+				}
+				else if (stubLogType == DebugLog.LogType.Warning)
+				{
+					DebugLog.LogWarning($"{functionName} not implemented.");
+				}
+				else if (stubLogType == DebugLog.LogType.Error)
+				{
+					DebugLog.LogError($"{functionName} not implemented.");
+				}
+				else
+				{
+					DebugLog.Log($"{functionName} not implemented.");
+				}
+
 				return function.Invoke(args);
 			};
 		};
@@ -53,7 +69,7 @@ public static class ScriptResolver
 				var newFunc = func;
 				if (attribute.FunctionFlags.HasFlag(GMLFunctionFlags.Stub))
 				{
-					newFunc = MakeStubFunction(func, attribute.FunctionName);
+					newFunc = MakeStubFunction(func, attribute.FunctionName, attribute.StubLogType);
 					stubCount++;
 				}
 

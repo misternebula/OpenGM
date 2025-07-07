@@ -1128,8 +1128,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub)]
-		[GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+		[GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? draw_text_transformed_colour(object?[] args)
 		{
 			return null;
@@ -1491,7 +1491,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return SurfaceManager.GetSurfaceHeight(surface_id);
 		}
 
-		[GMLFunction("surface_get_texture", GMLFunctionFlags.Stub)]
+		[GMLFunction("surface_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? surface_get_texture(object?[] args)
 		{
 			return -1;
@@ -1595,7 +1595,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return r | g << 8 | b << 16 | a << 24;
 		}
 
-		[GMLFunction("surface_copy", GMLFunctionFlags.Stub)]
+		[GMLFunction("surface_copy", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Error)]
 		public static object? surface_copy(object?[] args)
 		{
 			var destination = args[0].Conv<int>();

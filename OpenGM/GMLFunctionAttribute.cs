@@ -1,17 +1,21 @@
-﻿namespace OpenGM
+﻿using OpenGM.IO;
+
+namespace OpenGM
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class GMLFunctionAttribute(
         string functionName, 
         GMLFunctionFlags functionFlags = 0,
         string? since = null,
-        string? before = null
+        string? before = null,
+        DebugLog.LogType stubLogType = DebugLog.LogType.Verbose
     ) : Attribute
     {
 	    public string FunctionName { get; private set; } = functionName;
 	    public GMLFunctionFlags FunctionFlags { get; private set; } = functionFlags;
 	    public GMVersion? AddedVersion { get; private set; } = (since != null) ? new(since) : null;
 	    public GMVersion? RemovedVersion { get; private set; } = (before != null) ? new(before) : null;
+        public DebugLog.LogType StubLogType { get; private set; } = stubLogType;
     }
 
     [Flags]

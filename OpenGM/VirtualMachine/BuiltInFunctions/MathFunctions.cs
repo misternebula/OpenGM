@@ -147,7 +147,7 @@ public static class MathFunctions
 	// array_insert
 	// array_delete
 
-	[GMLFunction("array_sort", GMLFunctionFlags.Stub)]
+	[GMLFunction("array_sort", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 	public static object? array_sort(object?[] args)
 	{
 		var variable = args[0].Conv<IList>();

@@ -2,7 +2,7 @@
 {
     public static class VertexFormatFunctions
     {
-		[GMLFunction("vertex_format_begin", GMLFunctionFlags.Stub)]
+		[GMLFunction("vertex_format_begin", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 	    public static object? vertex_format_begin(object?[] args)
 	    {
 		    return null;
@@ -10,7 +10,7 @@
 
 		// vertex_format_delete
 
-		[GMLFunction("vertex_format_end", GMLFunctionFlags.Stub)]
+		[GMLFunction("vertex_format_end", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? vertex_format_end(object?[] args)
 		{
 			return null;
