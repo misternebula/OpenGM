@@ -362,6 +362,7 @@ public static class SurfaceManager
 	    var srcBuffer = _framebuffers[src];
 	    var dstBuffer = _framebuffers[dest];
 
+	    // https://ktstephano.github.io/rendering/opengl/dsa direct state access is cool
         GL.BlitNamedFramebuffer(
 	        srcBuffer, 
 	        dstBuffer,
