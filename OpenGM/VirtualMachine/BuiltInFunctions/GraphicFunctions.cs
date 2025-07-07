@@ -810,8 +810,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_circle_color", GMLFunctionFlags.Stub)]
-		[GMLFunction("draw_circle_colour", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_circle_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+		[GMLFunction("draw_circle_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? draw_circle_color(object?[] args)
 		{
 			return null;
@@ -916,7 +916,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_vertex_texture_color
 		// draw_vertex_texture_colour
 
-		[GMLFunction("sprite_get_uvs", GMLFunctionFlags.Stub)]
+		[GMLFunction("sprite_get_uvs", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? sprite_get_uvs(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
@@ -929,7 +929,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// font_get_info
 		// font_cache_glyph
 
-		[GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub)]
+		[GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? sprite_get_texture(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
@@ -1571,7 +1571,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_surface_part_ext
 		// draw_surface_general
 
-		[GMLFunction("draw_surface_tiled", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_surface_tiled", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? draw_surface_tiled(object?[] args)
 		{
 			return null;
@@ -1637,7 +1637,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub)]
+		[GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? application_surface_draw_enable(object?[] args)
 		{
 			var enabled = args[0].Conv<bool>();
