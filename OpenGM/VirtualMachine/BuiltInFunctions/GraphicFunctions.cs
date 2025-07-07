@@ -565,7 +565,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 				CustomWindow.Draw(new GMPolygonJob()
 				{
 					Colors = [col, col, col],
-					Vertices = [new(x2, y2), new(a, b), new(c, d)]
+					Vertices = [new(x2, y2), new(a, b), new(c, d)],
+					Outline = false
 				});
 			}
 
