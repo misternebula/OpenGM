@@ -93,8 +93,11 @@ public static class ScriptResolver
 		CustomWindow.Draw(new GMSpriteJob()
 		{
 			texture = sprite,
-			screenPos = new Vector2d(x, y),
-			blend = Color4.White
+			screenPos = new(x, y),
+			Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
+			scale = Vector2d.One,
+			angle = 0,
+			origin = Vector2.Zero
 		});
 
 		return null;

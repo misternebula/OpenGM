@@ -1,9 +1,12 @@
-﻿using OpenGM.IO;
+﻿using NAudio.Codecs;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System;
+using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -394,16 +397,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			x2 += 1;
 			y2 += 1;
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
-				Vertices = new Vector2d[]
-				{
+				Colors = [c, c, c, c],
+				Vertices =
+				[
 					new(x1, y1),
 					new(x2, y1),
 					new(x2, y2),
 					new(x1, y2)
-				},
+				],
 				Outline = outline
 			});
 			return null;
@@ -423,15 +428,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var y3 = args[5].Conv<double>();
 			var outline = args[6].Conv<bool>();
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
-				Vertices = new Vector2d[]
-				{
+				Colors = [c, c, c],
+				Vertices =
+				[
 					new(x1, y1),
 					new(x2, y2),
 					new(x3, y3)
-				},
+				],
 				Outline = outline
 			});
 
@@ -447,16 +454,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var outline = args[3].Conv<bool>();
 
 			var angle = 360 / DrawManager.CirclePrecision;
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
 			var points = new Vector2d[DrawManager.CirclePrecision];
+			var colors = new Color4[DrawManager.CirclePrecision];
 			for (var i = 0; i < DrawManager.CirclePrecision; i++)
 			{
 				points[i] = new Vector2d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+				colors[i] = c;
 			}
 
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = colors,
 				Vertices = points,
 				Outline = outline
 			});
@@ -480,18 +490,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var yRadius = Math.Abs((y1 - y2) / 2);
 
 			var angle = 360 / DrawManager.CirclePrecision;
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
 			var points = new Vector2d[DrawManager.CirclePrecision];
+			var colors = new Color4[DrawManager.CirclePrecision];
 			for (var i = 0; i < DrawManager.CirclePrecision; i++)
 			{
 				points[i] = new Vector2d(
 					midpointX + (xRadius * Math.Sin(angle * i * CustomMath.Deg2Rad)),
 					midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+				colors[i] = c;
 			}
 
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = colors,
 				Vertices = points,
 				Outline = outline
 			});
@@ -551,8 +564,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 				CustomWindow.Draw(new GMPolygonJob()
 				{
-					blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
-					Vertices = new[] { new Vector2d(x2, y2), new Vector2d(a, b), new Vector2d(c, d) }
+					Colors = [col, col, col],
+					Vertices = [new(x2, y2), new(a, b), new(c, d)]
 				});
 			}
 
@@ -1036,16 +1049,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var sep = args[3].Conv<int>();
 			var w = args[4].Conv<double>();
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMTextJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = [c, c, c, c],
 				angle = 0,
 				asset = TextManager.fontAsset,
 				halign = TextManager.halign,
 				valign = TextManager.valign,
 				lineSep = sep,
 				text = str,
-				screenPos = new Vector2d(x, y),
+				screenPos = new(x, y),
 				scale = Vector2d.One
 			});
 
@@ -1077,15 +1092,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var yscale = args[6].Conv<double>();
 			var angle = args[7].Conv<double>();
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMTextJob()
 			{
-				screenPos = new Vector2d(x, y),
+				screenPos = new(x, y),
 				asset = TextManager.fontAsset,
 				angle = angle,
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = [c, c, c, c],
 				halign = TextManager.halign,
 				valign = TextManager.valign,
-				scale = new Vector2d(xscale, yscale),
+				scale = new(xscale, yscale),
 				lineSep = sep,
 				text = str
 			});
@@ -1201,17 +1218,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			CustomWindow.Draw(new GMTexturedPolygonJob()
 			{
 				Texture = pageItem,
-				blend = col,
-				Vertices = new Vector2d[] { new(x1, y1), new(x2, y2), new(x3, y3) },
-				UVs = new Vector2d[] { new(x, y), new(x + w, y), new(x + w, y + h) }
+				Colors = [col, col, col],
+				Vertices = [new(x1, y1), new(x2, y2), new(x3, y3)],
+				UVs = [new(x, y), new(x + w, y), new(x + w, y + h)]
 			});
 
 			CustomWindow.Draw(new GMTexturedPolygonJob()
 			{
 				Texture = pageItem,
-				blend = col,
-				Vertices = new Vector2d[] { new(x3, y3), new(x4, y4), new(x1, y1) },
-				UVs = new Vector2d[] { new(x + w, y + h), new(x, y + h), new(x, y) }
+				Colors = [col, col, col],
+				Vertices = [new(x3, y3), new(x4, y4), new(x1, y1)],
+				UVs = [new(x + w, y + h), new(x, y + h), new(x, y)]
 			});
 
 			return null;
@@ -1305,7 +1322,43 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_sprite_general
+		[GMLFunction("draw_sprite_general")]
+		public static object? draw_sprite_general(object?[] args)
+		{
+			var sprite = args[0].Conv<int>();
+			var subimg = args[1].Conv<int>();
+			var left = args[2].Conv<int>();
+			var top = args[3].Conv<int>();
+			var width = args[4].Conv<int>();
+			var height = args[5].Conv<int>();
+			var x = args[6].Conv<double>();
+			var y = args[7].Conv<double>();
+			var xscale = args[8].Conv<double>();
+			var yscale = args[9].Conv<double>();
+			var rot = args[10].Conv<double>();
+			var c1 = args[11].Conv<int>();
+			var c2 = args[12].Conv<int>();
+			var c3 = args[13].Conv<int>();
+			var c4 = args[14].Conv<int>();
+			var alpha = args[15].Conv<double>();
+
+			CustomWindow.Draw(new GMSpritePartJob()
+			{
+				texture = SpriteManager.GetSpritePage(sprite, subimg),
+				screenPos = new(x, y),
+				angle = rot,
+				scale = new(xscale, yscale),
+				Colors = [c1.ABGRToCol4(alpha), c2.ABGRToCol4(alpha), c3.ABGRToCol4(alpha), c4.ABGRToCol4(alpha)],
+				origin = Vector2.Zero,
+				left = left,
+				top = top,
+				width = width,
+				height = height
+			});
+
+			return null;
+		}
+
 		// draw_sprite_tiled
 
 		[GMLFunction("draw_sprite_tiled_ext")]

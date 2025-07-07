@@ -38,6 +38,23 @@ public static class Extensions
 		return (uint)(byteCol.R | (byteCol.G << 8) | (byteCol.B << 16) | (byteCol.A << 24));
 	}
 
+	public static Color4 Scale(this Color4 col, double val) => col.Scale((float)val);
+
+	public static Color4 Scale(this Color4 col, float val)
+	{
+		if (val <= 0)
+		{
+			return new(0, 0, 0, 0);
+		}
+
+		if (val >= 1)
+		{
+			return new(255, 255, 255, 255);
+		}
+
+		return new(col.R * val, col.G * val, col.B * val, col.A * val);
+	}
+
 	// sometimes things use \r\n, sometimes they use \n
 	public static string[] SplitLines(this string @this) => @this.Replace("\r\n", "\n").Split('\n');
 

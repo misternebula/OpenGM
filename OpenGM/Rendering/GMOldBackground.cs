@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using System.Drawing;
+using OpenGM.IO;
 using OpenGM.Loading;
 using OpenTK.Mathematics;
 
@@ -39,7 +40,10 @@ public class GMOldBackground
 		{
 			texture = sprite,
 			screenPos = Position,
-			blend = Color4.White
+			Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
+			angle = 0,
+			origin = Vector2.Zero,
+			scale = Vector2d.Zero
 		});
 	}
 }

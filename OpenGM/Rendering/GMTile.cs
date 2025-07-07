@@ -44,16 +44,20 @@ public class GMTile : DrawWithDepth
 			sprite = SpriteManager.GetSpritePage(Definition, 0);
 		}
 
+        var c = Color.ABGRToCol4();
+
 		CustomWindow.Draw(new GMSpritePartJob()
 		{
 			texture = sprite,
-			screenPos = new Vector2d(X, Y),
-			blend = Color.ABGRToCol4(),
+			screenPos = new(X, Y),
+			Colors = [c, c, c, c],
 			origin = Vector2.Zero,
 			left = left,
 			top = top,
 			width = width,
-			height = height
+			height = height,
+            scale = new(XScale, YScale),
+            angle = 0
 		});
 	}
 

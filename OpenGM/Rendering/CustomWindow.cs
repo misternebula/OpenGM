@@ -241,10 +241,29 @@ public class CustomWindow : GameWindow
         }
 
         var lines = textJob.text.SplitLines();
-        var textHeight = TextManager.StringHeight(textJob.text);
         var lineYOffset = 0;
 
-        for (var i = 0; i < lines.Length; i++)
+        var textWidth = TextManager.StringWidth(textJob.text);
+        var textHeight = TextManager.StringHeight(textJob.text);
+
+		var textLeft = textJob.halign switch
+		{
+			HAlign.fa_center => textJob.screenPos.X - (textWidth / 2),
+			HAlign.fa_right => textJob.screenPos.X - textWidth,
+			_ => textJob.screenPos.X
+		};
+
+		var textTop = textJob.valign switch
+		{
+			VAlign.fa_middle => textJob.screenPos.Y - (textHeight / 2),
+			VAlign.fa_bottom => textJob.screenPos.Y - textHeight,
+			_ => textJob.screenPos.Y
+		};
+
+		var textRight = textLeft + textWidth;
+		var textBottom = textTop + textHeight;
+
+		for (var i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
             var width = TextManager.StringWidth(line);
@@ -272,33 +291,20 @@ public class CustomWindow : GameWindow
             yOffset += lineYOffset;
             lineYOffset += textJob.lineSep;
 
-			var stringLeft = textJob.screenPos.X + xOffset;
+            var stringLeft = textJob.screenPos.X + xOffset;
             var stringRight = textJob.screenPos.X + xOffset + width;
             var stringTop = -textJob.screenPos.Y - yOffset;
             var stringBottom = -textJob.screenPos.Y - yOffset - TextManager.StringHeight(line);
 
-            double map(double s, double a1, double a2, double b1, double b2)
+            var points = new Vector2d[]
             {
-                return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
-            }
+	            (stringLeft, stringTop),
+	            (stringRight, stringTop),
+	            (stringRight, stringBottom),
+	            (stringLeft, stringBottom)
+            };
 
-            Color4 LerpBetweenColors(Color4 leftColor, Color4 rightColor, double left, double right, double value)
-            {
-                var distance = map(value, left, right, 0, 1);
-                return Lerp(leftColor, rightColor, (float)distance);
-            }
-
-            Color4 Lerp(Color4 a, Color4 b, float t)
-            {
-                t = Math.Clamp(t, 0, 1);
-                return new Color4(
-                    a.R + (b.R - a.R) * t,
-                    a.G + (b.G - a.G) * t,
-                    a.B + (b.B - a.B) * t,
-                    a.A + (b.A - a.A) * t);
-            }
-
-            for (var j = 0; j < line.Length; j++)
+			for (var j = 0; j < line.Length; j++)
             {
                 var character = line[j];
 
@@ -329,8 +335,11 @@ public class CustomWindow : GameWindow
                     {
                         texture = sprite,
                         screenPos = textJob.screenPos + (xOffset, 0),
-                        blend = textJob.blend
-                    });
+                        angle = 0,
+                        scale = Vector2d.One,
+                        origin = Vector2.Zero,
+                        Colors = textJob.Colors // TODO : use BlendBetweenPoints with these, this gradient is applied wrong
+					});
 
                     xOffset += (sprite.TargetSizeX + textJob.asset.sep) * textJob.scale.X;
                 }
@@ -357,25 +366,25 @@ public class CustomWindow : GameWindow
                     var topY = (pageY + glyph.y) / (float)texturePage.Height;
                     var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
 
-                    var c1 = textJob.c1;
-                    var c2 = textJob.c2;
-                    var c3 = textJob.c3;
-                    var c4 = textJob.c4;
-                    if (!textJob.isColor)
-                    {
-                        c1 = c2 = c3 = c4 = textJob.blend;
-                    }
-
                     GL.BindTexture(TextureTarget.Texture2D, pageId);
                     GL.Uniform1(VertexManager.u_doTex, 1);
 
-                    // TODO : this will make the different lines of a string have the gradient applied seperately.
-                    VertexManager.Draw(PrimitiveType.TriangleFan, [
-                        new(new(topLeftX, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX), new(leftX, topY)),
-                        new(new(topLeftX + glyph.w * textJob.scale.X, topLeftY), LerpBetweenColors(c1, c2, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, topY)),
-                        new(new(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y)), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX + glyph.w), new(rightX, bottomY)),
-                        new(new(topLeftX, topLeftY + glyph.h * textJob.scale.Y), LerpBetweenColors(c4, c3, stringLeft, stringRight, topLeftX), new(leftX, bottomY)),
-                    ]);
+                    var topLeftPos = new Vector2d(topLeftX, topLeftY);
+                    var topRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, topLeftY);
+                    var bottomRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y));
+                    var bottomLeftPos = new Vector2d(topLeftX, topLeftY + glyph.h * textJob.scale.Y);
+
+                    var topLeftCol = CustomMath.BlendBetweenPoints(topLeftPos, points, textJob.Colors);
+                    var topRightCol = CustomMath.BlendBetweenPoints(topRightPos, points, textJob.Colors);
+                    var bottomRightCol = CustomMath.BlendBetweenPoints(bottomRightPos, points, textJob.Colors);
+                    var bottomLeftCol = CustomMath.BlendBetweenPoints(bottomLeftPos, points, textJob.Colors);
+
+					VertexManager.Draw(PrimitiveType.TriangleFan, [
+                        new(topLeftPos, topLeftCol, new(leftX, topY)),
+	                    new(topRightPos, topRightCol, new(rightX, topY)),
+	                    new(bottomRightPos, bottomRightCol, new(rightX, bottomY)),
+	                    new(bottomLeftPos,bottomLeftCol, new(leftX, bottomY)),
+					]);
 
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                     GL.Uniform1(VertexManager.u_doTex, 0);
@@ -391,9 +400,6 @@ public class CustomWindow : GameWindow
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
         GL.Uniform1(VertexManager.u_doTex, 1);
-        // GL.Begin(PrimitiveType.Quads);
-        // GL.Color4(new Color4(spriteJob.blend.R, spriteJob.blend.G, spriteJob.blend.B, (float)spriteJob.alpha));
-        var color = spriteJob.blend;
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -441,10 +447,10 @@ public class CustomWindow : GameWindow
         GL.End();
         */
         VertexManager.Draw(PrimitiveType.TriangleFan, [
-	        new(drawAreaTopLeft, color, topLeftUV),
-	        new(drawAreaTopRight, color, topRightUV),
-	        new(drawAreaBottomRight, color, bottomRightUV),
-	        new(drawAreaBottomLeft, color, bottomLeftUV),
+	        new(drawAreaTopLeft, spriteJob.Colors[0], topLeftUV),
+	        new(drawAreaTopRight, spriteJob.Colors[1], topRightUV),
+	        new(drawAreaBottomRight, spriteJob.Colors[2], bottomRightUV),
+	        new(drawAreaBottomLeft, spriteJob.Colors[3], bottomLeftUV),
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -456,9 +462,6 @@ public class CustomWindow : GameWindow
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
         GL.Uniform1(VertexManager.u_doTex, 1);
-        // GL.Begin(PrimitiveType.Quads);
-        // GL.Color4(new Color4(partJob.blend.R, partJob.blend.G, partJob.blend.B, (float)partJob.alpha));
-        var color = partJob.blend;
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -539,21 +542,11 @@ public class CustomWindow : GameWindow
 			var topRight = topLeft + new Vector2d(widthCos, widthSin);
             var bottomRight = topRight + bottomVector;
 
-            /*
-	        GL.TexCoord2(uv0);
-	        GL.Vertex2(topLeft);
-	        GL.TexCoord2(uv1);
-	        GL.Vertex2(topRight);
-	        GL.TexCoord2(uv2);
-	        GL.Vertex2(bottomRight);
-	        GL.TexCoord2(uv3);
-	        GL.Vertex2(bottomLeft);
-	        */
             VertexManager.Draw(PrimitiveType.TriangleFan, [
-	            new(topLeft, color, uv0),
-	            new(topRight, color, uv1),
-	            new(bottomRight, color, uv2),
-	            new(bottomLeft, color, uv3),
+	            new(topLeft, partJob.Colors[0], uv0),
+	            new(topRight, partJob.Colors[1], uv1),
+	            new(bottomRight, partJob.Colors[2], uv2),
+	            new(bottomLeft, partJob.Colors[3], uv3),
             ]);
 		}
 
@@ -600,57 +593,23 @@ public class CustomWindow : GameWindow
 
     public static void Draw(GMLinesJob linesJob)
     {
-	    /*
-        GL.Begin(PrimitiveType.LineStrip);
-        GL.Color4(new Color4(linesJob.blend.R, linesJob.blend.G, linesJob.blend.B, (float)linesJob.alpha));
-
-        foreach (var vert in linesJob.Vertices)
-        {
-            GL.Vertex2(vert);
-        }
-
-        GL.End();
-		*/
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
         {
-	        v[i] = new(linesJob.Vertices[i], linesJob.blend, Vector2d.Zero);
+	        v[i] = new(linesJob.Vertices[i], linesJob.Colors[i], Vector2d.Zero);
         }
+
         VertexManager.Draw(PrimitiveType.LineStrip, v);
     }
 
     public static void Draw(GMPolygonJob polyJob)
     {
-        /*
-        if (polyJob.Outline)
-        {
-            GL.Begin(PrimitiveType.LineLoop);
-        }
-        else
-        {
-            GL.Begin(PrimitiveType.Polygon);
-        }
-
-        GL.Color4(new Color4(polyJob.blend.R, polyJob.blend.G, polyJob.blend.B, (float)polyJob.alpha));
-
-        for (var i = 0; i < polyJob.Vertices.Length; i++)
-        {
-	        if (polyJob.Colors != null)
-	        {
-                var col = polyJob.Colors[i];
-		        GL.Color4(new Color4(col.R, col.G, col.B, (float)polyJob.alpha));
-			}
-
-            GL.Vertex2(polyJob.Vertices[i]);
-		}
-
-        GL.End();
-		*/
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
-	        v[i] = new(polyJob.Vertices[i], polyJob.Colors != null ? polyJob.Colors[i] : polyJob.blend, Vector2d.Zero);
+	        v[i] = new(polyJob.Vertices[i], polyJob.Colors[i], Vector2d.Zero);
         }
+
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
 	}
@@ -664,7 +623,7 @@ public class CustomWindow : GameWindow
 	    var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
 	    for (var i = 0; i < texPolyJob.Vertices.Length; i++)
 	    {
-		    vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.blend, texPolyJob.UVs[i]);
+		    vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
 	    }
 	    VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
 
@@ -686,41 +645,39 @@ public class GMLineJob : GMBaseJob
 
 public class GMLinesJob : GMBaseJob
 {
-	public Vector2d[] Vertices = null!;
+	public required Vector2d[] Vertices = null!;
+	public required Color4[] Colors = null!;
 }
 
 public class GMSpriteJob : GMBaseJob
 {
-    public Vector2d screenPos;
-    public SpritePageItem texture = null!;
-    public Vector2d scale = Vector2d.One;
-    public double angle;
-    public Vector2 origin;
+    public required Vector2d screenPos;
+    public required SpritePageItem texture = null!;
+    public required Vector2d scale = Vector2d.One;
+    public required double angle;
+    public required Vector2 origin;
+    public required Color4[] Colors = null!;
 }
 
 public class GMSpritePartJob : GMSpriteJob
 {
-    public float left;
-    public float top;
-    public float width;
-    public float height;
+    public required float left;
+    public required float top;
+    public required float width;
+    public required float height;
 }
 
 public class GMTextJob : GMBaseJob
 {
-    public Vector2d screenPos;
-    public string text = null!;
-    public Vector2d scale;
-    public HAlign halign;
-    public VAlign valign;
-    public double angle;
-    public bool isColor;
-    public Color4 c1 = Color4.White;
-    public Color4 c2 = Color4.White;
-    public Color4 c3 = Color4.White;
-    public Color4 c4 = Color4.White;
-    public FontAsset asset = null!;
-    public int lineSep;
+    public required Vector2d screenPos;
+    public required string text = null!;
+    public required Vector2d scale;
+    public required HAlign halign;
+    public required VAlign valign;
+    public required double angle;
+    public required FontAsset asset = null!;
+    public required int lineSep;
+    public required Color4[] Colors = null!;
 }
 
 public class GMPolygonJob : GMBaseJob
@@ -734,12 +691,11 @@ public class GMTexturedPolygonJob : GMBaseJob
 {
 	public required Vector2d[] Vertices = null!;
 	public required Vector2d[] UVs = null!;
+	public required Color4[] Colors = null!;
 	public required SpritePageItem Texture = null!;
 }
 
 public abstract class GMBaseJob
 {
-    public Color4 blend;
-    public Color4 fogColor;
-    public bool fogEnabled;
+
 }

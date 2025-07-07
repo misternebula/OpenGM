@@ -117,6 +117,45 @@ public static class CustomMath
 		return p;
 	}
 
+	public static Color4 BlendBetweenPoints(Vector2d val, Vector2d[] points, Color4[] colors)
+	{
+		var distances = new double[points.Length];
+		for (var i = 0; i < distances.Length; i++)
+		{
+			distances[i] = Vector2d.Distance(val, points[i]);
+		}
+
+		var weights = new double[distances.Length];
+		for (var i = 0; i < weights.Length; i++)
+		{
+			weights[i] = 1.0 / (distances[i] + 0.00001); // avoid division by 0
+		}
+
+		var weightTotal = weights.Sum();
+
+		for (var i = 0; i < weights.Length; i++)
+		{
+			// normalize
+			weights[i] /= weightTotal;
+		}
+
+		var r = 0f;
+		var g = 0f;
+		var b = 0f;
+		var a = 0f;
+
+		for (var i = 0; i < weights.Length; i++)
+		{
+			var c = colors[i].Scale(weights[i]);
+			r += c.R;
+			g += c.G;
+			b += c.B;
+			a += c.A;
+		}
+
+		return new(r, g, b, a);
+	}
+
 	/*
 	 * JS Functions
 	 * Functions that replicate JS math functions for HTML referenced code.

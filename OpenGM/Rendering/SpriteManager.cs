@@ -79,16 +79,18 @@ public static class SpriteManager
         var sprite = GetSpritePage(name, index);
         var origin = GetSpriteOrigin(name);
 
+        var c = blend.ABGRToCol4(alpha);
+
         CustomWindow.Draw(new GMSpriteJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
             angle = rot,
             scale = new Vector2d(xscale, yscale),
-            blend = blend.ABGRToCol4(alpha),
+            Colors = [c, c, c, c],
             origin = origin,
-            fogEnabled = FogEnabled,
-            fogColor = FogColor.ABGRToCol4(1) // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_D3D.js#L1095
+            //fogEnabled = FogEnabled,
+            //fogColor = FogColor.ABGRToCol4(1) // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_D3D.js#L1095
         });
     }
 
@@ -101,13 +103,14 @@ public static class SpriteManager
     {
         //var sprite = SpritePart(name, index, left, top, width, height);
         var sprite = GetSpritePage(name, index);
-        CustomWindow.Draw(new GMSpritePartJob()
+        var c = blend.ABGRToCol4(alpha);
+		CustomWindow.Draw(new GMSpritePartJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
             angle = 0,
             scale = new Vector2d(xscale, yscale),
-            blend = blend.ABGRToCol4(alpha),
+            Colors = [c, c, c, c],
             origin = Vector2.Zero,
             left = left,
             top = top,
@@ -147,13 +150,15 @@ public static class SpriteManager
         var spriteWidth = sprite.TargetSizeX;
         var spriteHeight = sprite.TargetSizeY;
 
+        var c = color.ABGRToCol4(alpha);
+
         CustomWindow.Draw(new GMSpriteJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
             angle = 0,
             scale = new Vector2d(w / spriteWidth, h / spriteHeight),
-            blend = color.ABGRToCol4(alpha),
+            Colors = [c, c, c, c],
             origin = Vector2.Zero
         });
     }
