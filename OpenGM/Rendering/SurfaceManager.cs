@@ -123,6 +123,12 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id, bool force) // force comes from cpp
     {
+	    if (id == -1)
+	    {
+            DebugLog.LogWarning("Tried to free surface -1");
+		    return;
+	    }
+
         if (force || application_surface != id)
         {
 			var buffer = _framebuffers[id];
@@ -248,7 +254,13 @@ public static class SurfaceManager
 
     public static int GetSurfaceWidth(int id)
     {
-        BindSurfaceTexture(id);
+	    if (!surface_exists(id))
+	    {
+		    DebugLog.LogWarning("Tried to get width of surface -1");
+			return -1;
+	    }
+
+		BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return width;
@@ -256,6 +268,12 @@ public static class SurfaceManager
 
     public static int GetSurfaceHeight(int id)
     {
+	    if (!surface_exists(id))
+	    {
+		    DebugLog.LogWarning("Tried to get height of surface -1");
+			return -1;
+	    }
+
         BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
