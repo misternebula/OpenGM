@@ -230,26 +230,35 @@ public static partial class VMExecutor
 			if (variablePrefix == VariablePrefix.Array)
 			{
 				int index;
-				int instanceId;
+				//int instanceId;
+				object? context;
 				object? value;
 				if (instruction.TypeOne == VMType.i) // flips value and id pop
 				{
 					value = Call.Stack.Pop(instruction.TypeTwo);
 
 					index = Call.Stack.Pop(VMType.i).Conv<int>();
-					instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
+						context = Call.Stack.Pop(VMType.v);
+					}
+					else
+					{
+						context = instanceId;
 					}
 				}
 				else // v
 				{
 					index = Call.Stack.Pop(VMType.i).Conv<int>();
-					instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+					var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
+						context = Call.Stack.Pop(VMType.v);
+					}
+					else
+					{
+						context = instanceId;
 					}
 
 					value = Call.Stack.Pop(instruction.TypeTwo);
@@ -257,57 +266,82 @@ public static partial class VMExecutor
 
 				if (variableType == VariableType.Self)
 				{
-					if (instanceId == GMConstants.global)
+					if (context is GMLObject obj)
 					{
-						PopToGlobalArray(variableName, index, value);
-						return (ExecutionResult.Success, null);
-					}
-					else if (instanceId == GMConstants.local)
-					{
-						PopToLocalArray(variableName, index, value);
-						return (ExecutionResult.Success, null);
-					}
-					else if (instanceId == GMConstants.self)
-					{
-						PopToSelfArray(Self.Self, variableName, index, value);
+						PopToSelfArray(obj, variableName, index, value);
 						return (ExecutionResult.Success, null);
 					}
 					else
 					{
-						if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+						var instanceId = context.Conv<int>();
+						if (instanceId == GMConstants.global)
 						{
-							// asset id
-							var gm = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
-							PopToSelfArray(gm, variableName, index, value);
+							PopToGlobalArray(variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
+						else if (instanceId == GMConstants.local)
+						{
+							PopToLocalArray(variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
+						else if (instanceId == GMConstants.self)
+						{
+							PopToSelfArray(Self.Self, variableName, index, value);
 							return (ExecutionResult.Success, null);
 						}
 						else
 						{
-							// instance id
-							var gm = InstanceManager.FindByInstanceId(instanceId)!;
-							PopToSelfArray(gm, variableName, index, value);
-							return (ExecutionResult.Success, null);
+							if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+							{
+								// asset id
+								var gm = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
+								PopToSelfArray(gm, variableName, index, value);
+								return (ExecutionResult.Success, null);
+							}
+							else
+							{
+								// instance id
+								var gm = InstanceManager.FindByInstanceId(instanceId)!;
+								PopToSelfArray(gm, variableName, index, value);
+								return (ExecutionResult.Success, null);
+							}
 						}
 					}
 				}
 				else if (variableType == VariableType.Global)
 				{
-					if (instanceId == GMConstants.global)
+					if (context is GMLObject obj)
 					{
-						PopToGlobalArray(variableName, index, value);
-						return (ExecutionResult.Success, null);
+						throw new NotImplementedException();
+					}
+					else
+					{
+						var instanceId = context.Conv<int>();
+						if (instanceId == GMConstants.global)
+						{
+							PopToGlobalArray(variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
 					}
 				}
 				else if (variableType == VariableType.Local)
 				{
-					if (instanceId == GMConstants.local)
+					if (context is GMLObject obj)
 					{
-						PopToLocalArray(variableName, index, value);
-						return (ExecutionResult.Success, null);
+						throw new NotImplementedException();
+					}
+					else
+					{
+						var instanceId = context.Conv<int>();
+						if (instanceId == GMConstants.local)
+						{
+							PopToLocalArray(variableName, index, value);
+							return (ExecutionResult.Success, null);
+						}
 					}
 				}
 
-				return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, instanceId={instanceId}, value={value})");
+				return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, context={context}, value={value})");
 			}
 		}
 		else if (variablePrefix == VariablePrefix.Stacktop)
