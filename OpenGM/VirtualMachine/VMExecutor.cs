@@ -183,8 +183,6 @@ public static partial class VMExecutor
 		// Make the current object the current instance
 		EnvStack.Push(newCtx);
 
-		var lastJumpedLabel = 0; // just for debugging
-
 		var call = new VMCallFrame
 		{
 			CodeName = codeName,
@@ -240,7 +238,16 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.Failed)
 			{
-				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {codeName} failed : {data}");
+				var lastLabel = 0;
+				foreach (var (label, index) in code.Labels)
+				{
+					if (index <= instructionIndex && lastLabel < label)
+					{
+						lastLabel = label;
+					}
+				}
+
+				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Label: {lastLabel}) in script {codeName} failed : {data}");
 
 				DebugLog.LogError($"--Stacktrace--");
 				foreach (var item in CallStack)
@@ -273,7 +280,6 @@ public static partial class VMExecutor
 			{
 				var label = (int)data!;
 				instructionIndex = code.Labels[label];
-				lastJumpedLabel = label;
 				continue;
 			}
 
