@@ -145,7 +145,7 @@ public static class SurfaceManager
             // sanity check
             if (SurfaceStack.Contains(id))
             {
-                Debugger.Break();
+                System.Diagnostics.Debugger.Break();
             }
 #endif
         }
