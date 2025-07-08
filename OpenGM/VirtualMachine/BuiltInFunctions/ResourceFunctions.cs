@@ -244,7 +244,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 			for (var i = 0; i < string_map.Length; i++)
 			{
-				var page = SpriteManager.GetSpritePage(spriteAssetIndex, i);
+				var page = SpriteManager.GetSpritePageItem(spriteAssetIndex, i);
 				var fontAssetEntry = new Glyph
 				{
 					characterIndex = string_map[i],

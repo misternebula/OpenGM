@@ -1005,7 +1005,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 
 			var sprite = SpriteManager.GetSpriteAsset(spr);
-			var page = SpriteManager.GetSpritePage(spr, subimg);
+			var page = SpriteManager.GetSpritePageItem(spr, subimg);
 
 			var retArray = new double[8];
 			return new int[8];
@@ -1293,7 +1293,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 
 			var col = 16777215.ABGRToCol4(alpha); // c_white
-			var pageItem = SpriteManager.GetSpritePage(sprite, subimg);
+			var pageItem = SpriteManager.GetSpritePageItem(sprite, subimg);
 			var (pageTexture, id) = PageManager.TexturePages[pageItem.Page];
 
 			var x = (double)pageItem.SourceX / pageTexture.Width;
@@ -1430,7 +1430,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 			CustomWindow.Draw(new GMSpritePartJob()
 			{
-				texture = SpriteManager.GetSpritePage(sprite, subimg),
+				texture = SpriteManager.GetSpritePageItem(sprite, subimg),
 				screenPos = new(x, y),
 				angle = rot,
 				scale = new(xscale, yscale),
@@ -1464,7 +1464,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 				subimg = (int)VMExecutor.Self.GMSelf.image_index;
 			}
 
-			var spriteTex = SpriteManager.GetSpritePage(sprite, subimg);
+			var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
 
 			var sizeWidth = spriteTex.TargetWidth;
 			var sizeHeight = spriteTex.TargetHeight;

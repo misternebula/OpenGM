@@ -27,7 +27,7 @@ public class GMBackground : DrawWithDepth
 		// TODO : work out what foreground does
 		// TODO : account for animations
 
-		var sprite = SpriteManager.GetSpritePage(Element.Index, _currentFrame);
+		var sprite = SpriteManager.GetSpritePageItem(Element.Index, _currentFrame);
 		var origin = SpriteManager.GetSpriteOrigin(Element.Index);
 
 		var c = Element.Color.ABGRToCol4(Element.Alpha);

@@ -47,12 +47,12 @@ public static class SpriteManager
         return _spriteDict[name].Origin;
     }
 
-    public static SpritePageItem GetSpritePage(string name, double index)
+    public static SpritePageItem GetSpritePageItem(string name, double index)
     {
-        return GetSpritePage(AssetIndexManager.GetIndex(AssetType.sprites, name), index);
+        return GetSpritePageItem(AssetIndexManager.GetIndex(AssetType.sprites, name), index);
     }
 
-    public static SpritePageItem GetSpritePage(int id, double index)
+    public static SpritePageItem GetSpritePageItem(int id, double index)
     {
         var subimages = _spriteDict[id].Textures;
         index %= subimages.Count;
@@ -76,7 +76,7 @@ public static class SpriteManager
             DebugLog.LogWarning($"Tried to draw sprite {name} with index {index}.");
             return;
         }
-        var sprite = GetSpritePage(name, index);
+        var sprite = GetSpritePageItem(name, index);
         var origin = GetSpriteOrigin(name);
 
         var c = blend.ABGRToCol4(alpha);
@@ -102,7 +102,7 @@ public static class SpriteManager
     public static void DrawSpritePartExt(int name, double index, int left, int top, int width, int height, double x, double y, double xscale, double yscale, int blend, double alpha)
     {
         //var sprite = SpritePart(name, index, left, top, width, height);
-        var sprite = GetSpritePage(name, index);
+        var sprite = GetSpritePageItem(name, index);
         var c = blend.ABGRToCol4(alpha);
 		CustomWindow.Draw(new GMSpritePartJob()
         {
@@ -145,7 +145,7 @@ public static class SpriteManager
 
     public static void draw_sprite_stretched(int name, int index, double x, double y, double w, double h, int color, double alpha)
     {
-        var sprite = GetSpritePage(name, index);
+        var sprite = GetSpritePageItem(name, index);
 
         var spriteWidth = sprite.TargetWidth;
         var spriteHeight = sprite.TargetHeight;

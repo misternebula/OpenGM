@@ -41,7 +41,7 @@ public class GMTile : DrawWithDepth
 		}
         else
         {
-			sprite = SpriteManager.GetSpritePage(Definition, 0);
+			sprite = SpriteManager.GetSpritePageItem(Definition, 0);
 		}
 
         var c = Color.ABGRToCol4();

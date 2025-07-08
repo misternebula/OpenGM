@@ -250,7 +250,7 @@ public static class TextManager
 					continue;
 				}
 
-				var sprite = SpriteManager.GetSpritePage(fontAsset.spriteIndex, idx);
+				var sprite = SpriteManager.GetSpritePageItem(fontAsset.spriteIndex, idx);
 				var height = sprite.TargetHeight;
 
 				if (height > tallestChar)
@@ -313,7 +313,7 @@ public static class TextManager
 						continue;
 					}
 
-					var sprite = SpriteManager.GetSpritePage(fontAsset.spriteIndex, idx);
+					var sprite = SpriteManager.GetSpritePageItem(fontAsset.spriteIndex, idx);
 
 					totalWidth += sprite.TargetWidth + fontAsset.sep;
 				}

@@ -330,7 +330,7 @@ public class CustomWindow : GameWindow
                         continue;
                     }
 
-                    var sprite = SpriteManager.GetSpritePage(textJob.asset.spriteIndex, idx);
+                    var sprite = SpriteManager.GetSpritePageItem(textJob.asset.spriteIndex, idx);
                     Draw(new GMSpriteJob()
                     {
                         texture = sprite,
