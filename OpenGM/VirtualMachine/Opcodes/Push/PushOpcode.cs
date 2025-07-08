@@ -343,7 +343,17 @@ public static partial class VMExecutor
 
 					if (instanceId == GMConstants.stacktop)
 					{
-						instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
+						var context = Call.Stack.Pop(VMType.v);
+
+						if (context is GMLObject obj)
+						{
+							PushSelfArrayIndex(obj, variableName, index);
+							return (ExecutionResult.Success, null);
+						}
+						else
+						{
+							instanceId = context.Conv<int>();
+						}
 					}
 
 					if (instanceId == GMConstants.global)
