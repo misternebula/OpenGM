@@ -1005,10 +1005,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			}
 
 			var sprite = SpriteManager.GetSpriteAsset(spr);
-			var page = SpriteManager.GetSpritePageItem(spr, subimg);
+			var pageItem = SpriteManager.GetSpritePageItem(spr, subimg);
 
-			var retArray = new double[8];
-			return new int[8];
+			var (image, id) = PageManager.TexturePages[pageItem.Page];
+
+			return new double[8]
+			{
+				// TODO : SourceWidth/Height or TargetWidth/Height?
+				pageItem.SourceX / (double)image.Width,
+				pageItem.SourceY / (double)image.Height,
+				(pageItem.SourceX + pageItem.SourceWidth) / (double)image.Width,
+				(pageItem.SourceY + pageItem.SourceHeight) / (double)image.Height,
+				pageItem.TargetX,
+				pageItem.TargetY,
+				pageItem.TargetWidth / (double)pageItem.BoundingWidth,
+				pageItem.TargetHeight / (double)pageItem.BoundingHeight
+			};
 		}
 
 		// font_get_uvs
