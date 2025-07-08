@@ -13,15 +13,24 @@ public static class ScriptResolver
 	
 	public static Dictionary<string, GMLFunctionType> BuiltInFunctions = new();
 
+	public static List<string> LoggedStubs = [];
+	public static bool AlwaysLogStubs = false;
+
 	public static void InitGMLFunctions()
 	{
 		if (BuiltInFunctions.Count > 0) return; // already init'd
 		
-		GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName) 
+		GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName, DebugLog.LogType stubLogType) 
 		{
 			return (object?[] args) =>
 			{
-				DebugLog.LogVerbose($"{functionName} not implemented.");
+				if (AlwaysLogStubs || !LoggedStubs.Contains(functionName)) {
+					if (!AlwaysLogStubs)
+					{
+						LoggedStubs.Add(functionName);
+					}
+					DebugLog.Log($"{functionName} not implemented.", stubLogType);
+				}
 				return function.Invoke(args);
 			};
 		};
@@ -53,7 +62,7 @@ public static class ScriptResolver
 				var newFunc = func;
 				if (attribute.FunctionFlags.HasFlag(GMLFunctionFlags.Stub))
 				{
-					newFunc = MakeStubFunction(func, attribute.FunctionName);
+					newFunc = MakeStubFunction(func, attribute.FunctionName, attribute.StubLogType);
 					stubCount++;
 				}
 
@@ -93,8 +102,11 @@ public static class ScriptResolver
 		CustomWindow.Draw(new GMSpriteJob()
 		{
 			texture = sprite,
-			screenPos = new Vector2d(x, y),
-			blend = Color4.White
+			screenPos = new(x, y),
+			Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
+			scale = Vector2d.One,
+			angle = 0,
+			origin = Vector2.Zero
 		});
 
 		return null;

@@ -715,7 +715,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("layer_sprite_change", GMLFunctionFlags.Stub)]
+		[GMLFunction("layer_sprite_change", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? layer_sprite_change(object?[] args)
 		{
 			var element_id = args[0].Conv<int>();

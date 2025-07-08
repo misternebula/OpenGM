@@ -201,17 +201,21 @@ public static class PathManager
 		}
 
 		var verts = new Vector2d[maxSteps + 1];
+		var colors = new Color4[maxSteps + 1];
+
+		var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
 		for (var i = 0; i <= maxSteps; i++)
 		{
 			pPos = PathManager.GetPosition(path, (float)i / maxSteps);
 			verts[i] = new Vector2d(pPos.x + xoff, pPos.y + yoff);
+			colors[i] = c;
 		}
 
 		CustomWindow.Draw(new GMLinesJob()
 		{
 			Vertices = verts,
-			blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha)
+			Colors = colors
 		});
 	}
 

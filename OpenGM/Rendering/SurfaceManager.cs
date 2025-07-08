@@ -123,6 +123,11 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id, bool force) // force comes from cpp
     {
+	    if (id == -1)
+	    {
+		    return;
+	    }
+
         if (force || application_surface != id)
         {
 			var buffer = _framebuffers[id];
@@ -140,7 +145,7 @@ public static class SurfaceManager
             // sanity check
             if (SurfaceStack.Contains(id))
             {
-                Debugger.Break();
+                System.Diagnostics.Debugger.Break();
             }
 #endif
         }
@@ -248,7 +253,12 @@ public static class SurfaceManager
 
     public static int GetSurfaceWidth(int id)
     {
-        BindSurfaceTexture(id);
+	    if (!surface_exists(id))
+	    {
+			return -1;
+	    }
+
+		BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return width;
@@ -256,6 +266,11 @@ public static class SurfaceManager
 
     public static int GetSurfaceHeight(int id)
     {
+	    if (!surface_exists(id))
+	    {
+			return -1;
+	    }
+
         BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -336,4 +351,24 @@ public static class SurfaceManager
 
         GL.BindTexture(TextureTarget.Texture2D, textureId);
     }
+
+    public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
+    {
+	    if (!surface_exists(dest) || !surface_exists(src))
+	    {
+		    return;
+	    }
+
+	    var srcBuffer = _framebuffers[src];
+	    var dstBuffer = _framebuffers[dest];
+
+	    // https://ktstephano.github.io/rendering/opengl/dsa direct state access is cool
+        GL.BlitNamedFramebuffer(
+	        srcBuffer, 
+	        dstBuffer,
+	        xs, ys, xs + ws, ys + hs,
+	        x, y, x + ws, y + hs,
+	        ClearBufferMask.ColorBufferBit,
+	        BlitFramebufferFilter.Nearest);
+	}
 }

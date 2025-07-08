@@ -74,10 +74,12 @@ internal class GMTilesLayer : DrawWithDepth
 					width = _tileSet.TileWidth,
 					height = _tileSet.TileHeight,
 					screenPos = new Vector2d(Element.x + _x * _tileSet.TileWidth, Element.y + _y * _tileSet.TileHeight),
-					blend = Color4.White,
+					Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
 					left = (tileSetColumn * tileWidth) + _tileSet.OutputBorderX,
 					top = (tileSetRow * tileHeight) + _tileSet.OutputBorderX,
 					scale = Vector2.One,
+					angle = 0,
+					origin = Vector2.Zero
 				});
 			}
 		}

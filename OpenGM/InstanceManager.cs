@@ -180,7 +180,14 @@ public static class InstanceManager
 
 	public static bool instance_exists_instanceid(int instanceId)
 	{
-		return instances.ContainsKey(instanceId);
+		if (!instances.ContainsKey(instanceId))
+		{
+			return false;
+		}
+
+		var instance = instances[instanceId];
+
+		return instance is { Marked: false, Destroyed: false };
 	}
 
 	public static bool instance_exists_index(int assetIndex)
@@ -190,7 +197,7 @@ public static class InstanceManager
 			var definition = instance.Definition;
 			while (definition != null)
 			{
-				if (definition.AssetId == assetIndex)
+				if (definition.AssetId == assetIndex && !instance.Marked && !instance.Destroyed)
 				{
 					return true;
 				}

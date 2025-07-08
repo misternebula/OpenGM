@@ -441,6 +441,7 @@ public static class RoomManager
 		}
 
 		// instance_exists will still return true for all objects even in Create of the first object.... ugh
+		DebugLog.LogInfo($"Calling PreCreate/Create/CC...");
 		foreach (var item in createdObjects)
 		{
 			RunObjEvents(item.gm, item.go);
@@ -498,6 +499,7 @@ public static class RoomManager
 			}
 		}
 
+		DebugLog.LogInfo($"Calling RoomCC...");
 		// room creation code is called with a dummy object that gets de-referenced immediately after
 		var createCode = GetCodeFromCodeIndex(CurrentRoom.RoomAsset.CreationCodeId);
 		if (createCode != null)

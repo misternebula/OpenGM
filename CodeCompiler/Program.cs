@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Drawing;
+using Newtonsoft.Json;
 using OpenGM.Loading;
 using UndertaleModLib;
 using UndertaleModLib.Compiler;
@@ -71,6 +72,9 @@ internal class Program
 
 		if (!result.Successful)
 		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine(result.PrintAllErrors(true));
+			Console.ResetColor();
 			throw new Exception();
 		}
 

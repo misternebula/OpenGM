@@ -1,9 +1,12 @@
-﻿using OpenGM.IO;
+﻿using NAudio.Codecs;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System;
+using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -394,16 +397,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			x2 += 1;
 			y2 += 1;
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
-				Vertices = new Vector2d[]
-				{
+				Colors = [c, c, c, c],
+				Vertices =
+				[
 					new(x1, y1),
 					new(x2, y1),
 					new(x2, y2),
 					new(x1, y2)
-				},
+				],
 				Outline = outline
 			});
 			return null;
@@ -423,15 +428,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var y3 = args[5].Conv<double>();
 			var outline = args[6].Conv<bool>();
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
-				Vertices = new Vector2d[]
-				{
+				Colors = [c, c, c],
+				Vertices =
+				[
 					new(x1, y1),
 					new(x2, y2),
 					new(x3, y3)
-				},
+				],
 				Outline = outline
 			});
 
@@ -447,16 +454,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var outline = args[3].Conv<bool>();
 
 			var angle = 360 / DrawManager.CirclePrecision;
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
 			var points = new Vector2d[DrawManager.CirclePrecision];
+			var colors = new Color4[DrawManager.CirclePrecision];
 			for (var i = 0; i < DrawManager.CirclePrecision; i++)
 			{
 				points[i] = new Vector2d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+				colors[i] = c;
 			}
 
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = colors,
 				Vertices = points,
 				Outline = outline
 			});
@@ -480,18 +490,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var yRadius = Math.Abs((y1 - y2) / 2);
 
 			var angle = 360 / DrawManager.CirclePrecision;
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
 			var points = new Vector2d[DrawManager.CirclePrecision];
+			var colors = new Color4[DrawManager.CirclePrecision];
 			for (var i = 0; i < DrawManager.CirclePrecision; i++)
 			{
 				points[i] = new Vector2d(
 					midpointX + (xRadius * Math.Sin(angle * i * CustomMath.Deg2Rad)),
 					midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+				colors[i] = c;
 			}
 
 			CustomWindow.Draw(new GMPolygonJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = colors,
 				Vertices = points,
 				Outline = outline
 			});
@@ -551,8 +564,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 				CustomWindow.Draw(new GMPolygonJob()
 				{
-					blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
-					Vertices = new[] { new Vector2d(x2, y2), new Vector2d(a, b), new Vector2d(c, d) }
+					Colors = [col, col, col],
+					Vertices = [new(x2, y2), new(a, b), new(c, d)],
+					Outline = false
 				});
 			}
 
@@ -797,8 +811,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_circle_color", GMLFunctionFlags.Stub)]
-		[GMLFunction("draw_circle_colour", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_circle_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+		[GMLFunction("draw_circle_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? draw_circle_color(object?[] args)
 		{
 			return null;
@@ -833,17 +847,77 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_primitive_begin
+		public static PrimitiveType PrimType;
+		public static List<VertexManager.Vertex> Vertices = new();
+
+		[GMLFunction("draw_primitive_begin")]
+		public static object? draw_primitive_begin(object?[] args)
+		{
+			var kind = args[0].Conv<int>();
+
+			// cant just convert straight to PrimitiveType bc LineLoop isnt used grr
+			PrimType = kind switch
+			{
+				1 => PrimitiveType.Points,
+				2 => PrimitiveType.Lines,
+				3 => PrimitiveType.LineStrip,
+				4 => PrimitiveType.Triangles,
+				5 => PrimitiveType.TriangleStrip,
+				6 => PrimitiveType.TriangleFan,
+				_ => throw new ArgumentOutOfRangeException(),
+			};
+
+			/* i think on c++ you could use draw_primitive_begin multiple times, and since it only
+			 * sets g_NumPrims to 0, it should leave the newer vertices intact while overwritting older ones
+			 * on html it just creates a new vbuffer so that doesnt happen
+			 */
+
+			Vertices = new();
+
+			return null;
+		}
+
 		// draw_primitive_begin_texture
-		// draw_primitive_end
-		// draw_vertex
-		// draw_vertex_color
-		// draw_vertex_colour
+
+		[GMLFunction("draw_primitive_end")]
+		public static object? draw_primitive_end(object?[] args)
+		{
+			VertexManager.Draw(PrimType, Vertices.ToArray());
+			return null;
+		}
+
+		[GMLFunction("draw_vertex")]
+		public static object? draw_vertex(object?[] args)
+		{
+			var x = args[0].Conv<double>();
+			var y = args[1].Conv<double>();
+
+			// TODO : C++ imposes a limit of 1001 vertices, should we do the same?
+
+			Vertices.Add(new(new(x, y), SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha), new(0, 0)));
+			return null;
+		}
+
+		[GMLFunction("draw_vertex_color")]
+		[GMLFunction("draw_vertex_colour")]
+		public static object? draw_vertex_colour(object?[] args)
+		{
+			var x = args[0].Conv<double>();
+			var y = args[1].Conv<double>();
+			var col = args[2].Conv<int>();
+			var alpha = args[3].Conv<double>();
+
+			// TODO : C++ imposes a limit of 1001 vertices, should we do the same?
+
+			Vertices.Add(new(new(x, y), col.ABGRToCol4(alpha), new(0, 0)));
+			return null;
+		}
+
 		// draw_vertex_texture
 		// draw_vertex_texture_color
 		// draw_vertex_texture_colour
 
-		[GMLFunction("sprite_get_uvs", GMLFunctionFlags.Stub)]
+		[GMLFunction("sprite_get_uvs", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? sprite_get_uvs(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
@@ -856,7 +930,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// font_get_info
 		// font_cache_glyph
 
-		[GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub)]
+		[GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? sprite_get_texture(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
@@ -976,16 +1050,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var sep = args[3].Conv<int>();
 			var w = args[4].Conv<double>();
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMTextJob()
 			{
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = [c, c, c, c],
 				angle = 0,
 				asset = TextManager.fontAsset,
 				halign = TextManager.halign,
 				valign = TextManager.valign,
 				lineSep = sep,
 				text = str,
-				screenPos = new Vector2d(x, y),
+				screenPos = new(x, y),
 				scale = Vector2d.One
 			});
 
@@ -1017,15 +1093,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var yscale = args[6].Conv<double>();
 			var angle = args[7].Conv<double>();
 
+			var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
+
 			CustomWindow.Draw(new GMTextJob()
 			{
-				screenPos = new Vector2d(x, y),
+				screenPos = new(x, y),
 				asset = TextManager.fontAsset,
 				angle = angle,
-				blend = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha),
+				Colors = [c, c, c, c],
 				halign = TextManager.halign,
 				valign = TextManager.valign,
-				scale = new Vector2d(xscale, yscale),
+				scale = new(xscale, yscale),
 				lineSep = sep,
 				text = str
 			});
@@ -1051,8 +1129,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub)]
-		[GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+		[GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? draw_text_transformed_colour(object?[] args)
 		{
 			return null;
@@ -1141,17 +1219,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			CustomWindow.Draw(new GMTexturedPolygonJob()
 			{
 				Texture = pageItem,
-				blend = col,
-				Vertices = new Vector2d[] { new(x1, y1), new(x2, y2), new(x3, y3) },
-				UVs = new Vector2d[] { new(x, y), new(x + w, y), new(x + w, y + h) }
+				Colors = [col, col, col],
+				Vertices = [new(x1, y1), new(x2, y2), new(x3, y3)],
+				UVs = [new(x, y), new(x + w, y), new(x + w, y + h)]
 			});
 
 			CustomWindow.Draw(new GMTexturedPolygonJob()
 			{
 				Texture = pageItem,
-				blend = col,
-				Vertices = new Vector2d[] { new(x3, y3), new(x4, y4), new(x1, y1) },
-				UVs = new Vector2d[] { new(x + w, y + h), new(x, y + h), new(x, y) }
+				Colors = [col, col, col],
+				Vertices = [new(x3, y3), new(x4, y4), new(x1, y1)],
+				UVs = [new(x + w, y + h), new(x, y + h), new(x, y)]
 			});
 
 			return null;
@@ -1245,7 +1323,43 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_sprite_general
+		[GMLFunction("draw_sprite_general")]
+		public static object? draw_sprite_general(object?[] args)
+		{
+			var sprite = args[0].Conv<int>();
+			var subimg = args[1].Conv<int>();
+			var left = args[2].Conv<int>();
+			var top = args[3].Conv<int>();
+			var width = args[4].Conv<int>();
+			var height = args[5].Conv<int>();
+			var x = args[6].Conv<double>();
+			var y = args[7].Conv<double>();
+			var xscale = args[8].Conv<double>();
+			var yscale = args[9].Conv<double>();
+			var rot = args[10].Conv<double>();
+			var c1 = args[11].Conv<int>();
+			var c2 = args[12].Conv<int>();
+			var c3 = args[13].Conv<int>();
+			var c4 = args[14].Conv<int>();
+			var alpha = args[15].Conv<double>();
+
+			CustomWindow.Draw(new GMSpritePartJob()
+			{
+				texture = SpriteManager.GetSpritePage(sprite, subimg),
+				screenPos = new(x, y),
+				angle = rot,
+				scale = new(xscale, yscale),
+				Colors = [c1.ABGRToCol4(alpha), c2.ABGRToCol4(alpha), c3.ABGRToCol4(alpha), c4.ABGRToCol4(alpha)],
+				origin = Vector2.Zero,
+				left = left,
+				top = top,
+				width = width,
+				height = height
+			});
+
+			return null;
+		}
+
 		// draw_sprite_tiled
 
 		[GMLFunction("draw_sprite_tiled_ext")]
@@ -1378,7 +1492,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return SurfaceManager.GetSurfaceHeight(surface_id);
 		}
 
-		[GMLFunction("surface_get_texture", GMLFunctionFlags.Stub)]
+		[GMLFunction("surface_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? surface_get_texture(object?[] args)
 		{
 			return -1;
@@ -1440,13 +1554,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_surface_stretched
+		[GMLFunction("draw_surface_stretched")]
+		public static object? draw_surface_stretched(object?[] args)
+		{
+			var id = args[0].Conv<int>();
+			var x = args[1].Conv<double>();
+			var y = args[2].Conv<double>();
+			var w = args[3].Conv<double>();
+			var h = args[4].Conv<double>();
+
+			SurfaceManager.draw_surface_stretched(id, x, y, w, h);
+			return null;
+		}
+
 		// draw_surface_stretched_ext
 		// draw_surface_part
 		// draw_surface_part_ext
 		// draw_surface_general
 
-		[GMLFunction("draw_surface_tiled", GMLFunctionFlags.Stub)]
+		[GMLFunction("draw_surface_tiled", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? draw_surface_tiled(object?[] args)
 		{
 			return null;
@@ -1482,7 +1608,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return r | g << 8 | b << 16 | a << 24;
 		}
 
-		[GMLFunction("surface_copy", GMLFunctionFlags.Stub)]
+		[GMLFunction("surface_copy")]
 		public static object? surface_copy(object?[] args)
 		{
 			var destination = args[0].Conv<int>();
@@ -1490,12 +1616,29 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var y = args[2].Conv<int>();
 			var source = args[3].Conv<int>();
 
+			SurfaceManager.Copy(destination, x, y, source, 0, 0, SurfaceManager.GetSurfaceWidth(source), SurfaceManager.GetSurfaceHeight(source));
+
 			return null;
 		}
 
-		// surface_copy_part
-		
-		[GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub)]
+		[GMLFunction("surface_copy_part")]
+		public static object? surface_copy_part(object?[] args)
+		{
+			var destination = args[0].Conv<int>();
+			var x = args[1].Conv<int>();
+			var y = args[2].Conv<int>();
+			var source = args[3].Conv<int>();
+			var xs = args[4].Conv<int>();
+			var ys = args[5].Conv<int>();
+			var ws = args[6].Conv<int>();
+			var hs = args[7].Conv<int>();
+
+			SurfaceManager.Copy(destination, x, y, source, xs, ys, ws, hs);
+
+			return null;
+		}
+
+		[GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 		public static object? application_surface_draw_enable(object?[] args)
 		{
 			var enabled = args[0].Conv<bool>();

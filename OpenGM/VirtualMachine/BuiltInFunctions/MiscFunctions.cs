@@ -81,7 +81,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var instance_id = args[0].Conv<int>();
 			var name = args[1].Conv<string>();
 
-			var instance = InstanceManager.FindByInstanceId(instance_id);
+			GamemakerObject? instance;
+
+			if (instance_id == GMConstants.global)
+			{
+				throw new NotImplementedException();
+			}
+			else if (instance_id < GMConstants.FIRST_INSTANCE_ID)
+			{
+				// todo : first how? or should this iterate?
+				instance = InstanceManager.FindByAssetId(instance_id).First();
+			}
+			else
+			{
+				instance = InstanceManager.FindByInstanceId(instance_id);
+			}
 
 			if (instance == null)
 			{

@@ -30,6 +30,8 @@ public class GMBackground : DrawWithDepth
 		var sprite = SpriteManager.GetSpritePage(Element.Index, _currentFrame);
 		var origin = SpriteManager.GetSpriteOrigin(Element.Index);
 
+		var c = Element.Color.ABGRToCol4(Element.Alpha);
+
 		CustomWindow.Draw(new GMSpriteJob()
 		{
 			texture = sprite,
@@ -37,7 +39,7 @@ public class GMBackground : DrawWithDepth
 			screenPos = new OpenTK.Mathematics.Vector2d(Element.Layer.X, Element.Layer.Y),
 			scale = OpenTK.Mathematics.Vector2d.One,
 			angle = 0,
-			blend = Element.Color.ABGRToCol4(Element.Alpha)
+			Colors = [c, c, c, c]
 		});
 	}
 

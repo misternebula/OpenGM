@@ -7,6 +7,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     {
 	    private static Dictionary<int, List<object?>> _dsListDict = new();
 	    private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
+	    private static Dictionary<int, PriorityQueue<object, double>> _priorityDict = new();
 
 		// ...
 
@@ -468,7 +469,33 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// ds_map_secure_load_buffer
 		// ds_map_secure_save_buffer
 
-		// priority stuff
+		[GMLFunction("ds_priority_create")]
+		public static object? ds_priority_create(object?[] args)
+		{
+			var highestIndex = -1;
+			if (_priorityDict.Count > 0)
+			{
+				highestIndex = _priorityDict.Keys.Max();
+			}
+
+			_priorityDict.Add(highestIndex + 1, new());
+			return highestIndex + 1;
+		}
+
+		// ds_priority_destroy
+		// ds_priority_clear
+		// ds_priority_copy
+		// ds_priority_size
+		// ds_priority_empty
+		// ds_priority_add
+		// ds_priority_change_priority
+		// ds_priority_find_priority
+		// ds_priority_delete_value
+		// ds_priority_delete_min
+		// ds_priority_find_min
+		// ds_priority_delete_max
+		// ds_priority_write
+		// ds_priority_read
 
 		// ds_grid_create
 		// ds_grid_destroy

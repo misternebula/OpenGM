@@ -13,27 +13,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SharpZipLib" Version="1.4.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\OpenGM\OpenGM.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <!--whats the difference between Content and None?-->
     <Content Include="Scripts\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="scripts\gml_GlobalScript_scr_debug.gml" />
-    <None Remove="scripts\gml_GlobalScript_scr_gameover.gml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Scripts\chapter3_windows\" />
-    <Folder Include="Scripts\chapter4_windows\" />
   </ItemGroup>
 
 </Project>

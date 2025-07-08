@@ -183,8 +183,6 @@ public static partial class VMExecutor
 		// Make the current object the current instance
 		EnvStack.Push(newCtx);
 
-		var lastJumpedLabel = 0; // just for debugging
-
 		var call = new VMCallFrame
 		{
 			CodeName = codeName,
@@ -240,7 +238,16 @@ public static partial class VMExecutor
 
 			if (executionResult == ExecutionResult.Failed)
 			{
-				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Last jumped label: {lastJumpedLabel}) in script {codeName} failed : {data}");
+				var lastLabel = 0;
+				foreach (var (label, index) in code.Labels)
+				{
+					if (index <= instructionIndex && lastLabel < label)
+					{
+						lastLabel = label;
+					}
+				}
+
+				DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Label: {lastLabel}) in script {codeName} failed : {data}");
 
 				DebugLog.LogError($"--Stacktrace--");
 				foreach (var item in CallStack)
@@ -273,7 +280,6 @@ public static partial class VMExecutor
 			{
 				var label = (int)data!;
 				instructionIndex = code.Labels[label];
-				lastJumpedLabel = label;
 				continue;
 			}
 
@@ -670,6 +676,16 @@ public static partial class VMExecutor
 				// TODO actually push an asset reference object! this is super hacky and dumb and bad and will inevitably break
 				Call.Stack.Push(assetReferenceId, VMType.v);
 
+				break;
+			}
+			case VMOpcode.PUSHAC:
+			{
+				var index = Call.Stack.Pop(VMType.i).Conv<int>();
+				var array = Call.Stack.Pop(VMType.v).Conv<IList>();
+				
+				var value = array[index];
+
+				Call.Stack.Push(value, VMType.v);
 				break;
 			}
 			case VMOpcode.BREAK:

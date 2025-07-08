@@ -26,12 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="UndertaleModLib">
-      <HintPath>..\OpenGM\UndertaleModLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="fnt_main.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

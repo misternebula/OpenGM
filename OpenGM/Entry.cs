@@ -51,6 +51,9 @@ internal class Entry
 				case "-v":
 					DebugLog.Verbosity = DebugLog.LogType.Verbose;
 					break;
+				case "--log-all-stubs":
+					ScriptResolver.AlwaysLogStubs = true;
+					break;
 				case "--":
 					endOfOptions = true;
 					break;
