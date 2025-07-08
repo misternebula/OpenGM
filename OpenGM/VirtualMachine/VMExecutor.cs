@@ -672,6 +672,16 @@ public static partial class VMExecutor
 
 				break;
 			}
+			case VMOpcode.PUSHAC:
+			{
+				var index = Call.Stack.Pop(VMType.i).Conv<int>();
+				var array = Call.Stack.Pop(VMType.v).Conv<IList>();
+				
+				var value = array[index];
+
+				Call.Stack.Push(value, VMType.v);
+				break;
+			}
 			case VMOpcode.BREAK:
 				throw new UnreachableException("break is used as an extended opcode marker, so it should never show up as an instruction");
 			default:
