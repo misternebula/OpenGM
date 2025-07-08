@@ -2,6 +2,7 @@
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using UndertaleModLib;
@@ -20,6 +21,8 @@ internal class Entry
 	static void Main(string[] args)
 	{
 		var passedArgs = ProcessArgs(args);
+
+		GraphicFunctions.draw_set_circle_precision(24); // to generate sin/cos cache
 
 		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
 		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));

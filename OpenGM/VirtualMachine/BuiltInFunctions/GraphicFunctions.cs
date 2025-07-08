@@ -12,6 +12,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class GraphicFunctions
     {
+	    public static double[] CircleCos = new double[65];
+	    public static double[] CircleSin = new double[65];
+
 		// not in 2022.500, no idea where in the list it goes
 		[GMLFunction("window_enable_borderless_fullscreen", GMLFunctionFlags.Stub)]
 		public static object? window_enable_borderless_fullscreen(object?[] args)
@@ -811,11 +814,76 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		[GMLFunction("draw_circle_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
-		[GMLFunction("draw_circle_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+		[GMLFunction("draw_circle_color")]
+		[GMLFunction("draw_circle_colour")]
 		public static object? draw_circle_color(object?[] args)
 		{
+			var x = args[0].Conv<double>();
+			var y = args[1].Conv<double>();
+			var r = args[2].Conv<double>();
+			var col1 = args[3].Conv<int>();
+			var col2 = args[4].Conv<int>();
+			var outline = args[5].Conv<bool>();
+
+			DrawEllipseColor(x - r, y - r, x + r, y + r, col1.ABGRToCol4(SpriteManager.DrawAlpha), col2.ABGRToCol4(SpriteManager.DrawAlpha), outline);
+
 			return null;
+		}
+
+		private static void DrawEllipseColor(double x1, double y1, double x2, double y2, Color4 col1, Color4 col2, bool outline)
+		{
+			// funky scale fixes
+			x1 += 1;
+			y1 += 1;
+			x2 += 1;
+			y2 += 1;
+
+			var xm = (x1 + x2) / 2;
+			var ym = (y1 + y2) / 2;
+			var rx = Math.Abs((x1 - x2) / 2);
+			var ry = Math.Abs((y1 - y2) / 2);
+
+			if (outline)
+			{
+				// only need to draw a normal ellipse outline, no color gradient needed
+				var points = new Vector2d[DrawManager.CirclePrecision];
+				var colors = new Color4[DrawManager.CirclePrecision];
+				for (var i = 0; i < DrawManager.CirclePrecision; i++)
+				{
+					points[i] = new Vector2d(
+						xm + (rx * CircleCos[i]),
+						ym + (ry * CircleSin[i]));
+					colors[i] = col2;
+				}
+
+				CustomWindow.Draw(new GMPolygonJob()
+				{
+					Colors = colors,
+					Vertices = points,
+					Outline = true
+				});
+			}
+			else
+			{
+				var verts = new VertexManager.Vertex[DrawManager.CirclePrecision * 3];
+
+				for (var i = 0; i < DrawManager.CirclePrecision; i++)
+				{
+					var p1 = new Vector2d(xm, ym);
+					var p2 = new Vector2d(
+						xm + (rx * CircleCos[i]),
+						ym + (ry * CircleSin[i]));
+					var p3 = new Vector2d(
+						xm + (rx * CircleCos[i + 1]),
+						ym + (ry * CircleSin[i + 1]));
+
+					verts[i * 3] = new VertexManager.Vertex(p1, col1, Vector2d.Zero);
+					verts[(i * 3) + 1] = new VertexManager.Vertex(p2, col2, Vector2d.Zero);
+					verts[(i * 3) + 2] = new VertexManager.Vertex(p3, col2, Vector2d.Zero);
+				}
+
+				VertexManager.Draw(PrimitiveType.Triangles, verts);
+			}
 		}
 
 		// draw_ellipse_color
@@ -823,7 +891,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_get_circle_precision
 
 		[GMLFunction("draw_set_circle_precision")]
-		public static object? draw_set_circle_precision(object?[] args)
+		public static object? draw_set_circle_precision(params object?[] args)
 		{
 			var precision = args[0].Conv<int>();
 
@@ -842,7 +910,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 			DrawManager.CirclePrecision = precision;
 
-			// TODO: html/c++ also caches sin/cos values. should we do that?
+			CircleCos[0] = 1;
+			CircleSin[0] = 0;
+			for (var i = 1; i < precision; i++)
+			{
+				CircleCos[i] = Math.Cos(i * 2 * Math.PI / precision);
+				CircleSin[i] = Math.Sin(i * 2 * Math.PI / precision);
+			}
+			CircleCos[precision] = 1;
+			CircleSin[precision] = 0;
 
 			return null;
 		}
@@ -917,12 +993,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		// draw_vertex_texture_color
 		// draw_vertex_texture_colour
 
-		[GMLFunction("sprite_get_uvs", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+		[GMLFunction("sprite_get_uvs")]
 		public static object? sprite_get_uvs(object?[] args)
 		{
 			var spr = args[0].Conv<int>();
 			var subimg = args[0].Conv<int>();
 
+			if (!SpriteManager.SpriteExists(spr))
+			{
+				return null;
+			}
+
+			var sprite = SpriteManager.GetSpriteAsset(spr);
+			var page = SpriteManager.GetSpritePage(spr, subimg);
+
+			var retArray = new double[8];
 			return new int[8];
 		}
 
