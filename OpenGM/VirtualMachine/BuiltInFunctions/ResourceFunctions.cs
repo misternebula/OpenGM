@@ -248,11 +248,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 				var fontAssetEntry = new Glyph
 				{
 					characterIndex = string_map[i],
-					x = page.SourcePosX,
-					y = page.SourcePosY,
-					w = page.SourceSizeX,
-					h = page.SourceSizeY,
-					shift = page.TargetPosX
+					x = page.SourceX,
+					y = page.SourceY,
+					w = page.SourceWidth,
+					h = page.SourceHeight,
+					shift = page.TargetX
 				};
 
 				// TODO: no way to get the frame index from entriesDict right now

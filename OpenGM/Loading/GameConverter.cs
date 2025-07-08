@@ -618,16 +618,16 @@ public static class GameConverter
 
 				var pageItem = new SpritePageItem
 				{
-					SourcePosX = item.Texture.SourceX,
-					SourcePosY = item.Texture.SourceY,
-					SourceSizeX = item.Texture.SourceWidth,
-					SourceSizeY = item.Texture.SourceHeight,
-					TargetPosX = item.Texture.TargetX,
-					TargetPosY = item.Texture.TargetY,
-					TargetSizeX = item.Texture.TargetWidth,
-					TargetSizeY = item.Texture.TargetHeight,
-					BSizeX = item.Texture.BoundingWidth,
-					BSizeY = item.Texture.BoundingHeight,
+					SourceX = item.Texture.SourceX,
+					SourceY = item.Texture.SourceY,
+					SourceWidth = item.Texture.SourceWidth,
+					SourceHeight = item.Texture.SourceHeight,
+					TargetX = item.Texture.TargetX,
+					TargetY = item.Texture.TargetY,
+					TargetWidth = item.Texture.TargetWidth,
+					TargetHeight = item.Texture.TargetHeight,
+					BoundingWidth = item.Texture.BoundingWidth,
+					BoundingHeight = item.Texture.BoundingHeight,
 					Page = item.Texture.TexturePage.Name.Content
 				};
 
@@ -1116,16 +1116,16 @@ public static class GameConverter
 
 			var pageItem = new SpritePageItem
 			{
-				SourcePosX = item.Texture.SourceX,
-				SourcePosY = item.Texture.SourceY,
-				SourceSizeX = item.Texture.SourceWidth,
-				SourceSizeY = item.Texture.SourceHeight,
-				TargetPosX = item.Texture.TargetX,
-				TargetPosY = item.Texture.TargetY,
-				TargetSizeX = item.Texture.TargetWidth,
-				TargetSizeY = item.Texture.TargetHeight,
-				BSizeX = item.Texture.BoundingWidth,
-				BSizeY = item.Texture.BoundingHeight,
+				SourceX = item.Texture.SourceX,
+				SourceY = item.Texture.SourceY,
+				SourceWidth = item.Texture.SourceWidth,
+				SourceHeight = item.Texture.SourceHeight,
+				TargetX = item.Texture.TargetX,
+				TargetY = item.Texture.TargetY,
+				TargetWidth = item.Texture.TargetWidth,
+				TargetHeight = item.Texture.TargetHeight,
+				BoundingWidth = item.Texture.BoundingWidth,
+				BoundingHeight = item.Texture.BoundingHeight,
 				Page = item.Texture.TexturePage.Name.Content
 			};
 
@@ -1288,16 +1288,16 @@ public static class GameConverter
 			{
 				asset.Texture = new SpritePageItem
 				{
-					SourcePosX = set.Texture.SourceX,
-					SourcePosY = set.Texture.SourceY,
-					SourceSizeX = set.Texture.SourceWidth,
-					SourceSizeY = set.Texture.SourceHeight,
-					TargetPosX = set.Texture.TargetX,
-					TargetPosY = set.Texture.TargetY,
-					TargetSizeX = set.Texture.TargetWidth,
-					TargetSizeY = set.Texture.TargetHeight,
-					BSizeX = set.Texture.BoundingWidth,
-					BSizeY = set.Texture.BoundingHeight,
+					SourceX = set.Texture.SourceX,
+					SourceY = set.Texture.SourceY,
+					SourceWidth = set.Texture.SourceWidth,
+					SourceHeight = set.Texture.SourceHeight,
+					TargetX = set.Texture.TargetX,
+					TargetY = set.Texture.TargetY,
+					TargetWidth = set.Texture.TargetWidth,
+					TargetHeight = set.Texture.TargetHeight,
+					BoundingWidth = set.Texture.BoundingWidth,
+					BoundingHeight = set.Texture.BoundingHeight,
 					Page = set.Texture.TexturePage.Name.Content
 				};
 			}
@@ -1351,16 +1351,16 @@ public static class GameConverter
 			{
 				pageItem = new SpritePageItem
 				{
-					SourcePosX = background.Texture.SourceX,
-					SourcePosY = background.Texture.SourceY,
-					SourceSizeX = background.Texture.SourceWidth,
-					SourceSizeY = background.Texture.SourceHeight,
-					TargetPosX = background.Texture.TargetX,
-					TargetPosY = background.Texture.TargetY,
-					TargetSizeX = background.Texture.TargetWidth,
-					TargetSizeY = background.Texture.TargetHeight,
-					BSizeX = background.Texture.BoundingWidth,
-					BSizeY = background.Texture.BoundingHeight,
+					SourceX = background.Texture.SourceX,
+					SourceY = background.Texture.SourceY,
+					SourceWidth = background.Texture.SourceWidth,
+					SourceHeight = background.Texture.SourceHeight,
+					TargetX = background.Texture.TargetX,
+					TargetY = background.Texture.TargetY,
+					TargetWidth = background.Texture.TargetWidth,
+					TargetHeight = background.Texture.TargetHeight,
+					BoundingWidth = background.Texture.BoundingWidth,
+					BoundingHeight = background.Texture.BoundingHeight,
 					Page = background.Texture.TexturePage.Name.Content
 				};
 			}

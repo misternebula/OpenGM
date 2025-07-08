@@ -193,8 +193,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 			}
 
 			var sprite = SpriteManager.GetSpriteAsset(_sprite_index);
-			_cachedSpriteWidth = sprite!.Textures[0].TargetSizeX;
-			_cachedSpriteHeight = sprite.Textures[0].TargetSizeY;
+			_cachedSpriteWidth = sprite!.Textures[0].TargetWidth;
+			_cachedSpriteHeight = sprite.Textures[0].TargetHeight;
 			_cached_sprite_xoffset = sprite.Origin.X;
 			_cached_sprite_yoffset = sprite.Origin.Y;
 

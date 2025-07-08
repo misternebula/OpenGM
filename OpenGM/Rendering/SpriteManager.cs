@@ -147,8 +147,8 @@ public static class SpriteManager
     {
         var sprite = GetSpritePage(name, index);
 
-        var spriteWidth = sprite.TargetSizeX;
-        var spriteHeight = sprite.TargetSizeY;
+        var spriteWidth = sprite.TargetWidth;
+        var spriteHeight = sprite.TargetHeight;
 
         var c = color.ABGRToCol4(alpha);
 
@@ -199,16 +199,16 @@ public static class SpriteManager
         // create a sprite with the single texture
         var spritePage = new SpritePageItem
         {
-            SourcePosX = 0,
-            SourcePosY = 0,
-            SourceSizeX = w,
-            SourceSizeY = h,
-            TargetPosX = 0,
-            TargetPosY = 0,
-            TargetSizeX = w,
-            TargetSizeY = h,
-            BSizeX = w,
-            BSizeY = h,
+            SourceX = 0,
+            SourceY = 0,
+            SourceWidth = w,
+            SourceHeight = h,
+            TargetX = 0,
+            TargetY = 0,
+            TargetWidth = w,
+            TargetHeight = h,
+            BoundingWidth = w,
+            BoundingHeight = h,
             Page = texturePageName
         };
         var sprite = new SpriteData

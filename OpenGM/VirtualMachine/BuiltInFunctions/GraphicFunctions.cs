@@ -1296,10 +1296,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var pageItem = SpriteManager.GetSpritePage(sprite, subimg);
 			var (pageTexture, id) = PageManager.TexturePages[pageItem.Page];
 
-			var x = (double)pageItem.SourcePosX / pageTexture.Width;
-			var y = (double)pageItem.SourcePosY / pageTexture.Height;
-			var w = (double)pageItem.SourceSizeX / pageTexture.Width;
-			var h = (double)pageItem.SourceSizeY / pageTexture.Height;
+			var x = (double)pageItem.SourceX / pageTexture.Width;
+			var y = (double)pageItem.SourceY / pageTexture.Height;
+			var w = (double)pageItem.SourceWidth / pageTexture.Width;
+			var h = (double)pageItem.SourceHeight / pageTexture.Height;
 
 			CustomWindow.Draw(new GMTexturedPolygonJob()
 			{
@@ -1466,8 +1466,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
 			var spriteTex = SpriteManager.GetSpritePage(sprite, subimg);
 
-			var sizeWidth = spriteTex.TargetSizeX;
-			var sizeHeight = spriteTex.TargetSizeY;
+			var sizeWidth = spriteTex.TargetWidth;
+			var sizeHeight = spriteTex.TargetHeight;
 
 			var tempX = x;
 			var tempY = y;

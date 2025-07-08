@@ -35,49 +35,49 @@ public partial class SpritePageItem
 	/// <summary>
 	/// YYTPageEntry.x
 	/// </summary>
-	public int SourcePosX;
+	public int SourceX;
 	/// <summary>
 	/// YYTPageEntry.y
 	/// </summary>
-	public int SourcePosY;
+	public int SourceY;
 	/// <summary>
 	/// YYTPageEntry.w
 	/// </summary>
-	public int SourceSizeX;
+	public int SourceWidth;
 	/// <summary>
 	/// YYTPageEntry.h
 	/// </summary>
-	public int SourceSizeY;
+	public int SourceHeight;
 
 	/// <summary>
 	/// YYTPageEntry.XOffset
 	/// </summary>
-	public int TargetPosX;
+	public int TargetX;
 
 	/// <summary>
 	/// YYTPageEntry.YOffset
 	/// </summary>
-	public int TargetPosY;
+	public int TargetY;
 
 	/// <summary>
 	/// YYTPageEntry.CropWidth
 	/// </summary>
-	public int TargetSizeX;
+	public int TargetWidth;
 
 	/// <summary>
 	/// YYTPageEntry.CropHeight
 	/// </summary>
-	public int TargetSizeY;
+	public int TargetHeight;
 
 	/// <summary>
 	/// YYTPageEntry.ow
 	/// </summary>
-	public int BSizeX;
+	public int BoundingWidth;
 
 	/// <summary>
 	/// YYTPageEntry.oh
 	/// </summary>
-	public int BSizeY;
+	public int BoundingHeight;
 
 	/// <summary>
 	/// YYTPageEntry.tp

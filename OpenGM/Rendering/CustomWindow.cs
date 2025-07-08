@@ -341,7 +341,7 @@ public class CustomWindow : GameWindow
                         Colors = textJob.Colors // TODO : use BlendBetweenPoints with these, this gradient is applied wrong
 					});
 
-                    xOffset += (sprite.TargetSizeX + textJob.asset.sep) * textJob.scale.X;
+                    xOffset += (sprite.TargetWidth + textJob.asset.sep) * textJob.scale.X;
                 }
                 else
                 {
@@ -355,8 +355,8 @@ public class CustomWindow : GameWindow
                     var (texturePage, pageId) = PageManager.TexturePages[textJob.asset.texture!.Page];
 
                     var pageItem = textJob.asset.texture;
-                    var pageX = pageItem.SourcePosX;
-                    var pageY = pageItem.SourcePosY;
+                    var pageX = pageItem.SourceX;
+                    var pageY = pageItem.SourceY;
 
                     var topLeftX = textJob.screenPos.X + xOffset + glyph.offset;
                     var topLeftY = textJob.screenPos.Y + yOffset;
@@ -408,10 +408,10 @@ public class CustomWindow : GameWindow
         var fullSpriteLeft = spriteJob.screenPos.X - (spriteJob.origin.X * spriteJob.scale.X);
         var fullSpriteTop = spriteJob.screenPos.Y - (spriteJob.origin.Y * spriteJob.scale.Y);
 
-        var drawAreaLeft = fullSpriteLeft + (spriteJob.texture.TargetPosX * spriteJob.scale.X);
-        var drawAreaTop = fullSpriteTop + (spriteJob.texture.TargetPosY * spriteJob.scale.Y);
-        var drawAreaWidth = spriteJob.texture.TargetSizeX * spriteJob.scale.X;
-        var drawAreaHeight = spriteJob.texture.TargetSizeY * spriteJob.scale.Y;
+        var drawAreaLeft = fullSpriteLeft + (spriteJob.texture.TargetX * spriteJob.scale.X);
+        var drawAreaTop = fullSpriteTop + (spriteJob.texture.TargetY * spriteJob.scale.Y);
+        var drawAreaWidth = spriteJob.texture.TargetWidth * spriteJob.scale.X;
+        var drawAreaHeight = spriteJob.texture.TargetHeight * spriteJob.scale.Y;
 
         var drawAreaTopLeft = new Vector2d(drawAreaLeft, drawAreaTop);
         var drawAreaTopRight = new Vector2d(drawAreaLeft + drawAreaWidth, drawAreaTop);
@@ -419,11 +419,11 @@ public class CustomWindow : GameWindow
         var drawAreaBottomLeft = new Vector2d(drawAreaLeft, drawAreaTop + drawAreaHeight);
 
         var topLeftUV = new Vector2d(
-            (double)spriteJob.texture.SourcePosX / pageTexture.Width,
-            (double)spriteJob.texture.SourcePosY / pageTexture.Height);
+            (double)spriteJob.texture.SourceX / pageTexture.Width,
+            (double)spriteJob.texture.SourceY / pageTexture.Height);
 
-        var UVWidth = (double)spriteJob.texture.SourceSizeX / pageTexture.Width;
-        var UVHeight = (double)spriteJob.texture.SourceSizeY / pageTexture.Height;
+        var UVWidth = (double)spriteJob.texture.SourceWidth / pageTexture.Width;
+        var UVHeight = (double)spriteJob.texture.SourceHeight / pageTexture.Height;
 
         var topRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y);
         var bottomRightUV = new Vector2d(topLeftUV.X + UVWidth, topLeftUV.Y + UVHeight);
@@ -476,7 +476,7 @@ public class CustomWindow : GameWindow
         var cosAngle = Math.Cos(partJob.angle);
 
         double xUVOffset;
-		var fVar7 = (double)partJob.texture.TargetPosX;
+		var fVar7 = (double)partJob.texture.TargetX;
         if (fVar7 <= left)
         {
 	        xUVOffset = left - fVar7;
@@ -491,7 +491,7 @@ public class CustomWindow : GameWindow
         }
 
         double yUVOffset;
-        fVar7 = partJob.texture.TargetPosY;
+        fVar7 = partJob.texture.TargetY;
         if (fVar7 <= top)
         {
 	        yUVOffset = top - fVar7;
@@ -505,25 +505,25 @@ public class CustomWindow : GameWindow
 	        y += fVar7 * cosAngle * yscale;
         }
 
-        if (partJob.texture.TargetSizeX < xUVOffset + width)
+        if (partJob.texture.TargetWidth < xUVOffset + width)
         {
-	        width = partJob.texture.TargetSizeX - xUVOffset;
+	        width = partJob.texture.TargetWidth - xUVOffset;
         }
 
-        if (partJob.texture.TargetSizeY < yUVOffset + height)
+        if (partJob.texture.TargetHeight < yUVOffset + height)
         {
-	        height = partJob.texture.TargetSizeY - yUVOffset;
+	        height = partJob.texture.TargetHeight - yUVOffset;
         }
 
         if ((0.0 < width) && (0.0 < height))
         {
-	        var widthScale = partJob.texture.SourceSizeX / partJob.texture.TargetSizeX;
-	        var heightScale = partJob.texture.SourceSizeY / partJob.texture.TargetSizeY;
+	        var widthScale = partJob.texture.SourceWidth / partJob.texture.TargetWidth;
+	        var heightScale = partJob.texture.SourceHeight / partJob.texture.TargetHeight;
 
-			var uvLeft = (partJob.texture.SourcePosX + xUVOffset) / pageTexture.Width;
-	        var uvTop = (partJob.texture.SourcePosY + yUVOffset) / pageTexture.Height;
-	        var uvRight = (partJob.texture.SourcePosX + xUVOffset + widthScale * width) / pageTexture.Width;
-            var uvBottom = (partJob.texture.SourcePosY + yUVOffset + heightScale * height) / pageTexture.Height;
+			var uvLeft = (partJob.texture.SourceX + xUVOffset) / pageTexture.Width;
+	        var uvTop = (partJob.texture.SourceY + yUVOffset) / pageTexture.Height;
+	        var uvRight = (partJob.texture.SourceX + xUVOffset + widthScale * width) / pageTexture.Width;
+            var uvBottom = (partJob.texture.SourceY + yUVOffset + heightScale * height) / pageTexture.Height;
             var uv0 = new Vector2d(uvLeft, uvTop);
             var uv1 = new Vector2d(uvRight, uvTop);
             var uv2 = new Vector2d(uvRight, uvBottom);
