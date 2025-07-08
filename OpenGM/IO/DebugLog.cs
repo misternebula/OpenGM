@@ -4,14 +4,23 @@ public static class DebugLog
 {
     public static LogType Verbosity = LogType.Info;
 
-    public static void Log(string message)
+    public static void Log(string message, LogType? type = null)
     {
-        if (Verbosity < LogType.Info)
+        if (Verbosity < (type ?? LogType.Info))
         {
             return;
         }
 
-        Console.WriteLine(message);
+        Action<string> logFunc = type switch
+        {
+            LogType.Error => LogError,
+            LogType.Warning => LogWarning,
+            LogType.Info => LogInfo,
+            LogType.Verbose => LogVerbose,
+            _ => Console.WriteLine
+        };
+
+        logFunc.Invoke(message);
     }
 
     public static void LogWarning(string message)

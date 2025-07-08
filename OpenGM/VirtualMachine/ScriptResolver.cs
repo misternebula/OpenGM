@@ -13,6 +13,9 @@ public static class ScriptResolver
 	
 	public static Dictionary<string, GMLFunctionType> BuiltInFunctions = new();
 
+	public static List<string> LoggedStubs = [];
+	public static bool AlwaysLogStubs = false;
+
 	public static void InitGMLFunctions()
 	{
 		if (BuiltInFunctions.Count > 0) return; // already init'd
@@ -21,23 +24,13 @@ public static class ScriptResolver
 		{
 			return (object?[] args) =>
 			{
-				if (stubLogType == DebugLog.LogType.Verbose)
-				{
-					DebugLog.LogVerbose($"{functionName} not implemented.");
+				if (AlwaysLogStubs || !LoggedStubs.Contains(functionName)) {
+					if (!AlwaysLogStubs)
+					{
+						LoggedStubs.Add(functionName);
+					}
+					DebugLog.Log($"{functionName} not implemented.", stubLogType);
 				}
-				else if (stubLogType == DebugLog.LogType.Warning)
-				{
-					DebugLog.LogWarning($"{functionName} not implemented.");
-				}
-				else if (stubLogType == DebugLog.LogType.Error)
-				{
-					DebugLog.LogError($"{functionName} not implemented.");
-				}
-				else
-				{
-					DebugLog.Log($"{functionName} not implemented.");
-				}
-
 				return function.Invoke(args);
 			};
 		};
