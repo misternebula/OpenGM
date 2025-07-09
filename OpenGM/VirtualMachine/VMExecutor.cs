@@ -746,8 +746,22 @@ public static partial class VMExecutor
             
             if (type == typeof(double)) return double.Parse(s);
             if (type == typeof(float)) return float.Parse(s);
-            
-            if (type == typeof(bool)) return bool.Parse(s); // dunno if "true" or "false" should convert properly, since bools are just ints?
+
+            if (type == typeof(bool))
+            {
+                if (bool.TryParse(s, out var result))
+                {
+                    return result;
+                }
+                else if (s == "1")
+                {
+                    return true;
+                }
+                else if (s == "0")
+                {
+                    return false;
+                }
+            }
         }
         else if (@this is int or long or short)
         {
@@ -799,7 +813,11 @@ public static partial class VMExecutor
         {
             return array;
         }
-
+        else if (@this is Method)
+        {
+            if (type == typeof(bool)) return true; // methods are always evaluated to true i think?
+        }
+            
         throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
     }
 }
