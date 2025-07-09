@@ -440,22 +440,37 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
     public void Animate()
     {
+        image_index += GetIndexIncrement();
+
         var sprite = SpriteManager.GetSpriteAsset(sprite_index);
+        if (sprite != null && image_index + GetIndexIncrement() >= sprite.Textures.Count)
+        {
+            ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+        }
+    }
+
+    public double GetIndexIncrement()
+    {
+        var sprite = SpriteManager.GetSpriteAsset(sprite_index);
+        var increment = 0.0d;
 
         if (sprite == null)
         {
-            image_index += image_speed;
-            return;
-        }
-
-        if (sprite.PlaybackSpeedType == AnimSpeedType.FramesPerGameFrame)
-        {
-            image_index += image_speed * sprite.PlaybackSpeed;
+            increment += image_speed;
         }
         else
         {
-            image_index += image_speed * sprite.PlaybackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
+            if (sprite.PlaybackSpeedType == AnimSpeedType.FramesPerGameFrame)
+            {
+                increment += image_speed * sprite.PlaybackSpeed;
+            }
+            else
+            {
+                increment += image_speed * sprite.PlaybackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
+            }
         }
+
+        return increment;
     }
 
     public static bool ExecuteEvent(GamemakerObject obj, ObjectDefinition? definition, EventType eventType, int eventNumber = 0)

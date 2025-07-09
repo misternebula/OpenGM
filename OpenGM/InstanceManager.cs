@@ -336,15 +336,11 @@ public static class InstanceManager
             {
                 item.frame_overflow += num;
                 item.image_index -= num;
-
-                GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
             }
             else if (item.image_index < 0)
             {
                 item.frame_overflow -= num;
                 item.image_index += num;
-
-                GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
             }
         }
     }
