@@ -1457,10 +1457,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			return null;
 		}
 
-		// draw_sprite_tiled
+        [GMLFunction("draw_sprite_tiled")]
+        public static object? draw_sprite_tiled(object?[] args)
+        {
+            var sprite = args[0].Conv<int>();
+            var subimg = args[1].Conv<int>();
+            var x = args[2].Conv<double>();
+            var y = args[3].Conv<double>();
+
+            return draw_sprite_tiled_ext(sprite, subimg, x, y, 1, 1, SpriteManager.DrawColor, SpriteManager.DrawAlpha);
+        }
 
 		[GMLFunction("draw_sprite_tiled_ext")]
-		public static object? draw_sprite_tiled_ext(object?[] args)
+		public static object? draw_sprite_tiled_ext(params object?[] args)
 		{
 			var sprite = args[0].Conv<int>();
 			var subimg = args[1].Conv<int>();
