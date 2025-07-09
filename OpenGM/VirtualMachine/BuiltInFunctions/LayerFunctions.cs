@@ -721,7 +721,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 			var element_id = args[0].Conv<int>();
 			var sprite_id = args[0].Conv<int>();
 
-			return null;
+            return null;
 		}
 
 		// layer_sprite_index

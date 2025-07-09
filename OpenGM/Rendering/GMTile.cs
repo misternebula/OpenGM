@@ -16,6 +16,7 @@ public class GMTile : DrawWithDepth
     public int width;
     public int height;
 
+    public bool Visible;
     public double XScale;
     public double YScale;
     public uint Color;
@@ -27,7 +28,7 @@ public class GMTile : DrawWithDepth
 
     public override void Draw()
     {
-        if (Definition == -1)
+        if (Definition == -1 || !Visible)
         {
             return;
         }
