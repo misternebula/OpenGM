@@ -319,19 +319,10 @@ public class CustomWindow : GameWindow
                     continue;
                 }
 
-                SpritePageItem? pageItem;
+                var pageItem = textJob.asset.texture;
                 if (textJob.asset.IsSpriteFont())
                 {
-                    if (glyph.frameIndex == -1)
-                    {
-                        continue;
-                    }
-
                     pageItem = SpriteManager.GetSpritePageItem(textJob.asset.spriteIndex, glyph.frameIndex);
-                }
-                else
-                {
-                    pageItem = textJob.asset.texture;
                 }
 
                 var (texturePage, pageId) = PageManager.TexturePages[pageItem!.Page];
