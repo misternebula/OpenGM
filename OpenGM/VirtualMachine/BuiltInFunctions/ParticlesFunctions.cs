@@ -2,282 +2,282 @@
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
-	public static class ParticlesFunctions
-	{
-		[GMLFunction("part_type_create")]
-		public static object? part_type_create(object?[] args)
-		{
-			return ParticleManager.ParticleTypeCreate();
-		}
+    public static class ParticlesFunctions
+    {
+        [GMLFunction("part_type_create")]
+        public static object? part_type_create(object?[] args)
+        {
+            return ParticleManager.ParticleTypeCreate();
+        }
 
-		// part_type_destroy
-		// part_type_exists
-		// part_type_clear
-		// part_type_shape
+        // part_type_destroy
+        // part_type_exists
+        // part_type_clear
+        // part_type_shape
 
-		[GMLFunction("part_type_sprite")]
-		public static object? part_type_sprite(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var sprite = args[1].Conv<int>();
-			var animate = args[2].Conv<bool>();
-			var stretch = args[3].Conv<bool>();
-			var random = args[4].Conv<bool>();
+        [GMLFunction("part_type_sprite")]
+        public static object? part_type_sprite(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var sprite = args[1].Conv<int>();
+            var animate = args[2].Conv<bool>();
+            var stretch = args[3].Conv<bool>();
+            var random = args[4].Conv<bool>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.Sprite = sprite;
-			type.SpriteAnim = animate;
-			type.SpriteStretch = stretch;
-			type.SpriteRandom = random;
+            var type = ParticleManager.PartTypes[ind];
+            type.Sprite = sprite;
+            type.SpriteAnim = animate;
+            type.SpriteStretch = stretch;
+            type.SpriteRandom = random;
 
-			return null;
-		}
+            return null;
+        }
 
-		[GMLFunction("part_type_size")]
-		public static object? part_type_size(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var size_min = args[1].Conv<double>();
-			var size_max = args[2].Conv<double>();
-			var size_incr = args[3].Conv<double>();
-			var size_wiggle = args[4].Conv<double>();
+        [GMLFunction("part_type_size")]
+        public static object? part_type_size(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var size_min = args[1].Conv<double>();
+            var size_max = args[2].Conv<double>();
+            var size_incr = args[3].Conv<double>();
+            var size_wiggle = args[4].Conv<double>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.SizeMin = size_min;
-			type.SizeMax = size_max;
-			type.SizeIncr = size_incr;
-			type.SizeRandom = size_wiggle;
+            var type = ParticleManager.PartTypes[ind];
+            type.SizeMin = size_min;
+            type.SizeMax = size_max;
+            type.SizeIncr = size_incr;
+            type.SizeRandom = size_wiggle;
 
-			return null;
-		}
+            return null;
+        }
 
-		// part_type_scale
+        // part_type_scale
 
-		[GMLFunction("part_type_life")]
-		public static object? part_type_life(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var life_min = args[1].Conv<int>();
-			var life_max = args[2].Conv<int>();
+        [GMLFunction("part_type_life")]
+        public static object? part_type_life(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var life_min = args[1].Conv<int>();
+            var life_max = args[2].Conv<int>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.LifeMin = life_min;
-			type.LifeMax = life_max;
+            var type = ParticleManager.PartTypes[ind];
+            type.LifeMin = life_min;
+            type.LifeMax = life_max;
 
-			return null;
-		}
+            return null;
+        }
 
-		// part_type_step
-		// part_type_death
+        // part_type_step
+        // part_type_death
 
-		[GMLFunction("part_type_speed")]
-		public static object? part_type_speed(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var speed_min = args[1].Conv<double>();
-			var speed_max = args[2].Conv<double>();
-			var speed_incr = args[3].Conv<double>();
-			var speed_wiggle = args[4].Conv<double>();
+        [GMLFunction("part_type_speed")]
+        public static object? part_type_speed(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var speed_min = args[1].Conv<double>();
+            var speed_max = args[2].Conv<double>();
+            var speed_incr = args[3].Conv<double>();
+            var speed_wiggle = args[4].Conv<double>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.SpeedMin = speed_min;
-			type.SpeedMax = speed_max;
-			type.SpeedIncr = speed_incr;
-			type.SpeedRandom = speed_wiggle;
+            var type = ParticleManager.PartTypes[ind];
+            type.SpeedMin = speed_min;
+            type.SpeedMax = speed_max;
+            type.SpeedIncr = speed_incr;
+            type.SpeedRandom = speed_wiggle;
 
-			return null;
-		}
+            return null;
+        }
 
-		[GMLFunction("part_type_direction")]
-		public static object? part_type_direction(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var dir_min = args[1].Conv<double>();
-			var dir_max = args[2].Conv<double>();
-			var dir_incr = args[3].Conv<double>();
-			var dir_wiggle = args[4].Conv<double>();
+        [GMLFunction("part_type_direction")]
+        public static object? part_type_direction(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var dir_min = args[1].Conv<double>();
+            var dir_max = args[2].Conv<double>();
+            var dir_incr = args[3].Conv<double>();
+            var dir_wiggle = args[4].Conv<double>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.DirMin = dir_min;
-			type.DirMax = dir_max;
-			type.DirIncr = dir_incr;
-			type.DirRandom = dir_wiggle;
-			return null;
-		}
+            var type = ParticleManager.PartTypes[ind];
+            type.DirMin = dir_min;
+            type.DirMax = dir_max;
+            type.DirIncr = dir_incr;
+            type.DirRandom = dir_wiggle;
+            return null;
+        }
 
-		// part_type_orientation
-		// part_type_gravity
-		// part_type_color_mix
-		// part_type_color_rgb
-		// part_type_color_hsv
-		// part_type_color1
-		// part_type_color2
-		// part_type_color3
-		// part_type_colour_mix
-		// part_type_colour_rgb
-		// part_type_colour_hsv
-		// part_type_colour1
-		// part_type_colour2
-		// part_type_colour3
-		// part_type_alpha1
-		// part_type_alpha2
+        // part_type_orientation
+        // part_type_gravity
+        // part_type_color_mix
+        // part_type_color_rgb
+        // part_type_color_hsv
+        // part_type_color1
+        // part_type_color2
+        // part_type_color3
+        // part_type_colour_mix
+        // part_type_colour_rgb
+        // part_type_colour_hsv
+        // part_type_colour1
+        // part_type_colour2
+        // part_type_colour3
+        // part_type_alpha1
+        // part_type_alpha2
 
-		[GMLFunction("part_type_alpha3")]
-		public static object? part_type_alpha3(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var alpha1 = args[1].Conv<double>();
-			var alpha2 = args[2].Conv<double>();
-			var alpha3 = args[3].Conv<double>();
+        [GMLFunction("part_type_alpha3")]
+        public static object? part_type_alpha3(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var alpha1 = args[1].Conv<double>();
+            var alpha2 = args[2].Conv<double>();
+            var alpha3 = args[3].Conv<double>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.AlphaStart = alpha1;
-			type.AlphaMiddle = alpha2;
-			type.AlphaEnd = alpha3;
+            var type = ParticleManager.PartTypes[ind];
+            type.AlphaStart = alpha1;
+            type.AlphaMiddle = alpha2;
+            type.AlphaEnd = alpha3;
 
-			return null;
-		}
+            return null;
+        }
 
-		[GMLFunction("part_type_blend")]
-		public static object? part_type_blend(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var additive = args[1].Conv<bool>();
+        [GMLFunction("part_type_blend")]
+        public static object? part_type_blend(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var additive = args[1].Conv<bool>();
 
-			var type = ParticleManager.PartTypes[ind];
-			type.AdditiveBlend = additive;
+            var type = ParticleManager.PartTypes[ind];
+            type.AdditiveBlend = additive;
 
-			return null;
-		}
+            return null;
+        }
 
-		[GMLFunction("part_system_create")]
-		public static object? part_system_create(object?[] args)
-		{
-			return ParticleManager.ParticleSystemCreate();
-		}
+        [GMLFunction("part_system_create")]
+        public static object? part_system_create(object?[] args)
+        {
+            return ParticleManager.ParticleSystemCreate();
+        }
 
-		[GMLFunction("part_system_destroy", GMLFunctionFlags.Stub)]
-		public static object? part_system_destroy(object?[] args)
-		{
-			//var ind = args[0].Conv<int>();
+        [GMLFunction("part_system_destroy", GMLFunctionFlags.Stub)]
+        public static object? part_system_destroy(object?[] args)
+        {
+            //var ind = args[0].Conv<int>();
 
-			return null;
-		}
+            return null;
+        }
 
-		// part_system_exists
-		// part_system_clear
-		// part_system_draw_order
-		// part_system_depth
-		// part_system_position
-		// part_system_automatic_update
+        // part_system_exists
+        // part_system_clear
+        // part_system_draw_order
+        // part_system_depth
+        // part_system_position
+        // part_system_automatic_update
 
-		[GMLFunction("part_system_automatic_draw")]
-		public static object? part_system_automatic_draw(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
-			var automatic = args[1].Conv<bool>();
+        [GMLFunction("part_system_automatic_draw")]
+        public static object? part_system_automatic_draw(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var automatic = args[1].Conv<bool>();
 
-			var sys = ParticleManager.PartSystems[ind];
-			sys.AutomaticDraw = automatic;
+            var sys = ParticleManager.PartSystems[ind];
+            sys.AutomaticDraw = automatic;
 
-			return null;
-		}
+            return null;
+        }
 
-		[GMLFunction("part_system_update")]
-		public static object? part_system_update(object?[] args)
-		{
-			var ind = args[0].Conv<int>();
+        [GMLFunction("part_system_update")]
+        public static object? part_system_update(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
 
-			ParticleManager.UpdateSystem(ind);
+            ParticleManager.UpdateSystem(ind);
 
-			return null;
-		}
+            return null;
+        }
 
-		[GMLFunction("part_system_drawit", GMLFunctionFlags.Stub)]
-		public static object? part_system_drawit(object?[] args)
-		{
-			//var ind = args[0].Conv<int>();
+        [GMLFunction("part_system_drawit", GMLFunctionFlags.Stub)]
+        public static object? part_system_drawit(object?[] args)
+        {
+            //var ind = args[0].Conv<int>();
 
-			return null;
-		}
+            return null;
+        }
 
-		// part_system_create_layer
-		// part_system_get_layer
-		// part_system_layer
-		// part_particles_create
-		// part_particles_create_color
-		// part_particles_create_colour
-		// part_particles_clear
-		// part_particles_count
+        // part_system_create_layer
+        // part_system_get_layer
+        // part_system_layer
+        // part_particles_create
+        // part_particles_create_color
+        // part_particles_create_colour
+        // part_particles_clear
+        // part_particles_count
 
-		[GMLFunction("part_emitter_create")]
-		public static object? part_emitter_create(object?[] args)
-		{
-			var ps = args[0].Conv<int>();
-			return ParticleManager.ParticleEmitterCreate(ps);
-		}
+        [GMLFunction("part_emitter_create")]
+        public static object? part_emitter_create(object?[] args)
+        {
+            var ps = args[0].Conv<int>();
+            return ParticleManager.ParticleEmitterCreate(ps);
+        }
 
-		// part_emitter_destroy
+        // part_emitter_destroy
 
-		[GMLFunction("part_emitter_destroy_all", GMLFunctionFlags.Stub)]
-		public static object? part_emitter_destroy_all(object?[] args)
-		{
-			//var ps = args[0].Conv<int>();
+        [GMLFunction("part_emitter_destroy_all", GMLFunctionFlags.Stub)]
+        public static object? part_emitter_destroy_all(object?[] args)
+        {
+            //var ps = args[0].Conv<int>();
 
-			return null;
-		}
+            return null;
+        }
 
-		// part_emitter_exists
-		// part_emitter_clear
+        // part_emitter_exists
+        // part_emitter_clear
 
-		[GMLFunction("part_emitter_region")]
-		public static object? part_emitter_region(object?[] args)
-		{
-			var ps = args[0].Conv<int>();
-			var ind = args[1].Conv<int>();
-			var xmin = args[2].Conv<double>();
-			var xmax = args[3].Conv<double>();
-			var ymin = args[4].Conv<double>();
-			var ymax = args[5].Conv<double>();
-			var shape = args[6].Conv<int>();
-			var distribution = args[7].Conv<int>();
+        [GMLFunction("part_emitter_region")]
+        public static object? part_emitter_region(object?[] args)
+        {
+            var ps = args[0].Conv<int>();
+            var ind = args[1].Conv<int>();
+            var xmin = args[2].Conv<double>();
+            var xmax = args[3].Conv<double>();
+            var ymin = args[4].Conv<double>();
+            var ymax = args[5].Conv<double>();
+            var shape = args[6].Conv<int>();
+            var distribution = args[7].Conv<int>();
 
-			// currently not used as we store emitters with global ids, instead of per system
-			//var sys = ParticleManager.PartSystems[ps]; 
-			var emitter = ParticleManager.PartEmitters[ind];
+            // currently not used as we store emitters with global ids, instead of per system
+            //var sys = ParticleManager.PartSystems[ps]; 
+            var emitter = ParticleManager.PartEmitters[ind];
 
-			emitter.XMin = xmin;
-			emitter.XMax = xmax;
-			emitter.YMin = ymin;
-			emitter.YMax = ymax;
-			emitter.Shape = shape;
-			emitter.Distribution = distribution;
+            emitter.XMin = xmin;
+            emitter.XMax = xmax;
+            emitter.YMin = ymin;
+            emitter.YMax = ymax;
+            emitter.Shape = shape;
+            emitter.Distribution = distribution;
 
-			return null;
-		}
+            return null;
+        }
 
-		// part_emitter_burst
+        // part_emitter_burst
 
-		[GMLFunction("part_emitter_stream")]
-		public static object? part_emitter_stream(object?[] args)
-		{
-			var ps = args[0].Conv<int>();
-			var ind = args[1].Conv<int>();
-			var parttype = args[2].Conv<int>();
-			var number = args[3].Conv<int>();
+        [GMLFunction("part_emitter_stream")]
+        public static object? part_emitter_stream(object?[] args)
+        {
+            var ps = args[0].Conv<int>();
+            var ind = args[1].Conv<int>();
+            var parttype = args[2].Conv<int>();
+            var number = args[3].Conv<int>();
 
-			// currently not used as we store emitters with global ids, instead of per system
-			//var sys = ParticleManager.PartSystems[ps]; 
-			var emitter = ParticleManager.PartEmitters[ind];
+            // currently not used as we store emitters with global ids, instead of per system
+            //var sys = ParticleManager.PartSystems[ps]; 
+            var emitter = ParticleManager.PartEmitters[ind];
 
-			emitter.Number = number;
-			emitter.PartType = parttype;
+            emitter.Number = number;
+            emitter.PartType = parttype;
 
-			return null;
-		}
+            return null;
+        }
 
-		// effect_create_blow
-		// effect_create_above
-		// effect_clear
-	}
+        // effect_create_blow
+        // effect_create_above
+        // effect_clear
+    }
 }
