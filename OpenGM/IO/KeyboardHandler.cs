@@ -131,6 +131,30 @@ public class KeyboardHandler
                 }
             }
         }
+
+        if (state.IsKeyPressed(Keys.KeyPad1))
+        {
+            DebugLog.Log("LAYERS :");
+            foreach (var (id, layer) in RoomManager.CurrentRoom.Layers)
+            {
+                DebugLog.Log($" - Layer: {layer.Name} ({id})");
+                foreach (var element in layer.ElementsToDraw)
+                {
+                    var str = $"     - {element.GetType().Name} ({element.instanceId})";
+                    if (element is GMSprite sprite) 
+                    {
+
+                        str += $" [{sprite.X}, {sprite.Y}]";
+                    }
+                    else if (element is GMBackground bg) 
+                    {
+
+                        str += $" Index:{bg.Element.Index} Frame:{bg.FrameIndex}";
+                    }
+                    DebugLog.Log(str);
+                }
+            }
+        }
     }
 
     public static bool KeyboardCheckDirect(int key)

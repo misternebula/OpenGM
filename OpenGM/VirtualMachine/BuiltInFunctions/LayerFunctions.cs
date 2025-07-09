@@ -593,7 +593,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? layer_background_alpha(object?[] args)
         {
             var background_element_id = args[0].Conv<int>();
-            var alpha = args[0].Conv<double>();
+            var alpha = args[1].Conv<double>();
 
             foreach (var layer in RoomManager.CurrentRoom.Layers)
             {
@@ -614,7 +614,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? layer_background_index(object?[] args)
         {
             var background_element_id = args[0].Conv<int>();
-            var index = args[0].Conv<int>();
+            var index = args[1].Conv<int>();
 
             foreach (var layer in RoomManager.CurrentRoom.Layers)
             {
@@ -622,7 +622,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 {
                     if (element is GMBackground back && back.Element.Id == background_element_id)
                     {
-                        back.Element.Index = index;
+                        back.FrameIndex = index;
                     }
                 }
             }

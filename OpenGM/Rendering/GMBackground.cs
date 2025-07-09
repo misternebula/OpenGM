@@ -10,10 +10,10 @@ public class GMBackground : DrawWithDepth
     {
         DrawManager.Register(this);
         Element = element;
-        _currentFrame = element.FirstFrame;
+        FrameIndex = element.FirstFrame;
     }
 
-    private int _currentFrame;
+    public int FrameIndex;
 
     public override void Draw()
     {
@@ -22,25 +22,72 @@ public class GMBackground : DrawWithDepth
             return;
         }
 
-        // TODO : account for tiling
         // TODO : account for stretch
         // TODO : work out what foreground does
         // TODO : account for animations
 
-        var sprite = SpriteManager.GetSpritePageItem(Element.Index, _currentFrame);
+        var sprite = SpriteManager.GetSpritePageItem(Element.Index, FrameIndex);
         var origin = SpriteManager.GetSpriteOrigin(Element.Index);
 
         var c = Element.Color.ABGRToCol4(Element.Alpha);
 
-        CustomWindow.Draw(new GMSpriteJob()
+        var camWidth = CustomWindow.Instance.Width;
+        var camHeight = CustomWindow.Instance.Height;
+        var camX = CustomWindow.Instance.X;
+        var camY = CustomWindow.Instance.Y;
+
+        var offsetX = 0;
+        var offsetY = 0;
+        var layerX = Element.Layer.X;
+        var layerY = Element.Layer.Y;
+
+        float TotalX() => offsetX + layerX;
+        float TotalY() => offsetY + layerY;
+
+        while (TotalX() > camX)
         {
-            texture = sprite,
-            origin = origin,
-            screenPos = new OpenTK.Mathematics.Vector2d(Element.Layer.X, Element.Layer.Y),
-            scale = OpenTK.Mathematics.Vector2d.One,
-            angle = 0,
-            Colors = [c, c, c, c]
-        });
+            layerX -= camWidth;
+        }
+
+        while (TotalY() > camY)
+        {
+            layerY -= camHeight;
+        }
+        
+        do
+        {
+            do
+            {
+                CustomWindow.Draw(new GMSpriteJob()
+                {
+                    texture = sprite,
+                    origin = origin,
+                    screenPos = new(TotalX(), TotalY()),
+                    scale = OpenTK.Mathematics.Vector2d.One,
+                    angle = 0,
+                    Colors = [c, c, c, c]
+                });
+
+                offsetY += sprite.BoundingHeight;
+            } while (Element.VTiled && TotalY() < camY + camHeight);
+
+            offsetY = 0;
+            offsetX += sprite.BoundingWidth;
+        } while (Element.HTiled && TotalX() < camX + camWidth);
+
+        // TODO: is this how scrolling works?
+        Element.Layer.X += Element.Layer.HSpeed;
+        Element.Layer.Y += Element.Layer.VSpeed;
+
+        if (Element.Layer.HSpeed != 0)
+        {
+            Element.Layer.X %= sprite.BoundingWidth;
+        }
+
+        if (Element.Layer.VSpeed != 0)
+        {
+            Element.Layer.Y %= sprite.BoundingHeight;
+        }
     }
 
     public override void Destroy()
