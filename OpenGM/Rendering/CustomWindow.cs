@@ -315,22 +315,14 @@ public class CustomWindow : GameWindow
                     {
                         xOffset += textJob.asset.Size;
                     }
+
                     continue;
                 }
 
-                SpritePageItem? pageItem;
+                var pageItem = textJob.asset.texture;
                 if (textJob.asset.IsSpriteFont())
                 {
-                    if (glyph.frameIndex == -1)
-                    {
-                        continue;
-                    }
-
                     pageItem = SpriteManager.GetSpritePageItem(textJob.asset.spriteIndex, glyph.frameIndex);
-                }
-                else
-                {
-                    pageItem = textJob.asset.texture;
                 }
 
                 var (texturePage, pageId) = PageManager.TexturePages[pageItem!.Page];
@@ -376,6 +368,10 @@ public class CustomWindow : GameWindow
                 GL.Uniform1(VertexManager.u_doTex, 0);
 
                 xOffset += glyph.shift * textJob.scale.X;
+                if (textJob.asset.IsSpriteFont())
+                {
+                    xOffset += textJob.asset.sep * textJob.scale.X;
+                }
             }
         }
     }
