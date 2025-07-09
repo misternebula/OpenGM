@@ -19,6 +19,8 @@ public static class InstanceManager
     public static Dictionary<int, GamemakerObject> instances = new();
     public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
+    public static List<int> LastDeactivatedIDs = [];
+
     public static int NextInstanceID;
 
     /// <summary>

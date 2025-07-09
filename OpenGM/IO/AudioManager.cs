@@ -292,6 +292,11 @@ public static class AudioManager
         return _audioSources.Where(x => x.Asset.AssetIndex == assetIndex).ToArray();
     }
 
+    public static AudioInstance[] GetAllAudioInstances()
+    {
+        return _audioSources.ToArray();
+    }
+
     public static void SetAssetGain(int assetIndex, double gain)
     {
         _audioClips[assetIndex].Gain = gain;

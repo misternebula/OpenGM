@@ -554,7 +554,30 @@ public static class GameFunctions
     // position_destroy
     // position_change
     // instance_id_get
-    // instance_deactivate_all
+
+    [GMLFunction("instance_deactivate_all")]
+    public static object? instance_deactivate_all(object?[] args)
+    {
+        var notme = false;
+        if (args.Length > 0)
+        {
+            notme = args[0].Conv<bool>();
+        }
+
+        InstanceManager.LastDeactivatedIDs.Clear();
+        foreach (var (id, instance) in InstanceManager.instances)
+        {
+            InstanceManager.LastDeactivatedIDs.Add(id);
+            instance.Active = false;
+        }
+
+        if (notme)
+        {
+            VMExecutor.Self.GMSelf.Active = true;
+        }
+
+        return null;
+    }
 
     [GMLFunction("instance_deactivate_object")]
     public static object? instance_deactivate_object(object?[] args)
@@ -581,7 +604,22 @@ public static class GameFunctions
     }
 
     // instance_deactivate_region
-    // instance_activate_all
+
+    [GMLFunction("instance_activate_all")]
+    public static object? instance_activate_all(object?[] args)
+    {
+        foreach (var id in InstanceManager.LastDeactivatedIDs)
+        {
+            if (InstanceManager.instances.TryGetValue(id, out var instance))
+            {
+                instance.Active = true;
+            }
+        }
+
+        InstanceManager.LastDeactivatedIDs.Clear();
+
+        return null;
+    }
 
     [GMLFunction("instance_activate_object")]
     public static object? instance_activate_object(object?[] args)

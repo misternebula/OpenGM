@@ -138,8 +138,29 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // audio_pause_all
-        // audio_resume_all
+        [GMLFunction("audio_pause_all")]
+        public static object? audio_pause_all(object?[] args)
+        {
+            foreach (var item in AudioManager.GetAllAudioInstances())
+            {
+                AL.SourcePause(item.Source);
+                AudioManager.CheckALError();
+            }
+
+            return null;
+        }
+
+        [GMLFunction("audio_resume_all")]
+        public static object? audio_resume_all(object?[] args)
+        {
+            foreach (var item in AudioManager.GetAllAudioInstances())
+            {
+                AL.SourcePlay(item.Source);
+                AudioManager.CheckALError();
+            }
+
+            return null;
+        }
 
         [GMLFunction("audio_is_playing")]
         public static object? audio_is_playing(object?[] args)

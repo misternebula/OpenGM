@@ -480,6 +480,14 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
             return false;
         }
 
+        // TODO:
+        //   objects that change active status shouldn't acknowledge that change
+        //   until next frame
+        if (!obj.Active)
+        {
+            return false;
+        }
+
         //DebugLog.LogInfo($"Trying to execute {eventType} {eventNumber} on {obj.object_index} with definition {definition.Name}");
 
         bool TryExecute(VMCode? code)
