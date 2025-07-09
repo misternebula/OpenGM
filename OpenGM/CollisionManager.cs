@@ -39,10 +39,10 @@ public static class CollisionManager
 
         var pos = new Vector2d(gm.x, gm.y);
 
-        var index = gm.sprite_index;
+        var index = gm.mask_index;
         if (index == -1)
         {
-            index = gm.mask_index;
+            index = gm.sprite_index;
         }
 
         if (index == -1)

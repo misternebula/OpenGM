@@ -634,7 +634,26 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // layer_background_sprite
         // layer_background_change
         // layer_background_get_visible
-        // layer_background_get_sprite
+
+        [GMLFunction("layer_background_get_sprite")]
+        public static object? layer_background_get_sprite(object?[] args)
+        {
+            var background_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMBackground back && back.Element.Id == background_element_id)
+                    {
+                        return back.Element.Index;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         // layer_background_get_htiled
         // layer_background_get_vtiled
         // layer_background_get_xscale
@@ -679,7 +698,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return 0;
         }
 
-        // layer_background_get_index
+        [GMLFunction("layer_background_get_index")]
+        public static object? layer_background_get_index(object?[] args)
+        {
+            var background_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMBackground back && back.Element.Id == background_element_id)
+                    {
+                        return back.FrameIndex;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         // layer_background_get_speed
 
         // layer_sprite_get_id
