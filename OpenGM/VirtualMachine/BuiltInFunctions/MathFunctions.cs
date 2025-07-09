@@ -269,8 +269,8 @@ public static class MathFunctions
 	// random_set_seed
 	// random_get_seed
 
-	[GMLFunction("randomise")]
-	[GMLFunction("randomize")]
+	[GMLFunction("randomise", GMLFunctionFlags.Stub)]
+	[GMLFunction("randomize", GMLFunctionFlags.Stub)]
 	public static object? randomize(object?[] args)
 	{
 		// todo : implement
