@@ -272,6 +272,10 @@ public static class TextManager
                 }
 
                 totalWidth += (int)(entry.shift * fontAsset.ScaleX);
+                if (fontAsset.IsSpriteFont())
+                {
+                    totalWidth += (int)(fontAsset.sep * fontAsset.ScaleX);
+                }
             }
 
             if (totalWidth > longestLine)

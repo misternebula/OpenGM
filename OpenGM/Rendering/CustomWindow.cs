@@ -315,6 +315,7 @@ public class CustomWindow : GameWindow
                     {
                         xOffset += textJob.asset.Size;
                     }
+
                     continue;
                 }
 
@@ -376,6 +377,10 @@ public class CustomWindow : GameWindow
                 GL.Uniform1(VertexManager.u_doTex, 0);
 
                 xOffset += glyph.shift * textJob.scale.X;
+                if (textJob.asset.IsSpriteFont())
+                {
+                    xOffset += textJob.asset.sep * textJob.scale.X;
+                }
             }
         }
     }
