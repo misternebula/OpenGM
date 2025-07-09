@@ -128,7 +128,32 @@ public static class MathFunctions
 	// array_equals
 	// array_create
 	// array_copy
-	// array_resize
+
+    [GMLFunction("array_resize")]
+    public static object? array_resize(object?[] args)
+    {
+		var array_index = args[0].Conv<IList>();
+        var new_size = args[1].Conv<int>();
+        var oldSize = array_index.Count;
+
+        if (new_size > oldSize)
+        {
+            var amountToAdd = new_size - oldSize;
+            for (var i = 0; i < amountToAdd; i++)
+            {
+                array_index.Add(0);
+            }
+        }
+        else
+        {
+            for (var i = new_size; i < oldSize; i++)
+            {
+                array_index.RemoveAt(i);
+            }
+        }
+
+        return null;
+    }
 
 	[GMLFunction("array_push")]
 	public static object? array_push(object?[] args)
@@ -136,7 +161,6 @@ public static class MathFunctions
 		var variable = args[0].Conv<IList>();
 		for (var i = 1; i < args.Length; i++)
 		{
-			// TODO : is variable actually a reference to the stored array, or is it just a value copy?
 			variable.Add(args[i]);
 		}
 
@@ -145,7 +169,27 @@ public static class MathFunctions
 
 	// array_pop
 	// array_insert
-	// array_delete
+
+    [GMLFunction("array_delete")]
+    public static object? array_delete(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+        var number = args[2].Conv<int>();
+
+        if (number < 0)
+        {
+            index += number + 1;
+            number = -number;
+        }
+
+        for (var i = index; i < index + number; i++)
+        {
+            variable.RemoveAt(i);
+        }
+
+        return null;
+    }
 
 	[GMLFunction("array_sort", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
 	public static object? array_sort(object?[] args)
