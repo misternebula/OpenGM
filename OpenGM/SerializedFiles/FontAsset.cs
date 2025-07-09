@@ -29,17 +29,22 @@ public partial class FontAsset
 
 	public List<Glyph> entries = new();
 	public Dictionary<int, Glyph> entriesDict = new();
+
+	public bool IsSpriteFont() => texture == null && spriteIndex != -1;
 }
 
 [MemoryPackable]
 public partial class Glyph
 {
 	/// <summary>
-	/// If the font was created from a sprite, this will be the image index of the glyph from that sprite, otherwise it will be its Unicode character number
+	/// The Unicode character number that the glyph corresponds to.
 	/// </summary>
 	public int characterIndex;
 
-	// Note: All variables below this will not be present in the struct if the font was created from a sprite
+	/// <summary>
+	/// If the font was created from a sprite, the frame that this glyph corresponds to. Otherwise, equal to -1.
+	/// </summary>
+	public int frameIndex;
 
 	/// <summary>
 	/// The X position of the glyph on the texture page (in texels)
@@ -69,5 +74,12 @@ public partial class Glyph
 	/// <summary>
 	/// The number of pixels to horizontally offset the rendering of the glyph.
 	/// </summary>
-	public int offset;
+	public int xOffset;
+
+	/// <summary>
+	/// The number of pixels to vertically offset the rendering of the glyph.
+	/// </summary>
+	public int yOffset;
+
+	public bool IsSpriteBased() => frameIndex != -1;
 }

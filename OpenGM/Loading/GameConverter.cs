@@ -1136,12 +1136,13 @@ public static class GameConverter
 				var glyphAsset = new Glyph
 				{
 					characterIndex = glyph.Character,
+					frameIndex = -1,
 					x = glyph.SourceX,
 					y = glyph.SourceY,
 					w = glyph.SourceWidth,
 					h = glyph.SourceHeight,
 					shift = glyph.Shift,
-					offset = glyph.Offset
+					xOffset = glyph.Offset
 				};
 
 				// i cant remember why theres two of this lol

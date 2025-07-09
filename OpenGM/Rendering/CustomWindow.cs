@@ -308,89 +308,74 @@ public class CustomWindow : GameWindow
             {
                 var character = line[j];
 
-                if (textJob.asset.texture == null && textJob.asset.spriteIndex != -1)
+                if (!textJob.asset.entriesDict.TryGetValue(character, out var glyph))
                 {
-                    // sprite font
-
-                    // returns the index corresponding to the given character,
-                    // or -1 if there isn't one
-                    var idx = textJob.asset.entries
-                        .Select((entry, index) => (entry, index))
-                        .Where(b => b.entry.characterIndex == character)
-                        .Select(b => b.index)
-                        .FirstOrDefault(-1);
-
-                    if (idx == -1)
+                    // offset sprite text for spaces
+                    if (textJob.asset.IsSpriteFont() && character == ' ')
                     {
-                        if (character == ' ')
-                        {
-                            xOffset += textJob.asset.Size;
-                        }
+                        xOffset += textJob.asset.Size;
+                    }
+                    continue;
+                }
 
+                SpritePageItem? pageItem;
+                if (textJob.asset.IsSpriteFont())
+                {
+                    if (glyph.frameIndex == -1)
+                    {
                         continue;
                     }
 
-                    var sprite = SpriteManager.GetSpritePageItem(textJob.asset.spriteIndex, idx);
-                    Draw(new GMSpriteJob()
-                    {
-                        texture = sprite,
-                        screenPos = textJob.screenPos + (xOffset, 0),
-                        angle = 0,
-                        scale = Vector2d.One,
-                        origin = Vector2.Zero,
-                        Colors = textJob.Colors // TODO : use BlendBetweenPoints with these, this gradient is applied wrong
-					});
-
-                    xOffset += (sprite.TargetWidth + textJob.asset.sep) * textJob.scale.X;
+                    pageItem = SpriteManager.GetSpritePageItem(textJob.asset.spriteIndex, glyph.frameIndex);
                 }
                 else
                 {
-                    // normal font
-
-                    if (!textJob.asset.entriesDict.TryGetValue(character, out var glyph))
-                    {
-                        continue;
-                    }
-
-                    var (texturePage, pageId) = PageManager.TexturePages[textJob.asset.texture!.Page];
-
-                    var pageItem = textJob.asset.texture;
-                    var pageX = pageItem.SourceX;
-                    var pageY = pageItem.SourceY;
-
-                    var topLeftX = textJob.screenPos.X + xOffset + glyph.offset;
-                    var topLeftY = textJob.screenPos.Y + yOffset;
-
-                    var leftX = (pageX + glyph.x) / (float)texturePage.Width;
-                    var rightX = (pageX + glyph.x + glyph.w) / (float)texturePage.Width;
-                    var topY = (pageY + glyph.y) / (float)texturePage.Height;
-                    var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
-
-                    GL.BindTexture(TextureTarget.Texture2D, pageId);
-                    GL.Uniform1(VertexManager.u_doTex, 1);
-
-                    var topLeftPos = new Vector2d(topLeftX, topLeftY);
-                    var topRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, topLeftY);
-                    var bottomRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y));
-                    var bottomLeftPos = new Vector2d(topLeftX, topLeftY + glyph.h * textJob.scale.Y);
-
-                    var topLeftCol = CustomMath.BlendBetweenPoints(topLeftPos, points, textJob.Colors);
-                    var topRightCol = CustomMath.BlendBetweenPoints(topRightPos, points, textJob.Colors);
-                    var bottomRightCol = CustomMath.BlendBetweenPoints(bottomRightPos, points, textJob.Colors);
-                    var bottomLeftCol = CustomMath.BlendBetweenPoints(bottomLeftPos, points, textJob.Colors);
-
-					VertexManager.Draw(PrimitiveType.TriangleFan, [
-                        new(topLeftPos, topLeftCol, new(leftX, topY)),
-	                    new(topRightPos, topRightCol, new(rightX, topY)),
-	                    new(bottomRightPos, bottomRightCol, new(rightX, bottomY)),
-	                    new(bottomLeftPos,bottomLeftCol, new(leftX, bottomY)),
-					]);
-
-                    GL.BindTexture(TextureTarget.Texture2D, 0);
-                    GL.Uniform1(VertexManager.u_doTex, 0);
-
-                    xOffset += glyph.shift * textJob.scale.X;
+                    pageItem = textJob.asset.texture;
                 }
+
+                var (texturePage, pageId) = PageManager.TexturePages[pageItem!.Page];
+
+                var pageX = 0;
+                var pageY = 0;
+
+                if (!glyph.IsSpriteBased())
+                {
+                    pageX = pageItem.SourceX;
+                    pageY = pageItem.SourceY;
+                }
+
+                var topLeftX = textJob.screenPos.X + xOffset + glyph.xOffset;
+                var topLeftY = textJob.screenPos.Y + yOffset + glyph.yOffset;
+
+                var leftX = (pageX + glyph.x) / (float)texturePage.Width;
+                var rightX = (pageX + glyph.x + glyph.w) / (float)texturePage.Width;
+                var topY = (pageY + glyph.y) / (float)texturePage.Height;
+                var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
+
+                GL.BindTexture(TextureTarget.Texture2D, pageId);
+                GL.Uniform1(VertexManager.u_doTex, 1);
+
+                var topLeftPos = new Vector2d(topLeftX, topLeftY);
+                var topRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, topLeftY);
+                var bottomRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, (topLeftY + glyph.h * textJob.scale.Y));
+                var bottomLeftPos = new Vector2d(topLeftX, topLeftY + glyph.h * textJob.scale.Y);
+
+                var topLeftCol = CustomMath.BlendBetweenPoints(topLeftPos, points, textJob.Colors);
+                var topRightCol = CustomMath.BlendBetweenPoints(topRightPos, points, textJob.Colors);
+                var bottomRightCol = CustomMath.BlendBetweenPoints(bottomRightPos, points, textJob.Colors);
+                var bottomLeftCol = CustomMath.BlendBetweenPoints(bottomLeftPos, points, textJob.Colors);
+
+                VertexManager.Draw(PrimitiveType.TriangleFan, [
+                    new(topLeftPos, topLeftCol, new(leftX, topY)),
+                    new(topRightPos, topRightCol, new(rightX, topY)),
+                    new(bottomRightPos, bottomRightCol, new(rightX, bottomY)),
+                    new(bottomLeftPos,bottomLeftCol, new(leftX, bottomY)),
+                ]);
+
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+                GL.Uniform1(VertexManager.u_doTex, 0);
+
+                xOffset += glyph.shift * textJob.scale.X;
             }
         }
     }

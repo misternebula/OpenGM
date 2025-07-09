@@ -233,46 +233,16 @@ public static class TextManager
 		var tallestChar = 0;
 		foreach (var character in lines[^1])
 		{
-			if (fontAsset.texture == null && fontAsset.spriteIndex != -1)
+			if (!fontAsset.entriesDict.TryGetValue(character, out var glyph))
 			{
-				// sprite font
-
-				// returns the index corresponding to the given character,
-				// or -1 if there isn't one
-				var idx = fontAsset.entries
-					.Select((entry, index) => (entry, index))
-					.Where(b => b.entry.characterIndex == character)
-					.Select(b => b.index)
-					.FirstOrDefault(-1);
-
-				if (idx == -1)
-				{
-					continue;
-				}
-
-				var sprite = SpriteManager.GetSpritePageItem(fontAsset.spriteIndex, idx);
-				var height = sprite.TargetHeight;
-
-				if (height > tallestChar)
-				{
-					tallestChar = height;
-				}
+				continue;
 			}
-			else
+
+			var height = glyph.h;
+
+			if (height > tallestChar)
 			{
-				// normal font
-
-				if (!fontAsset.entriesDict.TryGetValue(character, out var glyph))
-				{
-					continue;
-				}
-
-				var height = glyph.h;
-
-				if (height > tallestChar)
-				{
-					tallestChar = height;
-				}
+				tallestChar = height;
 			}
 		}
 
@@ -291,42 +261,17 @@ public static class TextManager
 			{
 				var asciiIndex = (int)line[i];
 
-				if (fontAsset.texture == null && fontAsset.spriteIndex != -1)
+				if (!fontAsset.entriesDict.TryGetValue(asciiIndex, out Glyph? entry))
 				{
-					// sprite font
-
-					// returns the index corresponding to the given character,
-					// or -1 if there isn't one
-					var idx = fontAsset.entries
-						.Select((entry, index) => (entry, index))
-						.Where(b => b.entry.characterIndex == asciiIndex)
-						.Select(b => b.index)
-						.FirstOrDefault(-1);
-
-					if (idx == -1)
+					// offset sprite text for spaces
+					if (fontAsset.IsSpriteFont() && asciiIndex == ' ')
 					{
-						if (asciiIndex == ' ')
-						{
-							totalWidth += (int)fontAsset.Size;
-						}
-
-						continue;
+						totalWidth += (int)fontAsset.Size;
 					}
-
-					var sprite = SpriteManager.GetSpritePageItem(fontAsset.spriteIndex, idx);
-
-					totalWidth += sprite.TargetWidth + fontAsset.sep;
+					continue;
 				}
-				else
-				{
-					// normal font
-					if (!fontAsset.entriesDict.TryGetValue(asciiIndex, out var entry))
-					{
-						continue;
-					}
 
-					totalWidth += (int)(entry.shift * fontAsset.ScaleX);
-				}
+				totalWidth += (int)(entry.shift * fontAsset.ScaleX);
 			}
 
 			if (totalWidth > longestLine)
