@@ -82,11 +82,11 @@ public class CustomWindow : GameWindow
         GL.BlendEquation(BlendEquationMode.FuncAdd);
     }
 
-	protected override void OnLoad()
+    protected override void OnLoad()
     {
         base.OnLoad();
         DebugLog.LogInfo($"OnLoad()");
-		// UpdatePositionResolution();
+        // UpdatePositionResolution();
     }
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
@@ -111,11 +111,11 @@ public class CustomWindow : GameWindow
     /// </summary>
     public void SetResolution(int width, int height)
     {
-	    DebugLog.LogInfo($"SetResolution {Width}x{Height} -> {width}x{height}");
-		Width = (uint)width;
+        DebugLog.LogInfo($"SetResolution {Width}x{Height} -> {width}x{height}");
+        Width = (uint)width;
         Height = (uint)height;
-		// UpdatePositionResolution();
-	}
+        // UpdatePositionResolution();
+    }
 
     /// <summary>
     /// sets the view uniform
@@ -136,41 +136,41 @@ public class CustomWindow : GameWindow
 
         ViewportManager.UpdateViews();
 
-		KeyboardHandler.UpdateMouseState(MouseState);
+        KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
         DrawManager.FixedUpdate();
         AudioManager.Update();
 
         // this should be moved at some point into view code
-		UpdateInstanceFollow();
+        UpdateInstanceFollow();
 
-		foreach (var item in DebugJobs)
-		{
-			Draw(item);
-		}
+        foreach (var item in DebugJobs)
+        {
+            Draw(item);
+        }
 
         DebugJobs.Clear();
 
-		SwapBuffers();
+        SwapBuffers();
     }
 
     public void UpdateInstanceFollow()
     {
-	    if (FollowInstance == null)
-	    {
-		    if (RoomManager.CurrentRoom.FollowObject == null)
-		    {
-			    return;
-			}
+        if (FollowInstance == null)
+        {
+            if (RoomManager.CurrentRoom.FollowObject == null)
+            {
+                return;
+            }
 
-		    FollowInstance = RoomManager.CurrentRoom.FollowObject;
-	    }
+            FollowInstance = RoomManager.CurrentRoom.FollowObject;
+        }
 
-	    var x = FollowInstance.x + (FollowInstance.sprite_width / 2);
-	    var y = FollowInstance.y + (FollowInstance.sprite_height / 2);
+        var x = FollowInstance.x + (FollowInstance.sprite_width / 2);
+        var y = FollowInstance.y + (FollowInstance.sprite_height / 2);
 
-	    var roomWidth = RoomManager.CurrentRoom.SizeX;
+        var roomWidth = RoomManager.CurrentRoom.SizeX;
         var roomHeight = RoomManager.CurrentRoom.SizeY;
         var viewWidth = RoomManager.CurrentRoom.CameraWidth;
         var viewHeight = RoomManager.CurrentRoom.CameraHeight;
@@ -184,46 +184,46 @@ public class CustomWindow : GameWindow
         }
         else if (y >= roomHeight - viewHeight) // bottom of screen
         {
-	        y = roomHeight - viewHeight;
+            y = roomHeight - viewHeight;
         }
 
         if (x <= 0) // left of screen
         {
-	        x = 0;
+            x = 0;
         }
         else if (x >= roomWidth - viewWidth) // right of screen
         {
-	        x = roomWidth - viewWidth;
+            x = roomWidth - viewWidth;
         }
 
         SetPosition(x, y);
-	}
+    }
 
     public static void Draw(GMBaseJob baseJob)
     {
-	    switch (baseJob)
-	    {
-		    case GMTextJob textJob:
-			    Draw(textJob);
-			    return;
-		    case GMSpritePartJob spritePartJob:
-			    Draw(spritePartJob);
-			    return;
-		    case GMSpriteJob spriteJob:
-			    Draw(spriteJob);
-			    return;
-		    case GMLineJob lineJob:
-			    Draw(lineJob);
-			    return;
-		    case GMLinesJob linesJob:
-			    Draw(linesJob);
-			    return;
-		    case GMPolygonJob polygonJob:
-			    Draw(polygonJob);
-			    return;
-		    default:
-			    throw new NotImplementedException($"Don't know how to draw {baseJob}");
-	    }
+        switch (baseJob)
+        {
+            case GMTextJob textJob:
+                Draw(textJob);
+                return;
+            case GMSpritePartJob spritePartJob:
+                Draw(spritePartJob);
+                return;
+            case GMSpriteJob spriteJob:
+                Draw(spriteJob);
+                return;
+            case GMLineJob lineJob:
+                Draw(lineJob);
+                return;
+            case GMLinesJob linesJob:
+                Draw(linesJob);
+                return;
+            case GMPolygonJob polygonJob:
+                Draw(polygonJob);
+                return;
+            default:
+                throw new NotImplementedException($"Don't know how to draw {baseJob}");
+        }
     }
 
     public static void Draw(GMTextJob textJob)
@@ -246,24 +246,24 @@ public class CustomWindow : GameWindow
         var textWidth = TextManager.StringWidth(textJob.text);
         var textHeight = TextManager.StringHeight(textJob.text);
 
-		var textLeft = textJob.halign switch
-		{
-			HAlign.fa_center => textJob.screenPos.X - (textWidth / 2),
-			HAlign.fa_right => textJob.screenPos.X - textWidth,
-			_ => textJob.screenPos.X
-		};
+        var textLeft = textJob.halign switch
+        {
+            HAlign.fa_center => textJob.screenPos.X - (textWidth / 2),
+            HAlign.fa_right => textJob.screenPos.X - textWidth,
+            _ => textJob.screenPos.X
+        };
 
-		var textTop = textJob.valign switch
-		{
-			VAlign.fa_middle => textJob.screenPos.Y - (textHeight / 2),
-			VAlign.fa_bottom => textJob.screenPos.Y - textHeight,
-			_ => textJob.screenPos.Y
-		};
+        var textTop = textJob.valign switch
+        {
+            VAlign.fa_middle => textJob.screenPos.Y - (textHeight / 2),
+            VAlign.fa_bottom => textJob.screenPos.Y - textHeight,
+            _ => textJob.screenPos.Y
+        };
 
-		var textRight = textLeft + textWidth;
-		var textBottom = textTop + textHeight;
+        var textRight = textLeft + textWidth;
+        var textBottom = textTop + textHeight;
 
-		for (var i = 0; i < lines.Length; i++)
+        for (var i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
             var width = TextManager.StringWidth(line);
@@ -298,13 +298,13 @@ public class CustomWindow : GameWindow
 
             var points = new Vector2d[]
             {
-	            (stringLeft, stringTop),
-	            (stringRight, stringTop),
-	            (stringRight, stringBottom),
-	            (stringLeft, stringBottom)
+                (stringLeft, stringTop),
+                (stringRight, stringTop),
+                (stringRight, stringBottom),
+                (stringLeft, stringBottom)
             };
 
-			for (var j = 0; j < line.Length; j++)
+            for (var j = 0; j < line.Length; j++)
             {
                 var character = line[j];
 
@@ -420,7 +420,7 @@ public class CustomWindow : GameWindow
         drawAreaBottomLeft = drawAreaBottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         
         /*
-		GL.TexCoord2(topLeftUV);
+        GL.TexCoord2(topLeftUV);
         GL.Vertex2(drawAreaTopLeft);
         GL.TexCoord2(topRightUV);
         GL.Vertex2(drawAreaTopRight);
@@ -432,10 +432,10 @@ public class CustomWindow : GameWindow
         GL.End();
         */
         VertexManager.Draw(PrimitiveType.TriangleFan, [
-	        new(drawAreaTopLeft, spriteJob.Colors[0], topLeftUV),
-	        new(drawAreaTopRight, spriteJob.Colors[1], topRightUV),
-	        new(drawAreaBottomRight, spriteJob.Colors[2], bottomRightUV),
-	        new(drawAreaBottomLeft, spriteJob.Colors[3], bottomLeftUV),
+            new(drawAreaTopLeft, spriteJob.Colors[0], topLeftUV),
+            new(drawAreaTopRight, spriteJob.Colors[1], topRightUV),
+            new(drawAreaBottomRight, spriteJob.Colors[2], bottomRightUV),
+            new(drawAreaBottomLeft, spriteJob.Colors[3], bottomLeftUV),
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -461,79 +461,79 @@ public class CustomWindow : GameWindow
         var cosAngle = Math.Cos(partJob.angle);
 
         double xUVOffset;
-		var fVar7 = (double)partJob.texture.TargetX;
+        var fVar7 = (double)partJob.texture.TargetX;
         if (fVar7 <= left)
         {
-	        xUVOffset = left - fVar7;
+            xUVOffset = left - fVar7;
         }
         else
         {
-	        fVar7 -= left;
-	        xUVOffset = 0.0f;
-	        width -= fVar7;
-	        x += fVar7 * cosAngle * xscale;
-	        y -= fVar7 * sinAngle * yscale;
+            fVar7 -= left;
+            xUVOffset = 0.0f;
+            width -= fVar7;
+            x += fVar7 * cosAngle * xscale;
+            y -= fVar7 * sinAngle * yscale;
         }
 
         double yUVOffset;
         fVar7 = partJob.texture.TargetY;
         if (fVar7 <= top)
         {
-	        yUVOffset = top - fVar7;
+            yUVOffset = top - fVar7;
         }
         else
         {
-	        fVar7 -= top;
-	        yUVOffset = 0.0f;
-	        height -= fVar7;
-	        x += fVar7 * sinAngle * xscale;
-	        y += fVar7 * cosAngle * yscale;
+            fVar7 -= top;
+            yUVOffset = 0.0f;
+            height -= fVar7;
+            x += fVar7 * sinAngle * xscale;
+            y += fVar7 * cosAngle * yscale;
         }
 
         if (partJob.texture.TargetWidth < xUVOffset + width)
         {
-	        width = partJob.texture.TargetWidth - xUVOffset;
+            width = partJob.texture.TargetWidth - xUVOffset;
         }
 
         if (partJob.texture.TargetHeight < yUVOffset + height)
         {
-	        height = partJob.texture.TargetHeight - yUVOffset;
+            height = partJob.texture.TargetHeight - yUVOffset;
         }
 
         if ((0.0 < width) && (0.0 < height))
         {
-	        var widthScale = partJob.texture.SourceWidth / partJob.texture.TargetWidth;
-	        var heightScale = partJob.texture.SourceHeight / partJob.texture.TargetHeight;
+            var widthScale = partJob.texture.SourceWidth / partJob.texture.TargetWidth;
+            var heightScale = partJob.texture.SourceHeight / partJob.texture.TargetHeight;
 
-			var uvLeft = (partJob.texture.SourceX + xUVOffset) / pageTexture.Width;
-	        var uvTop = (partJob.texture.SourceY + yUVOffset) / pageTexture.Height;
-	        var uvRight = (partJob.texture.SourceX + xUVOffset + widthScale * width) / pageTexture.Width;
+            var uvLeft = (partJob.texture.SourceX + xUVOffset) / pageTexture.Width;
+            var uvTop = (partJob.texture.SourceY + yUVOffset) / pageTexture.Height;
+            var uvRight = (partJob.texture.SourceX + xUVOffset + widthScale * width) / pageTexture.Width;
             var uvBottom = (partJob.texture.SourceY + yUVOffset + heightScale * height) / pageTexture.Height;
             var uv0 = new Vector2d(uvLeft, uvTop);
             var uv1 = new Vector2d(uvRight, uvTop);
             var uv2 = new Vector2d(uvRight, uvBottom);
             var uv3 = new Vector2d(uvLeft, uvBottom);
 
-			var widthCos = width * xscale * cosAngle;
+            var widthCos = width * xscale * cosAngle;
             var widthSin = -width * xscale * sinAngle;
             var heightCos = height * yscale * cosAngle;
-			var heightSin = height * yscale * sinAngle;
+            var heightSin = height * yscale * sinAngle;
 
-			var bottomVector = new Vector2d(heightSin, heightCos);
+            var bottomVector = new Vector2d(heightSin, heightCos);
 
-			var topLeft = new Vector2d(x, y);
-			var bottomLeft = topLeft + bottomVector;
+            var topLeft = new Vector2d(x, y);
+            var bottomLeft = topLeft + bottomVector;
 
-			var topRight = topLeft + new Vector2d(widthCos, widthSin);
+            var topRight = topLeft + new Vector2d(widthCos, widthSin);
             var bottomRight = topRight + bottomVector;
 
             VertexManager.Draw(PrimitiveType.TriangleFan, [
-	            new(topLeft, partJob.Colors[0], uv0),
-	            new(topRight, partJob.Colors[1], uv1),
-	            new(bottomRight, partJob.Colors[2], uv2),
-	            new(bottomLeft, partJob.Colors[3], uv3),
+                new(topLeft, partJob.Colors[0], uv0),
+                new(topRight, partJob.Colors[1], uv1),
+                new(bottomRight, partJob.Colors[2], uv2),
+                new(bottomLeft, partJob.Colors[3], uv3),
             ]);
-		}
+        }
 
         // GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -548,7 +548,7 @@ public class CustomWindow : GameWindow
         lineJob.x2 += 1;
         lineJob.y2 += 1;
 
-		var width = lineJob.x2 - lineJob.x1;
+        var width = lineJob.x2 - lineJob.x1;
         var height = lineJob.y2 - lineJob.y1;
         var length = MathF.Sqrt((width * width) + (height * height));
 
@@ -561,27 +561,27 @@ public class CustomWindow : GameWindow
         GL.Color4(lineJob.col1);
         GL.Vertex2(lineJob.x1 - height, lineJob.y1 + width);
         GL.Color4(lineJob.col2);
-		GL.Vertex2(lineJob.x2 - height, lineJob.y2 + width);
-		GL.Vertex2(lineJob.x2 + height, lineJob.y2 - width);
-		GL.Color4(lineJob.col1);
-		GL.Vertex2(lineJob.x1 + height, lineJob.y1 - width);
+        GL.Vertex2(lineJob.x2 - height, lineJob.y2 + width);
+        GL.Vertex2(lineJob.x2 + height, lineJob.y2 - width);
+        GL.Color4(lineJob.col1);
+        GL.Vertex2(lineJob.x1 + height, lineJob.y1 - width);
 
-		GL.End();
-		*/
+        GL.End();
+        */
         VertexManager.Draw(PrimitiveType.TriangleFan, [
-	        new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
-	        new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
-	        new(new(lineJob.x2 + height, lineJob.y2 - width), lineJob.col2, Vector2.Zero),
-	        new(new(lineJob.x1 + height, lineJob.y1 - width), lineJob.col1, Vector2.Zero),
+            new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
+            new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
+            new(new(lineJob.x2 + height, lineJob.y2 - width), lineJob.col2, Vector2.Zero),
+            new(new(lineJob.x1 + height, lineJob.y1 - width), lineJob.col1, Vector2.Zero),
         ]);
-	}
+    }
 
     public static void Draw(GMLinesJob linesJob)
     {
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
         {
-	        v[i] = new(linesJob.Vertices[i], linesJob.Colors[i], Vector2d.Zero);
+            v[i] = new(linesJob.Vertices[i], linesJob.Colors[i], Vector2d.Zero);
         }
 
         VertexManager.Draw(PrimitiveType.LineStrip, v);
@@ -592,37 +592,37 @@ public class CustomWindow : GameWindow
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
-	        v[i] = new(polyJob.Vertices[i], polyJob.Colors[i], Vector2d.Zero);
+            v[i] = new(polyJob.Vertices[i], polyJob.Colors[i], Vector2d.Zero);
         }
 
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
-	}
+    }
 
     public static void Draw(GMTexturedPolygonJob texPolyJob)
     {
-	    var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
-	    GL.BindTexture(TextureTarget.Texture2D, id);
-	    GL.Uniform1(VertexManager.u_doTex, 1);
+        var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
+        GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.Uniform1(VertexManager.u_doTex, 1);
 
-	    var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
-	    for (var i = 0; i < texPolyJob.Vertices.Length; i++)
-	    {
-		    vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
-	    }
-	    VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
+        var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
+        for (var i = 0; i < texPolyJob.Vertices.Length; i++)
+        {
+            vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
+        }
+        VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
 
-		GL.BindTexture(TextureTarget.Texture2D, 0);
-	    GL.Uniform1(VertexManager.u_doTex, 0);
-	}
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(VertexManager.u_doTex, 0);
+    }
 }
 
 public class GMLineJob : GMBaseJob
 {
-	public required float x1;
-	public required float y1;
-	public required float x2;
-	public required float y2;
+    public required float x1;
+    public required float y1;
+    public required float x2;
+    public required float y2;
     public required float width;
     public required Color4 col1;
     public required Color4 col2;
@@ -630,8 +630,8 @@ public class GMLineJob : GMBaseJob
 
 public class GMLinesJob : GMBaseJob
 {
-	public required Vector2d[] Vertices;
-	public required Color4[] Colors;
+    public required Vector2d[] Vertices;
+    public required Color4[] Colors;
 }
 
 public class GMSpriteJob : GMBaseJob
@@ -674,10 +674,10 @@ public class GMPolygonJob : GMBaseJob
 
 public class GMTexturedPolygonJob : GMBaseJob
 {
-	public required Vector2d[] Vertices;
-	public required Vector2d[] UVs;
-	public required Color4[] Colors;
-	public required SpritePageItem Texture;
+    public required Vector2d[] Vertices;
+    public required Vector2d[] UVs;
+    public required Color4[] Colors;
+    public required SpritePageItem Texture;
 }
 
 public abstract class GMBaseJob;

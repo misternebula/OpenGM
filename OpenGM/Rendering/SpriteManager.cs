@@ -18,9 +18,9 @@ public static class SpriteManager
 
     public static Dictionary<int, SpriteData> _spriteDict = new();
 
-	public static bool SpriteExists(int id) => id != -1 && _spriteDict.ContainsKey(id);
+    public static bool SpriteExists(int id) => id != -1 && _spriteDict.ContainsKey(id);
 
-	public static SpriteData? GetSpriteAsset(int name)
+    public static SpriteData? GetSpriteAsset(int name)
     {
         if (name == -1)
         {
@@ -38,11 +38,11 @@ public static class SpriteManager
 
     public static Vector2i GetSpriteOrigin(int name)
     {
-	    if (name == -1)
-	    {
+        if (name == -1)
+        {
             DebugLog.LogWarning($"Tried to get origin of null sprite");
-		    return Vector2i.Zero;
-	    }
+            return Vector2i.Zero;
+        }
 
         return _spriteDict[name].Origin;
     }
@@ -60,10 +60,10 @@ public static class SpriteManager
 
         if (floored < 0)
         {
-	        throw new NotImplementedException($"Trying to get SpritePageItem for index {index} floored:{floored}");
+            throw new NotImplementedException($"Trying to get SpritePageItem for index {index} floored:{floored}");
         }
 
-		return subimages[floored];
+        return subimages[floored];
     }
 
     public static void DrawSprite(int name, double index, double x, double y)
@@ -104,7 +104,7 @@ public static class SpriteManager
         //var sprite = SpritePart(name, index, left, top, width, height);
         var sprite = GetSpritePageItem(name, index);
         var c = blend.ABGRToCol4(alpha);
-		CustomWindow.Draw(new GMSpritePartJob()
+        CustomWindow.Draw(new GMSpritePartJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
@@ -134,13 +134,13 @@ public static class SpriteManager
 
     private static int GetIndexFromImageIndex(double index, int imageNumber)
     {
-	    var ind = CustomMath.FloorToInt(index) % imageNumber;
-	    if (ind < 0)
-	    {
-		    ind += imageNumber;
-	    }
+        var ind = CustomMath.FloorToInt(index) % imageNumber;
+        if (ind < 0)
+        {
+            ind += imageNumber;
+        }
 
-	    return ind;
+        return ind;
     }
 
     public static void draw_sprite_stretched(int name, int index, double x, double y, double w, double h, int color, double alpha)
