@@ -19,21 +19,21 @@ Ideally, any Gamemaker game should work. However, it's impossible to support eve
 
 The following games are used in development to test feature parity, and as such OpenGM should support any game running on the same engine version as these games :
 
-| Game  | Engine Version |
+| Game | Engine Version |
 | -------------------------------------------- | ------------ |
 | DELTARUNE                                    | 2022.0.3.104 |
 | DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2022.0.3.99  |
-| DELTARUNE Chapter 1 & 2 DEMO                 | Unknown	  |
+| DELTARUNE Chapter 1 & 2 DEMO                 | Unknown      |
 | DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | Unknown      |
 | Undertale                                    | 1.0.0.1539   |
-| Pizza Tower SAGE 2019 Demo				   | 2.2.2.302	  |
+| Pizza Tower SAGE 2019 Demo                   | 2.2.2.302    |
 
 Not every feature from these games may work, but the game will at least load and try to execute.
 
 The following games are planned to be tested at some point:
 | Game  | Engine Version |
 | -------------------------------------------- | ------------ |
-| FAITH: The Unholy Trinity v1.5			   | Unknown	  |
+| FAITH: The Unholy Trinity v1.5               | Unknown      |
 
 ## Legal Stuff
 This project is covered by the MIT license. See [the license](LICENSE) for more information.

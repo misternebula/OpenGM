@@ -10,32 +10,32 @@ namespace OpenGM;
 
 public static class RoomManager
 {
-	/// <summary>
-	/// The room to change to.
-	/// </summary>
-	//public static Room? RoomToChangeTo = null;
-	public static int New_Room;
-	public static RoomContainer CurrentRoom = null!; // its set to room on start
+    /// <summary>
+    /// The room to change to.
+    /// </summary>
+    //public static Room? RoomToChangeTo = null;
+    public static int New_Room;
+    public static RoomContainer CurrentRoom = null!; // its set to room on start
 
-	public static Dictionary<int, Room> RoomList = new();
-	public static Dictionary<int, PersistentRoom> PersistentRooms = new();
-	public static bool RoomLoaded = false;
-	public static bool FirstRoom = false;
+    public static Dictionary<int, Room> RoomList = new();
+    public static Dictionary<int, PersistentRoom> PersistentRooms = new();
+    public static bool RoomLoaded = false;
+    public static bool FirstRoom = false;
 
-	public static void EndGame()
-	{
-		foreach (var (instanceId, instance) in InstanceManager.instances)
-		{
-			instance.Destroy();
-		}
+    public static void EndGame()
+    {
+        foreach (var (instanceId, instance) in InstanceManager.instances)
+        {
+            instance.Destroy();
+        }
 
-		InstanceManager.instances.Clear();
-	}
+        InstanceManager.instances.Clear();
+    }
 
-	public static void StartGame()
-	{
-		FirstRoom = true;
-		New_Room = 0;
+    public static void StartGame()
+    {
+        FirstRoom = true;
+    	New_Room = 0;
 		ChangeToWaitingRoom();
 	}
 

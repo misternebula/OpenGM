@@ -98,257 +98,257 @@ public static class DrawManager
 
     public static void DoAStep()
     {
-		// g_pBuiltIn.delta_time = (g_CurrentTime - g_pBuiltIn.last_time)*1000;
-		// g_pBuiltIn.last_time = g_CurrentTime;
-		// ResetSpriteMessageEvents();
-		// g_pIOManager.StartStep();
-		// HandleOSEvents();
-		// g_pGamepadManager.Update();
+        // g_pBuiltIn.delta_time = (g_CurrentTime - g_pBuiltIn.last_time)*1000;
+        // g_pBuiltIn.last_time = g_CurrentTime;
+        // ResetSpriteMessageEvents();
+        // g_pIOManager.StartStep();
+        // HandleOSEvents();
+        // g_pGamepadManager.Update();
 
-		InstanceManager.RememberOldPositions();
-	    InstanceManager.UpdateImages();
+        InstanceManager.RememberOldPositions();
+        InstanceManager.UpdateImages();
 
         // UpdateActiveLists();
-	    if (RoomManager.New_Room != -1)
-	    {
-		    RoomManager.ChangeToWaitingRoom();
-		    return;
-	    }
-
-		// g_pLayerManager.UpdateLayers();
-		// g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
-
-		var stepList = _drawObjects.OrderBy(x => x.instanceId);
-		if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
-		{
-			return;
-		}
-
-		// resize event
-
-		// g_pASyncManager.Process();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		// HandleTimeLine();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		// HandleTimeSources();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		HandleAlarm(stepList);
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		HandleKeyboard();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		// HandleMouse();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		// g_pEffectsManager.StepEffectsForRoom(g_RunRoom);
-
-		// g_pSequenceManager.UpdateInstancesForRoom(g_RunRoom);
-		// g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_NORMAL);
-
-		if (RunStepScript(stepList, EventSubtypeStep.Step))
-		{
-			return;
-		}
-
-		// ProcessSpriteMessageEvents();
-		InstanceManager.UpdatePositions(); // UpdateInstancePositions
-
-		HandleOther();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		// YYPushEventsDispatch();
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		UpdateCollisions(stepList);
-
-		// UpdateActiveLists();
-		if (RoomManager.New_Room != -1)
-		{
-			RoomManager.ChangeToWaitingRoom();
-			return;
-		}
-
-		// g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_END);
-
-		if (RunStepScript(stepList, EventSubtypeStep.EndStep))
-		{
-			return;
-		}
-
-		// ParticleSystem_UpdateAll();
-
-		/*
-		if (g_RunRoom!=null) 
+        if (RoomManager.New_Room != -1)
         {
-			g_RunRoom.RemoveMarked();
-			if (Draw_Automatic) 
-			{
-				g_RunRoom.Draw();
-				UpdateActiveLists();
-			}
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // g_pLayerManager.UpdateLayers();
+        // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
+
+        var stepList = _drawObjects.OrderBy(x => x.instanceId);
+        if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
+        {
+            return;
+        }
+
+        // resize event
+
+        // g_pASyncManager.Process();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // HandleTimeLine();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // HandleTimeSources();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        HandleAlarm(stepList);
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        HandleKeyboard();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // HandleMouse();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // g_pEffectsManager.StepEffectsForRoom(g_RunRoom);
+
+        // g_pSequenceManager.UpdateInstancesForRoom(g_RunRoom);
+        // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_NORMAL);
+
+        if (RunStepScript(stepList, EventSubtypeStep.Step))
+        {
+            return;
+        }
+
+        // ProcessSpriteMessageEvents();
+        InstanceManager.UpdatePositions(); // UpdateInstancePositions
+
+        HandleOther();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // YYPushEventsDispatch();
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        UpdateCollisions(stepList);
+
+        // UpdateActiveLists();
+        if (RoomManager.New_Room != -1)
+        {
+            RoomManager.ChangeToWaitingRoom();
+            return;
+        }
+
+        // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_END);
+
+        if (RunStepScript(stepList, EventSubtypeStep.EndStep))
+        {
+            return;
+        }
+
+        // ParticleSystem_UpdateAll();
+
+        /*
+        if (g_RunRoom!=null) 
+        {
+            g_RunRoom.RemoveMarked();
+            if (Draw_Automatic) 
+            {
+                g_RunRoom.Draw();
+                UpdateActiveLists();
+            }
         }
         */
-	}
+    }
 
     public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)
     {
-	    foreach (var item in stepList)
-	    {
-		    if (item is GamemakerObject gm)
-		    {
-			    gm.UpdateAlarms();
-		    }
-	    }
-	}
+        foreach (var item in stepList)
+        {
+            if (item is GamemakerObject gm)
+            {
+                gm.UpdateAlarms();
+            }
+        }
+    }
 
     public static void UpdateCollisions(IOrderedEnumerable<DrawWithDepth> stepList)
     {
-	    foreach (var item in stepList)
-	    {
-		    if (item is GamemakerObject gmo)
-		    {
-			    foreach (var id in gmo.Definition.CollisionScript.Keys)
-			    {
-				    //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
+        foreach (var item in stepList)
+        {
+            if (item is GamemakerObject gmo)
+            {
+                foreach (var id in gmo.Definition.CollisionScript.Keys)
+                {
+                    //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
 
-				    var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
+                    var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
 
-				    if (instanceId == GMConstants.noone)
-				    {
-					    continue;
-				    }
+                    if (instanceId == GMConstants.noone)
+                    {
+                        continue;
+                    }
 
-				    var collide = InstanceManager.instances[instanceId];
+                    var collide = InstanceManager.instances[instanceId];
 
-				    if (collide != null)
-				    {
-					    // makes it so `other` is the collided thing
-					    VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
-					    GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
-					    VMExecutor.EnvStack.Pop();
-				    }
-			    }
-		    }
-	    }
-	}
+                    if (collide != null)
+                    {
+                        // makes it so `other` is the collided thing
+                        VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
+                        GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
+                        VMExecutor.EnvStack.Pop();
+                    }
+                }
+            }
+        }
+    }
 
     public static void HandleOther()
     {
-	    // create copy since events can create new instances
-		var instances = InstanceManager.instances.Values.ToList();
-	    foreach (var instance in instances)
-	    {
-		    if (!instance.Marked)
-		    {
+        // create copy since events can create new instances
+        var instances = InstanceManager.instances.Values.ToList();
+        foreach (var instance in instances)
+        {
+            if (!instance.Marked)
+            {
                 if (instance.HasEvent(EventType.Other, (int)EventSubtypeOther.OutsideRoom))
                 {
-	                var outside = false;
+                    var outside = false;
 
-	                if (SpriteManager.SpriteExists(instance.sprite_index) || SpriteManager.SpriteExists(instance.mask_index))
-	                {
-		                var bbox = instance.bbox;
-		                outside = ((bbox.right < 0) || (bbox.left > RoomManager.CurrentRoom.SizeX) || (bbox.bottom < 0) || (bbox.top > RoomManager.CurrentRoom.SizeY));
-					}
-	                else
-	                {
-		                outside = ((instance.x < 0) || (instance.x > RoomManager.CurrentRoom.SizeX) || (instance.y < 0) || (instance.y > RoomManager.CurrentRoom.SizeY));
-					}
+                    if (SpriteManager.SpriteExists(instance.sprite_index) || SpriteManager.SpriteExists(instance.mask_index))
+                    {
+                        var bbox = instance.bbox;
+                        outside = ((bbox.right < 0) || (bbox.left > RoomManager.CurrentRoom.SizeX) || (bbox.bottom < 0) || (bbox.top > RoomManager.CurrentRoom.SizeY));
+                    }
+                    else
+                    {
+                        outside = ((instance.x < 0) || (instance.x > RoomManager.CurrentRoom.SizeX) || (instance.y < 0) || (instance.y > RoomManager.CurrentRoom.SizeY));
+                    }
 
-	                if (outside)
-	                {
-		                if (!instance.IsOutsideRoom)
-		                {
-			                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.OutsideRoom);
-		                }
-	                }
-	                instance.IsOutsideRoom = outside;
-				}
+                    if (outside)
+                    {
+                        if (!instance.IsOutsideRoom)
+                        {
+                            GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.OutsideRoom);
+                        }
+                    }
+                    instance.IsOutsideRoom = outside;
+                }
 
-				// boundary events
+                // boundary events
 
-				// outside/boundary view events
-		    }
-	    }
+                // outside/boundary view events
+            }
+        }
     }
 
-	public static void FixedUpdate()
-	{
-		VariableResolver.GlobalVariables["debug"] = true;
+    public static void FixedUpdate()
+    {
+        VariableResolver.GlobalVariables["debug"] = true;
 
-		var itemsToRemove = new List<DrawWithDepth>();
-		foreach (var item in _drawObjects)
-		{
-			if (item is GamemakerObject gm)
-			{
-				if (gm.Destroyed || gm.Marked)
-				{
-					DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when destroyed/marked!");
-					itemsToRemove.Add(item);
-				}
+        var itemsToRemove = new List<DrawWithDepth>();
+        foreach (var item in _drawObjects)
+        {
+            if (item is GamemakerObject gm)
+            {
+                if (gm.Destroyed || gm.Marked)
+                {
+                    DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when destroyed/marked!");
+                    itemsToRemove.Add(item);
+                }
 
-				if (!InstanceManager.instance_exists_instanceid(gm.instanceId))
-				{
-					// TODO : this really shouldnt happen!! instance wasn't destroyed properly??
-					DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when not in Instance list!");
-					gm.Destroyed = true;
-					gm.Marked = true;
-					itemsToRemove.Add(item);
-				}
-			}
-		}
-		_drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
+                if (!InstanceManager.instance_exists_instanceid(gm.instanceId))
+                {
+                    // TODO : this really shouldnt happen!! instance wasn't destroyed properly??
+                    DebugLog.LogWarning($"{gm.Definition.Name} ({gm.instanceId}) in _drawObjects at start of frame when not in Instance list!");
+                    gm.Destroyed = true;
+                    gm.Marked = true;
+                    itemsToRemove.Add(item);
+                }
+            }
+        }
+        _drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
 
         DoAStep();
         
@@ -357,17 +357,17 @@ public static class DrawManager
          * yyRoom.prototype.Draw
          */
 
-		var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
+        var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
         if (CustomWindow.Instance != null) // only null in tests
         {
-	        GL.Clear(ClearBufferMask.ColorBufferBit);
-		}
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+        }
 
         /*
          * PreDraw
          */
-		if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
+        if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
         }
@@ -384,27 +384,27 @@ public static class DrawManager
             }
         }
 
-		// ROOM BACKGROUNDS
-		// this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
-		foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
-		{
-			if (item == null)
-			{
-				continue;
-			}
+        // ROOM BACKGROUNDS
+        // this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
+        foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
+        {
+            if (item == null)
+            {
+                continue;
+            }
 
-			item.Draw();
-		}
+            item.Draw();
+        }
 
-		/*
+        /*
          * DrawViews
          */
-		// TODO: at some point this must be replaced by drawing each view
+        // TODO: at some point this must be replaced by drawing each view
 
-		/*
+        /*
          * DrawTheRoom
          */
-		if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+        if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
         {
             return;
         }
@@ -477,11 +477,11 @@ public static class DrawManager
 
         if (RoomManager.CurrentRoom != null)
         {
-	        RoomManager.CurrentRoom.RemoveMarked();
+            RoomManager.CurrentRoom.RemoveMarked();
         }
 
-		//GamemakerCamera.Instance.GetComponent<Camera>().Render();
-	}
+        //GamemakerCamera.Instance.GetComponent<Camera>().Render();
+    }
 
     public static void HandleKeyboard()
     {
@@ -498,47 +498,47 @@ public static class DrawManager
             if (KeyboardHandler.KeyDown[i])
             {
                 keyDown = 1;
-				Handle(i, EventType.Keyboard);
+                Handle(i, EventType.Keyboard);
             }
         }
 
-		// either 0 (no key) or 1 (any key)
-		Handle(keyDown, EventType.Keyboard);
-	}
+        // either 0 (no key) or 1 (any key)
+        Handle(keyDown, EventType.Keyboard);
+    }
 
-	public static void KeyPressed()
-	{
-		var keyPressed = 0;
-		for (var i = 0; i < 256; i++)
-		{
-			if (KeyboardHandler.KeyPressed[i])
-			{
-				keyPressed = 1;
-				Handle(i, EventType.KeyPress);
-			}
-		}
+    public static void KeyPressed()
+    {
+        var keyPressed = 0;
+        for (var i = 0; i < 256; i++)
+        {
+            if (KeyboardHandler.KeyPressed[i])
+            {
+                keyPressed = 1;
+                Handle(i, EventType.KeyPress);
+            }
+        }
 
-		// either 0 (no key) or 1 (any key)
-		Handle(keyPressed, EventType.KeyPress);
-	}
+        // either 0 (no key) or 1 (any key)
+        Handle(keyPressed, EventType.KeyPress);
+    }
 
-	public static void KeyReleased()
-	{
-		var keyReleased = 0;
-		for (var i = 0; i < 256; i++)
-		{
-			if (KeyboardHandler.KeyReleased[i])
-			{
-				keyReleased = 1;
-				Handle(i, EventType.KeyRelease);
-			}
-		}
+    public static void KeyReleased()
+    {
+        var keyReleased = 0;
+        for (var i = 0; i < 256; i++)
+        {
+            if (KeyboardHandler.KeyReleased[i])
+            {
+                keyReleased = 1;
+                Handle(i, EventType.KeyRelease);
+            }
+        }
 
-		// either 0 (no key) or 1 (any key)
-		Handle(keyReleased, EventType.KeyRelease);
-	}
+        // either 0 (no key) or 1 (any key)
+        Handle(keyReleased, EventType.KeyRelease);
+    }
 
-	public static void Handle(int key, EventType type)
+    public static void Handle(int key, EventType type)
     {
         var objects = InstanceManager.instances.Values.ToList();
         foreach (var obj in objects)

@@ -7,172 +7,172 @@ namespace OpenGM.Tests;
 [TestClass]
 public class PopPushTests
 {
-	[TestMethod]
-	public void TestPushGlobal()
-	{
-		TestUtils.ExecuteScript(
-			"global.testVar = 5",
-			"""
-			:[0]
-			pushi.i 5
-			conv.i.v
-			pop.v.v global.testVar
-			"""
-		);
+    [TestMethod]
+    public void TestPushGlobal()
+    {
+        TestUtils.ExecuteScript(
+            "global.testVar = 5",
+            """
+            :[0]
+            pushi.i 5
+            conv.i.v
+            pop.v.v global.testVar
+            """
+        );
 
-		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testVar"));
+        Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testVar"));
 
-		Assert.AreEqual(5, VariableResolver.GlobalVariables["testVar"].Conv<int>());
-	}
+        Assert.AreEqual(5, VariableResolver.GlobalVariables["testVar"].Conv<int>());
+    }
 
-	[TestMethod]
-	public void TestPushGlobalArrayIndex()
-	{
-		TestUtils.ExecuteScript(
-			"testArray[0] = \"Test String 0\"; testArray[1] = \"Test String 1\"",
-			"""
-			:[0]
-			push.s "Test String 0"@0
-			conv.s.v
+    [TestMethod]
+    public void TestPushGlobalArrayIndex()
+    {
+        TestUtils.ExecuteScript(
+            "testArray[0] = \"Test String 0\"; testArray[1] = \"Test String 1\"",
+            """
+            :[0]
+            push.s "Test String 0"@0
+            conv.s.v
 
-			pushi.e -5
-			pushi.e 0
-			pop.v.v [array]self.testArray
+            pushi.e -5
+            pushi.e 0
+            pop.v.v [array]self.testArray
 
-			push.s "Test String 1"@0
-			conv.s.v
+            push.s "Test String 1"@0
+            conv.s.v
 
-			pushi.e -5
-			pushi.e 1
-			pop.v.v [array]self.testArray
-			"""
-		);
+            pushi.e -5
+            pushi.e 1
+            pop.v.v [array]self.testArray
+            """
+        );
 
-		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testArray"));
+        Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("testArray"));
 
-		var array = VariableResolver.GlobalVariables["testArray"].Conv<IList>();
+        var array = VariableResolver.GlobalVariables["testArray"].Conv<IList>();
 
-		Assert.AreEqual("Test String 0", array[0]);
-		Assert.AreEqual("Test String 1", array[1]);
-	}
+        Assert.AreEqual("Test String 0", array[0]);
+        Assert.AreEqual("Test String 1", array[1]);
+    }
 
-	[TestMethod]
-	public void TestPushMultiDimensionalArray()
-	{
-		TestUtils.ExecuteScript(
-			"global.mdArray[1][1] = \"Test String 1 1\"",
-			"""
-			:[0]
-			push.s "Test String 1 1"@0
-			conv.s.v
-			
-			pushi.e -5
-			pushi.e 1
-			push.v [arraypopaf]self.mdArray
-			
-			pushi.e 1
-			popaf.e
-			"""
-		);
+    [TestMethod]
+    public void TestPushMultiDimensionalArray()
+    {
+        TestUtils.ExecuteScript(
+            "global.mdArray[1][1] = \"Test String 1 1\"",
+            """
+            :[0]
+            push.s "Test String 1 1"@0
+            conv.s.v
+            
+            pushi.e -5
+            pushi.e 1
+            push.v [arraypopaf]self.mdArray
+            
+            pushi.e 1
+            popaf.e
+            """
+        );
 
-		Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("mdArray"));
+        Assert.IsTrue(VariableResolver.GlobalVariables.ContainsKey("mdArray"));
 
-		var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList>();
+        var array = VariableResolver.GlobalVariables["mdArray"].Conv<IList>();
 
-		Assert.AreEqual("Test String 1 1", array[1].Conv<IList>()[1]);
-	}
+        Assert.AreEqual("Test String 1 1", array[1].Conv<IList>()[1]);
+    }
 
-	[TestMethod]
-	public void ArrayTestFromGame()
-	{
-		// gml_Object_DEVICE_CHOICE_Create_0.asm:386
+    [TestMethod]
+    public void ArrayTestFromGame()
+    {
+        // gml_Object_DEVICE_CHOICE_Create_0.asm:386
 
-		VariableResolver.GlobalVariables["NAMEX"] = new object?[] { new object?[] { "name x" } };
-		VariableResolver.GlobalVariables["NAMEY"] = new object?[] { new object?[] { "name y" } };
+        VariableResolver.GlobalVariables["NAMEX"] = new object?[] { new object?[] { "name x" } };
+        VariableResolver.GlobalVariables["NAMEY"] = new object?[] { new object?[] { "name y" } };
 
-		TestUtils.ExecuteScript(
-			"global.HEARTX = global.NAMEX[0][0]; global.HEARTY = global.NAMEY[0][0]",
-			"""
-			:[0]
-			pushi.e -5
-			pushi.e 0
-			push.v [arraypushaf]self.NAMEX
+        TestUtils.ExecuteScript(
+            "global.HEARTX = global.NAMEX[0][0]; global.HEARTY = global.NAMEY[0][0]",
+            """
+            :[0]
+            pushi.e -5
+            pushi.e 0
+            push.v [arraypushaf]self.NAMEX
 
-			pushi.e 0
-			pushaf.e
+            pushi.e 0
+            pushaf.e
 
-			pop.v.v global.HEARTX
+            pop.v.v global.HEARTX
 
-			pushi.e -5
-			pushi.e 0
-			push.v [arraypushaf]self.NAMEY
+            pushi.e -5
+            pushi.e 0
+            push.v [arraypushaf]self.NAMEY
 
-			pushi.e 0
-			pushaf.e
+            pushi.e 0
+            pushaf.e
 
-			pop.v.v global.HEARTY
-			"""
-		);
+            pop.v.v global.HEARTY
+            """
+        );
 
-		Assert.AreEqual("name x", VariableResolver.GlobalVariables["HEARTX"]);
-		Assert.AreEqual("name y", VariableResolver.GlobalVariables["HEARTY"]);
-	}
+        Assert.AreEqual("name x", VariableResolver.GlobalVariables["HEARTX"]);
+        Assert.AreEqual("name y", VariableResolver.GlobalVariables["HEARTY"]);
+    }
 
-	[TestMethod]
-	public void ShrinkBugGameTest()
-	{
-		VariableResolver.GlobalVariables["spell"] = (object?)Enumerable.Repeat((object?)Enumerable.Repeat((object?)-1, 10).ToArray(), 10).ToArray();
+    [TestMethod]
+    public void ShrinkBugGameTest()
+    {
+        VariableResolver.GlobalVariables["spell"] = (object?)Enumerable.Repeat((object?)Enumerable.Repeat((object?)-1, 10).ToArray(), 10).ToArray();
 
-		TestUtils.ExecuteScript(
-			"global.spell[1][1] = 7",
-			"""
-			:[0]
-			pushi.e 7
-			conv.i.v
+        TestUtils.ExecuteScript(
+            "global.spell[1][1] = 7",
+            """
+            :[0]
+            pushi.e 7
+            conv.i.v
 
-			pushi.e -5
-			pushi.e 1
-			push.v [arraypopaf]self.spell
+            pushi.e -5
+            pushi.e 1
+            push.v [arraypopaf]self.spell
 
-			pushi.e 1
-			popaf.e
-			"""
-		);
+            pushi.e 1
+            popaf.e
+            """
+        );
 
-		var spell = VariableResolver.GlobalVariables["spell"].Conv<IList>();
-		var spellSubArray = spell[1].Conv<IList>();
-		Assert.IsTrue(spell.Count == 10);
-		Assert.IsTrue(spellSubArray.Count == 10);
+        var spell = VariableResolver.GlobalVariables["spell"].Conv<IList>();
+        var spellSubArray = spell[1].Conv<IList>();
+        Assert.IsTrue(spell.Count == 10);
+        Assert.IsTrue(spellSubArray.Count == 10);
 
-		Assert.AreEqual(7, spellSubArray[1].Conv<int>());
-	}
+        Assert.AreEqual(7, spellSubArray[1].Conv<int>());
+    }
 
-	[TestMethod]
-	public void SavearefTest()
-	{
-		VariableResolver.GlobalVariables["bmenucoord"] = new object?[] { new object?[] { 69 } };
-		VariableResolver.GlobalVariables["charturn"] = 0;
+    [TestMethod]
+    public void SavearefTest()
+    {
+        VariableResolver.GlobalVariables["bmenucoord"] = new object?[] { new object?[] { 69 } };
+        VariableResolver.GlobalVariables["charturn"] = 0;
 
-		TestUtils.ExecuteScript(
-			"global.bmenucoord[0][global.charturn] += 1",
-			"""
-			:[0]
-			pushi.e -5
-			pushi.e 0
-			push.v [arraypopaf]self.bmenucoord
-			pushglb.v global.charturn
-			conv.v.i
-			dup.i 4
-			savearef.e
-			pushaf.e
-			pushi.e 1
-			add.i.v
-			restorearef.e
-			dup.i 4 40 ;;; this is a weird GMS2.3+ swap instruction
-			popaf.e
-			"""
-		);
-		
-		Assert.AreEqual(70, VariableResolver.GlobalVariables["bmenucoord"].Conv<IList>()[0].Conv<IList>()[0].Conv<int>());
-	}
+        TestUtils.ExecuteScript(
+            "global.bmenucoord[0][global.charturn] += 1",
+            """
+            :[0]
+            pushi.e -5
+            pushi.e 0
+            push.v [arraypopaf]self.bmenucoord
+            pushglb.v global.charturn
+            conv.v.i
+            dup.i 4
+            savearef.e
+            pushaf.e
+            pushi.e 1
+            add.i.v
+            restorearef.e
+            dup.i 4 40 ;;; this is a weird GMS2.3+ swap instruction
+            popaf.e
+            """
+        );
+        
+        Assert.AreEqual(70, VariableResolver.GlobalVariables["bmenucoord"].Conv<IList>()[0].Conv<IList>()[0].Conv<int>());
+    }
 }

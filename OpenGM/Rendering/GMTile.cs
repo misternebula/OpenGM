@@ -9,9 +9,9 @@ public class GMTile : DrawWithDepth
     public double Y;
 
     public int Definition;
-	public required bool SpriteMode;
+    public required bool SpriteMode;
 
-	public int left;
+    public int left;
     public int top;
     public int width;
     public int height;
@@ -36,30 +36,30 @@ public class GMTile : DrawWithDepth
 
         if (SpriteMode == false)
         {
-			var background = GameLoader.Backgrounds[Definition];
-			sprite = background.Texture!;
-		}
+            var background = GameLoader.Backgrounds[Definition];
+            sprite = background.Texture!;
+        }
         else
         {
-			sprite = SpriteManager.GetSpritePageItem(Definition, 0);
-		}
+            sprite = SpriteManager.GetSpritePageItem(Definition, 0);
+        }
 
         var c = Color.ABGRToCol4();
 
-		CustomWindow.Draw(new GMSpritePartJob()
-		{
-			texture = sprite,
-			screenPos = new(X, Y),
-			Colors = [c, c, c, c],
-			origin = Vector2.Zero,
-			left = left,
-			top = top,
-			width = width,
-			height = height,
+        CustomWindow.Draw(new GMSpritePartJob()
+        {
+            texture = sprite,
+            screenPos = new(X, Y),
+            Colors = [c, c, c, c],
+            origin = Vector2.Zero,
+            left = left,
+            top = top,
+            width = width,
+            height = height,
             scale = new(XScale, YScale),
             angle = 0
-		});
-	}
+        });
+    }
 
     public override void Destroy()
     {
