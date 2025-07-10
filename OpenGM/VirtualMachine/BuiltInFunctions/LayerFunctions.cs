@@ -752,11 +752,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        [GMLFunction("layer_sprite_change", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("layer_sprite_change")]
         public static object? layer_sprite_change(object?[] args)
         {
             var element_id = args[0].Conv<int>();
-            var sprite_id = args[0].Conv<int>();
+            var sprite_id = args[1].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        sprite.SetSprite(sprite_id);
+                    }
+                }
+            }
 
             return null;
         }

@@ -74,6 +74,18 @@ public class GMSprite : DrawWithDepth
         SpriteManager.DrawSpriteExt(Definition, FrameIndex, X, Y, XScale, YScale, Rotation, col, alpha);
     }
 
+    public void SetSprite(int definition)
+    {
+        var sprite = SpriteManager.GetSpriteAsset(definition)!;
+
+        // TODO: probably need to change more than that
+        Definition = definition;
+        AnimationSpeed = sprite.PlaybackSpeed;
+        AnimationSpeedType = (AnimationSpeedType)sprite.PlaybackSpeedType;
+
+        _spriteFrames = SpriteManager.GetNumberOfFrames(definition);
+    }
+
     public override void Destroy()
     {
         DrawManager.Unregister(this);
