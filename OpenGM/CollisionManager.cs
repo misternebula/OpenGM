@@ -53,14 +53,14 @@ public static class CollisionManager
             return new BBox() { left = gm.x, top = gm.y, right = gm.x, bottom = gm.y };
         }
 
-        var addition = CompatMode ? 0 : 1;
+        var offset = CompatMode ? -1 : 0;
 
         var origin = SpriteManager.GetSpriteOrigin(index);
 
         var left = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
         var top = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
-        var right = pos.X + ((gm.margins.Y + addition) * gm.image_xscale) - (origin.X * gm.image_xscale);
-        var bottom = pos.Y + ((gm.margins.Z + addition) * gm.image_yscale) - (origin.Y * gm.image_yscale);
+        var right = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale) + offset;
+        var bottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale) + offset;
 
         if (gm.image_xscale < 0)
         {
