@@ -10,360 +10,358 @@ namespace OpenGM;
 // this could also be in ObjectDefinition. it dont matter
 public class ObjectDictEntry
 {
-	public List<GamemakerObject> Instances = new();
-	public List<int> ChildrenIndexes = new();
+    public List<GamemakerObject> Instances = new();
+    public List<int> ChildrenIndexes = new();
 }
 
 public static class InstanceManager
 {
-	public static Dictionary<int, GamemakerObject> instances = new();
-	public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
+    public static Dictionary<int, GamemakerObject> instances = new();
+    public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
-	public static int NextInstanceID;
+    public static List<int> LastDeactivatedIDs = [];
 
-	/// <summary>
-	/// for faster lookup when finding instances by asset id.
-	/// gamemaker does something similar and this was a bottleneck in one of nebula's test programs.
-	/// </summary>
-	public static Dictionary<int, ObjectDictEntry> ObjectMap = new();
+    public static int NextInstanceID;
 
-	public static void InitObjectMap()
-	{
-		ObjectMap.Clear();
+    /// <summary>
+    /// for faster lookup when finding instances by asset id.
+    /// gamemaker does something similar and this was a bottleneck in one of nebula's test programs.
+    /// </summary>
+    public static Dictionary<int, ObjectDictEntry> ObjectMap = new();
 
-		foreach (var item in ObjectDefinitions)
-		{
-			var entry = new ObjectDictEntry
-			{
-				ChildrenIndexes = ObjectDefinitions
-					.Where(x => x.Value.parent == item.Value)
-					.Select(x => x.Key).ToList()
-			};
+    public static void InitObjectMap()
+    {
+        ObjectMap.Clear();
 
-			ObjectMap.Add(item.Key, entry);
-		}
-	}
+        foreach (var item in ObjectDefinitions)
+        {
+            var entry = new ObjectDictEntry
+            {
+                ChildrenIndexes = ObjectDefinitions
+                    .Where(x => x.Value.parent == item.Value)
+                    .Select(x => x.Key).ToList()
+            };
 
-	public static void RegisterInstance(GamemakerObject obj)
-	{
-		if (instances.ContainsKey(obj.instanceId))
-		{
-			DebugLog.LogWarning($"Tried to register another object with instanceId:{obj.instanceId}\nExisting:{instances[obj.instanceId].Definition.Name}\nNew:{obj.Definition.Name}");
+            ObjectMap.Add(item.Key, entry);
+        }
+    }
 
-			DebugLog.LogError($"--Stacktrace--");
-			foreach (var item in VMExecutor.CallStack)
-			{
-				DebugLog.LogError($" - {item.CodeName}");
-			}
+    public static void RegisterInstance(GamemakerObject obj)
+    {
+        if (instances.ContainsKey(obj.instanceId))
+        {
+            DebugLog.LogWarning($"Tried to register another object with instanceId:{obj.instanceId}\nExisting:{instances[obj.instanceId].Definition.Name}\nNew:{obj.Definition.Name}");
 
-			return;
-		}
+            DebugLog.LogError($"--Stacktrace--");
+            foreach (var item in VMExecutor.CallStack)
+            {
+                DebugLog.LogError($" - {item.CodeName}");
+            }
 
-		if (obj == null)
-		{
-			DebugLog.LogError($"Tried to register a null instance!");
-			return;
-		}
+            return;
+        }
 
-		if (obj.Definition == null)
-		{
-			DebugLog.LogError($"Tried to register an instance with no definition! obj:{obj}");
-			return;
-		}
+        if (obj == null)
+        {
+            DebugLog.LogError($"Tried to register a null instance!");
+            return;
+        }
 
-		instances.Add(obj.instanceId, obj);
+        if (obj.Definition == null)
+        {
+            DebugLog.LogError($"Tried to register an instance with no definition! obj:{obj}");
+            return;
+        }
 
-		var entry = ObjectMap[obj.Definition.AssetId];
-		entry.Instances.Add(obj);
-	}
+        instances.Add(obj.instanceId, obj);
 
-	public static int instance_create(double x, double y, int obj)
-	{
-		var definition = ObjectDefinitions[obj];
+        var entry = ObjectMap[obj.Definition.AssetId];
+        entry.Instances.Add(obj);
+    }
 
-		// is 0 depth right? no idea
-		var newGM = new GamemakerObject(definition, x, y, 0, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+    public static int instance_create(double x, double y, int obj)
+    {
+        var definition = ObjectDefinitions[obj];
 
-		GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
-		GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
-		newGM._createRan = true;
-		return newGM.instanceId;
-	}
+        // is 0 depth right? no idea
+        var newGM = new GamemakerObject(definition, x, y, 0, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-	public static int instance_create_depth(double x, double y, int depth, int obj)
-	{
-		var definition = ObjectDefinitions[obj];
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        newGM._createRan = true;
+        return newGM.instanceId;
+    }
 
-		var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+    public static int instance_create_depth(double x, double y, int depth, int obj)
+    {
+        var definition = ObjectDefinitions[obj];
 
-		GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
-		GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
-		newGM._createRan = true;
-		return newGM.instanceId;
-	}
+        var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
-	public static int instance_number(int obj)
-	{
-		//instances.RemoveAll(x => x == null);
-		return instances.Values.Count(x => HasAssetInParents(x.Definition, obj));
-	}
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        newGM._createRan = true;
+        return newGM.instanceId;
+    }
 
-	public static bool HasAssetInParents(ObjectDefinition definition, int id)
-	{
-		var currentDefinition = definition;
-		while (currentDefinition != null)
-		{
-			if (currentDefinition.AssetId == id)
-			{
-				return true;
-			}
+    public static int instance_number(int obj)
+    {
+        //instances.RemoveAll(x => x == null);
+        return instances.Values.Count(x => HasAssetInParents(x.Definition, obj));
+    }
 
-			currentDefinition = currentDefinition.parent;
-		}
+    public static bool HasAssetInParents(ObjectDefinition definition, int id)
+    {
+        var currentDefinition = definition;
+        while (currentDefinition != null)
+        {
+            if (currentDefinition.AssetId == id)
+            {
+                return true;
+            }
 
-		return false;
-	}
+            currentDefinition = currentDefinition.parent;
+        }
 
-	public static List<GamemakerObject> FindByAssetId(int assetId)
-	{
-		if (assetId < 0)
-		{
-			throw new Exception($"Tried to find instances with asset id {assetId}");
-		}
+        return false;
+    }
 
-		/*var result = new List<GamemakerObject>();
-		foreach (var (instanceId, instance) in instances)
-		{
-			var definition = instance.Definition;
-			while (definition != null)
-			{
-				if (definition.AssetId == assetId)
-				{
-					result.Add(instance);
-					break; // continue for loop
-				}
-				definition = definition.parent;
-			}
-		}
+    public static List<GamemakerObject> FindByAssetId(int assetId)
+    {
+        if (assetId < 0)
+        {
+            throw new Exception($"Tried to find instances with asset id {assetId}");
+        }
 
-		return result;*/
+        /*var result = new List<GamemakerObject>();
+        foreach (var (instanceId, instance) in instances)
+        {
+            var definition = instance.Definition;
+            while (definition != null)
+            {
+                if (definition.AssetId == assetId)
+                {
+                    result.Add(instance);
+                    break; // continue for loop
+                }
+                definition = definition.parent;
+            }
+        }
 
-		var result = new List<GamemakerObject>();
-		AddChild(assetId);
+        return result;*/
 
-		void AddChild(int id)
-		{
-			result.AddRange(ObjectMap[id].Instances);
-			foreach (var child in ObjectMap[id].ChildrenIndexes)
-			{
-				AddChild(child);
-			}
-		}
+        var result = new List<GamemakerObject>();
+        AddChild(assetId);
 
-		return result;
-	}
+        void AddChild(int id)
+        {
+            result.AddRange(ObjectMap[id].Instances);
+            foreach (var child in ObjectMap[id].ChildrenIndexes)
+            {
+                AddChild(child);
+            }
+        }
 
-	public static GamemakerObject? FindByInstanceId(int instanceId)
-	{
-		if (instanceId == GMConstants.self)
-		{
-			return VMExecutor.Self.GMSelf;
-		}
+        return result;
+    }
 
-		if (instanceId < GMConstants.FIRST_INSTANCE_ID)
-		{
-			throw new Exception($"Tried to find instance by asset id {instanceId}");
-		}
+    public static GamemakerObject? FindByInstanceId(int instanceId)
+    {
+        if (instanceId == GMConstants.self)
+        {
+            return VMExecutor.Self.GMSelf;
+        }
 
-		return !instances.TryGetValue(instanceId, out var value) ? null : value;
-	}
+        if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+        {
+            throw new Exception($"Tried to find instance by asset id {instanceId}");
+        }
 
-	public static bool instance_exists_instanceid(int instanceId)
-	{
-		if (!instances.ContainsKey(instanceId))
-		{
-			return false;
-		}
+        return !instances.TryGetValue(instanceId, out var value) ? null : value;
+    }
 
-		var instance = instances[instanceId];
+    public static bool instance_exists_instanceid(int instanceId)
+    {
+        if (!instances.ContainsKey(instanceId))
+        {
+            return false;
+        }
 
-		return instance is { Marked: false, Destroyed: false };
-	}
+        var instance = instances[instanceId];
 
-	public static bool instance_exists_index(int assetIndex)
-	{
-		foreach (var (instanceId, instance) in instances)
-		{
-			var definition = instance.Definition;
-			while (definition != null)
-			{
-				if (definition.AssetId == assetIndex && !instance.Marked && !instance.Destroyed)
-				{
-					return true;
-				}
-				definition = definition.parent;
-			}
-		}
+        return instance is { Marked: false, Destroyed: false };
+    }
 
-		return false;
-	}
+    public static bool instance_exists_index(int assetIndex)
+    {
+        foreach (var (instanceId, instance) in instances)
+        {
+            var definition = instance.Definition;
+            while (definition != null)
+            {
+                if (definition.AssetId == assetIndex && !instance.Marked && !instance.Destroyed)
+                {
+                    return true;
+                }
+                definition = definition.parent;
+            }
+        }
 
-	/*public static void instance_destroy(GamemakerObject obj)
-	{
-		if (obj != null)
-		{
-			DebugLog.Log($"INSTANCE_DESTROY {obj.Definition.Name}");
-			obj.Destroy();
-			instances.Remove(obj.instanceId);
-		}
-	}*/
+        return false;
+    }
 
-	public static void MarkForDestruction(GamemakerObject? obj, bool executeEvent)
-	{
-		if (obj == null)
-		{
-			return;
-		}
+    /*public static void instance_destroy(GamemakerObject obj)
+    {
+        if (obj != null)
+        {
+            DebugLog.Log($"INSTANCE_DESTROY {obj.Definition.Name}");
+            obj.Destroy();
+            instances.Remove(obj.instanceId);
+        }
+    }*/
 
-		if (!obj.Marked && obj.Active)
-		{
-			obj.Marked = true;
-			if (executeEvent)
-			{
-				GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Destroy);
-			}
+    public static void MarkForDestruction(GamemakerObject? obj, bool executeEvent)
+    {
+        if (obj == null)
+        {
+            return;
+        }
 
-			GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.CleanUp);
-		}
-	}
+        if (!obj.Marked && obj.Active)
+        {
+            obj.Marked = true;
+            if (executeEvent)
+            {
+                GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Destroy);
+            }
 
-	public static void ClearNullInstances() // TODO: we dont need to null check instances??????
-	{
-		var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
+            GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.CleanUp);
+        }
+    }
 
-		if (toRemove.Any())
-		{
-			DebugLog.LogError("Found null instances in instance list!");
-			foreach (var item in toRemove)
-			{
-				DebugLog.LogError($" - {item}");
-			}
-		}
+    public static void ClearNullInstances() // TODO: we dont need to null check instances??????
+    {
+        var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
 
-		ClearInstances(toRemove);
-	}
+        if (toRemove.Any())
+        {
+            DebugLog.LogError("Found null instances in instance list!");
+            foreach (var item in toRemove)
+            {
+                DebugLog.LogError($" - {item}");
+            }
+        }
 
-	public static void ClearNonPersistent()
-	{
-		var toRemove = instances.Where(x => !x.Value.persistent).Select(x => x.Key);
-		ClearInstances(toRemove);
-	}
+        ClearInstances(toRemove);
+    }
 
-	public static void ClearInstances(IEnumerable<int> toRemove)
-	{
-		foreach (var id in toRemove)
-		{
-			var instance = instances[id];
+    public static void ClearNonPersistent()
+    {
+        var toRemove = instances.Where(x => !x.Value.persistent).Select(x => x.Key);
+        ClearInstances(toRemove);
+    }
 
-			if (instance != null)
-			{
-				ObjectMap[instance.Definition.AssetId].Instances.Remove(instance);
-			}
+    public static void ClearInstances(IEnumerable<int> toRemove)
+    {
+        foreach (var id in toRemove)
+        {
+            var instance = instances[id];
 
-			instances.Remove(id);
-		}
-	}
+            if (instance != null)
+            {
+                ObjectMap[instance.Definition.AssetId].Instances.Remove(instance);
+            }
 
-	public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove) // this doesnt need to be nullable but i dont care enough to change and test it
-	{
-		ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
-	}
+            instances.Remove(id);
+        }
+    }
 
-	public static void RoomChange()
-	{
-		foreach (var (instanceId, instance) in instances)
-		{
-			if (!instance.persistent)
-			{
-				instance.Destroy();
-			}
-		}
+    public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove) // this doesnt need to be nullable but i dont care enough to change and test it
+    {
+        ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
+    }
 
-		//instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
-		ClearNullInstances();
-		ClearNonPersistent();
-	}
+    public static void RoomChange()
+    {
+        foreach (var (instanceId, instance) in instances)
+        {
+            if (!instance.persistent)
+            {
+                instance.Destroy();
+            }
+        }
 
-	public static void RememberOldPositions()
-	{
-		foreach (var (index, item) in InstanceManager.instances)
-		{
-			item.xprevious = item.x;
-			item.yprevious = item.y;
-			item.path_previousposition = item.path_position;
+        //instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
+        ClearNullInstances();
+        ClearNonPersistent();
+    }
 
-			item.Animate();
-		}
-	}
+    public static void RememberOldPositions()
+    {
+        foreach (var (index, item) in InstanceManager.instances)
+        {
+            item.xprevious = item.x;
+            item.yprevious = item.y;
+            item.path_previousposition = item.path_position;
 
-	public static void UpdateImages()
-	{
-		var instanceList = InstanceManager.instances.Values.ToList();
-		foreach (var item in instanceList)
-		{
-			if (item.Marked)
-			{
-				continue;
-			}
+            item.Animate();
+        }
+    }
 
-			if (!item.Active)
-			{
-				continue;
-			}
+    public static void UpdateImages()
+    {
+        var instanceList = InstanceManager.instances.Values.ToList();
+        foreach (var item in instanceList)
+        {
+            if (item.Marked)
+            {
+                continue;
+            }
 
-			var sprite = SpriteManager.GetSpriteAsset(item.sprite_index);
+            if (!item.Active)
+            {
+                continue;
+            }
 
-			if (sprite == null)
-			{
-				continue;
-			}
+            var sprite = SpriteManager.GetSpriteAsset(item.sprite_index);
 
-			var num = sprite.Textures.Count;
+            if (sprite == null)
+            {
+                continue;
+            }
 
-			if (item.image_index >= num)
-			{
-				item.frame_overflow += num;
-				item.image_index -= num;
+            var num = sprite.Textures.Count;
 
-				GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-			}
-			else if (item.image_index < 0)
-			{
-				item.frame_overflow -= num;
-				item.image_index += num;
+            if (item.image_index >= num)
+            {
+                item.frame_overflow += num;
+                item.image_index -= num;
+            }
+            else if (item.image_index < 0)
+            {
+                item.frame_overflow -= num;
+                item.image_index += num;
+            }
+        }
+    }
 
-				GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
-			}
-		}
-	}
+    public static void UpdatePositions()
+    {
+        foreach (var (index, item) in InstanceManager.instances)
+        {
+            item.AdaptSpeed();
 
-	public static void UpdatePositions()
-	{
-		foreach (var (index, item) in InstanceManager.instances)
-		{
-			item.AdaptSpeed();
+            if (item.AdaptPath())
+            {
+                GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
+            }
 
-			if (item.AdaptPath())
-			{
-				GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
-			}
-
-			if (item.hspeed != 0 || item.vspeed != 0)
-			{
-				item.x += item.hspeed;
-				item.y += item.vspeed;
-				item.bbox_dirty = true;
-			}
-		}
-	}
+            if (item.hspeed != 0 || item.vspeed != 0)
+            {
+                item.x += item.hspeed;
+                item.y += item.vspeed;
+                item.bbox_dirty = true;
+            }
+        }
+    }
 }

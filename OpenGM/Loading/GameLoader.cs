@@ -20,28 +20,28 @@ public static class GameLoader
 
         _replacementVMCodes.Clear();
 
-		var replacementFolder = Path.Combine(Entry.DataWinFolder, "replacement_scripts");
+        var replacementFolder = Path.Combine(Entry.DataWinFolder, "replacement_scripts");
         if (Directory.Exists(replacementFolder))
         {
-	        var replacementScripts = Directory.GetFiles(replacementFolder, "*.json");
-	        foreach (var replacementScript in replacementScripts)
-	        {
-		        _replacementVMCodes.Add(JsonConvert.DeserializeObject<VMCode>(File.ReadAllText(replacementScript))!);
-	        }
-		}
+            var replacementScripts = Directory.GetFiles(replacementFolder, "*.json");
+            foreach (var replacementScript in replacementScripts)
+            {
+                _replacementVMCodes.Add(JsonConvert.DeserializeObject<VMCode>(File.ReadAllText(replacementScript))!);
+            }
+        }
 
         using var stream = File.OpenRead(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
         using var reader = new BinaryReader(stream);
 
         // must match order of gameconverter
         GeneralInfo = reader.ReadMemoryPack<GameData>();
-		AssetIndexManager.LoadAssetIndexes(reader);
+        AssetIndexManager.LoadAssetIndexes(reader);
         LoadScripts(reader);
         LoadCode(reader);
         LoadGlobalInitCode(reader);
         LoadObjects(reader);
-		LoadBackgrounds(reader);
-		LoadRooms(reader);
+        LoadBackgrounds(reader);
+        LoadRooms(reader);
         LoadSprites(reader);
         LoadFonts(reader);
         LoadTexturePages(reader);
@@ -56,20 +56,20 @@ public static class GameLoader
 
     private static void LoadScripts(BinaryReader reader)
     {
-	    Console.Write($"Loading scripts...");
+        Console.Write($"Loading scripts...");
 
-	    ScriptResolver.ScriptsByName.Clear();
-	    ScriptResolver.ScriptsByIndex.Clear();
+        ScriptResolver.ScriptsByName.Clear();
+        ScriptResolver.ScriptsByIndex.Clear();
 
-		var length = reader.ReadInt32();
-	    for (var i = 0; i < length; i++)
-	    {
-		    var asset = reader.ReadMemoryPack<VMScript>();
-		    ScriptResolver.ScriptsByName.Add(asset.Name, asset);
-		    ScriptResolver.ScriptsByIndex.Add(asset.AssetIndex, asset);
-		}
-	    Console.WriteLine($" Done!");
-	}
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<VMScript>();
+            ScriptResolver.ScriptsByName.Add(asset.Name, asset);
+            ScriptResolver.ScriptsByIndex.Add(asset.AssetIndex, asset);
+        }
+        Console.WriteLine($" Done!");
+    }
 
     public static Dictionary<int, VMCode> Codes = new();
 
@@ -80,7 +80,7 @@ public static class GameLoader
         var allUsedFunctions = new HashSet<string>();
         Codes.Clear();
 
-		var length = reader.ReadInt32();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<VMCode>();
@@ -88,9 +88,9 @@ public static class GameLoader
             if (_replacementVMCodes.Any(x => x.Name == asset.Name))
             {
                 DebugLog.Log($"Replacing {asset.Name} with custom script...");
-	            var assetID = asset.AssetId;
-	            var parentAssetID = asset.ParentAssetId;
-	            asset = _replacementVMCodes.First(x => x.Name == asset.Name);
+                var assetID = asset.AssetId;
+                var parentAssetID = asset.ParentAssetId;
+                asset = _replacementVMCodes.First(x => x.Name == asset.Name);
                 asset.AssetId = assetID;
                 asset.ParentAssetId = parentAssetID;
             }
@@ -126,9 +126,9 @@ public static class GameLoader
 
     private static void LoadGlobalInitCode(BinaryReader reader)
     {
-	    ScriptResolver.GlobalInit.Clear();
+        ScriptResolver.GlobalInit.Clear();
 
-		var count = reader.ReadInt32();
+        var count = reader.ReadInt32();
 
         for (var i = 0; i < count; i++)
         {
@@ -136,7 +136,7 @@ public static class GameLoader
         }
     }
 
-	private static void LoadObjects(BinaryReader reader)
+    private static void LoadObjects(BinaryReader reader)
     {
         Console.Write($"Loading objects...");
 
@@ -144,12 +144,12 @@ public static class GameLoader
 
         VMCode? GetCodeFromCodeIndex(int codeIndex)
         {
-	        if (codeIndex == -1)
-	        {
-		        return null;
-	        }
+            if (codeIndex == -1)
+            {
+                return null;
+            }
 
-	        return GameLoader.Codes[codeIndex];
+            return GameLoader.Codes[codeIndex];
         }
         
         var length = reader.ReadInt32();
@@ -176,14 +176,14 @@ public static class GameLoader
                 asset.CollisionScript[subtype] = Codes[codeId];
             }
 
-			foreach (var (subtype, codeId) in storage.KeyboardScriptIDs)
-			{
-				asset.KeyboardScripts[subtype] = Codes[codeId];
-			}
+            foreach (var (subtype, codeId) in storage.KeyboardScriptIDs)
+            {
+                asset.KeyboardScripts[subtype] = Codes[codeId];
+            }
 
-			// Mouse
+            // Mouse
 
-			foreach (var (subtype, codeId) in storage.OtherScriptIDs)
+            foreach (var (subtype, codeId) in storage.OtherScriptIDs)
             {
                 asset.OtherScript[subtype] = Codes[codeId];
             }
@@ -193,19 +193,19 @@ public static class GameLoader
                 asset.DrawScript[subtype] = Codes[codeId];
             }
 
-			foreach (var (subtype, codeId) in storage.KeyPressScriptIDs)
-			{
-				asset.KeyPressScripts[subtype] = Codes[codeId];
-			}
+            foreach (var (subtype, codeId) in storage.KeyPressScriptIDs)
+            {
+                asset.KeyPressScripts[subtype] = Codes[codeId];
+            }
 
-			foreach (var (subtype, codeId) in storage.KeyReleaseScriptIDs)
-			{
-				asset.KeyReleaseScripts[subtype] = Codes[codeId];
-			}
+            foreach (var (subtype, codeId) in storage.KeyReleaseScriptIDs)
+            {
+                asset.KeyReleaseScripts[subtype] = Codes[codeId];
+            }
 
-			// Trigger
+            // Trigger
 
-			asset.CleanUpScript = GetCodeFromCodeIndex(storage.CleanUpScriptID);
+            asset.CleanUpScript = GetCodeFromCodeIndex(storage.CleanUpScriptID);
 
             // Gesture
 
@@ -226,7 +226,7 @@ public static class GameLoader
 
         InstanceManager.InitObjectMap();
 
-		Console.WriteLine($" Done!");
+        Console.WriteLine($" Done!");
     }
 
     private static void LoadRooms(BinaryReader reader)
@@ -235,7 +235,7 @@ public static class GameLoader
 
         RoomManager.RoomList.Clear();
 
-		var length = reader.ReadInt32();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<Room>();
@@ -253,24 +253,24 @@ public static class GameLoader
 
                         var cols = tilemap.Height;
                         var rows = tilemap.Width;
-						for (var col = 0; col < cols; col++)
-						{
-							for (var row = 0; row < rows; row++)
-							{
-								var blobData = uintData[col][row];
+                        for (var col = 0; col < cols; col++)
+                        {
+                            for (var row = 0; row < rows; row++)
+                            {
+                                var blobData = uintData[col][row];
 
-								var blob = new TileBlob
-								{
-									TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
-									Mirror = (blobData & 0x8000000) != 0, // bit 28
-									Flip = (blobData & 0x10000000) != 0, // bit 29
-									Rotate = (blobData & 0x20000000) != 0 // bit 30
-								};
+                                var blob = new TileBlob
+                                {
+                                    TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
+                                    Mirror = (blobData & 0x8000000) != 0, // bit 28
+                                    Flip = (blobData & 0x10000000) != 0, // bit 29
+                                    Rotate = (blobData & 0x20000000) != 0 // bit 30
+                                };
 
-								tilemap.TilesData[col, row] = blob;
-							}
-						}
-					}
+                                tilemap.TilesData[col, row] = blob;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -286,7 +286,7 @@ public static class GameLoader
 
         SpriteManager._spriteDict.Clear();
 
-		var length = reader.ReadInt32();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<SpriteData>();
@@ -302,7 +302,7 @@ public static class GameLoader
 
         TextManager.FontAssets.Clear();
 
-		var length = reader.ReadInt32();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<FontAsset>();
@@ -318,9 +318,9 @@ public static class GameLoader
 
         PageManager.UnbindTextures();
 
-		//StbImage.stbi_set_flip_vertically_on_load(1);
+        //StbImage.stbi_set_flip_vertically_on_load(1);
 
-		var length = reader.ReadInt32();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var pageName = reader.ReadString();
@@ -355,81 +355,81 @@ public static class GameLoader
 
     public static Dictionary<int, TileSet> TileSets = new();
 
-	private static void LoadTileSets(BinaryReader reader)
+    private static void LoadTileSets(BinaryReader reader)
     {
-	    Console.Write($"Loading Tile Sets...");
+        Console.Write($"Loading Tile Sets...");
 
-	    TileSets.Clear();
+        TileSets.Clear();
 
-		var length = reader.ReadInt32();
+        var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<TileSet>();
 
-		    TileSets.Add(asset.AssetIndex, asset);
-	    }
+            TileSets.Add(asset.AssetIndex, asset);
+        }
 
-	    Console.WriteLine($" Done!");
-	}
+        Console.WriteLine($" Done!");
+    }
 
-	private static void LoadPaths(BinaryReader reader)
-	{
-		Console.Write($"Loading paths...");
-		PathManager.Paths.Clear();
+    private static void LoadPaths(BinaryReader reader)
+    {
+        Console.Write($"Loading paths...");
+        PathManager.Paths.Clear();
 
-		var length = reader.ReadInt32();
-		for (var i = 0; i < length; i++)
-		{
-			var asset = reader.ReadMemoryPack<GMPath>();
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<GMPath>();
 
-			var path = new CPath(asset.Name);
+            var path = new CPath(asset.Name);
             // TODO : smooth????
-			path.closed = asset.IsClosed;
-			path.precision = asset.Precision;
+            path.closed = asset.IsClosed;
+            path.precision = asset.Precision;
 
-			foreach (var point in asset.Points)
-			{
+            foreach (var point in asset.Points)
+            {
                 path.points.Add(point);
-			}
+            }
             path.count = path.points.Count;
 
             PathManager.ComputeInternal(path);
 
             PathManager.Paths.Add(PathManager.HighestPathIndex++, path);
-		}
-		Console.WriteLine($" Done!");
-	}
+        }
+        Console.WriteLine($" Done!");
+    }
 
-	public static Dictionary<int, Background> Backgrounds = new();
+    public static Dictionary<int, Background> Backgrounds = new();
 
-	private static void LoadBackgrounds(BinaryReader reader)
-	{
-		Console.Write($"Loading backgrounds...");
-		Backgrounds.Clear();
-
-		var length = reader.ReadInt32();
-		for (var i = 0; i < length; i++)
-		{
-			var asset = reader.ReadMemoryPack<Background>();
-			Backgrounds.Add(asset.AssetIndex, asset);
-		}
-		Console.WriteLine($" Done!");
-	}
-
-	public static Dictionary<int, Shader> Shaders = new();
-
-	private static void LoadShaders(BinaryReader reader)
+    private static void LoadBackgrounds(BinaryReader reader)
     {
-		Console.Write($"Loading shaders...");
+        Console.Write($"Loading backgrounds...");
+        Backgrounds.Clear();
+
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<Background>();
+            Backgrounds.Add(asset.AssetIndex, asset);
+        }
+        Console.WriteLine($" Done!");
+    }
+
+    public static Dictionary<int, Shader> Shaders = new();
+
+    private static void LoadShaders(BinaryReader reader)
+    {
+        Console.Write($"Loading shaders...");
         Shaders.Clear();
 
-		var length = reader.ReadInt32();
-		for (var i = 0; i < length; i++)
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
         {
-			var asset = reader.ReadMemoryPack<Shader>();
-			Shaders.Add(asset.AssetIndex, asset);
-		}
+            var asset = reader.ReadMemoryPack<Shader>();
+            Shaders.Add(asset.AssetIndex, asset);
+        }
 
-		Console.WriteLine($" Done!");
-	}
+        Console.WriteLine($" Done!");
+    }
 }

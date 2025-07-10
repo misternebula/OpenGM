@@ -2,9 +2,9 @@
 {
     public class PersistentRoom
     {
-	    public required int RoomAssetId;
+        public required int RoomAssetId;
 
-	    public required RoomContainer Container;
-	    public required List<GamemakerObject> Instances;
+        public required RoomContainer Container;
+        public required List<GamemakerObject> Instances;
     }
 }

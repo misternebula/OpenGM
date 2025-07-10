@@ -47,7 +47,7 @@ public static class SurfaceManager
         return true;
     }
 
-	public static bool surface_reset_target()
+    public static bool surface_reset_target()
     {
         SurfaceStack.Pop();
         if (SurfaceStack.TryPeek(out var surface))
@@ -88,9 +88,9 @@ public static class SurfaceManager
             GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
         }
         return true;
-	}
+    }
 
-	public static int CreateSurface(int width, int height, int format) // TODO: format
+    public static int CreateSurface(int width, int height, int format) // TODO: format
     {
         // Generate framebuffer
         var buffer = GL.GenFramebuffer();
@@ -123,23 +123,23 @@ public static class SurfaceManager
 
     public static void FreeSurface(int id, bool force) // force comes from cpp
     {
-	    if (id == -1)
-	    {
-		    return;
-	    }
+        if (id == -1)
+        {
+            return;
+        }
 
         if (force || application_surface != id)
         {
-			var buffer = _framebuffers[id];
+            var buffer = _framebuffers[id];
 
-			var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-			GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-			GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-			GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-			GL.DeleteTexture(textureId);
+            var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+            GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+            GL.DeleteTexture(textureId);
 
-			GL.DeleteFramebuffer(buffer);
-			_framebuffers.Remove(id);
+            GL.DeleteFramebuffer(buffer);
+            _framebuffers.Remove(id);
 
 #if DEBUG 
             // sanity check
@@ -179,32 +179,32 @@ public static class SurfaceManager
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L1898
         if (!AppSurfaceEnabled)
         {
-			ApplicationWidth = DeviceWidth;
-			ApplicationHeight = DeviceHeight;
+            ApplicationWidth = DeviceWidth;
+            ApplicationHeight = DeviceHeight;
 
             if (surface_exists(application_surface))
             {
-				FreeSurface(application_surface, true);
+                FreeSurface(application_surface, true);
                 application_surface = -17899859; // ??? why is this the magic number lol
-			}
-		}
+            }
+        }
         else
         {
-			if (UsingAppSurface == false)
-			{
-			    ApplicationWidth = OldApplicationWidth;
-				ApplicationHeight = OldApplicationHeight;
-			}
+            if (UsingAppSurface == false)
+            {
+                ApplicationWidth = OldApplicationWidth;
+                ApplicationHeight = OldApplicationHeight;
+            }
 
             //Create Application Surface?
             if (application_surface < 0 || !surface_exists(application_surface))
             {
                 // creatingApplicationSurface = true
                 application_surface = CreateSurface(ApplicationWidth, ApplicationHeight, -1);
-				// wind_regionwidth = ApplicationWidth
-				// creatingApplicationSurface = false
-				// wind_regionheight = ApplicationHeight
-			}
+                // wind_regionwidth = ApplicationWidth
+                // creatingApplicationSurface = false
+                // wind_regionheight = ApplicationHeight
+            }
 
             //Resize the surface?
             if (NewApplicationSize)
@@ -217,14 +217,14 @@ public static class SurfaceManager
 
             // Set to use the application surface        
             surface_set_target(application_surface);
-		}
+        }
 
         UsingAppSurface = AppSurfaceEnabled;
     }
 
     public static void ResizeSurface(int id, int w, int h)
     {
-	    var bufferId = _framebuffers[id];
+        var bufferId = _framebuffers[id];
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
         
@@ -253,12 +253,12 @@ public static class SurfaceManager
 
     public static int GetSurfaceWidth(int id)
     {
-	    if (!surface_exists(id))
-	    {
-			return -1;
-	    }
+        if (!surface_exists(id))
+        {
+            return -1;
+        }
 
-		BindSurfaceTexture(id);
+        BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return width;
@@ -266,10 +266,10 @@ public static class SurfaceManager
 
     public static int GetSurfaceHeight(int id)
     {
-	    if (!surface_exists(id))
-	    {
-			return -1;
-	    }
+        if (!surface_exists(id))
+        {
+            return -1;
+        }
 
         BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
@@ -312,33 +312,33 @@ public static class SurfaceManager
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
     {
-	    var w = GetSurfaceWidth(id);
-	    var h = GetSurfaceHeight(id);
+        var w = GetSurfaceWidth(id);
+        var h = GetSurfaceHeight(id);
 
-		BindSurfaceTexture(id);
-	    GL.Uniform1(VertexManager.u_doTex, 1);
+        BindSurfaceTexture(id);
+        GL.Uniform1(VertexManager.u_doTex, 1);
 
-		var scaledWidth = w * xscale;
-		var scaledHeight = h * yscale;
-		var drawColor = col.ABGRToCol4(alpha);
+        var scaledWidth = w * xscale;
+        var scaledHeight = h * yscale;
+        var drawColor = col.ABGRToCol4(alpha);
 
-	    var pivot = new Vector2d(x, y);
-	    var vertexOne = new Vector2d(x, y).RotateAroundPoint(pivot, rot);
-	    var vertexTwo = new Vector2d(x + scaledWidth, y).RotateAroundPoint(pivot, rot);
-	    var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
-	    var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
+        var pivot = new Vector2d(x, y);
+        var vertexOne = new Vector2d(x, y).RotateAroundPoint(pivot, rot);
+        var vertexTwo = new Vector2d(x + scaledWidth, y).RotateAroundPoint(pivot, rot);
+        var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
+        var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
 
-	    VertexManager.Draw(PrimitiveType.TriangleFan, new VertexManager.Vertex[]
-	    {
+        VertexManager.Draw(PrimitiveType.TriangleFan, new VertexManager.Vertex[]
+        {
             new(vertexOne, drawColor, new(0, 0)),
             new(vertexTwo, drawColor, new(1, 0)),
             new(vertexThree, drawColor, new(1, 1)),
             new(vertexFour, drawColor, new(0, 1))
-		});
+        });
 
-		GL.BindTexture(TextureTarget.Texture2D, 0);
-	    GL.Uniform1(VertexManager.u_doTex, 0);
-	}
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(VertexManager.u_doTex, 0);
+    }
 
     public static void BindSurfaceTexture(int surfaceId)
     {
@@ -354,21 +354,21 @@ public static class SurfaceManager
 
     public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
     {
-	    if (!surface_exists(dest) || !surface_exists(src))
-	    {
-		    return;
-	    }
+        if (!surface_exists(dest) || !surface_exists(src))
+        {
+            return;
+        }
 
-	    var srcBuffer = _framebuffers[src];
-	    var dstBuffer = _framebuffers[dest];
+        var srcBuffer = _framebuffers[src];
+        var dstBuffer = _framebuffers[dest];
 
-	    // https://ktstephano.github.io/rendering/opengl/dsa direct state access is cool
+        // https://ktstephano.github.io/rendering/opengl/dsa direct state access is cool
         GL.BlitNamedFramebuffer(
-	        srcBuffer, 
-	        dstBuffer,
-	        xs, ys, xs + ws, ys + hs,
-	        x, y, x + ws, y + hs,
-	        ClearBufferMask.ColorBufferBit,
-	        BlitFramebufferFilter.Nearest);
-	}
+            srcBuffer, 
+            dstBuffer,
+            xs, ys, xs + ws, ys + hs,
+            x, y, x + ws, y + hs,
+            ClearBufferMask.ColorBufferBit,
+            BlitFramebufferFilter.Nearest);
+    }
 }

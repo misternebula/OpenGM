@@ -5,5 +5,5 @@
 /// </summary>
 internal class GMLObject : IStackContextSelf
 {
-	public Dictionary<string, object?> SelfVariables { get; } = new();
+    public Dictionary<string, object?> SelfVariables { get; } = new();
 }

@@ -18,9 +18,9 @@ public static class SpriteManager
 
     public static Dictionary<int, SpriteData> _spriteDict = new();
 
-	public static bool SpriteExists(int id) => id != -1 && _spriteDict.ContainsKey(id);
+    public static bool SpriteExists(int id) => id != -1 && _spriteDict.ContainsKey(id);
 
-	public static SpriteData? GetSpriteAsset(int name)
+    public static SpriteData? GetSpriteAsset(int name)
     {
         if (name == -1)
         {
@@ -38,21 +38,21 @@ public static class SpriteManager
 
     public static Vector2i GetSpriteOrigin(int name)
     {
-	    if (name == -1)
-	    {
+        if (name == -1)
+        {
             DebugLog.LogWarning($"Tried to get origin of null sprite");
-		    return Vector2i.Zero;
-	    }
+            return Vector2i.Zero;
+        }
 
         return _spriteDict[name].Origin;
     }
 
-    public static SpritePageItem GetSpritePage(string name, double index)
+    public static SpritePageItem GetSpritePageItem(string name, double index)
     {
-        return GetSpritePage(AssetIndexManager.GetIndex(AssetType.sprites, name), index);
+        return GetSpritePageItem(AssetIndexManager.GetIndex(AssetType.sprites, name), index);
     }
 
-    public static SpritePageItem GetSpritePage(int id, double index)
+    public static SpritePageItem GetSpritePageItem(int id, double index)
     {
         var subimages = _spriteDict[id].Textures;
         index %= subimages.Count;
@@ -60,10 +60,10 @@ public static class SpriteManager
 
         if (floored < 0)
         {
-	        throw new NotImplementedException($"Trying to get SpritePageItem for index {index} floored:{floored}");
+            throw new NotImplementedException($"Trying to get SpritePageItem for index {index} floored:{floored}");
         }
 
-		return subimages[floored];
+        return subimages[floored];
     }
 
     public static void DrawSprite(int name, double index, double x, double y)
@@ -76,7 +76,7 @@ public static class SpriteManager
             DebugLog.LogWarning($"Tried to draw sprite {name} with index {index}.");
             return;
         }
-        var sprite = GetSpritePage(name, index);
+        var sprite = GetSpritePageItem(name, index);
         var origin = GetSpriteOrigin(name);
 
         var c = blend.ABGRToCol4(alpha);
@@ -102,9 +102,9 @@ public static class SpriteManager
     public static void DrawSpritePartExt(int name, double index, int left, int top, int width, int height, double x, double y, double xscale, double yscale, int blend, double alpha)
     {
         //var sprite = SpritePart(name, index, left, top, width, height);
-        var sprite = GetSpritePage(name, index);
+        var sprite = GetSpritePageItem(name, index);
         var c = blend.ABGRToCol4(alpha);
-		CustomWindow.Draw(new GMSpritePartJob()
+        CustomWindow.Draw(new GMSpritePartJob()
         {
             texture = sprite,
             screenPos = new Vector2d(x, y),
@@ -134,21 +134,21 @@ public static class SpriteManager
 
     private static int GetIndexFromImageIndex(double index, int imageNumber)
     {
-	    var ind = CustomMath.FloorToInt(index) % imageNumber;
-	    if (ind < 0)
-	    {
-		    ind += imageNumber;
-	    }
+        var ind = CustomMath.FloorToInt(index) % imageNumber;
+        if (ind < 0)
+        {
+            ind += imageNumber;
+        }
 
-	    return ind;
+        return ind;
     }
 
     public static void draw_sprite_stretched(int name, int index, double x, double y, double w, double h, int color, double alpha)
     {
-        var sprite = GetSpritePage(name, index);
+        var sprite = GetSpritePageItem(name, index);
 
-        var spriteWidth = sprite.TargetSizeX;
-        var spriteHeight = sprite.TargetSizeY;
+        var spriteWidth = sprite.TargetWidth;
+        var spriteHeight = sprite.TargetHeight;
 
         var c = color.ABGRToCol4(alpha);
 
@@ -199,16 +199,16 @@ public static class SpriteManager
         // create a sprite with the single texture
         var spritePage = new SpritePageItem
         {
-            SourcePosX = 0,
-            SourcePosY = 0,
-            SourceSizeX = w,
-            SourceSizeY = h,
-            TargetPosX = 0,
-            TargetPosY = 0,
-            TargetSizeX = w,
-            TargetSizeY = h,
-            BSizeX = w,
-            BSizeY = h,
+            SourceX = 0,
+            SourceY = 0,
+            SourceWidth = w,
+            SourceHeight = h,
+            TargetX = 0,
+            TargetY = 0,
+            TargetWidth = w,
+            TargetHeight = h,
+            BoundingWidth = w,
+            BoundingHeight = h,
             Page = texturePageName
         };
         var sprite = new SpriteData

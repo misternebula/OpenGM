@@ -51,10 +51,10 @@ public static class AudioManager
 
     public static void Init()
     {
-	    if (_inited)
-	    {
-		    return;
-	    }
+        if (_inited)
+        {
+            return;
+        }
 
         _device = ALC.OpenDevice(null);
         CheckALCError();
@@ -171,9 +171,9 @@ public static class AudioManager
         }
         
         /*
-		 * deallocate all the buffers
-		 * and currently playing sources here
-		 */
+         * deallocate all the buffers
+         * and currently playing sources here
+         */
         foreach (var source in _audioSources)
         {
             AL.DeleteSource(source.Source);
@@ -202,12 +202,12 @@ public static class AudioManager
     public static void Update()
     {
         /*
-		 * we should have a pool of clips
-		 * when playing, add to the pool. and when its done, remove it and deletesource
-		 * alternatively, maybe reuse sources? dont think thats even needed and we can gensource each time
-		 * i guess its not a pool at that point. more of an "active sources" thing.
-		 * could do the same for buffers if theyre not all made on init
-		 */
+         * we should have a pool of clips
+         * when playing, add to the pool. and when its done, remove it and deletesource
+         * alternatively, maybe reuse sources? dont think thats even needed and we can gensource each time
+         * i guess its not a pool at that point. more of an "active sources" thing.
+         * could do the same for buffers if theyre not all made on init
+         */
         for (var i = _audioSources.Count - 1; i >= 0; i--)
         {
             var source = _audioSources[i];
@@ -292,6 +292,11 @@ public static class AudioManager
         return _audioSources.Where(x => x.Asset.AssetIndex == assetIndex).ToArray();
     }
 
+    public static AudioInstance[] GetAllAudioInstances()
+    {
+        return _audioSources.ToArray();
+    }
+
     public static void SetAssetGain(int assetIndex, double gain)
     {
         _audioClips[assetIndex].Gain = gain;
@@ -304,20 +309,20 @@ public static class AudioManager
 
     public static double GetAssetPitch(int assetIndex)
     {
-	    return _audioClips[assetIndex].Pitch;
+        return _audioClips[assetIndex].Pitch;
     }
 
-	public static void SetAssetOffset(int assetIndex, double time)
+    public static void SetAssetOffset(int assetIndex, double time)
     {
         _audioClips[assetIndex].Offset = time;
     }
 
     public static double GetAssetOffset(int assetIndex)
     { 
-	    return _audioClips[assetIndex].Offset;
+        return _audioClips[assetIndex].Offset;
     }
 
-	public static AudioAsset GetAudioAsset(int assetIndex)
+    public static AudioAsset GetAudioAsset(int assetIndex)
     {
         return _audioClips[assetIndex];
     }
@@ -413,18 +418,18 @@ public static class AudioManager
     {
         // TODO : should this account for offset? speed? idk!!!
 
-	    var buffer = asset.Clip;
-	    AL.GetBuffer(buffer, ALGetBufferi.Size, out var sizeInBytes);
-	    CheckALError();
-		AL.GetBuffer(buffer, ALGetBufferi.Channels, out var channelCount);
-		CheckALError();
-		AL.GetBuffer(buffer, ALGetBufferi.Bits, out var bitDepth);
-		CheckALError();
-		AL.GetBuffer(buffer, ALGetBufferi.Frequency, out var frequency);
-		CheckALError();
+        var buffer = asset.Clip;
+        AL.GetBuffer(buffer, ALGetBufferi.Size, out var sizeInBytes);
+        CheckALError();
+        AL.GetBuffer(buffer, ALGetBufferi.Channels, out var channelCount);
+        CheckALError();
+        AL.GetBuffer(buffer, ALGetBufferi.Bits, out var bitDepth);
+        CheckALError();
+        AL.GetBuffer(buffer, ALGetBufferi.Frequency, out var frequency);
+        CheckALError();
 
-		var numberOfBits = sizeInBytes * 8;
-		var sampleLength = numberOfBits / (channelCount * bitDepth);
+        var numberOfBits = sizeInBytes * 8;
+        var sampleLength = numberOfBits / (channelCount * bitDepth);
         return sampleLength / (double)frequency;
     }
 }

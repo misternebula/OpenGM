@@ -9,8 +9,8 @@
 
     public enum VAlign
     {
-	    fa_top,
-	    fa_middle,
-	    fa_bottom
+        fa_top,
+        fa_middle,
+        fa_bottom
     }
 }

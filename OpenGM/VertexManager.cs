@@ -17,7 +17,7 @@ public static class VertexManager
     public static int alphaTestEnabled;
     public static int alphaRefValue;
 
-	[StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Explicit)]
     public struct Vertex
     {
         [FieldOffset(0 * sizeof(float))] public Vector2 pos;
@@ -78,7 +78,7 @@ public static class VertexManager
         alphaTestEnabled = GL.GetUniformLocation(program, "alphaTestEnabled");
         alphaRefValue = GL.GetUniformLocation(program, "alphaRefValue");
 
-		GL.UseProgram(program);
+        GL.UseProgram(program);
 
 
         // use one buffer for everything

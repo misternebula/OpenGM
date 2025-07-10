@@ -2,6 +2,7 @@
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using UndertaleModLib;
@@ -10,147 +11,149 @@ namespace OpenGM;
 
 internal class Entry
 {
-	public static float GameSpeed { get; private set; } = 30;
+    public static float GameSpeed { get; private set; } = 30;
 
-	private static CustomWindow window = null!;
+    private static CustomWindow window = null!;
 
-	public static string[] LaunchParameters = [];
-	public static string DataWinFolder = "";
+    public static string[] LaunchParameters = [];
+    public static string DataWinFolder = "";
 
-	static void Main(string[] args)
-	{
-		var passedArgs = ProcessArgs(args);
+    static void Main(string[] args)
+    {
+        var passedArgs = ProcessArgs(args);
 
-		var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
-		Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
-		var defaultPath = Path.Combine(exeLocation, "game", "data.win");
-		LoadGame(defaultPath, passedArgs);
-	}
+        GraphicFunctions.draw_set_circle_precision(24); // to generate sin/cos cache
 
-	static string[] ProcessArgs(string[] args)
-	{
-		var passedArgs = new List<string>();
-		var endOfOptions = false;
-		foreach (var arg in args)
-		{
-			if (endOfOptions)
-			{
-				passedArgs.Add(arg);
-				continue;
-			}
+        var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
+        Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
+        var defaultPath = Path.Combine(exeLocation, "game", "data.win");
+        LoadGame(defaultPath, passedArgs);
+    }
 
-			switch (arg)
-			{
-				case "--warnings-only":
-					DebugLog.Verbosity = DebugLog.LogType.Warning;
-					break;
-				case "--errors-only":
-					DebugLog.Verbosity = DebugLog.LogType.Error;
-					break;
-				case "--verbose":
-				case "-v":
-					DebugLog.Verbosity = DebugLog.LogType.Verbose;
-					break;
-				case "--log-all-stubs":
-					ScriptResolver.AlwaysLogStubs = true;
-					break;
-				case "--":
-					endOfOptions = true;
-					break;
-				default:
-					passedArgs.Add(arg);
-					break;
-			}
-		}
+    static string[] ProcessArgs(string[] args)
+    {
+        var passedArgs = new List<string>();
+        var endOfOptions = false;
+        foreach (var arg in args)
+        {
+            if (endOfOptions)
+            {
+                passedArgs.Add(arg);
+                continue;
+            }
 
-		return passedArgs.ToArray();
-	}
+            switch (arg)
+            {
+                case "--warnings-only":
+                    DebugLog.Verbosity = DebugLog.LogType.Warning;
+                    break;
+                case "--errors-only":
+                    DebugLog.Verbosity = DebugLog.LogType.Error;
+                    break;
+                case "--verbose":
+                case "-v":
+                    DebugLog.Verbosity = DebugLog.LogType.Verbose;
+                    break;
+                case "--log-all-stubs":
+                    ScriptResolver.AlwaysLogStubs = true;
+                    break;
+                case "--":
+                    endOfOptions = true;
+                    break;
+                default:
+                    passedArgs.Add(arg);
+                    break;
+            }
+        }
 
-	public static DateTime GameLoadTime;
+        return passedArgs.ToArray();
+    }
 
-	public static void LoadGame(string dataWinPath, string[] parameters)
-	{
-		GameLoadTime = DateTime.Now;
+    public static DateTime GameLoadTime;
 
-		LaunchParameters = parameters;
+    public static void LoadGame(string dataWinPath, string[] parameters)
+    {
+        GameLoadTime = DateTime.Now;
 
-		DataWinFolder = new FileInfo(dataWinPath).DirectoryName!;
+        LaunchParameters = parameters;
 
-		if (!File.Exists(Path.Combine(DataWinFolder, "data_OpenGM.win")))
-		{
-			if (!File.Exists(dataWinPath))
-			{
-				DebugLog.LogError($"ERROR - data.win not found. Make sure all game files are copied to {DataWinFolder}");
-				return;
-			}
+        DataWinFolder = new FileInfo(dataWinPath).DirectoryName!;
 
-			Console.WriteLine($"Extracting game assets...");
-			using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
-			using var data = UndertaleIO.Read(stream);
-			GameConverter.ConvertGame(data);
-		}
+        if (!File.Exists(Path.Combine(DataWinFolder, "data_OpenGM.win")))
+        {
+            if (!File.Exists(dataWinPath))
+            {
+                DebugLog.LogError($"ERROR - data.win not found. Make sure all game files are copied to {DataWinFolder}");
+                return;
+            }
 
-		//CollisionManager.colliders.Clear();
+            Console.WriteLine($"Extracting game assets...");
+            using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
+            using var data = UndertaleIO.Read(stream);
+            GameConverter.ConvertGame(data);
+        }
 
-		AudioManager.Dispose();
-		AudioManager.Init();
-		GameLoader.LoadGame();
-		VersionManager.Init();
-		ScriptResolver.InitGMLFunctions(); // needs version stuff
+        //CollisionManager.colliders.Clear();
 
-		VMExecutor.EnvStack.Clear();
-		VMExecutor.CallStack.Clear();
-		InstanceManager.instances.Clear();
-		DrawManager._drawObjects.Clear();
+        AudioManager.Dispose();
+        AudioManager.Init();
+        GameLoader.LoadGame();
+        VersionManager.Init();
+        ScriptResolver.InitGMLFunctions(); // needs version stuff
 
-		GameSpeed = GameLoader.GeneralInfo.FPS;
-		InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
+        VMExecutor.EnvStack.Clear();
+        VMExecutor.CallStack.Clear();
+        InstanceManager.instances.Clear();
+        DrawManager._drawObjects.Clear();
 
-		// TODO : is RNG re-initialized after game_change?
-		GMRandom.InitialiseRNG(0);
+        GameSpeed = GameLoader.GeneralInfo.FPS;
+        InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
 
-		if (window == null)
-		{
-			var gameSettings = GameWindowSettings.Default;
-			gameSettings.UpdateFrequency = 30;
-			var nativeSettings = NativeWindowSettings.Default;
-			nativeSettings.WindowBorder = WindowBorder.Fixed;
-			nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-			// nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
-			nativeSettings.Flags = ContextFlags.Default;
+        // TODO : is RNG re-initialized after game_change?
+        GMRandom.InitialiseRNG(0);
 
-			window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
-		}
-		else
-		{
-			window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-		}
+        if (window == null)
+        {
+            var gameSettings = GameWindowSettings.Default;
+            gameSettings.UpdateFrequency = 30;
+            var nativeSettings = NativeWindowSettings.Default;
+            nativeSettings.WindowBorder = WindowBorder.Fixed;
+            nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
+            // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
+            nativeSettings.Flags = ContextFlags.Default;
 
-		DebugLog.LogInfo($"Binding page textures...");
-		PageManager.BindTextures();
+            window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
+        }
+        else
+        {
+            window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
+        }
 
-		DebugLog.LogInfo($"Executing global init scripts...");
+        DebugLog.LogInfo($"Binding page textures...");
+        PageManager.BindTextures();
 
-		foreach (var item in ScriptResolver.GlobalInit)
-		{
-			VMExecutor.ExecuteCode(item, null);
-		}
+        DebugLog.LogInfo($"Executing global init scripts...");
 
-		DebugLog.LogInfo($"Changing to first room...");
+        foreach (var item in ScriptResolver.GlobalInit)
+        {
+            VMExecutor.ExecuteCode(item, null);
+        }
 
-		RoomManager.FirstRoom = true;
-		RoomManager.New_Room = 0;
-		RoomManager.ChangeToWaitingRoom();
+        DebugLog.LogInfo($"Changing to first room...");
 
-		DebugLog.LogInfo($"Starting main loop...");
-		window.Run();
+        RoomManager.FirstRoom = true;
+        RoomManager.New_Room = 0;
+        RoomManager.ChangeToWaitingRoom();
 
-		AudioManager.Dispose();
-	}
+        DebugLog.LogInfo($"Starting main loop...");
+        window.Run();
 
-	public static void SetGameSpeed(int fps)
-	{
-		GameSpeed = fps;
-		window.UpdateFrequency = fps;
-	}
+        AudioManager.Dispose();
+    }
+
+    public static void SetGameSpeed(int fps)
+    {
+        GameSpeed = fps;
+        window.UpdateFrequency = fps;
+    }
 }
