@@ -66,7 +66,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		[GMLFunction("ds_list_empty")]
-		public static object? ds_list_empty(params object?[] args) => (_dsListDict[args[0].Conv<int>()].Count == 0);
+		public static object? ds_list_empty(params object?[] args)
+		{
+			var id = args[0].Conv<int>();
+
+			if (!_dsListDict.ContainsKey(id))
+			{
+				return null;
+			}
+
+			return (_dsListDict[id].Count == 0);
+		}
 
 		[GMLFunction("ds_list_add")]
 		public static object? ds_list_add(params object?[] args)
@@ -357,7 +367,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		}
 
 		[GMLFunction("ds_map_empty")]
-		public static object ds_map_empty(object?[] args) => (_dsMapDict[args[0].Conv<int>()].Count == 0);
+		public static object? ds_map_empty(object?[] args)
+		{
+			var id = args[0].Conv<int>();
+
+			if (!_dsMapDict.ContainsKey(id))
+			{
+				return null;
+			}
+
+			return (_dsMapDict[id].Count == 0);
+		}
 
 		[GMLFunction("ds_map_add")]
 		public static object ds_map_add(params object?[] args)
