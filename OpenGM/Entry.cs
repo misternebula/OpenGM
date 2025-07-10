@@ -57,6 +57,12 @@ internal class Entry
                 case "--log-all-stubs":
                     ScriptResolver.AlwaysLogStubs = true;
                     break;
+                case "--compat-collision":
+                    CollisionManager.CompatMode = true;
+                    break;
+                case "--no-compat-collision":
+                    CollisionManager.CompatMode = false;
+                    break;
                 case "--":
                     endOfOptions = true;
                     break;

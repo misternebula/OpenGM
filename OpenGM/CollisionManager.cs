@@ -32,6 +32,8 @@ public class BBox
 
 public static class CollisionManager
 {
+    public static bool CompatMode = false;
+    
     public static BBox CalculateBoundingBox(GamemakerObject gm)
     {
         gm.bbox_dirty = false;
@@ -51,12 +53,14 @@ public static class CollisionManager
             return new BBox() { left = gm.x, top = gm.y, right = gm.x, bottom = gm.y };
         }
 
+        var addition = CompatMode ? 0 : 1;
+
         var origin = SpriteManager.GetSpriteOrigin(index);
 
         var left = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
         var top = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
-        var right = pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale);
-        var bottom = pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale);
+        var right = pos.X + ((gm.margins.Y + addition) * gm.image_xscale) - (origin.X * gm.image_xscale);
+        var bottom = pos.Y + ((gm.margins.Z + addition) * gm.image_yscale) - (origin.Y * gm.image_yscale);
 
         if (gm.image_xscale < 0)
         {
@@ -361,7 +365,7 @@ public static class CollisionManager
             self.bbox = CalculateBoundingBox(self);
         }
 
-        var addition = 0d; // TODO : should be 1.0 if compat collision is enabled
+        var addition = CompatMode ? 1d : 0d;
 
         var bl = CustomMath.Min(x1, x2);
         var br = CustomMath.Max(x1, x2);
@@ -418,7 +422,7 @@ public static class CollisionManager
             });
         }
 
-        // TODO : only do this if compat collision is off
+        if (!CompatMode)
         {
             var l = CustomMath.Max(bl, self.bbox_left);
             var t = CustomMath.Max(bt, self.bbox_top);
@@ -446,7 +450,7 @@ public static class CollisionManager
             self.bbox = CalculateBoundingBox(self);
         }
 
-        var addition = -1e-05; // TODO : should be 1.0 if compat collision is enabled
+        var addition = CompatMode ? 1d : -1e-05;
 
         if (x >= self.bbox_right + addition
             || x < self.bbox_left
@@ -491,8 +495,6 @@ public static class CollisionManager
             return false;
         }
 
-        // check if both object have been marked
-
         if (self.bbox_dirty)
         {
             self.bbox = CalculateBoundingBox(self);
@@ -503,7 +505,9 @@ public static class CollisionManager
             other.bbox = CalculateBoundingBox(self);
         }
 
-        var addition = 1f; // TODO : should be 0 if compat collision is enabled
+        // TODO: comment said that this should be the other way around, but it
+        // only works properly in PT like this
+        var addition = CompatMode ? 1f : 0f;
 
         if (self.bbox_left >= (other.bbox_right + addition)
             || (self.bbox_right + addition) <= other.bbox_left
@@ -552,7 +556,7 @@ public static class CollisionManager
                 otherSprite, CustomMath.FloorToInt(other.image_index), other.bbox, other.x, other.y, other.image_xscale, other.image_yscale, other.image_angle);
         }
 
-        // TODO : only do this if compat collision is off
+        if (!CompatMode)
         {
             var l = CustomMath.Max(self.bbox_left, other.bbox_left);
             var t = CustomMath.Max(self.bbox_top, other.bbox_top);
