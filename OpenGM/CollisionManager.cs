@@ -48,7 +48,7 @@ public static class CollisionManager
         if (index == -1)
         {
             // trying to generate a bounding box for an object with no sprites... uh oh!
-            return new BBox();
+            return new BBox() { left = gm.x, top = gm.y, right = gm.x, bottom = gm.y };
         }
 
         var origin = SpriteManager.GetSpriteOrigin(index);
