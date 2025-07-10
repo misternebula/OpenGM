@@ -155,6 +155,11 @@ public class KeyboardHandler
                 }
             }
         }
+
+        if (state.IsKeyPressed(Keys.KeyPad2))
+        {
+            DrawManager.DebugBBoxes = !DrawManager.DebugBBoxes;
+        }
     }
 
     public static bool KeyboardCheckDirect(int key)
