@@ -28,15 +28,11 @@ namespace OpenGM
             Build = versionParts[3];
         }
 
-        public override readonly string ToString()
-        {
-            return $"{Major}.{Minor}.{Release}.{Build}";
-        }
+        public override readonly string ToString() => 
+            $"{Major}.{Minor}.{Release}.{Build}";
 
-        public override readonly int GetHashCode()
-        {
-            return HashCode.Combine(Major, Minor, Release, Build);
-        }
+        public override readonly int GetHashCode() => 
+            HashCode.Combine(Major, Minor, Release, Build);
 
         public override readonly bool Equals(object? obj)
         {
@@ -45,7 +41,7 @@ namespace OpenGM
                 return true;
             }
             
-            if (obj != null && obj is GMVersion other)
+            if (obj is not null and GMVersion other)
             {
                 return (
                     Major == other.Major &&
@@ -60,12 +56,12 @@ namespace OpenGM
 
         public readonly bool LessThan(object? obj)
         {
-            if (obj != null && obj is GMVersion other)
+            if (obj is not null and GMVersion other)
             {
                 return (
-                    Major < other.Major &&
-                    Minor < other.Minor &&
-                    Release < other.Release &&
+                    Major < other.Major ||
+                    Minor < other.Minor ||
+                    Release < other.Release ||
                     Build < other.Build
                 );
             }
@@ -75,12 +71,12 @@ namespace OpenGM
 
         public readonly bool GreaterThan(object? obj)
         {
-            if (obj != null && obj is GMVersion other)
+            if (obj is not null and GMVersion other)
             {
                 return (
-                    Major > other.Major &&
-                    Minor > other.Minor &&
-                    Release > other.Release &&
+                    Major > other.Major ||
+                    Minor > other.Minor ||
+                    Release > other.Release ||
                     Build > other.Build
                 );
             }
@@ -88,45 +84,23 @@ namespace OpenGM
             return false;
         }
 
-        public static bool operator ==(GMVersion? left, GMVersion? right)
-        {
-            if (left is null)
-            {
-                return right is null;
-            }
+        public static bool operator ==(GMVersion? left, GMVersion? right) => 
+            left is null ? right is null : left.Equals(right);
 
-            return left.Equals(right);
-        }
+        public static bool operator !=(GMVersion? left, GMVersion? right) => 
+            left is null ? right is not null : !left.Equals(right);
 
-        public static bool operator !=(GMVersion? left, GMVersion? right)
-        {
-            if (left is null)
-            {
-                return right is not null;
-            }
+        public static bool operator <(GMVersion left, GMVersion right) => 
+            left.LessThan(right);
 
-            return !left.Equals(right);
-        }
+        public static bool operator >(GMVersion left, GMVersion right) => 
+            left.GreaterThan(right);
 
-        public static bool operator <(GMVersion left, GMVersion right)
-        {
-            return left.LessThan(right);
-        }
+        public static bool operator <=(GMVersion left, GMVersion right) => 
+            left.Equals(right) || left.LessThan(right);
 
-        public static bool operator >(GMVersion left, GMVersion right)
-        {
-            return left.GreaterThan(right);
-        }
-
-        public static bool operator <=(GMVersion left, GMVersion right)
-        {
-            return left.Equals(right) || left.LessThan(right);
-        }
-
-        public static bool operator >=(GMVersion left, GMVersion right)
-        {
-            return left.Equals(right) || left.GreaterThan(right);
-        }
+        public static bool operator >=(GMVersion left, GMVersion right) => 
+            left.Equals(right) || left.GreaterThan(right);
     }
 
     public static class VersionManager
