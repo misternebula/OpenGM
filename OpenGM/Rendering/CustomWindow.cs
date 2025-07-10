@@ -243,8 +243,8 @@ public class CustomWindow : GameWindow
         var lines = textJob.text.SplitLines();
         var lineYOffset = 0;
 
-        var textWidth = TextManager.StringWidth(textJob.text);
-        var textHeight = TextManager.StringHeight(textJob.text);
+        var textWidth = (int)(TextManager.StringWidth(textJob.text) * textJob.scale.X);
+        var textHeight = (int)(TextManager.StringHeight(textJob.text) * textJob.scale.Y);
 
         var textLeft = textJob.halign switch
         {
@@ -266,7 +266,7 @@ public class CustomWindow : GameWindow
         for (var i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
-            var width = TextManager.StringWidth(line);
+            var width = (int)(TextManager.StringWidth(line) * textJob.scale.X);
 
             var xOffset = 0d;
             if (textJob.halign == HAlign.fa_center)
@@ -294,7 +294,7 @@ public class CustomWindow : GameWindow
             var stringLeft = textJob.screenPos.X + xOffset;
             var stringRight = textJob.screenPos.X + xOffset + width;
             var stringTop = -textJob.screenPos.Y - yOffset;
-            var stringBottom = -textJob.screenPos.Y - yOffset - TextManager.StringHeight(line);
+            var stringBottom = -textJob.screenPos.Y - yOffset - (int)(TextManager.StringHeight(line) * textJob.scale.Y);
 
             var points = new Vector2d[]
             {
