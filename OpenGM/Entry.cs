@@ -59,9 +59,11 @@ internal class Entry
                     break;
                 case "--compat-collision":
                     CollisionManager.CompatMode = true;
+                    CollisionManager.CompatModeOverridden = true;
                     break;
                 case "--no-compat-collision":
                     CollisionManager.CompatMode = false;
+                    CollisionManager.CompatModeOverridden = true;
                     break;
                 case "--":
                     endOfOptions = true;

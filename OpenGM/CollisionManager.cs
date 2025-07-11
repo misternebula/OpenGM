@@ -33,6 +33,7 @@ public class BBox
 public static class CollisionManager
 {
     public static bool CompatMode = false;
+    public static bool CompatModeOverridden = false;
     
     public static BBox CalculateBoundingBox(GamemakerObject gm)
     {
