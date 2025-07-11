@@ -33,6 +33,10 @@ public class BBox
 public static class CollisionManager
 {
     public static bool CompatMode = false;
+    public static bool CompatModeOverridden = false;
+
+    static double CompatFloor(double num) => CompatMode ? Math.Floor(num) : num;
+    static double CompatRound(double num) => CompatMode ? Math.Round(num) : num;
     
     public static BBox CalculateBoundingBox(GamemakerObject gm)
     {
@@ -53,14 +57,14 @@ public static class CollisionManager
             return new BBox() { left = gm.x, top = gm.y, right = gm.x, bottom = gm.y };
         }
 
-        var addition = CompatMode ? 0 : 1;
+        var offset = CompatMode ? -1 : 0;
 
         var origin = SpriteManager.GetSpriteOrigin(index);
 
-        var left = pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale);
-        var top = pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale);
-        var right = pos.X + ((gm.margins.Y + addition) * gm.image_xscale) - (origin.X * gm.image_xscale);
-        var bottom = pos.Y + ((gm.margins.Z + addition) * gm.image_yscale) - (origin.Y * gm.image_yscale);
+        var left = CompatRound(pos.X + (gm.margins.X * gm.image_xscale) - (origin.X * gm.image_xscale));
+        var top = CompatRound(pos.Y + (gm.margins.W * gm.image_yscale) - (origin.Y * gm.image_yscale));
+        var right = CompatRound(pos.X + ((gm.margins.Y + 1) * gm.image_xscale) - (origin.X * gm.image_xscale) + offset);
+        var bottom = CompatRound(pos.Y + ((gm.margins.Z + 1) * gm.image_yscale) - (origin.Y * gm.image_yscale) + offset);
 
         if (gm.image_xscale < 0)
         {
@@ -505,8 +509,6 @@ public static class CollisionManager
             other.bbox = CalculateBoundingBox(self);
         }
 
-        // TODO: comment said that this should be the other way around, but it
-        // only works properly in PT like this
         var addition = CompatMode ? 1f : 0f;
 
         if (self.bbox_left >= (other.bbox_right + addition)
@@ -551,6 +553,13 @@ public static class CollisionManager
 
         if (precise && (selfSprite.SepMasks == UndertaleSprite.SepMaskType.Precise || otherSprite.SepMasks == UndertaleSprite.SepMaskType.Precise))
         {
+            if (CompatMode)
+            {
+                return OrigPreciseCollision(
+                    selfSprite, CustomMath.FloorToInt(self.image_index), self.bbox, self.x, self.y, self.image_xscale, self.image_yscale, self.image_angle,
+                    otherSprite, CustomMath.FloorToInt(other.image_index), other.bbox, other.x, other.y, other.image_xscale, other.image_yscale, other.image_angle);
+            }
+            
             return PreciseCollision(
                 selfSprite, CustomMath.FloorToInt(self.image_index), self.bbox, self.x, self.y, self.image_xscale, self.image_yscale, self.image_angle,
                 otherSprite, CustomMath.FloorToInt(other.image_index), other.bbox, other.x, other.y, other.image_xscale, other.image_yscale, other.image_angle);
@@ -854,6 +863,128 @@ public static class CollisionManager
     }
 
     #region Precise Mask Checks
+
+    public static bool OrigPreciseCollision(
+        SpriteData sprite1, int _img1, BBox _bb1, double _x1, double _y1, double _scale1x, double _scale1y, double _angle1,
+        SpriteData sprite2, int _img2, BBox _bb2, double _x2, double _y2, double _scale2x, double _scale2y, double _angle2)
+    {
+        if (sprite1 == null || sprite2 == null)
+        {
+            return false;
+        }
+
+        if (sprite1.Textures.Count <= 0)
+            return false;
+        if (sprite2.Textures.Count <= 0)
+            return false;
+
+        if (sprite1.CollisionMasks.Count > 0)
+            _img1 = _img1 % sprite1.CollisionMasks.Count;
+        if (_img1 < 0)
+        {
+            _img1 = _img1 + sprite1.CollisionMasks.Count;
+        }
+
+        if (sprite2.CollisionMasks.Count > 0)
+            _img2 = _img2 % sprite2.CollisionMasks.Count;
+
+        if (_img2 < 0)
+        {
+            _img2 = _img2 + sprite2.CollisionMasks.Count;
+        }
+
+        _scale1x = 1.0 / _scale1x;
+        _scale1y = 1.0 / _scale1y;
+        _scale2x = 1.0 / _scale2x;
+        _scale2y = 1.0 / _scale2y;
+
+        var l = CustomMath.Max(_bb1.left, _bb2.left);
+        var r = CustomMath.Min(_bb1.right, _bb2.right);
+        var t = CustomMath.Max(_bb1.top, _bb2.top);
+        var b = CustomMath.Min(_bb1.bottom, _bb2.bottom);
+
+        if ((_scale1x == 1) && (_scale2x == 1) && (_scale1y == 1) && (_scale2y == 1) && (_angle1 == 0) && (_angle2 == 0)) 
+        {
+            for (var i = l; i <= r; i++) {
+                for (var j = t; j <= b; j++) {
+                    var xx = CustomMath.FloorToInt(i - _x1 + sprite1.OriginX);
+                    var yy = CustomMath.FloorToInt(j - _y1 + sprite1.OriginY);
+                    
+                    if ((xx < 0) || (xx >= sprite1.Width)) continue;
+                    if ((yy < 0) || (yy >= sprite1.Height)) continue;
+
+                    if (!ColMaskSet(sprite1, xx, yy, sprite1.CollisionMasks[_img1]))
+                        continue;
+
+                    xx = CustomMath.FloorToInt(i - _x2 + sprite2.OriginX);
+                    yy = CustomMath.FloorToInt(j - _y2 + sprite2.OriginY);
+
+                    if ((xx < 0) || (xx >= sprite2.Width)) continue;
+                    if ((yy < 0) || (yy >= sprite2.Height)) continue;
+
+                    if (!ColMaskSet(sprite2, xx, yy, sprite2.CollisionMasks[_img2]))
+                        continue;
+                        
+                    return true;
+                }
+            }
+        }
+        else if ((_angle1 == 0) && (_angle2 == 0)) 
+        {
+            for (var i = l; i <= r; i++) {
+                for (var j = t; j <= b; j++) {
+                    var xx = CustomMath.FloorToInt(((i - _x1) * _scale1x + sprite1.OriginX));
+                    var yy = CustomMath.FloorToInt(((j - _y1) * _scale1y + sprite1.OriginY));
+                    if ((xx < 0) || (xx >= sprite1.Width)) continue;
+                    if ((yy < 0) || (yy >= sprite1.Height)) continue;
+
+                    if(!ColMaskSet(sprite1, xx,  yy,sprite1.CollisionMasks[_img1]))
+                            continue;
+
+                    xx = CustomMath.FloorToInt(((i - _x2) * _scale2x + sprite2.OriginX));
+                    yy = CustomMath.FloorToInt(((j - _y2) * _scale2y + sprite2.OriginY));
+                    if ((xx < 0) || (xx >= sprite2.Width)) continue;
+                    if ((yy < 0) || (yy >= sprite2.Height)) continue;
+
+                    if (!ColMaskSet(sprite2, xx,  yy,sprite2.CollisionMasks[_img2]))
+                        continue;
+
+                    return true;
+                }
+            }
+        }
+        else 
+        {
+            var ss1 = Math.Sin(-_angle1 * Math.PI / 180);
+            var cc1 = Math.Cos(-_angle1 * Math.PI / 180);
+            var ss2 = Math.Sin(-_angle2 * Math.PI / 180);
+            var cc2 = Math.Cos(-_angle2 * Math.PI / 180);
+
+            for (var i = l; i <= r; i++) {
+                for (var j = t; j <= b; j++) {
+                    var xx = CustomMath.FloorToInt(((cc1 * (i - _x1) + ss1 * (j - _y1)) * _scale1x + sprite1.OriginX));
+                    var yy = CustomMath.FloorToInt(((cc1 * (j - _y1) - ss1 * (i - _x1)) * _scale1y + sprite1.OriginY));
+                    if ((xx < 0) || (xx >= sprite1.Width)) continue;
+                    if ((yy < 0) || (yy >= sprite1.Height)) continue;
+
+                    if (!ColMaskSet(sprite1, xx,  yy,sprite1.CollisionMasks[_img1]))
+                        continue;
+
+                    xx = CustomMath.FloorToInt(((cc2 * (i - _x2) + ss2 * (j - _y2)) * _scale2x + sprite2.OriginX));
+                    yy = CustomMath.FloorToInt(((cc2 * (j - _y2) - ss2 * (i - _x2)) * _scale2y + sprite2.OriginY));
+                    if ((xx < 0) || (xx >= sprite2.Width)) continue;
+                    if ((yy < 0) || (yy >= sprite2.Height)) continue;
+
+                    if (!ColMaskSet(sprite2, xx,  yy,sprite2.CollisionMasks[_img2]))
+                        continue;
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public static bool PreciseCollision(
         SpriteData sprite1, int _img1, BBox _bb1, double _x1, double _y1, double _scale1x, double _scale1y, double _angle1,

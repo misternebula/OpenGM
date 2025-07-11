@@ -128,30 +128,39 @@ public static class InstanceManager
 
     public static List<GamemakerObject> FindByAssetId(int assetId)
     {
-        if (assetId < 0)
-        {
-            throw new Exception($"Tried to find instances with asset id {assetId}");
-        }
-
-        /*var result = new List<GamemakerObject>();
-        foreach (var (instanceId, instance) in instances)
-        {
-            var definition = instance.Definition;
-            while (definition != null)
-            {
-                if (definition.AssetId == assetId)
-                {
-                    result.Add(instance);
-                    break; // continue for loop
-                }
-                definition = definition.parent;
-            }
-        }
-
-        return result;*/
-
         var result = new List<GamemakerObject>();
-        AddChild(assetId);
+
+        if (assetId >= 0)
+        {
+            AddChild(assetId);
+            return result;
+        }
+
+        switch (assetId)
+        {
+            // self
+            case -1:
+                result.Add(VMExecutor.Self.GMSelf);
+                return result;
+
+            // other
+            case -2:
+                var myId = VMExecutor.Self.GMSelf.instanceId;
+                result.AddRange(instances.Where(e => e.Key != myId).Select(e => e.Value));
+                return result;
+
+            // all
+            case -3:
+                result.AddRange(instances.Select(e => e.Value));
+                return result;
+
+            // noone
+            case -4:
+                return result;
+
+            default:
+                throw new Exception($"Tried to find instances with asset id {assetId}");
+        }
 
         void AddChild(int id)
         {
@@ -161,8 +170,6 @@ public static class InstanceManager
                 AddChild(child);
             }
         }
-
-        return result;
     }
 
     public static GamemakerObject? FindByInstanceId(int instanceId)
