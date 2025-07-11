@@ -7,7 +7,6 @@ namespace OpenGM.SerializedFiles;
 public partial class GameData
 {
     public required string Filename;
-    public required string Config;
     public required int LastObjectID;
     public required int LastTileID;
     public required string Name;
