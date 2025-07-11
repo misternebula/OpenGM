@@ -210,12 +210,12 @@ public static class MathFunctions
             // function ugh
 
             /*
-            * arguments: CURRENT ELEMENT and NEXT ELEMENT
-            * returns:
-            *    0        : elements equal
-            *    <= -1    : current element goes before next element
-            *  >= 1    : current element goes after next element
-            */
+             * arguments: CURRENT ELEMENT and NEXT ELEMENT
+             * returns:
+             *    0        : elements equal
+             *    <= -1    : current element goes before next element
+             *  >= 1    : current element goes after next element
+             */
         }
         
         return null;
