@@ -5,6 +5,7 @@ using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using UndertaleModLib;
 
 namespace OpenGM;
@@ -156,6 +157,8 @@ internal class Entry
             nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
             // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
             nativeSettings.Flags = ContextFlags.Default;
+            GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
+            GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
 
             window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
         }
