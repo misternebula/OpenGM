@@ -11,6 +11,8 @@ public static class DrawManager
 
     public static List<DrawWithDepth> _drawObjects = new();
 
+    public static bool DebugBBoxes = false;
+
     public static void Register(DrawWithDepth obj)
     {
         if (_drawObjects.Contains(obj))
@@ -84,6 +86,42 @@ public static class DrawManager
             else if (drawType == EventSubtypeDraw.Draw)
             {
                 item.Draw();
+            }
+        }
+
+
+        if (DebugBBoxes)
+        {
+            foreach (var item in items)
+            {
+                if (item is GamemakerObject gm && gm.Active)
+                {
+                    var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
+                    var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
+                    var camX = CustomWindow.Instance.X;
+                    var camY = CustomWindow.Instance.Y;
+
+                    var vertices = new OpenTK.Mathematics.Vector2d[] {
+                        new(gm.bbox.left - camX, gm.bbox.top - camY),
+                        new(gm.bbox.right - camX, gm.bbox.top - camY),
+                        new(gm.bbox.right - camX, gm.bbox.bottom - camY),
+                        new(gm.bbox.left - camX, gm.bbox.bottom - camY)
+                    };
+
+                    CustomWindow.Draw(new GMPolygonJob()
+                    {
+                        Colors = [color, color, color, color],
+                        Vertices = vertices,
+                        Outline = true
+                    });
+
+                    CustomWindow.Draw(new GMPolygonJob()
+                    {
+                        Colors = [fill, fill, fill, fill],
+                        Vertices = vertices,
+                        Outline = false
+                    });
+                }
             }
         }
 

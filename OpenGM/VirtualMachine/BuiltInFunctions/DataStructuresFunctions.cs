@@ -5,9 +5,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class DataStructuresFunctions
     {
-		private static Dictionary<int, List<object?>> _dsListDict = new();
-		private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
-		private static Dictionary<int, PriorityQueue<object, double>> _priorityDict = new();
+        private static Dictionary<int, List<object?>> _dsListDict = new();
+        private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
+        private static Dictionary<int, Queue<object?>> _dsQueueDict = new();
+        private static Dictionary<int, PriorityQueue<object, double>> _priorityDict = new();
 
         // ...
 
@@ -354,7 +355,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 		{
 			var id = args[0].Conv<int>();
 			var source = args[1].Conv<int>();
-			if ((!_dsMapDict.ContainsKey(id)) || (!_dsMapDict.ContainsKey(source))) return null;
+			if (!_dsMapDict.ContainsKey(id) || !_dsMapDict.ContainsKey(source))
+      {
+        return null;
+      }
 			_dsMapDict[id] = new Dictionary<object, object?>(_dsMapDict[source]);
 			return null;
 		}
@@ -527,6 +531,146 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_grid_set
         // ds_grid_set_pre
         // ds_grid_set_post
+
+        [GMLFunction("ds_queue_create")]
+        public static object ds_queue_create(params object?[] args)
+        {
+            var highestIndex = -1;
+            if (_dsQueueDict.Count > 0)
+            {
+                highestIndex = _dsQueueDict.Keys.Max();
+            }
+
+            _dsQueueDict.Add(highestIndex + 1, new());
+            return highestIndex + 1;
+        }
+
+        [GMLFunction("ds_queue_destroy")]
+        public static object? ds_queue_destroy(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            _dsQueueDict.Remove(index);
+            return null;
+        }
+
+        [GMLFunction("ds_queue_clear")]
+        public static object? ds_queue_clear(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return false;
+            }
+
+            var queue = _dsQueueDict[id];
+            queue.Clear();
+
+            return null;
+        }
+
+        [GMLFunction("ds_queue_empty")]
+        public static object? ds_queue_empty(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return false;
+            }
+
+            var queue = _dsQueueDict[id];
+            return queue.Count == 0;
+        }
+
+        [GMLFunction("ds_queue_size")]
+        public static object? ds_queue_size(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsQueueDict[id];
+            return queue.Count;
+        }
+
+        [GMLFunction("ds_queue_dequeue")]
+        public static object? ds_queue_dequeue(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsQueueDict[id];
+            return queue.Dequeue();
+        }
+
+        [GMLFunction("ds_queue_enqueue")]
+        public static object? ds_queue_enqueue(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var value = args[1]!;
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsQueueDict[id];
+            queue.Enqueue(value);
+
+            return null;
+        }
+
+        [GMLFunction("ds_queue_head")]
+        public static object? ds_queue_head(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var value = args[1]!;
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsQueueDict[id];
+            
+            if (queue.Count == 0)
+            {
+                return null;
+            }
+
+            return queue.Peek();
+        }
+
+        [GMLFunction("ds_queue_tail")]
+        public static object? ds_queue_tail(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var value = args[1]!;
+
+            if (!_dsQueueDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsQueueDict[id];
+            
+            if (queue.Count == 0)
+            {
+                return null;
+            }
+
+            return queue.Last();
+        }
+
+        // ds_queue_copy
 
         // ...
     }

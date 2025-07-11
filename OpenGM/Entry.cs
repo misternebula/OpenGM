@@ -5,6 +5,7 @@ using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using UndertaleModLib;
 
 namespace OpenGM;
@@ -18,6 +19,8 @@ internal class Entry
     public static string[] LaunchParameters = [];
     public static string DataWinFolder = "";
 
+    public static string? PathOverride = null;
+
     static void Main(string[] args)
     {
         var passedArgs = ProcessArgs(args);
@@ -25,17 +28,33 @@ internal class Entry
         GraphicFunctions.draw_set_circle_precision(24); // to generate sin/cos cache
 
         var exeLocation = AppDomain.CurrentDomain.BaseDirectory;
-        Directory.CreateDirectory(Path.Combine(exeLocation, "game"));
-        var defaultPath = Path.Combine(exeLocation, "game", "data.win");
-        LoadGame(defaultPath, passedArgs);
+        var path = Path.Combine(exeLocation, "game");
+
+        if (PathOverride == null)
+        {
+            Directory.CreateDirectory(path);
+        }
+        else
+        {
+            path = PathOverride;
+            if (!Path.Exists(PathOverride))
+            {
+                DebugLog.LogError($"ERROR - Path {PathOverride} not found.");
+                return;
+            }
+        }
+
+        var dataWin = File.Exists(path) ? path : Path.Combine(path, "data.win");
+        LoadGame(dataWin, passedArgs);
     }
 
     static string[] ProcessArgs(string[] args)
     {
         var passedArgs = new List<string>();
         var endOfOptions = false;
-        foreach (var arg in args)
+        for (int i = 0; i < args.Length; i++)
         {
+            var arg = args[i];
             if (endOfOptions)
             {
                 passedArgs.Add(arg);
@@ -44,6 +63,15 @@ internal class Entry
 
             switch (arg)
             {
+                case "--game-path":
+                    if (i == args.Length - 1)
+                    {
+                        DebugLog.LogError("ERROR - Must provide a path to --game-path.");
+                        Environment.Exit(1);
+                    }
+
+                    PathOverride = args[++i];
+                    break;
                 case "--warnings-only":
                     DebugLog.Verbosity = DebugLog.LogType.Warning;
                     break;
@@ -56,6 +84,14 @@ internal class Entry
                     break;
                 case "--log-all-stubs":
                     ScriptResolver.AlwaysLogStubs = true;
+                    break;
+                case "--compat-collision":
+                    CollisionManager.CompatMode = true;
+                    CollisionManager.CompatModeOverridden = true;
+                    break;
+                case "--no-compat-collision":
+                    CollisionManager.CompatMode = false;
+                    CollisionManager.CompatModeOverridden = true;
                     break;
                 case "--":
                     endOfOptions = true;
@@ -121,6 +157,8 @@ internal class Entry
             nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
             // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
             nativeSettings.Flags = ContextFlags.Default;
+            GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
+            GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
 
             window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
         }
