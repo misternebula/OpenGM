@@ -127,8 +127,8 @@ internal class Entry
         InstanceManager.instances.Clear();
         DrawManager._drawObjects.Clear();
 
-        GameSpeed = GameLoader.GeneralInfo.FPS;
-        InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
+        GameSpeed = GameLoader.GeneralInfo.GMS2FPS;
+        InstanceManager.NextInstanceID = (int)(GameLoader.GeneralInfo.LastObj + 1);
 
         // TODO : is RNG re-initialized after game_change?
         GMRandom.InitialiseRNG(0);
@@ -139,16 +139,16 @@ internal class Entry
             gameSettings.UpdateFrequency = 30;
             var nativeSettings = NativeWindowSettings.Default;
             nativeSettings.WindowBorder = WindowBorder.Fixed;
-            nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
+            nativeSettings.ClientSize = new((int)GameLoader.GeneralInfo.DefaultWindowWidth, (int)GameLoader.GeneralInfo.DefaultWindowHeight);
             // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
             nativeSettings.Flags = ContextFlags.Default;
 
-            window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
+            window = new CustomWindow(gameSettings, nativeSettings, GameLoader.GeneralInfo.DefaultWindowWidth, GameLoader.GeneralInfo.DefaultWindowHeight);
         }
         else
         {
-            window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-        }
+            window.ClientSize = new((int)GameLoader.GeneralInfo.DefaultWindowWidth, (int)GameLoader.GeneralInfo.DefaultWindowHeight);
+		}
 
         DebugLog.LogInfo($"Binding page textures...");
         PageManager.BindTextures();

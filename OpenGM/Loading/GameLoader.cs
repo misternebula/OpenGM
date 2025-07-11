@@ -18,15 +18,16 @@ namespace OpenGM.Loading;
 public static class GameLoader
 {
     public static bool DebugDumpFunctions = false;
-    public static GameData GeneralInfo = null!;
     public static Dictionary<int, VMCode> Codes = new();
     public static int CurrentElementID = 0;
     public static Dictionary<string, TextureGroup> TexGroups = new();
     public static Dictionary<int, TileSet> TileSets = new();
     public static Dictionary<int, Background> Backgrounds = new();
     public static Dictionary<int, Shader> Shaders = new();
+    public static UndertaleGeneralInfo GeneralInfo => _data.GeneralInfo;
 
 	private static List<VMCode> _replacementVMCodes = new();
+    private static UndertaleData _data = new();
 
     public static void LoadGame(string dataWinPath)
     {
@@ -50,10 +51,9 @@ public static class GameLoader
 
         Console.Write($"Loading data.win...");
         using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
-        using var data = UndertaleIO.Read(stream);
+        var data = UndertaleIO.Read(stream);
         Console.WriteLine($" DONE");
 
-		LoadGeneralInfo(data);
         AssetOrder(data);
         Scripts(data);
         Code(data, data.Code);
@@ -69,31 +69,13 @@ public static class GameLoader
         Sounds(data);
         LoadPaths(data);
         LoadShaders(data);
-    }
 
-    public static void LoadGeneralInfo(UndertaleData data)
-    {
-        var asset = new GameData()
-        {
-            Filename = data.GeneralInfo.FileName.Content,
-            LastObjectID = (int)data.GeneralInfo.LastObj,
-            LastTileID = (int)data.GeneralInfo.LastTile,
-            Name = data.GeneralInfo.Name.Content,
-            BranchType = (BranchType)data.GeneralInfo.Branch,
-            Major = data.GeneralInfo.Major,
-            Minor = data.GeneralInfo.Minor,
-            Release = data.GeneralInfo.Release,
-            Build = data.GeneralInfo.Build,
-            DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight),
-            FPS = data.GeneralInfo.GMS2FPS
-
-        };
-
-        GeneralInfo = asset;
+        _data = data;
     }
 
     public static void Scripts(UndertaleData data)
     {
+        Console.WriteLine("Scripts");
         ScriptResolver.ScriptsByName.Clear();
         ScriptResolver.ScriptsByIndex.Clear();
         var scripts = data.Scripts;
@@ -115,7 +97,8 @@ public static class GameLoader
 
     public static void Code(UndertaleData data, IList<UndertaleCode> codes)
     {
-        var allUsedFunctions = new HashSet<string>();
+        Console.WriteLine("Code");
+		var allUsedFunctions = new HashSet<string>();
         Codes.Clear();
 
         foreach (var code in codes)
@@ -612,7 +595,8 @@ public static class GameLoader
 
     public static void GlobalInitCode(UndertaleData data)
     {
-        ScriptResolver.GlobalInit.Clear();
+        Console.WriteLine("GlobalInit");
+		ScriptResolver.GlobalInit.Clear();
         foreach (var item in data.GlobalInitScripts)
         {
             var index = data.Code.IndexOf(item.Code);
@@ -622,7 +606,8 @@ public static class GameLoader
 
     public static void Pages(UndertaleData data)
     {
-        PageManager.TexturePages.Clear();
+        Console.WriteLine("Pages");
+		PageManager.TexturePages.Clear();
 
         foreach (var page in data.EmbeddedTextures)
         {
@@ -636,7 +621,8 @@ public static class GameLoader
 
     public static void Sprites(UndertaleData data, IList<UndertaleSprite> sprites)
     {
-        SpriteManager._spriteDict.Clear();
+        Console.WriteLine("Sprites");
+		SpriteManager._spriteDict.Clear();
 
         for (var i = 0; i < sprites.Count; i++)
         {
@@ -697,9 +683,10 @@ public static class GameLoader
 
     public static void AssetOrder(UndertaleData data)
     {
-        // jank, but it works and its fast to load
+        Console.WriteLine("AssetOrder");
+		// jank, but it works and its fast to load
 
-        void WriteAssetNames<T>(StringBuilder writer, IList<T> assets) where T : UndertaleNamedResource
+		void WriteAssetNames<T>(StringBuilder writer, IList<T> assets) where T : UndertaleNamedResource
         {
             if (assets.Count == 0)
                 return;
@@ -764,7 +751,8 @@ public static class GameLoader
 
     public static void ObjectDefinitions(UndertaleData data)
     {
-        InstanceManager.ObjectDefinitions.Clear();
+        Console.WriteLine("ObjectDefinitions");
+		InstanceManager.ObjectDefinitions.Clear();
 
         VMCode? GetCodeFromCodeIndex(int codeIndex)
         {
@@ -946,7 +934,8 @@ public static class GameLoader
 
     public static void Rooms(UndertaleData data)
     {
-        var codes = data.Code.ToList();
+        Console.WriteLine("Rooms");
+		var codes = data.Code.ToList();
         RoomManager.RoomList.Clear();
 
         foreach (var room in data.Rooms)
@@ -1251,7 +1240,8 @@ public static class GameLoader
 
     public static void Fonts(UndertaleData data)
     {
-        TextManager.FontAssets.Clear();
+        Console.WriteLine("Fonts");
+		TextManager.FontAssets.Clear();
 
         foreach (var item in data.Fonts)
         {
@@ -1304,7 +1294,8 @@ public static class GameLoader
 
     public static void Sounds(UndertaleData data)
     {
-        foreach (var item in data.Sounds)
+        Console.WriteLine("Sounds");
+		foreach (var item in data.Sounds)
         {
             var asset = new SoundAsset();
             asset.AssetID = data.Sounds.IndexOf(item);
@@ -1439,7 +1430,8 @@ public static class GameLoader
 
     public static void TextureGroups(UndertaleData data)
     {
-        TexGroups.Clear();
+        Console.WriteLine("TextureGroups");
+		TexGroups.Clear();
 
 		if (data.TextureGroupInfo == null)
         {
@@ -1464,6 +1456,7 @@ public static class GameLoader
 
     public static void LoadTileSets(UndertaleData data)
     {
+        Console.WriteLine("Tilesets");
 		TileSets.Clear();
 
 		if (data.Backgrounds == null)
@@ -1512,7 +1505,8 @@ public static class GameLoader
 
     public static void LoadPaths(UndertaleData data)
     {
-        PathManager.Paths.Clear();
+        Console.WriteLine("Paths");
+		PathManager.Paths.Clear();
 
 		foreach (var path in data.Paths)
         {
@@ -1534,7 +1528,8 @@ public static class GameLoader
 
     public static void LoadBackgrounds(UndertaleData data)
     {
-        Backgrounds.Clear();
+        Console.WriteLine("Backgrounds");
+		Backgrounds.Clear();
 
 		foreach (var background in data.Backgrounds)
         {
@@ -1578,7 +1573,8 @@ public static class GameLoader
 
     public static void LoadShaders(UndertaleData data)
     {
-        Shaders.Clear();
+        Console.WriteLine("Shaders");
+		Shaders.Clear();
 
 		foreach (var shader in data.Shaders)
         {
