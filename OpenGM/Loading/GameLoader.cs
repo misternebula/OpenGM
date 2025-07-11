@@ -6,7 +6,6 @@ using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
-using StbImageSharp;
 using StbVorbisSharp;
 using System.Text;
 using UndertaleModLib;
@@ -611,11 +610,7 @@ public static class GameLoader
 
         foreach (var page in data.EmbeddedTextures)
         {
-            // dont even need a class for this
-            var pageName = page.Name.Content;
-            var blob = page.TextureData.Image.ConvertToPng().ToSpan();
-            var imageResult = ImageResult.FromMemory(blob.ToArray(), ColorComponents.RedGreenBlueAlpha);
-            PageManager.TexturePages.Add(pageName, (imageResult, -1));
+            PageManager.TexturePages.Add(page.Name.Content, (page.TextureData.Image.GetMagickImage(), -1));
         }
     }
 
