@@ -168,7 +168,7 @@ public static partial class VMExecutor
 
     public static void PushIndex(int assetId, string varName)
     {
-        if (assetId <= GMConstants.FIRST_INSTANCE_ID)
+        if (assetId < GMConstants.FIRST_INSTANCE_ID)
         {
             // Asset Id
 
