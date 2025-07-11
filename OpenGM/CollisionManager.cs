@@ -903,7 +903,6 @@ public static class CollisionManager
         var t = CustomMath.Max(_bb1.top, _bb2.top);
         var b = CustomMath.Min(_bb1.bottom, _bb2.bottom);
 
-        // No rotation or scaling.
         if ((_scale1x == 1) && (_scale2x == 1) && (_scale1y == 1) && (_scale2y == 1) && (_angle1 == 0) && (_angle2 == 0)) 
         {
             for (var i = l; i <= r; i++) {
