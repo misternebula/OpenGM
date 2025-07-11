@@ -175,7 +175,7 @@ public static class CustomMath
         return t;
     }
 
-    public static double Round(double n) => Math.Round(n, MidpointRounding.ToPositiveInfinity);
+    public static float Round(float n) => (float)Math.Round(n, MidpointRounding.ToPositiveInfinity);
 
     public static float ClampFloat(float f) => DoubleTilde(f * 1000000) / 1000000.0f;
 

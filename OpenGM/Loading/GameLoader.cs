@@ -30,8 +30,6 @@ public static class GameLoader
 
     public static void LoadGame(string dataWinPath)
     {
-        Console.WriteLine($"Loading game files...");
-
         _replacementVMCodes.Clear();
 
         var replacementFolder = Path.Combine(Entry.DataWinFolder, "replacement_scripts");
@@ -50,11 +48,12 @@ public static class GameLoader
             return;
         }
 
-        Console.WriteLine($"Extracting game assets...");
+        Console.Write($"Loading data.win...");
         using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
         using var data = UndertaleIO.Read(stream);
+        Console.WriteLine($" DONE");
 
-        LoadGeneralInfo(data);
+		LoadGeneralInfo(data);
         AssetOrder(data);
         Scripts(data);
         Code(data, data.Code);
@@ -1517,25 +1516,11 @@ public static class GameLoader
 
 		foreach (var path in data.Paths)
         {
-            var asset = new GMPath
-            {
-                Name = path.Name.Content,
-                IsSmooth = path.IsSmooth,
-                IsClosed = path.IsClosed,
-                Precision = (int)path.Precision
-            };
+            var p = new CPath(path.Name.Content);
+            p.closed = path.IsClosed;
+            p.precision = (int)path.Precision;
 
             foreach (var point in path.Points)
-            {
-                asset.Points.Add(new PathPoint() { x = point.X, y = point.Y, speed = point.Speed });
-            }
-
-            var p = new CPath(asset.Name);
-            // TODO : smooth????
-            p.closed = asset.IsClosed;
-            p.precision = asset.Precision;
-
-            foreach (var point in asset.Points)
             {
                 p.points.Add(point);
             }

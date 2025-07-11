@@ -30,8 +30,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
     public bool persistent = false;
 
-    private double _x;
-    public double x
+    private float _x;
+    public float x
     {
         get => _x;
 
@@ -41,8 +41,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
             bbox_dirty = true;
         }
     }
-    private double _y;
-    public double y
+    private float _y;
+    public float y
     {
         get => _y;
 
@@ -253,12 +253,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         }
     }
 
-    public double gravity = 0;
-    public double gravity_direction = 270;
-    public double friction = 0;
+    public float gravity = 0;
+    public float gravity_direction = 270;
+    public float friction = 0;
 
-    private double _speed;
-    public double speed
+    private float _speed;
+    public float speed
     {
         get => _speed;
         set
@@ -273,8 +273,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         }
     }
 
-    private double _hspeed;
-    public double hspeed
+    private float _hspeed;
+    public float hspeed
     {
         get => _hspeed;
         set
@@ -289,8 +289,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         }
     }
 
-    private double _vspeed;
-    public double vspeed
+    private float _vspeed;
+    public float vspeed
     {
         get => _vspeed;
         set
@@ -305,8 +305,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         }
     }
 
-    private double _direction;
-    public double direction
+    private float _direction;
+    public float direction
     {
         get
         {
@@ -349,8 +349,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         {
             var dd = CustomMath.ClampFloat((float)(180 * (Math.Atan2(vspeed, hspeed)) / Math.PI));
             _direction = dd <= 0
-                ? (double)-dd
-                : 360.0 - dd;
+                ? -dd
+                : 360f - dd;
         }
 
         if (Math.Abs(_direction - CustomMath.Round(_direction)) < 0.0001)
@@ -359,7 +359,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         }
         _direction = CustomMath.FMod((float)_direction, 360f);
 
-        _speed = Math.Sqrt((hspeed * hspeed) + (vspeed * vspeed));
+        _speed = (float)Math.Sqrt((hspeed * hspeed) + (vspeed * vspeed));
         if (Math.Abs(_speed - CustomMath.Round(_speed)) < 0.0001)
         {
             _speed = CustomMath.Round(_speed);
@@ -391,20 +391,20 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public bool Destroyed;
 
     public int path_index = -1;
-    public double path_position = 0;
-    public double path_previousposition;
+    public float path_position = 0;
+    public float path_previousposition;
     public PathEndAction path_endaction;
-    public double path_speed;
-    public double path_scale;
-    public double path_xstart;
-    public double path_ystart;
+    public float path_speed;
+    public float path_scale;
+    public float path_xstart;
+    public float path_ystart;
     public double path_orientation;
 
     public bool Active = true;
     public bool Marked = false; // Marked for deletion at the end of the frame
     public bool IsOutsideRoom = false; // Store state so event isn't called multiple times
 
-    public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
+    public GamemakerObject(ObjectDefinition obj, float x, float y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
     {
         Definition = obj;
         this.x = x;
@@ -660,12 +660,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
         if (gravity != 0)
         {
-            vspeed -= Math.Sin(CustomMath.Deg2Rad * gravity_direction) * gravity;
-            hspeed += Math.Cos(CustomMath.Deg2Rad * gravity_direction) * gravity;
+            vspeed -= (float)Math.Sin(CustomMath.Deg2Rad * gravity_direction) * gravity;
+            hspeed += (float)Math.Cos(CustomMath.Deg2Rad * gravity_direction) * gravity;
         }
     }
 
-    public void AssignPath(int pathIndex, double pathSpeed, double pathScale, double pathOrientation, bool absolute, PathEndAction endAction)
+    public void AssignPath(int pathIndex, float pathSpeed, float pathScale, double pathOrientation, bool absolute, PathEndAction endAction)
     {
         path_index = -1;
 
@@ -747,7 +747,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         var orient = path_orientation * Math.PI / 180.0;
 
         var point = PathManager.GetPosition(path, path_position);
-        var sp = point.speed;
+        var sp = point.Speed;
 
         sp /= (100 * path_scale); // scale speed
         path_position += path_speed * sp / path.length; // increase position
@@ -781,11 +781,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
                     break;
                 case PathEndAction.path_action_continue:
                     var point1 = PathManager.GetPosition(path, 1);
-                    var dx = point1.x - point0.x;
-                    var dy = point1.y - point0.y;
+                    var dx = point1.X - point0.X;
+                    var dy = point1.Y - point0.Y;
 
-                    var xdif = path_scale * ((dx * Math.Cos(orient)) + (dy * Math.Sin(orient)));
-                    var ydif = path_scale * ((dy * Math.Cos(orient)) - (dx * Math.Sin(orient)));
+                    var xdif = path_scale * ((dx * (float)Math.Cos(orient)) + (dy * (float)Math.Sin(orient)));
+                    var ydif = path_scale * ((dy * (float)Math.Cos(orient)) - (dx * (float)Math.Sin(orient)));
 
                     if (path_position < 0)
                     {
@@ -822,11 +822,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         }
 
         point = PathManager.GetPosition(path, path_position);
-        var xx = point.x - point0.x;
-        var yy = point.y - point0.y;
+        var xx = point.X - point0.X;
+        var yy = point.Y - point0.Y;
 
-        var newx = path_xstart + path_scale * ((xx * Math.Cos(orient)) + (yy * Math.Sin(orient)));
-        var newy = path_ystart + path_scale * ((yy * Math.Cos(orient)) - (xx * Math.Sin(orient)));
+        var newx = path_xstart + path_scale * ((xx * (float)Math.Cos(orient)) + (yy * (float)Math.Sin(orient)));
+        var newy = path_ystart + path_scale * ((yy * (float)Math.Cos(orient)) - (xx * (float)Math.Sin(orient)));
 
         // trick to set the direction
         hspeed = newx - x;

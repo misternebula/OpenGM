@@ -186,10 +186,10 @@ public static class VariableResolver
     }
 
     public static object get_x(GamemakerObject instance) => instance.x;
-    public static void set_x(GamemakerObject instance, object? value) => instance.x = value.Conv<double>();
+    public static void set_x(GamemakerObject instance, object? value) => instance.x = value.Conv<float>();
 
     public static object get_y(GamemakerObject instance) => instance.y;
-    public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<double>();
+    public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<float>();
 
     public static object get_room_width() => (double)RoomManager.CurrentRoom.SizeX;
     public static object get_room_height() => (double)RoomManager.CurrentRoom.SizeY;
@@ -246,20 +246,20 @@ public static class VariableResolver
     public static void set_image_angle(GamemakerObject instance, object? value) => instance.image_angle = value.Conv<double>();
 
     public static object get_speed(GamemakerObject instance) => instance.speed;
-    public static void set_speed(GamemakerObject instance, object? value) => instance.speed = value.Conv<double>();
+    public static void set_speed(GamemakerObject instance, object? value) => instance.speed = value.Conv<float>();
 
     public static object get_hspeed(GamemakerObject instance) => instance.hspeed;
-    public static void set_hspeed(GamemakerObject instance, object? value) => instance.hspeed = value.Conv<double>();
+    public static void set_hspeed(GamemakerObject instance, object? value) => instance.hspeed = value.Conv<float>();
 
     public static object get_vspeed(GamemakerObject instance) => instance.vspeed;
     public static void set_vspeed(GamemakerObject instance, object? value)
     {
         //DebugLog.Log($"{instance.Definition.Name} set vspeed to {value}");
-        instance.vspeed = value.Conv<double>();
+        instance.vspeed = value.Conv<float>();
     }
 
     public static object get_direction(GamemakerObject instance) => instance.direction;
-    public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<double>();
+    public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<float>();
 
     public static object get_view_current() => 0; // TODO : aghhhhh viewports aghhh
 
@@ -269,13 +269,13 @@ public static class VariableResolver
     public static object get_id(GamemakerObject instance) => instance.instanceId;
 
     public static object get_gravity(GamemakerObject instance) => instance.gravity;
-    public static void set_gravity(GamemakerObject instance, object? value) => instance.gravity = value.Conv<double>();
+    public static void set_gravity(GamemakerObject instance, object? value) => instance.gravity = value.Conv<float>();
 
     public static object get_friction(GamemakerObject instance) => instance.friction;
-    public static void set_friction(GamemakerObject instance, object? value) => instance.friction = value.Conv<double>();
+    public static void set_friction(GamemakerObject instance, object? value) => instance.friction = value.Conv<float>();
 
     public static object get_gravity_direction(GamemakerObject instance) => instance.gravity_direction;
-    public static void set_gravity_direction(GamemakerObject instance, object? value) => instance.gravity_direction = value.Conv<double>();
+    public static void set_gravity_direction(GamemakerObject instance, object? value) => instance.gravity_direction = value.Conv<float>();
 
     public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
 
@@ -361,13 +361,13 @@ public static class VariableResolver
     public static object get_path_index(GamemakerObject instance) => instance.path_index;
 
     public static object get_path_position(GamemakerObject instance) => instance.path_position;
-    public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<double>();
+    public static void set_path_position(GamemakerObject instance, object? value) => instance.path_position = value.Conv<float>();
 
     public static object get_path_speed(GamemakerObject instance) => instance.path_speed;
-    public static void set_path_speed(GamemakerObject instance, object? value) => instance.path_speed = value.Conv<double>();
+    public static void set_path_speed(GamemakerObject instance, object? value) => instance.path_speed = value.Conv<float>();
 
     public static object get_path_scale(GamemakerObject instance) => instance.path_scale;
-    public static void set_path_scale(GamemakerObject instance, object? value) => instance.path_scale = value.Conv<double>();
+    public static void set_path_scale(GamemakerObject instance, object? value) => instance.path_scale = value.Conv<float>();
 
     public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
 

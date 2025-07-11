@@ -233,7 +233,7 @@ public static class CollisionManager
         return GMConstants.noone;
     }
 
-    public static int Command_InstancePlace(GamemakerObject self, double x, double y, int obj)
+    public static int Command_InstancePlace(GamemakerObject self, float x, float y, int obj)
     {
         var prevX = self.x;
         var prevY = self.y;
