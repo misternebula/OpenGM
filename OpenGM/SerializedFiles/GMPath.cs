@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.SerializedFiles;
 
-namespace OpenGM.SerializedFiles;
-
-[MemoryPackable]
-public partial class GMPath
+public class GMPath
 {
     public string Name = null!;
     public bool IsSmooth;
@@ -12,8 +9,7 @@ public partial class GMPath
     public List<PathPoint> Points = new();
 }
 
-[MemoryPackable]
-public partial class PathPoint
+public class PathPoint
 {
     public double x;
     public double y;

@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.SerializedFiles;
 
-namespace OpenGM.SerializedFiles;
-
-[MemoryPackable]
-public partial class Shader
+public class Shader
 {
     public int AssetIndex;
     public string Name = null!;

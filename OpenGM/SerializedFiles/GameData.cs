@@ -1,10 +1,8 @@
-﻿using MemoryPack;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace OpenGM.SerializedFiles;
 
-[MemoryPackable]
-public partial class GameData
+public class GameData
 {
     public required string Filename;
     public required int LastObjectID;

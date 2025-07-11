@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.SerializedFiles;
 
-namespace OpenGM.SerializedFiles;
-
-[MemoryPackable]
-public partial class TextureGroup
+public class TextureGroup
 {
     public string GroupName = null!;
     public string[] TexturePages = null!;
