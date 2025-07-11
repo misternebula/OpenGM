@@ -332,6 +332,11 @@ public static class FileFunctions
     [GMLFunction("ini_close")]
     public static object? ini_close(object?[] args)
     {
+        if (_iniFile == null)
+        {
+            return null;
+        }
+
         var filepath = Path.Combine(Entry.DataWinFolder, _iniFile!.Name);
         File.Delete(filepath);
         var fileStream = new FileStream(filepath, FileMode.Append, FileAccess.Write);
