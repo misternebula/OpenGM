@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using System.Collections;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine;
 
@@ -7,24 +8,24 @@ public static partial class VMExecutor
 {
     public static void PushGlobal(string varName)
     {
-        Call.Stack.Push(VariableResolver.GlobalVariables[varName], VMType.v);
+        Call.Stack.Push(VariableResolver.GlobalVariables[varName], UndertaleInstruction.DataType.Variable);
     }
 
     public static void PushGlobalArrayIndex(string varName, int index)
     {
         var array = VariableResolver.GlobalVariables[varName].Conv<IList>();
-        Call.Stack.Push(array[index], VMType.v);
+        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
     }
 
     public static void PushLocalArrayIndex(string varName, int index)
     {
         var array = Call.Locals[varName].Conv<IList>();
-        Call.Stack.Push(array[index], VMType.v);
+        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
     }
 
     public static void PushLocal(string varName)
     {
-        Call.Stack.Push(Call.Locals[varName], VMType.v);
+        Call.Stack.Push(Call.Locals[varName], UndertaleInstruction.DataType.Variable);
     }
 
     public static void PushBuiltin(string varName)
@@ -32,17 +33,17 @@ public static partial class VMExecutor
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
             var value = VariableResolver.BuiltInVariables[varName].getter();
-            Call.Stack.Push(value, VMType.v);
+            Call.Stack.Push(value, UndertaleInstruction.DataType.Variable);
         }
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
         {
             var value = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf);
-            Call.Stack.Push(value, VMType.v);
+            Call.Stack.Push(value, UndertaleInstruction.DataType.Variable);
         }
         else if (Self.Self.SelfVariables.ContainsKey(varName))
         {
             var value = Self.Self.SelfVariables[varName];
-            Call.Stack.Push(value, VMType.v);
+            Call.Stack.Push(value, UndertaleInstruction.DataType.Variable);
         }
         else
         {
@@ -55,12 +56,12 @@ public static partial class VMExecutor
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
             var array = VariableResolver.BuiltInVariables[varName].getter().Conv<IList>();
-            Call.Stack.Push(array[index], VMType.v);
+            Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
         }
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
         {
             var array = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf).Conv<IList>();
-            Call.Stack.Push(array[index], VMType.v);
+            Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
         }
         else
         {
@@ -72,7 +73,7 @@ public static partial class VMExecutor
     {
         if (self == null)
         {
-            DebugLog.LogError($"Null self given to PushSelf varName:{varName} - {VMExecutor.CurrentInstruction!.Raw}");
+            DebugLog.LogError($"Null self given to PushSelf varName:{varName} - {VMExecutor.CurrentInstruction!}");
 
             DebugLog.LogError($"--Stacktrace--");
             foreach (var item in CallStack)
@@ -80,23 +81,23 @@ public static partial class VMExecutor
                 DebugLog.LogError($" - {item.CodeName}");
             }
 
-            Call.Stack.Push(null, VMType.v);
+            Call.Stack.Push(null, UndertaleInstruction.DataType.Variable);
             return;
         }
 
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
         {
-            Call.Stack.Push(builtin_gettersetter.getter(), VMType.v);
+            Call.Stack.Push(builtin_gettersetter.getter(), UndertaleInstruction.DataType.Variable);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfbuiltin_gettersetter) && self is GamemakerObject gm)
         {
-            Call.Stack.Push(selfbuiltin_gettersetter.getter(gm), VMType.v);
+            Call.Stack.Push(selfbuiltin_gettersetter.getter(gm), UndertaleInstruction.DataType.Variable);
         }
         else
         {
             if (self.SelfVariables.ContainsKey(varName))
             {
-                Call.Stack.Push(self.SelfVariables[varName], VMType.v);
+                Call.Stack.Push(self.SelfVariables[varName], UndertaleInstruction.DataType.Variable);
             }
             else
             {
@@ -116,7 +117,7 @@ public static partial class VMExecutor
                 }
 
                 self.SelfVariables[varName] = null;
-                Call.Stack.Push(self.SelfVariables[varName], VMType.v);
+                Call.Stack.Push(self.SelfVariables[varName], UndertaleInstruction.DataType.Variable);
             }
         }
     }
@@ -148,7 +149,7 @@ public static partial class VMExecutor
             throw new ArgumentOutOfRangeException($"index into {varName} is bigger than array: {index} array size: {array.Count}");
         }
 
-        Call.Stack.Push(array[index], VMType.v);
+        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
     }
 
     public static void PushArgument(int index)
@@ -159,11 +160,11 @@ public static partial class VMExecutor
         {
             // Scripts can be called with fewer than normal arguments.
             // They just get set to Undefined.
-            Call.Stack.Push(null, VMType.v);
+            Call.Stack.Push(null, UndertaleInstruction.DataType.Variable);
             return;
         }
 
-        Call.Stack.Push(arguments[index], VMType.v);
+        Call.Stack.Push(arguments[index], UndertaleInstruction.DataType.Variable);
     }
 
     public static void PushIndex(int assetId, string varName)
@@ -177,7 +178,7 @@ public static partial class VMExecutor
             if (asset == null)
             {
                 DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, assetId)}!");
-                Call.Stack.Push(null, VMType.v);
+                Call.Stack.Push(null, UndertaleInstruction.DataType.Variable);
                 return;
             }
 
@@ -200,7 +201,7 @@ public static partial class VMExecutor
 
                 DebugLog.LogError(Environment.StackTrace);
 
-                Call.Stack.Push(null, VMType.v);
+                Call.Stack.Push(null, UndertaleInstruction.DataType.Variable);
                 return;
             }
 
@@ -215,7 +216,7 @@ public static partial class VMExecutor
 
     public static void PushStacktop(string varName)
     {
-        var instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
+        var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<int>();
         PushIndex(instanceId, varName);
     }
 
@@ -227,26 +228,26 @@ public static partial class VMExecutor
 
         if (argIndex >= arguments.Count)
         {
-            Call.Stack.Push(null, VMType.v);
+            Call.Stack.Push(null, UndertaleInstruction.DataType.Variable);
             return;
         }
 
         var array = arguments[argIndex].Conv<IList>();
 
-        Call.Stack.Push(array[index], VMType.v);
+        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
     }
 
-    public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoPush(UndertaleInstruction instruction)
     {
-        switch (instruction.TypeOne)
+        switch (instruction.Type1)
         {
-            case VMType.i:
+            case UndertaleInstruction.DataType.Int32:
 
-                if (instruction.StringData != null)
+                if (instruction.ValueString.Resource.Content != null)
                 {
                     if (instruction.PushFunction)
                     {
-                        Call.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
+                        Call.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.ValueString.Resource.Content), UndertaleInstruction.DataType.Int32);
                     }
                     else
                     {
@@ -255,95 +256,95 @@ public static partial class VMExecutor
                 }
                 else
                 {
-                    Call.Stack.Push(instruction.IntData, VMType.i);
+                    Call.Stack.Push(instruction.ValueInt, UndertaleInstruction.DataType.Int32);
                 }
                 return (ExecutionResult.Success, null);
-            case VMType.e:
-                Call.Stack.Push(instruction.ShortData, VMType.e);
+            case UndertaleInstruction.DataType.Int16:
+                Call.Stack.Push(instruction.ValueShort, UndertaleInstruction.DataType.Int16);
                 return (ExecutionResult.Success, null);
-            case VMType.l:
-                Call.Stack.Push(instruction.LongData, VMType.l);
+            case UndertaleInstruction.DataType.Int64:
+                Call.Stack.Push(instruction.ValueLong, UndertaleInstruction.DataType.Int64);
                 return (ExecutionResult.Success, null);
-            case VMType.b:
-                Call.Stack.Push(instruction.BoolData, VMType.b);
+            case UndertaleInstruction.DataType.Boolean:
+                Call.Stack.Push(instruction.ValueInt, UndertaleInstruction.DataType.Boolean);
                 return (ExecutionResult.Success, null);
-            case VMType.d:
-                Call.Stack.Push(instruction.DoubleData, VMType.d);
+            case UndertaleInstruction.DataType.Double:
+                Call.Stack.Push(instruction.ValueDouble, UndertaleInstruction.DataType.Double);
                 return (ExecutionResult.Success, null);
-            case VMType.s:
-                Call.Stack.Push(instruction.StringData, VMType.s);
+            case UndertaleInstruction.DataType.String:
+                Call.Stack.Push(instruction.ValueString.Resource.Content, UndertaleInstruction.DataType.String);
                 return (ExecutionResult.Success, null);
-            case VMType.v:
+            case UndertaleInstruction.DataType.Variable:
                 return DoPushV(instruction);
         }
 
-        return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
+        return (ExecutionResult.Failed, $"Don't know how to push {instruction}");
     }
 
-    public static (ExecutionResult, object?) DoPushV(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoPushV(UndertaleInstruction instruction)
     {
-        var variableName = instruction.variableName;
-        var variableType = instruction.variableType;
-        var variablePrefix = instruction.variablePrefix;
+        var variableName = instruction.ValueVariable.Name.Content;
+        var variableType = instruction.ValueVariable.InstanceType;
+        var variablePrefix = instruction.ReferenceType;
         var assetId = instruction.assetId;
 
-        if (variablePrefix == VariablePrefix.None)
+        if (variablePrefix == UndertaleInstruction.VariableType.Normal)
         {
-            if (variableType == VariableType.Global)
+            if (variableType == UndertaleInstruction.InstanceType.Global)
             {
                 PushGlobal(variableName);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Local)
+            else if (variableType == UndertaleInstruction.InstanceType.Local)
             {
                 PushLocal(variableName);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.BuiltIn)
+            else if (variableType == UndertaleInstruction.InstanceType.Builtin)
             {
                 PushBuiltin(variableName);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Self)
+            else if (variableType == UndertaleInstruction.InstanceType.Self)
             {
                 PushSelf(Self.Self, variableName);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Argument)
+            else if (variableType == UndertaleInstruction.InstanceType.Arg)
             {
                 var strIndex = variableName[8..]; // skip "argument"
                 var index = int.Parse(strIndex);
                 PushArgument(index);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Index)
+            else if (variableType == UndertaleInstruction.InstanceType.Index)
             {
                 PushIndex(assetId, variableName);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Other)
+            else if (variableType == UndertaleInstruction.InstanceType.Other)
             {
                 PushOther(variableName);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Stacktop)
+            else if (variableType == UndertaleInstruction.InstanceType.Stacktop)
             {
                 PushStacktop(variableName);
                 return (ExecutionResult.Success, null);
             }
         }
-        else if (variablePrefix == VariablePrefix.Array || variablePrefix == VariablePrefix.ArrayPopAF || variablePrefix == VariablePrefix.ArrayPushAF)
+        else if (variablePrefix == UndertaleInstruction.VariableType.Array || variablePrefix == UndertaleInstruction.VariableType.ArrayPopAF || variablePrefix == UndertaleInstruction.VariableType.ArrayPushAF)
         {
-            if (variablePrefix == VariablePrefix.Array)
+            if (variablePrefix == UndertaleInstruction.VariableType.Array)
             {
-                if (variableType == VariableType.Self)
+                if (variableType == UndertaleInstruction.InstanceType.Self)
                 {
-                    var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
                     if (instanceId == GMConstants.stacktop)
                     {
-                        var context = Call.Stack.Pop(VMType.v);
+                        var context = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
 
                         if (context is GMLObject obj)
                         {
@@ -399,7 +400,7 @@ public static partial class VMExecutor
                             if (self == null)
                             {
                                 DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, instanceId)}");
-                                Call.Stack.Push(null, VMType.v);
+                                Call.Stack.Push(null, UndertaleInstruction.DataType.Variable);
                                 return (ExecutionResult.Success, null);
                             }
 
@@ -417,10 +418,10 @@ public static partial class VMExecutor
 
                     //return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");
                 }
-                else if (variableType == VariableType.Global)
+                else if (variableType == UndertaleInstruction.InstanceType.Global)
                 {
-                    var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
                     if (instanceId == GMConstants.global)
                     {
@@ -428,10 +429,10 @@ public static partial class VMExecutor
                         return (ExecutionResult.Success, null);
                     }
                 }
-                else if (variableType == VariableType.Local)
+                else if (variableType == UndertaleInstruction.InstanceType.Local)
                 {
-                    var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
                     if (instanceId == GMConstants.local)
                     {
@@ -440,12 +441,12 @@ public static partial class VMExecutor
                     }
                 }
             }
-            else if (variablePrefix == VariablePrefix.ArrayPopAF)
+            else if (variablePrefix == UndertaleInstruction.VariableType.ArrayPopAF)
             {
-                if (variableType == VariableType.Self)
+                if (variableType == UndertaleInstruction.InstanceType.Self)
                 {
-                    var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
                     // TODO: make into methods and move out duplicated code
                     if (instanceId == GMConstants.global)
@@ -456,7 +457,7 @@ public static partial class VMExecutor
                             onlyGrow: true);
 
                         var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
-                        Call.Stack.Push(array[index], VMType.v);
+                        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
                         return (ExecutionResult.Success, null);
                     }
                     else if (instanceId == GMConstants.local)
@@ -467,7 +468,7 @@ public static partial class VMExecutor
                             onlyGrow: true);
 
                         var array = Call.Locals[variableName].Conv<IList>();
-                        Call.Stack.Push(array[index], VMType.v);
+                        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
                         return (ExecutionResult.Success, null);
                     }
                     else if (instanceId == GMConstants.self)
@@ -479,49 +480,49 @@ public static partial class VMExecutor
                             onlyGrow: true);
 
                         var array = Self.Self.SelfVariables[variableName].Conv<IList>();
-                        Call.Stack.Push(array[index], VMType.v);
+                        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
                         return (ExecutionResult.Success, null);
                     }
                 }
             }
-            else if (variablePrefix == VariablePrefix.ArrayPushAF)
+            else if (variablePrefix == UndertaleInstruction.VariableType.ArrayPushAF)
             {
-                if (variableType == VariableType.Self)
+                if (variableType == UndertaleInstruction.InstanceType.Self)
                 {
-                    var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
                     if (instanceId == GMConstants.global)
                     {
                         var array = VariableResolver.GlobalVariables[variableName].Conv<IList>();
-                        Call.Stack.Push(array[index], VMType.v);
+                        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
                         return (ExecutionResult.Success, null);
                     }
                     else if (instanceId == GMConstants.local)
                     {
                         var array = Call.Locals[variableName].Conv<IList>();
-                        Call.Stack.Push(array[index], VMType.v);
+                        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
                         return (ExecutionResult.Success, null);
                     }
                     else if (instanceId == GMConstants.self)
                     {
                         // TODO: check builtin self var
                         var array = Self.Self.SelfVariables[variableName].Conv<IList>();
-                        Call.Stack.Push(array[index], VMType.v);
+                        Call.Stack.Push(array[index], UndertaleInstruction.DataType.Variable);
                         return (ExecutionResult.Success, null);
                     }
                 }
             }
         }
-        else if (variablePrefix == VariablePrefix.Stacktop)
+        else if (variablePrefix == UndertaleInstruction.VariableType.StackTop)
         {
-            if (variableType == VariableType.Self)
+            if (variableType == UndertaleInstruction.InstanceType.Self)
             {
-                var id = Call.Stack.Pop(VMType.i).Conv<int>();
+                var id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
                 if (id == GMConstants.stacktop)
                 {
-                    var popped = Call.Stack.Pop(VMType.v);
+                    var popped = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
 
                     if (popped is GMLObject gmlo)
                     {
@@ -544,6 +545,6 @@ public static partial class VMExecutor
             }
         }
 
-        return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
+        return (ExecutionResult.Failed, $"Don't know how to push {instruction}");
     }
 }

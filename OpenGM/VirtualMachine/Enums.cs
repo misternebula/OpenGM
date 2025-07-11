@@ -12,29 +12,6 @@ public enum ExecutionResult
     JumpedToEnd
 }
 
-public enum VariableType
-{
-    None,
-    Global,
-    Self,
-    Local,
-    Index,
-    Other,
-    BuiltIn,
-    Argument,
-    Stacktop,
-    Static
-}
-
-public enum VariablePrefix
-{
-    None,
-    Stacktop,
-    Array,
-    ArrayPopAF,
-    ArrayPushAF
-}
-
 public enum EventType
 {
     None,

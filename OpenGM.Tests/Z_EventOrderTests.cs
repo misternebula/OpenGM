@@ -14,7 +14,7 @@ public class Z_EventOrderTests
 
     private List<string> events = new();
 
-    private VMCode GetDebugMessageCode(string message)
+    private UndertaleCode GetDebugMessageCode(string message)
     {
         var asm = $"""
                    :[0]
@@ -62,18 +62,18 @@ public class Z_EventOrderTests
             Name = "test object",
             CreateCode = createCode,
             PreCreateScript = GetDebugMessageCode("PreCreate"),
-            OtherScript = new Dictionary<EventSubtypeOther,VMCode>()
+            OtherScript = new Dictionary<EventSubtypeOther, UndertaleCode>()
             {
                 { EventSubtypeOther.RoomStart, GetDebugMessageCode("Room Start") },
                 { EventSubtypeOther.GameStart, GetDebugMessageCode("Game Start") }
             },
-            StepScript = new Dictionary<EventSubtypeStep, VMCode>()
+            StepScript = new Dictionary<EventSubtypeStep, UndertaleCode>()
             {
                 { EventSubtypeStep.BeginStep, GetDebugMessageCode("Begin Step") },
                 { EventSubtypeStep.Step, GetDebugMessageCode("Step") },
                 { EventSubtypeStep.EndStep, GetDebugMessageCode("End Step") }
             },
-            DrawScript = new Dictionary<EventSubtypeDraw, VMCode>()
+            DrawScript = new Dictionary<EventSubtypeDraw, UndertaleCode>()
             {
                 { EventSubtypeDraw.Draw, GetDebugMessageCode("Draw") },
                 { EventSubtypeDraw.DrawBegin, GetDebugMessageCode("Draw Begin") },
@@ -81,7 +81,7 @@ public class Z_EventOrderTests
                 { EventSubtypeDraw.PreDraw, GetDebugMessageCode("Pre Draw") },
                 { EventSubtypeDraw.PostDraw, GetDebugMessageCode("Post Draw") },
             },
-            AlarmScript = new Dictionary<int, VMCode>()
+            AlarmScript = new Dictionary<int, UndertaleCode>()
             {
                 { 0, GetDebugMessageCode("Alarm 0")}
             }

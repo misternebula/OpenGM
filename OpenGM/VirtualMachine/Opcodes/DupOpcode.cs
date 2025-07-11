@@ -1,13 +1,14 @@
 ﻿using OpenGM.IO;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {
     // see https://github.com/UnderminersTeam/Underanalyzer/blob/main/Underanalyzer/Decompiler/AST/BlockSimulator.cs#L104
-    public static (ExecutionResult, object?) DoDup(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoDup(UndertaleInstruction instruction)
     {
-        var dupType = instruction.TypeOne;
+        var dupType = instruction.Type1;
         var dupTypeSize = VMTypeToSize(dupType);
         var dupSize = instruction.IntData;
         var dupSwapSize = instruction.SecondIntData >> 3;
@@ -23,7 +24,7 @@ public static partial class VMExecutor
 
         if (dupSwapSize != 0)
         {
-            if (dupType == VMType.v && dupSize == 0)
+            if (dupType == UndertaleInstruction.DataType.Variable && dupSize == 0)
             {
                 // Exit early; basically a no-op instruction
                 return (ExecutionResult.Success, null);
@@ -31,7 +32,7 @@ public static partial class VMExecutor
 
             // Load top data from stack
             var topSize = dupSize * dupTypeSize;
-            var topStack = new Stack<(object? value, VMType type)>();
+            var topStack = new Stack<(object? value, UndertaleInstruction.DataType type)>();
             while (topSize > 0)
             {
 #pragma warning disable CS0618
@@ -43,7 +44,7 @@ public static partial class VMExecutor
 
             // Load bottom data from stack
             var bottomSize = dupSwapSize * dupTypeSize;
-            var bottomStack = new Stack<(object? value, VMType type)>();
+            var bottomStack = new Stack<(object? value, UndertaleInstruction.DataType type)>();
             while (bottomSize > 0)
             {
 #pragma warning disable CS0618
@@ -79,7 +80,7 @@ public static partial class VMExecutor
         {
             // Normal duplication mode
             var size = (dupSize + 1) * dupTypeSize;
-            List<(object? value, VMType type)> toDuplicate = new();
+            List<(object? value, UndertaleInstruction.DataType type)> toDuplicate = new();
 
             while (size > 0)
             {

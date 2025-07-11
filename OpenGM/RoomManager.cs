@@ -516,7 +516,7 @@ public static class RoomManager
             GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
         }
 
-        VMCode? GetCodeFromCodeIndex(int codeIndex)
+        UndertaleCode? GetCodeFromCodeIndex(int codeIndex)
         {
             if (codeIndex == -1)
             {

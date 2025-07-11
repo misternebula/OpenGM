@@ -29,22 +29,22 @@ public class ObjectDefinition
     /// </summary>
     public ObjectDefinition? parent;
 
-    public VMCode? CreateCode;
-    public VMCode? DestroyScript;
+    public UndertaleCode? CreateCode;
+    public UndertaleCode? DestroyScript;
 
-    public Dictionary<int, VMCode> AlarmScript = new();
-    public Dictionary<EventSubtypeStep, VMCode> StepScript = new();
-    public Dictionary<int, VMCode> CollisionScript = new();
-    public Dictionary<EventSubtypeKey, VMCode> KeyboardScripts = new();
+    public Dictionary<int, UndertaleCode> AlarmScript = new();
+    public Dictionary<EventSubtypeStep, UndertaleCode> StepScript = new();
+    public Dictionary<int, UndertaleCode> CollisionScript = new();
+    public Dictionary<EventSubtypeKey, UndertaleCode> KeyboardScripts = new();
     //mouse
-    public Dictionary<EventSubtypeOther, VMCode> OtherScript = new();
-    public Dictionary<EventSubtypeDraw, VMCode> DrawScript = new();
-    public Dictionary<EventSubtypeKey, VMCode> KeyPressScripts = new();
-    public Dictionary<EventSubtypeKey, VMCode> KeyReleaseScripts = new();
+    public Dictionary<EventSubtypeOther, UndertaleCode> OtherScript = new();
+    public Dictionary<EventSubtypeDraw, UndertaleCode> DrawScript = new();
+    public Dictionary<EventSubtypeKey, UndertaleCode> KeyPressScripts = new();
+    public Dictionary<EventSubtypeKey, UndertaleCode> KeyReleaseScripts = new();
     //trigger
-    public VMCode? CleanUpScript;
+    public UndertaleCode? CleanUpScript;
     //gesture
-    public VMCode? PreCreateScript;
+    public UndertaleCode? PreCreateScript;
 }
 
 public class ObjectDefinitionStorage

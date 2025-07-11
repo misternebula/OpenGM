@@ -3,6 +3,7 @@ using OpenGM.Loading;
 using OpenGM.SerializedFiles;
 using System.Collections;
 using System.Diagnostics;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine;
 
@@ -126,11 +127,11 @@ public static partial class VMExecutor
 
     public static bool VerboseStackLogs;
     public static bool DebugMode;
-    public static VMCodeInstruction? CurrentInstruction;
+    public static UndertaleInstruction? CurrentInstruction;
     
     // private static IList? _temporaryArrayStorage = null;
 
-    public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
+    public static object? ExecuteCode(UndertaleCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
     {
         object? defaultReturnValue = VersionManager.EngineVersion.Major == 1 ? 0 : null;
         // TODO: this actually changed to being undefined in probably 2.3? don't know how to check that rn, so just going with 2.0
@@ -145,7 +146,7 @@ public static partial class VMExecutor
             return defaultReturnValue;
         }
 
-        var codeName = code.Name; // grab script function name and use that instead of script asset name
+        var codeName = code.Name.Content; // grab script function name and use that instead of script asset name
         var instructionIndex = 0;
         FunctionDefinition? func = null;
         if (code.ParentAssetId != -1) // deltarune calls script functions (empty code) that point to the script asset
@@ -312,26 +313,26 @@ public static partial class VMExecutor
     }
 
     // BUG: throws sometimes instead of returning ExecutionResult.Failure
-    public static (ExecutionResult result, object? data) ExecuteInstruction(VMCodeInstruction instruction)
+    public static (ExecutionResult result, object? data) ExecuteInstruction(UndertaleInstruction instruction)
     {
         if (VerboseStackLogs) 
-            DebugLog.LogInfo($" - {instruction.Raw}");
+            DebugLog.LogInfo($" - {instruction}");
         CurrentInstruction = instruction;
 
-        switch (instruction.Opcode)
+        switch (instruction.Kind)
         {
-            case VMOpcode.B:
+            case UndertaleInstruction.Opcode.B:
                 {
                     if (instruction.JumpToEnd)
                     {
                         return (ExecutionResult.JumpedToEnd, null);
                     }
 
-                    return (ExecutionResult.JumpedToLabel, instruction.IntData);
+                    return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
                 }
-            case VMOpcode.BT:
+            case UndertaleInstruction.Opcode.Bt:
                 {
-                    var boolValue = Call.Stack.Pop(VMType.b).Conv<bool>();
+                    var boolValue = Call.Stack.Pop(UndertaleInstruction.DataType.Boolean).Conv<bool>();
                     if (!boolValue)
                     {
                         break;
@@ -342,11 +343,11 @@ public static partial class VMExecutor
                         return (ExecutionResult.JumpedToEnd, null);
                     }
 
-                    return (ExecutionResult.JumpedToLabel, instruction.IntData);
+                    return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
                 }
-            case VMOpcode.BF:
+            case UndertaleInstruction.Opcode.Bf:
                 {
-                    var boolValue = Call.Stack.Pop(VMType.b).Conv<bool>();
+                    var boolValue = Call.Stack.Pop(UndertaleInstruction.DataType.Boolean).Conv<bool>();
                     if (boolValue)
                     {
                         break;
@@ -357,12 +358,12 @@ public static partial class VMExecutor
                         return (ExecutionResult.JumpedToEnd, null);
                     }
 
-                    return (ExecutionResult.JumpedToLabel, instruction.IntData);
+                    return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
                 }
-            case VMOpcode.CMP:
+            case UndertaleInstruction.Opcode.Cmp:
 
-                var second = Call.Stack.Pop(instruction.TypeOne);
-                var first = Call.Stack.Pop(instruction.TypeTwo);
+                var second = Call.Stack.Pop(instruction.Type1);
+                var first = Call.Stack.Pop(instruction.Type2);
 
                 // first ??= 0;
                 // second ??= 0;
@@ -376,27 +377,26 @@ public static partial class VMExecutor
 
                     var equal = CustomMath.ApproxEqual(firstNumber, secondNumber);
 
-                    switch (instruction.Comparison)
+                    switch (instruction.ComparisonKind)
                     {
-                        case VMComparison.LT:
-                            Call.Stack.Push(CustomMath.ApproxLessThan(firstNumber, secondNumber), VMType.b);
+                        case UndertaleInstruction.ComparisonType.LT:
+                            Call.Stack.Push(CustomMath.ApproxLessThan(firstNumber, secondNumber), UndertaleInstruction.DataType.Boolean);
                             break;
-                        case VMComparison.LTE:
-                            Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstNumber, secondNumber), VMType.b);
+                        case UndertaleInstruction.ComparisonType.LTE:
+                            Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstNumber, secondNumber), UndertaleInstruction.DataType.Boolean);
                             break;
-                        case VMComparison.EQ:
-                            Call.Stack.Push(equal, VMType.b);
+                        case UndertaleInstruction.ComparisonType.EQ:
+                            Call.Stack.Push(equal, UndertaleInstruction.DataType.Boolean);
                             break;
-                        case VMComparison.NEQ:
-                            Call.Stack.Push(!equal, VMType.b);
+                        case UndertaleInstruction.ComparisonType.NEQ:
+                            Call.Stack.Push(!equal, UndertaleInstruction.DataType.Boolean);
                             break;
-                        case VMComparison.GTE:
-                            Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstNumber, secondNumber), VMType.b);
+                        case UndertaleInstruction.ComparisonType.GTE:
+                            Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstNumber, secondNumber), UndertaleInstruction.DataType.Boolean);
                             break;
-                        case VMComparison.GT:
-                            Call.Stack.Push(CustomMath.ApproxGreaterThan(firstNumber, secondNumber), VMType.b);
+                        case UndertaleInstruction.ComparisonType.GT:
+                            Call.Stack.Push(CustomMath.ApproxGreaterThan(firstNumber, secondNumber), UndertaleInstruction.DataType.Boolean);
                             break;
-                        case VMComparison.None:
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -405,34 +405,34 @@ public static partial class VMExecutor
                 {
                     // this should handle strings and whatever else
 
-                    if (instruction.Comparison == VMComparison.EQ)
+                    if (instruction.ComparisonKind == UndertaleInstruction.ComparisonType.EQ)
                     {
                         if (first is null && second is null)
                         {
-                            Call.Stack.Push(true, VMType.b);
+                            Call.Stack.Push(true, UndertaleInstruction.DataType.Boolean);
                         }
                         else if (first is null || second is null)
                         {
-                            Call.Stack.Push(false, VMType.b);
+                            Call.Stack.Push(false, UndertaleInstruction.DataType.Boolean);
                         }
                         else
                         {
-                            Call.Stack.Push(first?.Equals(second), VMType.b);
+                            Call.Stack.Push(first?.Equals(second), UndertaleInstruction.DataType.Boolean);
                         }
                     }
-                    else if (instruction.Comparison == VMComparison.NEQ)
+                    else if (instruction.ComparisonKind == UndertaleInstruction.ComparisonType.NEQ)
                     {
                         if (first is null && second is null)
                         {
-                            Call.Stack.Push(false, VMType.b);
+                            Call.Stack.Push(false, UndertaleInstruction.DataType.Boolean);
                         }
                         else if (first is null || second is null)
                         {
-                            Call.Stack.Push(true, VMType.b);
+                            Call.Stack.Push(true, UndertaleInstruction.DataType.Boolean);
                         }
                         else
                         {
-                            Call.Stack.Push(!first?.Equals(second), VMType.b);
+                            Call.Stack.Push(!first?.Equals(second), UndertaleInstruction.DataType.Boolean);
                         }
                     }
                     else
@@ -440,21 +440,20 @@ public static partial class VMExecutor
                         var firstValue = first is string s1 ? double.Parse(s1) : first.Conv<double>();
                         var secondValue = second is string s2 ? double.Parse(s2) : second.Conv<double>();
 
-                        switch (instruction.Comparison)
+                        switch (instruction.ComparisonKind)
                         {
-                            case VMComparison.LT:
-                                Call.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), VMType.b);
+                            case UndertaleInstruction.ComparisonType.LT:
+                                Call.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), UndertaleInstruction.DataType.Boolean);
                                 break;
-                            case VMComparison.LTE:
-                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), VMType.b);
+                            case UndertaleInstruction.ComparisonType.LTE:
+                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), UndertaleInstruction.DataType.Boolean);
                                 break;
-                            case VMComparison.GTE:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), VMType.b);
+                            case UndertaleInstruction.ComparisonType.GTE:
+                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), UndertaleInstruction.DataType.Boolean);
                                 break;
-                            case VMComparison.GT:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), VMType.b);
+                            case UndertaleInstruction.ComparisonType.GT:
+                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), UndertaleInstruction.DataType.Boolean);
                                 break;
-                            case VMComparison.None:
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
@@ -463,122 +462,122 @@ public static partial class VMExecutor
                     }
                 }
                 break;
-            case VMOpcode.PUSHGLB:
-            case VMOpcode.PUSHLOC:
-            case VMOpcode.PUSHBLTN:
-            case VMOpcode.PUSHI:
-            case VMOpcode.PUSH:
+            case UndertaleInstruction.Opcode.PushGlb:
+            case UndertaleInstruction.Opcode.PushLoc:
+            case UndertaleInstruction.Opcode.PushBltn:
+            case UndertaleInstruction.Opcode.PushI:
+            case UndertaleInstruction.Opcode.Push:
                 return DoPush(instruction);
-            case VMOpcode.POP:
+            case UndertaleInstruction.Opcode.Pop:
                 return DoPop(instruction);
-            case VMOpcode.RET:
+            case UndertaleInstruction.Opcode.Ret:
                 // ret value is always stored as rvalue
-                return (ExecutionResult.ReturnedValue, Call.Stack.Pop(VMType.v));
-            case VMOpcode.CONV:
+                return (ExecutionResult.ReturnedValue, Call.Stack.Pop(UndertaleInstruction.DataType.Variable));
+            case UndertaleInstruction.Opcode.Conv:
                 // dont actually convert, just tell the stack we're a different type
                 // since we have to conv everywhere else later anyway with rvalue
-                Call.Stack.Push(Call.Stack.Pop(instruction.TypeOne), instruction.TypeTwo);
+                Call.Stack.Push(Call.Stack.Pop(instruction.Type1), instruction.Type2);
                 break;
-            case VMOpcode.POPZ:
-                Call.Stack.Pop(instruction.TypeOne);
+            case UndertaleInstruction.Opcode.Popz:
+                Call.Stack.Pop(instruction.Type1);
                 break;
-            case VMOpcode.CALL:
+            case UndertaleInstruction.Opcode.Call:
             {
-                var args = new object?[instruction.FunctionArgumentCount];
+                var args = new object?[instruction.ValueInt];
 
-                for (var i = 0; i < instruction.FunctionArgumentCount; i++)
+                for (var i = 0; i < instruction.ArgumentsCount; i++)
                 {
                     // args are always pushed as rvalues
-                    args[i] = Call.Stack.Pop(VMType.v);
+                    args[i] = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
                 }
 
-                if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
+                if (ScriptResolver.ScriptsByName.TryGetValue(instruction.ValueFunction.Name.Content, out var scriptName))
                 {
-                    Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.Self, Self.ObjectDefinition, args: args), VMType.v);
+                    Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.Self, Self.ObjectDefinition, args: args), UndertaleInstruction.DataType.Variable);
                     break;
                 }
 
-                if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
+                if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.ValueFunction.Name.Content, out var builtInFunction))
                 {
-                    Call.Stack!.Push(builtInFunction!(args), VMType.v);
+                    Call.Stack!.Push(builtInFunction!(args), UndertaleInstruction.DataType.Variable);
                     break;
                 }
 
-                return (ExecutionResult.Failed, $"Can't resolve script {instruction.FunctionName} !");
+                return (ExecutionResult.Failed, $"Can't resolve script {instruction.ValueFunction.Name.Content} !");
             }
-            case VMOpcode.PUSHENV:
+            case UndertaleInstruction.Opcode.PushEnv:
                 return PUSHENV(instruction);
-            case VMOpcode.POPENV:
+            case UndertaleInstruction.Opcode.PopEnv:
                 return POPENV(instruction);
-            case VMOpcode.DUP:
+            case UndertaleInstruction.Opcode.Dup:
                 return DoDup(instruction);
-            case VMOpcode.ADD:
+            case UndertaleInstruction.Opcode.Add:
                 return ADD(instruction);
-            case VMOpcode.SUB:
+            case UndertaleInstruction.Opcode.Sub:
                 return SUB(instruction);
-            case VMOpcode.MUL:
+            case UndertaleInstruction.Opcode.Mul:
                 return MUL(instruction);
-            case VMOpcode.DIV:
+            case UndertaleInstruction.Opcode.Div:
                 return DIV(instruction);
-            case VMOpcode.REM:
+            case UndertaleInstruction.Opcode.Rem:
                 return REM(instruction);
-            case VMOpcode.MOD:
+            case UndertaleInstruction.Opcode.Mod:
                 return MOD(instruction);
-            case VMOpcode.NEG:
+            case UndertaleInstruction.Opcode.Neg:
                 return NEG(instruction);
-            case VMOpcode.AND:
+            case UndertaleInstruction.Opcode.And:
                 return AND(instruction);
-            case VMOpcode.OR:
+            case UndertaleInstruction.Opcode.Or:
                 return OR(instruction);
-            case VMOpcode.XOR:
+            case UndertaleInstruction.Opcode.Xor:
                 return XOR(instruction);
-            case VMOpcode.NOT:
+            case UndertaleInstruction.Opcode.Not:
                 return NOT(instruction);
-            case VMOpcode.SHL:
+            case UndertaleInstruction.Opcode.Shl:
                 return SHL(instruction);
-            case VMOpcode.SHR:
+            case UndertaleInstruction.Opcode.Shr:
                 return SHR(instruction);
-            case VMOpcode.CHKINDEX:
+            case UndertaleInstruction.Opcode.CHKINDEX:
             {
                 // unused in ch2???? no clue what this does
                 // used for multi-dimensional array bounds checking. c# does that anyway so its probably fine
                 
                 var (index, type) = Call.Stack.Peek();
 
-                if (index is int || type is VMType.i || type is VMType.e) // do we check type idk
+                if (index is int || type is UndertaleInstruction.DataType.Int32 || type is UndertaleInstruction.DataType.Int16) // do we check type idk
                 {
                     break;
                 }
 
                 throw new Exception($"CHKINDEX failed - {index} ({type})");
             }
-            case VMOpcode.CHKNULLISH:
+            case UndertaleInstruction.Opcode.CHKNULLISH:
             {
                 // TODO: is this right? remains to be seen
-                var value = Call.Stack.Pop(VMType.v);
-                Call.Stack.Push(value == null, VMType.b);
+                var value = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
+                Call.Stack.Push(value == null, UndertaleInstruction.DataType.Boolean);
                 break;
             }
-            case VMOpcode.EXIT:
-                return (ExecutionResult.ReturnedValue, instruction.TypeOne switch
+            case UndertaleInstruction.Opcode.Exit:
+                return (ExecutionResult.ReturnedValue, instruction.Type1 switch
                 {
-                    VMType.i or VMType.e or VMType.d or VMType.l => 0,
-                    VMType.b => false,
-                    VMType.s => "",
-                    VMType.v => null,
+                    UndertaleInstruction.DataType.Int32 or UndertaleInstruction.DataType.Int16 or UndertaleInstruction.DataType.Double or UndertaleInstruction.DataType.Int64 => 0,
+                    UndertaleInstruction.DataType.Boolean => false,
+                    UndertaleInstruction.DataType.String => "",
+                    UndertaleInstruction.DataType.Variable => null,
                     _ => throw new ArgumentOutOfRangeException()
                 });
-            case VMOpcode.SETOWNER:
+            case UndertaleInstruction.Opcode.SETOWNER:
                 // seems to always push.i before
                 // apparently used for COW array stuff. does that mean this subtley breaks everything because arrays expect to copy?
-                var id = Call.Stack.Pop(VMType.i).Conv<int>();
+                var id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                 break;
-            case VMOpcode.POPAF:
+            case UndertaleInstruction.Opcode.POPAF:
             {
-                var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                var array = Call.Stack.Pop(VMType.v).Conv<IList>();
+                var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                var array = Call.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<IList>();
                 
-                var value = Call.Stack.Pop(VMType.v);
+                var value = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
                 
                 // by the magic of reference types this will be set properly
                 VariableResolver.ArraySet(index, value,
@@ -587,46 +586,46 @@ public static partial class VMExecutor
 
                 break;
             }
-            case VMOpcode.PUSHAF: 
+            case UndertaleInstruction.Opcode.PUSHAF: 
             {
-                var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                var array = Call.Stack.Pop(VMType.v).Conv<IList>();
+                var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                var array = Call.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<IList>();
 
                 var value = array[index];
 
-                Call.Stack.Push(value, VMType.v);
+                Call.Stack.Push(value, UndertaleInstruction.DataType.Variable);
 
                 break;
             }
-            case VMOpcode.SAVEAREF:
+            case UndertaleInstruction.Opcode.SAVEAREF:
             {
                 // doing what the comment in Underanalyzer says makes everything break???
                 
                 // if (_temporaryArrayStorage != null) throw new Exception("savearef - array already stored");
-                // var wtfIsThis = Ctx.Stack.Pop(VMType.i);
-                // _temporaryArrayStorage = Ctx.Stack.Pop(VMType.v).Conv<IList>();
+                // var wtfIsThis = Ctx.Stack.Pop(UndertaleInstruction.DataType.Int32);
+                // _temporaryArrayStorage = Ctx.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<IList>();
                 break;
             }
-            case VMOpcode.RESTOREAREF:
+            case UndertaleInstruction.Opcode.RESTOREAREF:
             {
                 // doing what the comment in Underanalyzer says makes everything break???
                 
                 // if (_temporaryArrayStorage == null) throw new Exception("savearef - array not stored");
-                // Ctx.Stack.Push(_temporaryArrayStorage, VMType.v);
+                // Ctx.Stack.Push(_temporaryArrayStorage, UndertaleInstruction.DataType.Variable);
                 // _temporaryArrayStorage = null;
                 break;
             }
-            case VMOpcode.CALLV:
+            case UndertaleInstruction.Opcode.CallV:
             {
-                var method = Call.Stack.Pop(VMType.v) as Method;
-                var self = Call.Stack.Pop(VMType.v).Conv<int>(); // TODO: if method.inst is null, use this as self (https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/method_get_self.htm)
+                var method = Call.Stack.Pop(UndertaleInstruction.DataType.Variable) as Method;
+                var self = Call.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<int>(); // TODO: if method.inst is null, use this as self (https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/method_get_self.htm)
 
-                var args = new object?[instruction.IntData];
+                var args = new object?[instruction.ValueInt];
 
-                for (var i = 0; i < instruction.IntData; i++)
+                for (var i = 0; i < instruction.ValueInt; i++)
                 {
                     // args are always pushed as rvalues
-                    args[i] = Call.Stack.Pop(VMType.v);
+                    args[i] = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
                 }
 
                 if (method == null)
@@ -636,11 +635,11 @@ public static partial class VMExecutor
 
                 //DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
 
-                Call.Stack.Push(ExecuteCode(method.func.GetCode(), method.inst, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
+                Call.Stack.Push(ExecuteCode(method.func.GetCode(), method.inst, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), UndertaleInstruction.DataType.Variable);
 
                 break;
             }
-            case VMOpcode.ISSTATICOK:
+            case UndertaleInstruction.Opcode.ISSTATICOK:
             {
                 var currentFunc = Call.Function;
 
@@ -650,10 +649,10 @@ public static partial class VMExecutor
                     throw new NotImplementedException();
                 }
 
-                Call.Stack.Push(currentFunc.HasStaticInitRan, VMType.b);
+                Call.Stack.Push(currentFunc.HasStaticInitRan, UndertaleInstruction.DataType.Boolean);
                 break;
             }
-            case VMOpcode.SETSTATIC:
+            case UndertaleInstruction.Opcode.SETSTATIC:
             {
                 var currentFunc = Call.Function;
 
@@ -666,46 +665,46 @@ public static partial class VMExecutor
                 currentFunc.HasStaticInitRan = true;
                 break;
             }
-            case VMOpcode.PUSHREF:
+            case UndertaleInstruction.Opcode.PUSHREF:
             {
-                var encodedInt = instruction.IntData;
+                var encodedInt = instruction.ValueInt;
 
                 var assetReferenceId = encodedInt & 0xFFFFFF;
                 var assetReferenceType = (AssetType)(encodedInt >> 24);
 
                 // TODO actually push an asset reference object! this is super hacky and dumb and bad and will inevitably break
-                Call.Stack.Push(assetReferenceId, VMType.v);
+                Call.Stack.Push(assetReferenceId, UndertaleInstruction.DataType.Variable);
 
                 break;
             }
-            case VMOpcode.PUSHAC:
+            case UndertaleInstruction.Opcode.PUSHAC:
             {
-                var index = Call.Stack.Pop(VMType.i).Conv<int>();
-                var array = Call.Stack.Pop(VMType.v).Conv<IList>();
+                var index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                var array = Call.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<IList>();
                 
                 var value = array[index];
 
-                Call.Stack.Push(value, VMType.v);
+                Call.Stack.Push(value, UndertaleInstruction.DataType.Variable);
                 break;
             }
-            case VMOpcode.BREAK:
+            case UndertaleInstruction.Opcode.Break:
                 throw new UnreachableException("break is used as an extended opcode marker, so it should never show up as an instruction");
             default:
-                return (ExecutionResult.Failed, $"Unknown opcode {instruction.Opcode}");
+                return (ExecutionResult.Failed, $"Unknown opcode {instruction.Kind}");
         }
 
         return (ExecutionResult.Success, null);
     }
 
-    public static int VMTypeToSize(VMType type) => type switch
+    public static int VMTypeToSize(UndertaleInstruction.DataType type) => type switch
     {
-        VMType.v => 16,
-        VMType.d => 8,
-        VMType.l => 8,
-        VMType.i => 4,
-        VMType.b => 4,
-        VMType.s => 4,
-        VMType.e => 4,
+        UndertaleInstruction.DataType.Variable => 16,
+        UndertaleInstruction.DataType.Double => 8,
+        UndertaleInstruction.DataType.Int64 => 8,
+        UndertaleInstruction.DataType.Int32 => 4,
+        UndertaleInstruction.DataType.Boolean => 4,
+        UndertaleInstruction.DataType.String => 4,
+        UndertaleInstruction.DataType.Int16 => 4,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 

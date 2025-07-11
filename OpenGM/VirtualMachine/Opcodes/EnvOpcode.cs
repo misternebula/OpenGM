@@ -1,16 +1,17 @@
 ﻿using OpenGM.IO;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {
-    public static (ExecutionResult, object?) PUSHENV(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) PUSHENV(UndertaleInstruction instruction)
     {
-        var id = Call.Stack.Pop(VMType.i).Conv<int>();
+        var id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
 
         if (id == GMConstants.stacktop)
         {
-            id = Call.Stack.Pop(VMType.v).Conv<int>();
+            id = Call.Stack.Pop(UndertaleInstruction.DataType.Variable).Conv<int>();
         }
 
         // marks the beginning of the instances pushed. popenv will stop jumping when it reaches this
@@ -27,7 +28,7 @@ public static partial class VMExecutor
                 return (ExecutionResult.JumpedToEnd, null);
             }
 
-            return (ExecutionResult.JumpedToLabel, instruction.IntData);
+            return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
         }
         else if (id == GMConstants.other)
         {
@@ -62,7 +63,7 @@ public static partial class VMExecutor
                 return (ExecutionResult.JumpedToEnd, null);
             }
 
-            return (ExecutionResult.JumpedToLabel, instruction.IntData);
+            return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
         }
         else if (id < GMConstants.FIRST_INSTANCE_ID)
         {
@@ -80,7 +81,7 @@ public static partial class VMExecutor
                     return (ExecutionResult.JumpedToEnd, null);
                 }
 
-                return (ExecutionResult.JumpedToLabel, instruction.IntData);
+                return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
             }
 
             foreach (var instance in instances)
@@ -106,7 +107,7 @@ public static partial class VMExecutor
                     return (ExecutionResult.JumpedToEnd, null);
                 }
 
-                return (ExecutionResult.JumpedToLabel, instruction.IntData);
+                return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
             }
 
             var newCtx = new VMEnvFrame
@@ -121,12 +122,12 @@ public static partial class VMExecutor
         return (ExecutionResult.Success, null);
     }
 
-    public static (ExecutionResult, object?) POPENV(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) POPENV(UndertaleInstruction instruction)
     {
         var currentInstance = EnvStack.Pop();
         var nextInstance = EnvStack.Peek();
 
-        if (instruction.Drop)
+        if (instruction.JumpOffsetPopenvExitMagic)
         {
             while (currentInstance != null)
             {
@@ -155,6 +156,6 @@ public static partial class VMExecutor
             return (ExecutionResult.JumpedToEnd, null);
         }
 
-        return (ExecutionResult.JumpedToLabel, instruction.IntData);
+        return (ExecutionResult.JumpedToLabel, instruction.ValueInt);
     }
 }

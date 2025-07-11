@@ -505,7 +505,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
         //DebugLog.LogInfo($"Trying to execute {eventType} {eventNumber} on {obj.object_index} with definition {definition.Name}");
 
-        bool TryExecute(VMCode? code)
+        bool TryExecute(UndertaleCode? code)
         {
             if (code != null)
             {
@@ -521,7 +521,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
             return false;
         }
 
-        bool TryExecuteDict<T>(Dictionary<T, VMCode> dict, T index) where T : notnull
+        bool TryExecuteDict<T>(Dictionary<T, UndertaleCode> dict, T index) where T : notnull
         {
             if (dict.TryGetValue(index, out var script))
             {

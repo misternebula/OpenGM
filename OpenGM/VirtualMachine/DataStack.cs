@@ -1,14 +1,16 @@
+using UndertaleModLib.Models;
+
 namespace OpenGM.VirtualMachine;
 
 /// <summary>
 /// stack that also stores the type
 /// </summary>
-public class DataStack : Stack<(object? value, VMType type)>
+public class DataStack : Stack<(object? value, UndertaleInstruction.DataType type)>
 {
     public DataStack() : base() { }
     public DataStack(DataStack stack) : base(stack) { } // maybe cloning isnt needed
 
-    public void Push(object? value, VMType type)
+    public void Push(object? value, UndertaleInstruction.DataType type)
     {
         base.Push((value, type));
     }
@@ -16,7 +18,7 @@ public class DataStack : Stack<(object? value, VMType type)>
     /// <summary>
     /// checks size before popping
     /// </summary>
-    public object? Pop(VMType typeToPop)
+    public object? Pop(UndertaleInstruction.DataType typeToPop)
     {
         var (poppedValue, typeOfPopped) = base.Pop();
 
@@ -30,8 +32,8 @@ public class DataStack : Stack<(object? value, VMType type)>
     }
 
     [Obsolete("dont use this version")]
-    public new void Push((object? value, VMType type) x) => base.Push(x);
+    public new void Push((object? value, UndertaleInstruction.DataType type) x) => base.Push(x);
 
     [Obsolete("dont use this version")]
-    public new (object? value, VMType type) Pop() => base.Pop();
+    public new (object? value, UndertaleInstruction.DataType type) Pop() => base.Pop();
 }

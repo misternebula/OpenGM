@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using System.Collections;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine;
 
@@ -162,86 +163,86 @@ public static partial class VMExecutor
         currentFunc.StaticVariables[varName] = value;
     }
 
-    public static (ExecutionResult, object?) DoPop(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoPop(UndertaleInstruction instruction)
     {
-        if (instruction.TypeOne == VMType.e)
+        if (instruction.Type1 == UndertaleInstruction.DataType.Int16)
         {
             // weird swap thingy
             throw new NotImplementedException();
         }
 
-        var variableName = instruction.variableName;
-        var variableType = instruction.variableType;
-        var variablePrefix = instruction.variablePrefix;
+        var variableName = instruction.ValueVariable.Name.Content;
+        var variableType = instruction.ValueVariable.InstanceType;
+        var variablePrefix = instruction.ReferenceType;
         var assetId = instruction.assetId;
 
-        if (variablePrefix == VariablePrefix.None)
+        if (variablePrefix == UndertaleInstruction.VariableType.Normal)
         {
             // we're just popping to a normal variable. thank god.
-            var dataPopped = Call.Stack.Pop(instruction.TypeTwo);
+            var dataPopped = Call.Stack.Pop(instruction.Type2);
 
-            if (variableType == VariableType.Global)
+            if (variableType == UndertaleInstruction.InstanceType.Global)
             {
                 PopToGlobal(variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Local)
+            else if (variableType == UndertaleInstruction.InstanceType.Local)
             {
                 PopToLocal(variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Self)
+            else if (variableType == UndertaleInstruction.InstanceType.Self)
             {
                 PopToSelf(Self.Self, variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Index)
+            else if (variableType == UndertaleInstruction.InstanceType.Index)
             {
                 PopToIndex(assetId, variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Argument)
+            else if (variableType == UndertaleInstruction.InstanceType.Arg)
             {
                 var strIndex = variableName[8..]; // skip "argument"
                 var index = int.Parse(strIndex);
                 PopToArgument(index, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.BuiltIn)
+            else if (variableType == UndertaleInstruction.InstanceType.Builtin)
             {
                 PopToBuiltIn(variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Other)
+            else if (variableType == UndertaleInstruction.InstanceType.Other)
             {
                 PopToOther(variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Static)
+            else if (variableType == UndertaleInstruction.InstanceType.Static)
             {
                 PopToStatic(variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
         }
-        else if (variablePrefix == VariablePrefix.Array || variablePrefix == VariablePrefix.ArrayPopAF || variablePrefix == VariablePrefix.ArrayPushAF)
+        else if (variablePrefix == UndertaleInstruction.VariableType.Array || variablePrefix == UndertaleInstruction.VariableType.ArrayPopAF || variablePrefix == UndertaleInstruction.VariableType.ArrayPushAF)
         {
             // pop appears to not support ArrayPopAF or ArrayPushAF
 
-            if (variablePrefix == VariablePrefix.Array)
+            if (variablePrefix == UndertaleInstruction.VariableType.Array)
             {
                 int index;
                 //int instanceId;
                 object? context;
                 object? value;
-                if (instruction.TypeOne == VMType.i) // flips value and id pop
+                if (instruction.Type1 == UndertaleInstruction.DataType.Int32) // flips value and id pop
                 {
-                    value = Call.Stack.Pop(instruction.TypeTwo);
+                    value = Call.Stack.Pop(instruction.Type2);
 
-                    index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                     if (instanceId == GMConstants.stacktop)
                     {
-                        context = Call.Stack.Pop(VMType.v);
+                        context = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
                     }
                     else
                     {
@@ -250,21 +251,21 @@ public static partial class VMExecutor
                 }
                 else // v
                 {
-                    index = Call.Stack.Pop(VMType.i).Conv<int>();
-                    var instanceId = Call.Stack.Pop(VMType.i).Conv<int>();
+                    index = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
+                    var instanceId = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                     if (instanceId == GMConstants.stacktop)
                     {
-                        context = Call.Stack.Pop(VMType.v);
+                        context = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
                     }
                     else
                     {
                         context = instanceId;
                     }
 
-                    value = Call.Stack.Pop(instruction.TypeTwo);
+                    value = Call.Stack.Pop(instruction.Type2);
                 }
 
-                if (variableType == VariableType.Self)
+                if (variableType == UndertaleInstruction.InstanceType.Self)
                 {
                     if (context is GMLObject obj)
                     {
@@ -308,7 +309,7 @@ public static partial class VMExecutor
                         }
                     }
                 }
-                else if (variableType == VariableType.Global)
+                else if (variableType == UndertaleInstruction.InstanceType.Global)
                 {
                     if (context is GMLObject obj)
                     {
@@ -324,7 +325,7 @@ public static partial class VMExecutor
                         }
                     }
                 }
-                else if (variableType == VariableType.Local)
+                else if (variableType == UndertaleInstruction.InstanceType.Local)
                 {
                     if (context is GMLObject obj)
                     {
@@ -341,26 +342,26 @@ public static partial class VMExecutor
                     }
                 }
 
-                return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw} (index={index}, context={context}, value={value})");
+                return (ExecutionResult.Failed, $"Don't know how to execute {instruction} (index={index}, context={context}, value={value})");
             }
         }
-        else if (variablePrefix == VariablePrefix.Stacktop)
+        else if (variablePrefix == UndertaleInstruction.VariableType.StackTop)
         {
             // TODO : Check if 'self' is the only context where [stacktop] is used.
             // TODO : clean this shit up lol
 
-            if (variableType == VariableType.Self)
+            if (variableType == UndertaleInstruction.InstanceType.Self)
             {
                 int id;
                 object? value;
-                if (instruction.TypeOne == VMType.i) // flips value and id pop
+                if (instruction.Type1 == UndertaleInstruction.DataType.Int32) // flips value and id pop
                 {
-                    value = Call.Stack.Pop(instruction.TypeTwo);
+                    value = Call.Stack.Pop(instruction.Type2);
 
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
+                    id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                     if (id == GMConstants.stacktop)
                     {
-                        var popped = Call.Stack.Pop(VMType.v);
+                        var popped = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
 
                         if (popped is GMLObject gmlo)
                         {
@@ -375,14 +376,14 @@ public static partial class VMExecutor
                 }
                 else // v
                 {
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
+                    id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                     if (id == GMConstants.stacktop)
                     {
-                        var popped = Call.Stack.Pop(VMType.v);
+                        var popped = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
 
                         if (popped is GMLObject gmlo)
                         {
-                            value = Call.Stack.Pop(instruction.TypeTwo);
+                            value = Call.Stack.Pop(instruction.Type2);
                             PopToSelf(gmlo, variableName, value);
                             return (ExecutionResult.Success, null);
                         }
@@ -392,7 +393,7 @@ public static partial class VMExecutor
                         }
                     }
 
-                    value = Call.Stack.Pop(instruction.TypeTwo);
+                    value = Call.Stack.Pop(instruction.Type2);
                 }
 
                 if (id == GMConstants.global)
@@ -459,19 +460,19 @@ public static partial class VMExecutor
                 PopToIndex(id, variableName, value);
                 return (ExecutionResult.Success, null);
             }
-            else if (variableType == VariableType.Static)
+            else if (variableType == UndertaleInstruction.InstanceType.Static)
             {
                 int id;
                 object? value;
 
-                if (instruction.TypeOne == VMType.i) // flips value and id pop
+                if (instruction.Type1 == UndertaleInstruction.DataType.Int32) // flips value and id pop
                 {
-                    value = Call.Stack.Pop(instruction.TypeTwo);
+                    value = Call.Stack.Pop(instruction.Type2);
 
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
+                    id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                     if (id == GMConstants.stacktop)
                     {
-                        var popped = Call.Stack.Pop(VMType.v);
+                        var popped = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
 
                         if (popped is GMLObject gmlo)
                         {
@@ -486,14 +487,14 @@ public static partial class VMExecutor
                 }
                 else // v
                 {
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
+                    id = Call.Stack.Pop(UndertaleInstruction.DataType.Int32).Conv<int>();
                     if (id == GMConstants.stacktop)
                     {
-                        var popped = Call.Stack.Pop(VMType.v);
+                        var popped = Call.Stack.Pop(UndertaleInstruction.DataType.Variable);
 
                         if (popped is GMLObject gmlo)
                         {
-                            value = Call.Stack.Pop(instruction.TypeTwo);
+                            value = Call.Stack.Pop(instruction.Type2);
                             PopToSelf(gmlo, variableName, value);
                             return (ExecutionResult.Success, null);
                         }
@@ -503,7 +504,7 @@ public static partial class VMExecutor
                         }
                     }
 
-                    value = Call.Stack.Pop(instruction.TypeTwo);
+                    value = Call.Stack.Pop(instruction.Type2);
                 }
 
                 if (id == GMConstants.@static)
@@ -516,6 +517,6 @@ public static partial class VMExecutor
             }
         }
 
-        return (ExecutionResult.Failed, $"Don't know how to execute {instruction.Raw}");
+        return (ExecutionResult.Failed, $"Don't know how to execute {instruction}");
     }
 }
