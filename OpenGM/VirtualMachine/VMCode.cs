@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.VirtualMachine;
 
-namespace OpenGM.VirtualMachine;
-
-[MemoryPackable]
-public partial class VMCode
+public class VMCode
 {
     public int AssetId;
     public string Name = null!;
@@ -23,8 +20,7 @@ public partial class VMCode
     public void CodeExecuted() => OnCodeExecuted?.Invoke();
 }
 
-[MemoryPackable]
-public partial class FunctionDefinition
+public class FunctionDefinition
 {
     public int InstructionIndex;
     public string FunctionName = null!;

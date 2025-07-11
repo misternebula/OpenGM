@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.VirtualMachine;
 
-namespace OpenGM.VirtualMachine;
-
-[MemoryPackable]
-public partial class VMCodeInstruction
+public class VMCodeInstruction
 {
     public string Raw = null!;
 

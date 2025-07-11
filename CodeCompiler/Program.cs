@@ -83,7 +83,7 @@ internal class Program
 			var code = data.Code.First(x => x.Name.Content == codeName);
 
 			var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
-			var vmCode = GameConverter.ConvertAssembly(asmFile);
+			var vmCode = GameLoader.ConvertAssembly(asmFile);
 			vmCode.Name = code.Name.Content;
 			var json = JsonConvert.SerializeObject(vmCode);
 			File.WriteAllText(Path.Combine(asmFolder, $"{code.Name.Content}.json"), json);

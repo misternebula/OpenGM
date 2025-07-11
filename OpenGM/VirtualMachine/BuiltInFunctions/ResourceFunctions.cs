@@ -310,7 +310,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? path_get_x(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var pos = args[0].Conv<double>();
+            var pos = args[0].Conv<float>();
 
             if (!PathManager.Paths.TryGetValue(index, out var path))
             {
@@ -324,7 +324,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? path_get_y(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var pos = args[0].Conv<double>();
+            var pos = args[0].Conv<float>();
 
             if (!PathManager.Paths.TryGetValue(index, out var path))
             {

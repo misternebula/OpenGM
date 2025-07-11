@@ -14,11 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MemoryPack" Version="1.21.4" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
-    <PackageReference Include="StbImageSharp" Version="2.30.15" />
     <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
   </ItemGroup>
 

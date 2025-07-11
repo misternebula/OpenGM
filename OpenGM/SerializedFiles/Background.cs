@@ -1,8 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.SerializedFiles;
 
-namespace OpenGM.SerializedFiles;
-[MemoryPackable]
-public partial class Background
+public class Background
 {
     public required int AssetIndex;
 

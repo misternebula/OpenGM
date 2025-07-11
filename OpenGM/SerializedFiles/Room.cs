@@ -1,11 +1,9 @@
-﻿using MemoryPack;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
 
-[MemoryPackable]
-public partial class Room
+public class Room
 {
     public int AssetId;
     public string Name = null!;
@@ -26,8 +24,7 @@ public partial class Room
     public List<OldBackground> OldBackgrounds = new();
 }
 
-[MemoryPackable]
-public partial class Layer
+public class Layer
 {
     public int LayerID;
     public int LayerDepth;
@@ -40,8 +37,7 @@ public partial class Layer
     public List<CLayerElementBase> Elements = new();
 }
 
-[MemoryPackable]
-public partial class Tile
+public class Tile
 {
     public int X;
     public int Y;
@@ -58,8 +54,7 @@ public partial class Tile
     public uint Color;
 }
 
-[MemoryPackable]
-public partial class OldBackground
+public class OldBackground
 {
     public bool Enabled;
     public bool Foreground;
@@ -85,25 +80,16 @@ public enum ElementType
     Text
 }
 
-[MemoryPackable]
-[MemoryPackUnion(0, typeof(GameObject))]
-[MemoryPackUnion(1, typeof(CLayerTilemapElement))]
-[MemoryPackUnion(2, typeof(CLayerBackgroundElement))]
-[MemoryPackUnion(3, typeof(CLayerTileElement))]
-[MemoryPackUnion(4, typeof(CLayerSpriteElement))]
-[MemoryPackUnion(5, typeof(CLayerParticleElement))]
 public abstract partial class CLayerElementBase
 {
     public ElementType Type;
     public int Id;
     public string Name = null!;
 
-    [MemoryPackIgnore]
     public LayerContainer Layer = null!;
 }
 
-[MemoryPackable]
-public partial class CLayerTilemapElement : CLayerElementBase
+public class CLayerTilemapElement : CLayerElementBase
 {
     public int BackgroundIndex;
     public double x;
@@ -116,12 +102,10 @@ public partial class CLayerTilemapElement : CLayerElementBase
     /// </summary>
     public uint[][] Tiles = null!;
 
-    [MemoryPackIgnore]
     public TileBlob[,] TilesData = null!;
 }
 
-[MemoryPackable]
-public partial class CLayerBackgroundElement : CLayerElementBase
+public class CLayerBackgroundElement : CLayerElementBase
 {
     public bool Visible;
     public bool Foreground;
@@ -138,8 +122,7 @@ public partial class CLayerBackgroundElement : CLayerElementBase
     public AnimationSpeedType AnimationSpeedType;
 }
 
-[MemoryPackable]
-public partial class CLayerTileElement : CLayerElementBase
+public class CLayerTileElement : CLayerElementBase
 {
     public bool Visible;
     public int X;
@@ -157,8 +140,7 @@ public partial class CLayerTileElement : CLayerElementBase
     public bool SpriteMode;
 }
 
-[MemoryPackable]
-public partial class CLayerSpriteElement : CLayerElementBase
+public class CLayerSpriteElement : CLayerElementBase
 {
     public int Definition;
     public int X;
@@ -172,8 +154,7 @@ public partial class CLayerSpriteElement : CLayerElementBase
     public double Rotation;
 }
 
-[MemoryPackable]
-public partial class CLayerParticleElement : CLayerElementBase
+public class CLayerParticleElement : CLayerElementBase
 {
     public int SystemID;
 }

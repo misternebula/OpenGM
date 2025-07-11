@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.SerializedFiles;
 
-namespace OpenGM.SerializedFiles;
-
-[MemoryPackable]
-public partial class FontAsset
+public class FontAsset
 {
     public int AssetIndex;
     public string name = null!;
@@ -33,8 +30,7 @@ public partial class FontAsset
     public bool IsSpriteFont() => texture == null && spriteIndex != -1;
 }
 
-[MemoryPackable]
-public partial class Glyph
+public class Glyph
 {
     /// <summary>
     /// The Unicode character number that the glyph corresponds to.

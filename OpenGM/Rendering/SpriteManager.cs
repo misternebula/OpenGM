@@ -1,8 +1,8 @@
-﻿using OpenGM.IO;
+﻿using ImageMagick;
+using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using StbImageSharp;
 using UndertaleModLib.Models;
 
 namespace OpenGM.Rendering;
@@ -188,12 +188,7 @@ public static class SpriteManager
                 GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
         }
         // store it as a "page". its really just one texture that the sprite will use to draw
-        var imageResult = new ImageResult()
-        {
-            Width = w,
-            Height = h,
-            Data = pixels
-        };
+        var imageResult = new MagickImage(pixels, new PixelReadSettings((uint)w, (uint)h, StorageType.Char, PixelMapping.RGBA));
         PageManager.UploadTexture(texturePageName, imageResult);
 
         // create a sprite with the single texture

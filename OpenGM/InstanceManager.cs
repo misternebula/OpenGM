@@ -79,7 +79,7 @@ public static class InstanceManager
         entry.Instances.Add(obj);
     }
 
-    public static int instance_create(double x, double y, int obj)
+    public static int instance_create(float x, float y, int obj)
     {
         var definition = ObjectDefinitions[obj];
 
@@ -92,7 +92,7 @@ public static class InstanceManager
         return newGM.instanceId;
     }
 
-    public static int instance_create_depth(double x, double y, int depth, int obj)
+    public static int instance_create_depth(float x, float y, int depth, int obj)
     {
         var definition = ObjectDefinitions[obj];
 

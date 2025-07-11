@@ -22,7 +22,7 @@ namespace OpenGM.Particles
             var element = new CLayerParticleElement
             {
                 Type = ElementType.ParticleSystem,
-                Id = GameConverter.CurrentElementID++,
+                Id = GameLoader.CurrentElementID++,
             };
             
             // TODO : add element to room

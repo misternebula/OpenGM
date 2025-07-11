@@ -25,7 +25,7 @@ public class Z_EventOrderTests
                    call.i show_debug_message(argc=1)
                    popz.v
                    """;
-        var code = GameConverter.ConvertAssembly(asm);
+        var code = GameLoader.ConvertAssembly(asm);
         code.OnCodeExecuted += () => events.Add($"{VMExecutor.Self.GMSelf.instanceId}:{message}");
         GameLoader.Codes.Add(codeIndex++, code);
         return code;
@@ -42,7 +42,7 @@ public class Z_EventOrderTests
                    call.i show_debug_message(argc=1)
                    popz.v
                    """;
-        var code = GameConverter.ConvertAssembly(asm);
+        var code = GameLoader.ConvertAssembly(asm);
         code.OnCodeExecuted += () => events.Add($"{VMExecutor.Self.GMSelf.instanceId}:{message}");
         GameLoader.Codes.Add(codeIndex, code);
         return codeIndex++;

@@ -16,7 +16,7 @@
         public static object? action_move(object?[] args)
         {
             var dirString = args[0].Conv<string>();
-            var speed = args[1].Conv<double>();
+            var speed = args[1].Conv<float>();
 
             /*
             * This function is weird.
@@ -110,7 +110,7 @@
         [GMLFunction("action_set_friction", before: "2.0.0.0")]
         public static object? action_set_friction(object?[] args)
         {
-            var friction = args[0].Conv<double>();
+            var friction = args[0].Conv<float>();
 
             if (Action_Relative)
             {
@@ -124,7 +124,7 @@
         [GMLFunction("action_set_gravity", before: "2.0.0.0")]
         public static object? action_set_gravity(object?[] args)
         {
-            var gravity = args[0].Conv<double>();
+            var gravity = args[0].Conv<float>();
 
             if (Action_Relative)
             {
@@ -138,7 +138,7 @@
         [GMLFunction("action_set_hspeed", before: "2.0.0.0")]
         public static object? action_set_hspeed(object?[] args)
         {
-            var hspeed = args[0].Conv<double>();
+            var hspeed = args[0].Conv<float>();
 
             if (Action_Relative)
             {
@@ -152,7 +152,7 @@
         [GMLFunction("action_set_vspeed", before: "2.0.0.0")]
         public static object? action_set_vspeed(object?[] args)
         {
-            var vspeed = args[0].Conv<double>();
+            var vspeed = args[0].Conv<float>();
 
             if (Action_Relative)
             {
@@ -166,8 +166,8 @@
         [GMLFunction("action_move_to", before: "2.0.0.0")]
         public static object? action_move_to(object?[] args)
         {
-            var x = args[0].Conv<double>();
-            var y = args[1].Conv<double>();
+            var x = args[0].Conv<float>();
+            var y = args[1].Conv<float>();
 
             if (Action_Relative)
             {
