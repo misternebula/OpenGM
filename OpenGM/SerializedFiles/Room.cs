@@ -185,4 +185,22 @@ public class TileBlob
     public bool Mirror; // bit 28
     public bool Flip; // bit 29
     public bool Rotate; // bit 30
+
+    public TileBlob(uint blobData)
+    {
+        TileIndex = (int)blobData & 0x7FFFF;
+        Mirror = (blobData & 0x8000000) != 0;
+        Flip = (blobData & 0x10000000) != 0;
+        Rotate = (blobData & 0x20000000) != 0;
+    }
+
+    public int ToNumber() 
+    {
+        var result = 0;
+        result |= TileIndex;
+        result |= (Mirror ? 1 : 0) << 27;
+        result |= (Flip ? 1 : 0) << 28;
+        result |= (Rotate ? 1 : 0) << 29;
+        return result;
+    }
 }

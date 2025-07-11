@@ -259,13 +259,7 @@ public static class GameLoader
                             {
                                 var blobData = uintData[col][row];
 
-                                var blob = new TileBlob
-                                {
-                                    TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
-                                    Mirror = (blobData & 0x8000000) != 0, // bit 28
-                                    Flip = (blobData & 0x10000000) != 0, // bit 29
-                                    Rotate = (blobData & 0x20000000) != 0 // bit 30
-                                };
+                                var blob = new TileBlob(blobData);
 
                                 tilemap.TilesData[col, row] = blob;
                             }
