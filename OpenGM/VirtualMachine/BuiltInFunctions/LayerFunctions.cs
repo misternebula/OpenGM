@@ -374,9 +374,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("layer_background_get_id")]
         public static object? layer_background_get_id(object?[] args)
         {
-            var layer_id = args[0].Conv<int>();
+            var layer_id = args[0];
 
-            if (!RoomManager.CurrentRoom.Layers.TryGetValue(layer_id, out var layer))
+            LayerContainer? layer = null;
+            switch (layer_id)
+            {
+                case int:
+                    RoomManager.CurrentRoom.Layers.TryGetValue((int)layer_id, out layer);
+                    break;
+                case string:
+                    layer = RoomManager.CurrentRoom.Layers
+                        .Select(p => p.Value)
+                        .FirstOrDefault(l => l.Name == (string)layer_id);
+                    break;
+                default:
+                    throw new ArgumentException($"Layer ID must be either int or string, got {(layer_id == null ? "null" : layer_id.GetType().AssemblyQualifiedName)}");
+            }
+
+            if (layer == null)
             {
                 return -1;
             }
@@ -632,8 +647,28 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // layer_background_speed
-        // layer_background_sprite
-        // layer_background_change
+
+        [GMLFunction("layer_background_sprite")]
+        [GMLFunction("layer_background_change")]
+        public static object? layer_background_sprite(object?[] args)
+        {
+            var background_element_id = args[0].Conv<int>();
+            var sprite_index = args[1].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMBackground back && back.Element.Id == background_element_id)
+                    {
+                        back.Element.Index = sprite_index;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         // layer_background_get_visible
 
         [GMLFunction("layer_background_get_sprite")]
