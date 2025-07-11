@@ -116,7 +116,6 @@ public static class RoomManager
 
         CustomWindow.Instance.SetPosition(0, 0);
         CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-        CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
 
         foreach (var instance in value.Instances)
         {
@@ -270,8 +269,6 @@ public static class RoomManager
             // reset view
             CustomWindow.Instance.SetPosition(0, 0);
             CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-            CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
-            //CustomWindow.Instance.UpdateInstanceFollow();
         }
 
         var createdObjects = new List<(GamemakerObject gm, GameObject go)>();

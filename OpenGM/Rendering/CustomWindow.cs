@@ -43,8 +43,6 @@ public class CustomWindow : GameWindow
         }
     }
 
-    public GamemakerObject? FollowInstance = null!;
-
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, uint width, uint height)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -134,16 +132,13 @@ public class CustomWindow : GameWindow
     {
         base.OnUpdateFrame(args);
 
-        ViewportManager.UpdateViews();
+        CameraManager.UpdateViews();
 
         KeyboardHandler.UpdateMouseState(MouseState);
         KeyboardHandler.UpdateKeyboardState(KeyboardState);
 
         DrawManager.FixedUpdate();
         AudioManager.Update();
-
-        // this should be moved at some point into view code
-        UpdateInstanceFollow();
 
         foreach (var item in DebugJobs)
         {
@@ -153,50 +148,6 @@ public class CustomWindow : GameWindow
         DebugJobs.Clear();
 
         SwapBuffers();
-    }
-
-    public void UpdateInstanceFollow()
-    {
-        if (FollowInstance == null)
-        {
-            if (RoomManager.CurrentRoom.FollowObject == null)
-            {
-                return;
-            }
-
-            FollowInstance = RoomManager.CurrentRoom.FollowObject;
-        }
-
-        var x = FollowInstance.x + (FollowInstance.sprite_width / 2);
-        var y = FollowInstance.y + (FollowInstance.sprite_height / 2);
-
-        var roomWidth = RoomManager.CurrentRoom.SizeX;
-        var roomHeight = RoomManager.CurrentRoom.SizeY;
-        var viewWidth = RoomManager.CurrentRoom.CameraWidth;
-        var viewHeight = RoomManager.CurrentRoom.CameraHeight;
-
-        x -= viewWidth / 2d;
-        y -= viewHeight / 2d;
-
-        if (y <= 0) // top of screen
-        {
-            y = 0;
-        }
-        else if (y >= roomHeight - viewHeight) // bottom of screen
-        {
-            y = roomHeight - viewHeight;
-        }
-
-        if (x <= 0) // left of screen
-        {
-            x = 0;
-        }
-        else if (x >= roomWidth - viewWidth) // right of screen
-        {
-            x = roomWidth - viewWidth;
-        }
-
-        SetPosition(x, y);
     }
 
     public static void Draw(GMBaseJob baseJob)
@@ -345,7 +296,6 @@ public class CustomWindow : GameWindow
                 var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
 
                 GL.BindTexture(TextureTarget.Texture2D, pageId);
-                GL.Uniform1(VertexManager.u_doTex, 1);
 
                 var topLeftPos = new Vector2d(topLeftX, topLeftY);
                 var topRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, topLeftY);
@@ -364,9 +314,6 @@ public class CustomWindow : GameWindow
                     new(bottomLeftPos,bottomLeftCol, new(leftX, bottomY)),
                 ]);
 
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.Uniform1(VertexManager.u_doTex, 0);
-
                 xOffset += glyph.shift * textJob.scale.X;
                 if (textJob.asset.IsSpriteFont())
                 {
@@ -380,7 +327,6 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -434,15 +380,12 @@ public class CustomWindow : GameWindow
             new(drawAreaBottomLeft, spriteJob.Colors[3], bottomLeftUV),
         ]);
         
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -532,8 +475,6 @@ public class CustomWindow : GameWindow
         }
 
         // GL.End();
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -564,6 +505,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
         */
+        GL.BindTexture(TextureTarget.Texture2D, VertexManager.DefaultTexture);
         VertexManager.Draw(PrimitiveType.TriangleFan, [
             new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
             new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
@@ -574,6 +516,7 @@ public class CustomWindow : GameWindow
 
     public static void Draw(GMLinesJob linesJob)
     {
+        GL.BindTexture(TextureTarget.Texture2D, VertexManager.DefaultTexture);
         var v = new VertexManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
         {
@@ -585,6 +528,7 @@ public class CustomWindow : GameWindow
 
     public static void Draw(GMPolygonJob polyJob)
     {
+        GL.BindTexture(TextureTarget.Texture2D, VertexManager.DefaultTexture);
         var v = new VertexManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
@@ -599,7 +543,6 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
 
         var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
         for (var i = 0; i < texPolyJob.Vertices.Length; i++)
@@ -607,9 +550,6 @@ public class CustomWindow : GameWindow
             vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
         }
         VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
-
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
     }
 }
 
