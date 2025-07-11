@@ -48,6 +48,7 @@ public static class GameConverter
         var asset = new GameData()
         {
             Filename = data.GeneralInfo.FileName.Content,
+			Config = data.GeneralInfo.Config.Content,
             LastObjectID = (int)data.GeneralInfo.LastObj,
             LastTileID = (int)data.GeneralInfo.LastTile,
             Name = data.GeneralInfo.Name.Content,
@@ -57,7 +58,8 @@ public static class GameConverter
             Release = data.GeneralInfo.Release,
             Build = data.GeneralInfo.Build,
             DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight),
-            FPS = data.GeneralInfo.GMS2FPS
+            FPS = data.GeneralInfo.GMS2FPS,
+			IsYYC = data.IsYYC()
 
         };
         writer.WriteMemoryPack(asset);
