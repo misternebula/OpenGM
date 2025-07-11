@@ -189,13 +189,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var pos = args[1].Conv<int>();
 
             /*
-            * TODO - this shit:
-            * Note that if you give a position that is outside of the given list size (i.e.: position 11 in a 10 value list)
-            * then the function may return undefined or 0.
-            * This is because when you create the list, internally the first few entries in the list
-            * are set to 0 to minimize performance issues when initially adding items to the list
-            * (although the ds_list_size() function will still return 0 on a newly created list).
-            */
+             * TODO - this shit:
+             * Note that if you give a position that is outside of the given list size (i.e.: position 11 in a 10 value list)
+             * then the function may return undefined or 0.
+             * This is because when you create the list, internally the first few entries in the list
+             * are set to 0 to minimize performance issues when initially adding items to the list
+             * (although the ds_list_size() function will still return 0 on a newly created list).
+             */
 
             if (!_dsListDict.ContainsKey(id))
             {
