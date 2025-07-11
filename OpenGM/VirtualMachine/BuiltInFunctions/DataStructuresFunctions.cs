@@ -377,7 +377,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_clear(object?[] args)
         {
             var index = args[0].Conv<int>();
-            _dsMapDict[index] = [];
+            _dsMapDict[index].Clear();
             return null;
         }
 

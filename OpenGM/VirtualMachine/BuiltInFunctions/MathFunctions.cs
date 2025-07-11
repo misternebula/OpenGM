@@ -1,8 +1,6 @@
 ﻿using OpenGM.IO;
 using System.Collections;
 using System.Text;
-using System.Numerics;
-using System.Text.RegularExpressions;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
@@ -969,7 +967,7 @@ public static class MathFunctions
             count++;
             index += substr.Length;
         }
-        
+
         return count;
     }
 
