@@ -44,7 +44,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            _dsListDict[id] = new List<object?>();
+            _dsListDict[id].Clear();
             return null;
         }
 
@@ -474,7 +474,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 return null;
             }
-            
+
             _dsMapDict[id].Remove(key);
             return null;
         }
