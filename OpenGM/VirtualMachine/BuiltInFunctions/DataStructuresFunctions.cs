@@ -1,20 +1,40 @@
 ﻿using OpenGM.IO;
+using System.Text;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class DataStructuresFunctions
     {
-        private static Dictionary<int, List<object>> _dsListDict = new();
-        private static Dictionary<int, Dictionary<object, object>> _dsMapDict = new();
-        private static Dictionary<int, Queue<object>> _dsQueueDict = new();
+        private static Dictionary<int, List<object?>> _dsListDict = new();
+        private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
+        private static Dictionary<int, Queue<object?>> _dsQueueDict = new();
         private static Dictionary<int, PriorityQueue<object, double>> _priorityDict = new();
 
         // ...
+
+        [GMLFunction("ds_exists")]
+        public static object ds_exists(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var type = (DSType)args[1].Conv<int>();
+
+            return type switch
+            {
+                DSType.Map => _dsMapDict.ContainsKey(id),
+                DSType.List => _dsListDict.ContainsKey(id),
+                DSType.Stack => throw new NotImplementedException(),
+                DSType.Queue => _dsQueueDict.ContainsKey(id),
+                DSType.Grid => throw new NotImplementedException(),
+                DSType.Priority => _priorityDict.ContainsKey(id),
+                _ => throw new NotImplementedException(),
+            };
+        }
 
         [GMLFunction("ds_list_create")]
         public static object ds_list_create(params object?[] args)
         {
             var highestIndex = -1;
+
             if (_dsListDict.Count > 0)
             {
                 highestIndex = _dsListDict.Keys.Max();
@@ -32,8 +52,35 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // ds_list_clear
-        // ds_list_copy
+        [GMLFunction("ds_list_clear")]
+        public static object? ds_list_clear(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            _dsListDict[id].Clear();
+            return null;
+        }
+
+        [GMLFunction("ds_list_copy")]
+        public static object? ds_list_copy(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var source = args[1].Conv<int>();
+
+            if (!_dsListDict.ContainsKey(id) || !_dsListDict.ContainsKey(source))
+            {
+                return null;
+            }
+
+            // TODO: shallow copy, make sure that's not an issue
+            _dsListDict[id] = [.. _dsListDict[source]];
+            return null;
+        }
 
         [GMLFunction("ds_list_size")]
         public static object? ds_list_size(object?[] args)
@@ -49,7 +96,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return _dsListDict[id].Count;
         }
 
-        // ds_list_empty
+        [GMLFunction("ds_list_empty")]
+        public static object? ds_list_empty(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            return _dsListDict[id].Count == 0;
+        }
 
         [GMLFunction("ds_list_add")]
         public static object? ds_list_add(params object?[] args)
@@ -67,9 +125,54 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // ds_list_insert
-        // ds_list_replace
-        // ds_list_delete
+        [GMLFunction("ds_list_insert")]
+        public static object? ds_list_insert(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var pos = args[1].Conv<int>();
+            var val = args[2];
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var list = _dsListDict[id];
+            list.Insert(pos, val);
+            return null;
+        }
+
+        [GMLFunction("ds_list_replace")]
+        public static object? ds_list_replace(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var pos = args[1].Conv<int>();
+            var val = args[2];
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var list = _dsListDict[id];
+            list[pos] = val;
+            return null;
+        }
+
+        [GMLFunction("ds_list_delete")]
+        public static object? ds_list_delete(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var pos = args[1].Conv<int>();
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            _dsListDict[id].RemoveAt(pos);
+            return null;
+        }
 
         [GMLFunction("ds_list_find_index")]
         public static object? ds_list_find_index(params object?[] args)
@@ -119,12 +222,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var list = _dsListDict[id];
 
-            if (id >= list.Count)
+            if (pos >= list.Count)
             {
                 return null;
             }
 
-            return list[id];
+            return list[pos];
         }
 
         // ds_list_is_map
@@ -152,8 +255,117 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // ds_list_write
-        // ds_list_read
+        [GMLFunction("ds_list_write")]
+        public static object? ds_list_write(params object?[] args)
+        {
+
+            //TODO : Make it suport legacy format;
+
+            var id = args[0].Conv<int>();
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var list = _dsListDict[id];
+
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream);
+
+            // Header
+            writer.Write(0x0000012F);
+            writer.Write(list.Count);
+
+            foreach (var item in list)
+            {
+                switch (item)
+                {
+                    case double d when double.IsNaN(d):
+                        writer.Write(5); // NaN
+                        break;
+                    case double d:
+                        writer.Write(0); // real
+                        writer.Write(d);
+                        break;
+                    case string s:
+                        writer.Write(1); // string
+                        var strBytes = Encoding.UTF8.GetBytes(s);
+                        writer.Write(strBytes.Length);
+                        writer.Write(strBytes);
+                        break;
+                    case long l:
+                        writer.Write(2); // int64
+                        writer.Write(l);
+                        break;
+                    case int i:
+                        writer.Write(2); // int64 too
+                        writer.Write((long)i);
+                        break;
+                    case bool b:
+                        writer.Write(3); // bool
+                        writer.Write(b ? 1 : 0);
+                        break;
+                }
+            }
+            
+            return BitConverter.ToString(stream.ToArray()).Replace("-", "");
+        }
+
+        [GMLFunction("ds_list_read")]
+        public static object? ds_list_read(params object?[] args)
+        {
+
+            //TODO : Make it suport legacy format;
+
+            var id = args[0].Conv<int>();
+            var str = args[1].Conv<string>();
+            //ignoring the [legacy] param
+
+            if (!_dsListDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var data = Convert.FromHexString(str);
+            using var stream = new MemoryStream(data);
+            using var reader = new BinaryReader(stream);
+
+            var count = reader.ReadInt32();
+            var list = _dsListDict[id];
+
+            for (var i = 0; i < count; i++)
+            {
+                var type = reader.ReadInt32();
+                switch (type)
+                {
+                    case 5:
+                        list.Add(double.NaN); // NaN
+                        break;
+                    case 0:
+                        var value = reader.ReadDouble(); // real
+                        list.Add(value);
+                        break;
+                    case 1:
+                        var len = reader.ReadInt32(); // string
+                        var strBytes = reader.ReadBytes(len);
+                        var text = Encoding.UTF8.GetString(strBytes);
+                        list.Add(text);
+                        break;
+                    case 2:
+                        var longVal = reader.ReadInt64(); // int64
+                        list.Add(longVal);
+                        break;
+                    case 3:
+                        var boolVal = reader.ReadInt32(); // boolean
+                        list.Add(boolVal != 0);
+                        break;
+                }
+            }
+            
+            return null;
+        }
+
         // ds_list_set
         // ds_list_set_post
         // ds_list_set_pre
@@ -167,7 +379,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 highestIndex = _dsMapDict.Keys.Max();
             }
 
-            _dsMapDict.Add(highestIndex + 1, new());
+            _dsMapDict.Add(highestIndex + 1, []);
             return highestIndex + 1;
         }
 
@@ -179,8 +391,28 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // ds_map_clear
-        // ds_map_copy
+        [GMLFunction("ds_map_clear")]
+        public static object? ds_map_clear(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            _dsMapDict[index].Clear();
+            return null;
+        }
+
+        [GMLFunction("ds_map_copy")]
+        public static object? ds_map_copy(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var source = args[1].Conv<int>();
+            if (!_dsMapDict.ContainsKey(id) || !_dsMapDict.ContainsKey(source))
+            {
+                return null;
+            }
+
+            // TODO: this is a shallow clone i think, see if that causes issues
+            _dsMapDict[id] = new Dictionary<object, object?>(_dsMapDict[source]);
+            return null;
+        }
 
         [GMLFunction("ds_map_size")]
         public static object ds_map_size(object?[] args)
@@ -189,7 +421,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return _dsMapDict[id].Count;
         }
 
-        // ds_map_empty
+        [GMLFunction("ds_map_empty")]
+        public static object? ds_map_empty(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsMapDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            return _dsMapDict[id].Count == 0;
+        }
 
         [GMLFunction("ds_map_add")]
         public static object ds_map_add(params object?[] args)
@@ -238,7 +481,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_map_replace
         // ds_map_replace_list
         // ds_map_replace_map
-        // ds_map_delete
+
+        [GMLFunction("ds_map_delete")]
+        public static object? ds_map_delete(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var key = args[1].Conv<string>();
+
+            if (!_dsMapDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            _dsMapDict[id].Remove(key);
+            return null;
+        }
 
         [GMLFunction("ds_map_exists")]
         public static object? ds_map_exists(object?[] args)
@@ -471,5 +728,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_queue_copy
 
         // ...
+    }
+
+    public enum DSType
+    {
+        Map = 1,
+        List = 2,
+        Stack = 3,
+        Queue = 4,
+        Grid = 5,
+        Priority = 6
     }
 }

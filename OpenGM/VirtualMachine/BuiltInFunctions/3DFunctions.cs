@@ -238,7 +238,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // draw_texture_flush
-        // draw_flush
+
+        [GMLFunction("draw_flush", GMLFunctionFlags.Stub)]
+        public static object? draw_flush(object?[] args)
+        {
+            return null;
+        }
+
         // matrix_stack_push
         // matrix_stack_pop
         // matrix_stack_set

@@ -6,7 +6,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
 public static class MathFunctions
 {
-    // is_bool
+    [GMLFunction("is_bool")]
+    public static object is_bool(object?[] args) => args[0] is bool;
 
     [GMLFunction("is_real")]
     public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
@@ -27,7 +28,10 @@ public static class MathFunctions
     // is_vec3
     // is_vec4
     // is_matrix
-    // is_struct
+
+    [GMLFunction("is_struct")]
+    public static object is_struct(object?[] args) => args[0] is GMLObject;
+
     // yyAsm
 
     [GMLFunction("method")]
@@ -126,7 +130,19 @@ public static class MathFunctions
     // array_set_2D_pre
     // array_set_2D_post
     // array_equals
-    // array_create
+
+    [GMLFunction("array_create")]
+    public static object? array_create(object?[] args)
+    {
+        var size = args[0].Conv<int>();
+        var value = args[1];
+
+        var newArray = new object?[size];
+        Array.Fill(newArray, value);
+
+        return newArray;
+    }
+
     // array_copy
 
     [GMLFunction("array_resize")]
@@ -310,8 +326,19 @@ public static class MathFunctions
         return (anded % (doubleSign * (difference + 1)) * doubleSign) + lower;
     }
 
-    // random_set_seed
-    // random_get_seed
+    [GMLFunction("random_set_seed")]
+    public static object? random_set_seed(object?[] args)
+    {
+        var val = args[0].Conv<uint>();
+        GMRandom.Seed = val;
+        return null;
+    }
+
+    [GMLFunction("random_get_seed")]
+    public static object? random_get_seed(object?[] args)
+    {
+        return GMRandom.Seed;
+    }
 
     [GMLFunction("randomise", GMLFunctionFlags.Stub)]
     [GMLFunction("randomize", GMLFunctionFlags.Stub)]
@@ -897,8 +924,39 @@ public static class MathFunctions
         return result;
     }
 
-    // string_lettersdigits
-    // string_replace
+    [GMLFunction("string_lettersdigits")]
+    public static object string_lettersdigits(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+
+        var result = "";
+
+        foreach (var c in str)
+        {
+            if (char.IsAsciiLetterOrDigit(c))
+            {
+                result += c;
+            }
+        }
+
+        return result;
+    }
+
+    [GMLFunction("string_replace")]
+    public static object string_replace(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+        var substr = args[1].Conv<string>();
+        var newstr = args[2].Conv<string>();
+
+        var pos = str.IndexOf(substr);
+        if (pos == -1)
+        {
+            return str;
+        }
+
+        return string.Concat(str.AsSpan(0, pos), newstr, str.AsSpan(pos + substr.Length));
+    }
 
     [GMLFunction("string_replace_all")]
     public static object string_replace_all(object?[] args)
@@ -910,7 +968,23 @@ public static class MathFunctions
         return str.Replace(substr, newstr);
     }
 
-    // string_count
+    [GMLFunction("string_count")]
+    public static object string_count(object?[] args)
+    {
+        var substr = args[0].Conv<string>();
+        var str = args[1].Conv<string>();
+
+        var count = 0;
+        var index = 0;
+
+        while ((index = str.IndexOf(substr, index, StringComparison.Ordinal)) != -1)
+        {
+            count++;
+            index += substr.Length;
+        }
+
+        return count;
+    }
 
     [GMLFunction("string_hash_to_newline")]
     public static object string_hash_to_newline(object?[] args)

@@ -56,8 +56,13 @@ public static class DrawManager
     {
         foreach (var item in items)
         {
-            if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded && gm.visible)
+            if (item is GamemakerObject gm)
             {
+                if (!gm._createRan || !RoomManager.RoomLoaded || !gm.visible || !gm.Active)
+                {
+                    continue;
+                }
+
                 if (drawType == EventSubtypeDraw.Draw)
                 {
                     var hasDrawScript = gm.Definition.DrawScript.ContainsKey(EventSubtypeDraw.Draw);

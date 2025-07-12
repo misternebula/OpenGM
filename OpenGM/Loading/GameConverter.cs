@@ -57,8 +57,9 @@ public static class GameConverter
             Release = data.GeneralInfo.Release,
             Build = data.GeneralInfo.Build,
             DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight),
-            FPS = data.GeneralInfo.GMS2FPS
-
+            FPS = data.GeneralInfo.GMS2FPS,
+            RoomOrder = data.GeneralInfo.RoomOrder.Select(p => p.CachedId).ToArray(),
+            IsYYC = data.IsYYC()
         };
         writer.WriteMemoryPack(asset);
     }

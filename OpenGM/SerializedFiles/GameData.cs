@@ -17,6 +17,8 @@ public partial class GameData
     public required uint Build;
     public required Vector2i DefaultWindowSize;
     public required float FPS;
+    public required int[] RoomOrder;
+    public required bool IsYYC;
 }
 
 public enum BranchType

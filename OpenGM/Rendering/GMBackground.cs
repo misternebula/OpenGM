@@ -44,14 +44,22 @@ public class GMBackground : DrawWithDepth
         float TotalX() => offsetX + layerX;
         float TotalY() => offsetY + layerY;
 
-        while (TotalX() > camX)
+        if (Element.HTiled)
         {
-            layerX -= camWidth;
+            layerX %= sprite.BoundingWidth;
+            if (layerX > 0)
+            {
+                layerX -= sprite.BoundingWidth;
+            }
         }
 
-        while (TotalY() > camY)
+        if (Element.VTiled)
         {
-            layerY -= camHeight;
+            layerY %= sprite.BoundingHeight;
+            if (layerY > 0)
+            {
+                layerY -= sprite.BoundingHeight;
+            }
         }
         
         do
