@@ -467,7 +467,8 @@ public static class RoomManager
                 YScale = item.ScaleY,
                 Color = item.Color,
                 Definition = item.Definition,
-                SpriteMode = item.SpriteMode
+                SpriteMode = item.SpriteMode,
+                Visible = true
             };
 
             CurrentRoom.Tiles.Add(newTile);
