@@ -12,6 +12,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // ...
 
+        [GMLFunction("ds_exists")]
+        public static object ds_exists(params object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var type = (DSType)args[1].Conv<int>();
+
+            return type switch
+            {
+                DSType.Map => _dsMapDict.ContainsKey(id),
+                DSType.List => _dsListDict.ContainsKey(id),
+                DSType.Stack => throw new NotImplementedException(),
+                DSType.Queue => _dsQueueDict.ContainsKey(id),
+                DSType.Grid => throw new NotImplementedException(),
+                DSType.Priority => _priorityDict.ContainsKey(id),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
         [GMLFunction("ds_list_create")]
         public static object ds_list_create(params object?[] args)
         {
@@ -710,5 +728,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_queue_copy
 
         // ...
+    }
+
+    public enum DSType
+    {
+        Map = 1,
+        List = 2,
+        Stack = 3,
+        Queue = 4,
+        Grid = 5,
+        Priority = 6
     }
 }
