@@ -93,6 +93,14 @@ internal class Entry
                     CollisionManager.CompatMode = false;
                     CollisionManager.CompatModeOverridden = true;
                     break;
+                case "--record":
+                    KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
+                    KeyboardHandler.IOFilestream = File.OpenWrite(args[++i]);
+                    break;
+                case "--playback":
+                    KeyboardHandler.HandlerState = KeyboardHandler.State.PLAYBACK;
+                    KeyboardHandler.IOFilestream = File.OpenRead(args[++i]);
+                    break;
                 case "--":
                     endOfOptions = true;
                     break;
