@@ -434,7 +434,26 @@ public static class GameFunctions
         return CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
     }
 
-    // instance_place_list
+    [GMLFunction("instance_place_list")]
+    public static object instance_place_list(object?[] args)
+    {
+        var x = args[0].Conv<double>();
+        var y = args[1].Conv<double>();
+        var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+        var list = args[3].Conv<int>();
+        var ordered = args[4].Conv<bool>();
+
+        List<GamemakerObject> collisionList = [];
+        CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj, collisionList);
+
+        foreach (var instance in collisionList)
+        {
+            // TODO: this sucks but too lazy to do it a better way LOL
+            DataStructuresFunctions.ds_list_add([list, instance.instanceId]);
+        }
+
+        return collisionList.Count;
+    }
 
     [GMLFunction("instance_create_depth")]
     public static object instance_create_depth(object?[] args)

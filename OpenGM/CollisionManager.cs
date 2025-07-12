@@ -233,7 +233,7 @@ public static class CollisionManager
         return GMConstants.noone;
     }
 
-    public static int Command_InstancePlace(GamemakerObject self, double x, double y, int obj)
+    public static int Command_InstancePlace(GamemakerObject self, double x, double y, int obj, List<GamemakerObject>? list = null)
     {
         var prevX = self.x;
         var prevY = self.y;
@@ -268,6 +268,7 @@ public static class CollisionManager
             {
                 if (IsValid(instance))
                 {
+                    list?.Add(instance);
                     returnValue = instance.instanceId;
                 }
             }
@@ -279,6 +280,7 @@ public static class CollisionManager
             {
                 if (IsValid(instance))
                 {
+                    list?.Add(instance);
                     returnValue = instance.instanceId;
                 }
             }
@@ -290,6 +292,7 @@ public static class CollisionManager
 
             if (IsValid(instance))
             {
+                list?.Add(instance!);
                 returnValue = instance!.instanceId;
             }
         }

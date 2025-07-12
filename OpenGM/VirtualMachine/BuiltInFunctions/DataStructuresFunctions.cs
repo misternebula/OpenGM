@@ -204,12 +204,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var list = _dsListDict[id];
 
-            if (id >= list.Count)
+            if (pos >= list.Count)
             {
                 return null;
             }
 
-            return list[id];
+            return list[pos];
         }
 
         // ds_list_is_map

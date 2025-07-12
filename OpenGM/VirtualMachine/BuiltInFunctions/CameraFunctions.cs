@@ -38,7 +38,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // camera_set_view_size
+        [GMLFunction("camera_set_view_size", GMLFunctionFlags.Stub)]
+        public static object? camera_set_view_size(object?[] args)
+        {
+            return null;
+        }
+
         // camera_set_view_speed
         // camera_set_view_border
         // camera_set_view_angle

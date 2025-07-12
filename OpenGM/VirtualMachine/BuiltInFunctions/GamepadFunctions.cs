@@ -62,7 +62,14 @@
         // gamepad_test_mapping
         // gamepad_get_mapping
         // gamepad_get_guid
-        // gamepad_set_vibration
+
+        [GMLFunction("gamepad_set_vibration", GMLFunctionFlags.Stub)]
+        public static object? gamepad_set_vibration(object?[] args)
+        {
+            // TODO : implement?
+            return null;
+        }
+
         // gamepad_add_hardware_mapping_from_string
         // gamepad_add_hardware_mapping_from_file
         // gamepad_get_hardware_mappings
