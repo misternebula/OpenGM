@@ -1,6 +1,7 @@
 ﻿using MemoryPack;
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
+using static UndertaleModLib.Models.UndertaleRoom;
 
 namespace OpenGM.SerializedFiles;
 
@@ -11,10 +12,19 @@ public partial class Room
     public string Name = null!;
     public int SizeX;
     public int SizeY;
+    // speed
     public bool Persistent;
     public int CreationCodeId;
+    // flags?
+    // world
+    // top/left/right/bottom
     public float GravityX;
     public float GravityY;
+    // grid width
+    // grid height
+    // grid thickness
+
+    public View[] Views = new View[8];
 
     public int CameraWidth;
     public int CameraHeight;
@@ -24,6 +34,26 @@ public partial class Room
     public List<GameObject> LooseObjects = new();
     public List<Tile> Tiles = new();
     public List<OldBackground> OldBackgrounds = new();
+}
+
+
+[MemoryPackable]
+public partial class View
+{
+    public bool Enabled = false;
+    public int PositionX = 0;
+    public int PositionY = 0;
+    public int SizeX;
+    public int SizeY;
+    public int PortPositionX = 0;
+    public int PortPositionY = 0;
+    public int PortSizeX;
+    public int PortSizeY;
+    public int BorderX = 32;
+    public int BorderY = 32;
+    public int SpeedX = -1;
+    public int SpeedY = -1;
+    public int FollowsObject = -1;
 }
 
 [MemoryPackable]

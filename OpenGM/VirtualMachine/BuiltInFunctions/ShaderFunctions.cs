@@ -1,21 +1,24 @@
-﻿using OpenGM.VirtualMachine;
+﻿using OpenGM.Rendering;
+using OpenGM.VirtualMachine;
 
-namespace OpenGM.IO
+namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class ShaderFunctions
     {
-        [GMLFunction("shader_set", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_set")]
         public static object? shader_set(object?[] args)
         {
             var shaderId = args[0].Conv<int>();
+            ShaderManager.ShaderSet(shaderId);
             return null;
         }
 
         // shader_get_name
 
-        [GMLFunction("shader_reset", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_reset")]
         public static object? shader_reset(object?[] args)
         {
+            ShaderManager.ShaderReset();
             return null;
         }
 

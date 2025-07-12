@@ -443,8 +443,6 @@ public static class DrawManager
             return;
         }
         
-        GL.Uniform1(VertexManager.u_flipY, 0); // dont flip when not drawing to backbuffer
-
         SurfaceManager.SetApplicationSurface();
 
         if (SurfaceManager.UsingAppSurface)
@@ -507,8 +505,6 @@ public static class DrawManager
             return;
         }
         
-        GL.Uniform1(VertexManager.u_flipY, 1); // flip when drawing to backbuffer
-
         /*
          * PostDraw
          */
