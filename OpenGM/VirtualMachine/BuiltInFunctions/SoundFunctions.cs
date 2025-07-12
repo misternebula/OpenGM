@@ -478,7 +478,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_get_listener_mask
         // audio_set_listener_mask
         // audio_get_listener_info
-        // audio_get_listener_count
+
+        [GMLFunction("audio_get_listener_count", GMLFunctionFlags.Stub)]
+        public static object? audio_get_listener_count(object?[] args)
+        {
+            return 0;
+        }
+        
         // audio_create_sync_group
         // audio_destroy_sync_group
         // audio_play_in_sync_group

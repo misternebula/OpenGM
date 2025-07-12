@@ -28,7 +28,10 @@ public static class MathFunctions
     // is_vec3
     // is_vec4
     // is_matrix
-    // is_struct
+
+    [GMLFunction("is_struct")]
+    public static object is_struct(object?[] args) => args[0] is GMLObject;
+
     // yyAsm
 
     [GMLFunction("method")]
