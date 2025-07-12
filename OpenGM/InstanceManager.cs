@@ -138,26 +138,18 @@ public static class InstanceManager
 
         switch (assetId)
         {
-            // self
-            case -1:
+            case GMConstants.self:
                 result.Add(VMExecutor.Self.GMSelf);
                 return result;
-
-            // other
-            case -2:
+            case GMConstants.other:
                 var myId = VMExecutor.Self.GMSelf.instanceId;
                 result.AddRange(instances.Where(e => e.Key != myId).Select(e => e.Value));
                 return result;
-
-            // all
-            case -3:
+            case GMConstants.all:
                 result.AddRange(instances.Select(e => e.Value));
                 return result;
-
-            // noone
-            case -4:
+            case GMConstants.noone:
                 return result;
-
             default:
                 throw new Exception($"Tried to find instances with asset id {assetId}");
         }
