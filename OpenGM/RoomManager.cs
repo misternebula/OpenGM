@@ -118,10 +118,12 @@ public static class RoomManager
         CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
         CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
 
+        DebugLog.Log("Instances in persistent room:");
         foreach (var instance in value.Instances)
         {
-            DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name}");
+            DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}");
             InstanceManager.instances.Add(instance.instanceId, instance);
+            InstanceManager.ObjectMap[instance.Definition.AssetId].Instances.Add(instance);
             GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
             DrawManager.Register(instance);
         }
