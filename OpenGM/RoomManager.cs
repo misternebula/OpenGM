@@ -535,19 +535,35 @@ public static class RoomManager
 
     public static void room_goto_next()
     {
-        New_Room = CurrentRoom.AssetId + 1;
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, CurrentRoom.AssetId);
+
+        if (order.Length > idx + 1)
+        {
+            New_Room = order[idx + 1];
+        }
+
     }
 
     public static void room_goto_previous()
     {
-        New_Room = CurrentRoom.AssetId - 1;
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, CurrentRoom.AssetId);
+
+        if (idx > 0)
+        {
+            New_Room = order[idx - 1];
+        }
     }
 
     public static int room_next(int numb)
     {
-        if (RoomList.Count > numb + 1)
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, numb);
+
+        if (order.Length > idx + 1)
         {
-            return numb + 1;
+            return order[idx + 1];
         }
 
         return -1;
@@ -555,11 +571,14 @@ public static class RoomManager
 
     public static int room_previous(int numb)
     {
-        if (numb == 0)
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, numb);
+
+        if (idx <= 0)
         {
             return -1;
         }
 
-        return numb - 1;
+        return order[idx - 1];
     }
 }

@@ -180,7 +180,7 @@ internal class Entry
         DebugLog.LogInfo($"Changing to first room...");
 
         RoomManager.FirstRoom = true;
-        RoomManager.New_Room = 0;
+        RoomManager.New_Room = GameLoader.GeneralInfo.RoomOrder[0];
         RoomManager.ChangeToWaitingRoom();
 
         DebugLog.LogInfo($"Starting main loop...");
