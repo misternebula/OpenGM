@@ -297,7 +297,8 @@ public static class InstanceManager
 
     public static void RememberOldPositions()
     {
-        foreach (var (index, item) in InstanceManager.instances)
+        var instanceList = instances.Values.ToList(); // .Animate() can change instance list
+        foreach (var item in instanceList)
         {
             item.xprevious = item.x;
             item.yprevious = item.y;
