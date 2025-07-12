@@ -127,7 +127,19 @@ public static class MathFunctions
     // array_set_2D_pre
     // array_set_2D_post
     // array_equals
-    // array_create
+
+    [GMLFunction("array_create")]
+    public static object? array_create(object?[] args)
+    {
+        var size = args[0].Conv<int>();
+        var value = args[1];
+
+        var newArray = new object?[size];
+        Array.Fill(newArray, value);
+
+        return newArray;
+    }
+
     // array_copy
 
     [GMLFunction("array_resize")]
