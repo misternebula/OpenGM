@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
 using UndertaleModLib.Models;
@@ -302,10 +303,9 @@ public static class DrawManager
         {
             if (item is GamemakerObject gmo)
             {
-                foreach (var id in gmo.Definition.CollisionScript.Keys)
+                foreach (var id in GetCollisionScripts(gmo.Definition).Keys)
                 {
                     //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
-
                     var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
 
                     if (instanceId == GMConstants.noone)
@@ -325,6 +325,34 @@ public static class DrawManager
                 }
             }
         }
+    }
+
+    // TODO : this is really bad, this needs to be cached somewhere
+    public static Dictionary<int, VMCode> GetCollisionScripts(ObjectDefinition obj)
+    {
+        var ret = new Dictionary<int, VMCode>();
+
+        void AddScripts(ObjectDefinition obj)
+        {
+            foreach (var item in obj.CollisionScript)
+            {
+                if (ret.ContainsKey(item.Key))
+                {
+                    continue;
+                }
+
+                ret.Add(item.Key, item.Value);
+            }
+        }
+
+        var parent = obj;
+        while (parent != null)
+        {
+            AddScripts(parent);
+            parent = parent.parent;
+        }
+
+        return ret;
     }
 
     public static void HandleOther()
