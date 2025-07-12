@@ -18,8 +18,12 @@ public static class ScriptResolver
 
     public static void InitGMLFunctions()
     {
-        if (BuiltInFunctions.Count > 0) return; // already init'd
-        
+        if (BuiltInFunctions.Count > 0)
+        {
+            // already init'd
+            return;
+        }
+
         GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName, DebugLog.LogType stubLogType) 
         {
             return (object?[] args) =>
