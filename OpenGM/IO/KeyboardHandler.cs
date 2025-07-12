@@ -43,10 +43,16 @@ public class KeyboardHandler
             0x12 => [Keys.LeftAlt, Keys.RightAlt],
             0x1B => [Keys.Escape],
 
+            0x21 => [Keys.PageUp],
+            0x22 => [Keys.PageDown],
+            0x23 => [Keys.End],
+            0x24 => [Keys.Home],
             0x25 => [Keys.Left],
             0x26 => [Keys.Up],
             0x27 => [Keys.Right],
             0x28 => [Keys.Down],
+            0x2D => [Keys.Insert],
+            0x2E => [Keys.Delete],
 
             0x70 => [Keys.F1],
             0x71 => [Keys.F2],
