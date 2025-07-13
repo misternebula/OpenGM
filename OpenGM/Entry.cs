@@ -6,6 +6,7 @@ using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.IO.Compression;
 using UndertaleModLib;
 
 namespace OpenGM;
@@ -72,38 +73,91 @@ internal class Entry
 
                     PathOverride = args[++i];
                     break;
+
                 case "--warnings-only":
                     DebugLog.Verbosity = DebugLog.LogType.Warning;
                     break;
+
                 case "--errors-only":
                     DebugLog.Verbosity = DebugLog.LogType.Error;
                     break;
+
                 case "--verbose":
                 case "-v":
                     DebugLog.Verbosity = DebugLog.LogType.Verbose;
                     break;
+
                 case "--log-all-stubs":
                     ScriptResolver.AlwaysLogStubs = true;
                     break;
+
                 case "--compat-collision":
                     CollisionManager.CompatMode = true;
                     CollisionManager.CompatModeOverridden = true;
                     break;
+
                 case "--no-compat-collision":
                     CollisionManager.CompatMode = false;
                     CollisionManager.CompatModeOverridden = true;
                     break;
-                case "--record":
+
+                case "--record-legacy":
+                {
                     KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
-                    KeyboardHandler.IOFilestream = File.OpenWrite(args[++i]);
+
+                    var path = args[++i];
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+
+                    KeyboardHandler.IOStream = File.OpenWrite(path);
                     break;
+                }
+
+                case "--record":
+                {
+                    KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
+
+                    var path = args[++i];
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+
+                    var source = File.OpenWrite(path);
+                    source.Write(KeyboardHandler.ReplayHeader);
+
+                    var compressed = new GZipStream(source, CompressionMode.Compress, leaveOpen: false);
+                    KeyboardHandler.IOStream = compressed;
+                    break;
+                }
+
                 case "--playback":
                     KeyboardHandler.HandlerState = KeyboardHandler.State.PLAYBACK;
-                    KeyboardHandler.IOFilestream = File.OpenRead(args[++i]);
+
+                    var stream = File.OpenRead(args[++i]);
+                    var buf = new byte[KeyboardHandler.ReplayHeader.Length];
+                    stream.ReadExactly(buf);
+
+                    if (buf.SequenceEqual(KeyboardHandler.ReplayHeader))
+                    {
+                        // compressed OpenGM replay
+                        KeyboardHandler.IOStream = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: false);
+                    }
+                    else
+                    {
+                        // legacy GameMaker replay
+                        stream.Seek(0, SeekOrigin.Begin);
+                        KeyboardHandler.IOStream = stream;
+                    }
+
                     break;
+
                 case "--":
                     endOfOptions = true;
                     break;
+
                 default:
                     passedArgs.Add(arg);
                     break;
@@ -195,6 +249,7 @@ internal class Entry
         window.Run();
 
         AudioManager.Dispose();
+        KeyboardHandler.IOStream?.Close();
     }
 
     public static void SetGameSpeed(int fps)

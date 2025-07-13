@@ -13,8 +13,10 @@ public class KeyboardHandler
         RECORD
     }
 
+    public static readonly byte[] ReplayHeader = "OGMR"u8.ToArray();
+
     public static State HandlerState = State.NORMAL;
-    public static FileStream? IOFilestream;
+    public static Stream? IOStream;
 
     public static bool[] KeyDown = new bool[256];
     public static bool[] KeyPressed = new bool[256];
@@ -86,89 +88,93 @@ public class KeyboardHandler
 
     private static void RecordIOState()
     {
-        if (IOFilestream == null)
+        if (IOStream == null)
         {
-            throw new NullReferenceException("IOFilestream is null.");
+            throw new NullReferenceException("IOStream is null.");
         }
 
-        IOFilestream.Write(new byte[4]); // IO_LastChar
-        IOFilestream.Write(new byte[4100]); // IO_InputString
-        IOFilestream.Write(new byte[4]); // IO_LastKey
-        IOFilestream.Write(new byte[4]); // IO_CurrentKey
+        IOStream.Write(new byte[4]); // IO_LastChar
+        IOStream.Write(new byte[4100]); // IO_InputString
+        IOStream.Write(new byte[4]); // IO_LastKey
+        IOStream.Write(new byte[4]); // IO_CurrentKey
 
         for (var i = 0; i < 256; i++)
         {
-            IOFilestream.WriteByte(KeyDown[i] ? (byte)1 : (byte)0);
-        }
-
-        for (var i = 0; i < 256; i++)
-        {
-            IOFilestream.WriteByte(KeyReleased[i] ? (byte)1 : (byte)0);
+            IOStream.WriteByte(KeyDown[i] ? (byte)1 : (byte)0);
         }
 
         for (var i = 0; i < 256; i++)
         {
-            IOFilestream.WriteByte(KeyPressed[i] ? (byte)1 : (byte)0);
+            IOStream.WriteByte(KeyReleased[i] ? (byte)1 : (byte)0);
         }
 
-        IOFilestream.Write(new byte[40]); // IO_LastButton
-        IOFilestream.Write(new byte[40]); // IO_CurrentButton
+        for (var i = 0; i < 256; i++)
+        {
+            IOStream.WriteByte(KeyPressed[i] ? (byte)1 : (byte)0);
+        }
 
-        IOFilestream.Write(new byte[50]); // IO_ButtonDown
-        IOFilestream.Write(new byte[50]); // IO_ButtonReleased
-        IOFilestream.Write(new byte[50]); // IO_ButtonPressed
+        IOStream.Write(new byte[40]); // IO_LastButton
+        IOStream.Write(new byte[40]); // IO_CurrentButton
 
-        IOFilestream.Write(new byte[10]); // IO_WheelUp
-        IOFilestream.Write(new byte[10]); // IO_WheelDown
+        IOStream.Write(new byte[50]); // IO_ButtonDown
+        IOStream.Write(new byte[50]); // IO_ButtonReleased
+        IOStream.Write(new byte[50]); // IO_ButtonPressed
 
-        IOFilestream.Write(new byte[8]); // IO_MousePos
-        IOFilestream.Write(new byte[4]); // IO_MouseX
-        IOFilestream.Write(new byte[4]); // IO_MouseY
+        IOStream.Write(new byte[10]); // IO_WheelUp
+        IOStream.Write(new byte[10]); // IO_WheelDown
+
+        IOStream.Write(new byte[8]); // IO_MousePos
+        IOStream.Write(new byte[4]); // IO_MouseX
+        IOStream.Write(new byte[4]); // IO_MouseY
     }
 
     private static void PlaybackIOState()
     {
-        if (IOFilestream == null)
+        if (IOStream == null)
         {
-            throw new NullReferenceException("IOFilestream is null.");
+            throw new NullReferenceException("IOStream is null.");
         }
 
-        IOFilestream.ReadExactly(new byte[4]); // IO_LastChar
-        IOFilestream.ReadExactly(new byte[4100]); // IO_InputString
-        IOFilestream.ReadExactly(new byte[4]); // IO_LastKey
-        IOFilestream.ReadExactly(new byte[4]); // IO_CurrentKey
-
-        for (var i = 0; i < 256; i++)
+        try
         {
-            KeyDown[i] = IOFilestream.ReadByte() == 1;
+            IOStream.ReadExactly(new byte[4]); // IO_LastChar
+            IOStream.ReadExactly(new byte[4100]); // IO_InputString
+            IOStream.ReadExactly(new byte[4]); // IO_LastKey
+            IOStream.ReadExactly(new byte[4]); // IO_CurrentKey
+
+            for (var i = 0; i < 256; i++)
+            {
+                KeyDown[i] = IOStream.ReadByte() == 1;
+            }
+
+            for (var i = 0; i < 256; i++)
+            {
+                KeyReleased[i] = IOStream.ReadByte() == 1;
+            }
+
+            for (var i = 0; i < 256; i++)
+            {
+                KeyPressed[i] = IOStream.ReadByte() == 1;
+            }
+
+            IOStream.ReadExactly(new byte[40]); // IO_LastButton
+            IOStream.ReadExactly(new byte[40]); // IO_CurrentButton
+
+            IOStream.ReadExactly(new byte[50]); // IO_ButtonDown
+            IOStream.ReadExactly(new byte[50]); // IO_ButtonReleased
+            IOStream.ReadExactly(new byte[50]); // IO_ButtonPressed
+
+            IOStream.ReadExactly(new byte[10]); // IO_WheelUp
+            IOStream.ReadExactly(new byte[10]); // IO_WheelDown
+
+            IOStream.ReadExactly(new byte[8]); // IO_MousePos
+            IOStream.ReadExactly(new byte[4]); // IO_MouseX
+            IOStream.ReadExactly(new byte[4]); // IO_MouseY
         }
-
-        for (var i = 0; i < 256; i++)
+        catch (EndOfStreamException)
         {
-            KeyReleased[i] = IOFilestream.ReadByte() == 1;
-        }
-
-        for (var i = 0; i < 256; i++)
-        {
-            KeyPressed[i] = IOFilestream.ReadByte() == 1;
-        }
-
-        IOFilestream.ReadExactly(new byte[40]); // IO_LastButton
-        IOFilestream.ReadExactly(new byte[40]); // IO_CurrentButton
-
-        IOFilestream.ReadExactly(new byte[50]); // IO_ButtonDown
-        IOFilestream.ReadExactly(new byte[50]); // IO_ButtonReleased
-        IOFilestream.ReadExactly(new byte[50]); // IO_ButtonPressed
-
-        IOFilestream.ReadExactly(new byte[10]); // IO_WheelUp
-        IOFilestream.ReadExactly(new byte[10]); // IO_WheelDown
-
-        IOFilestream.ReadExactly(new byte[8]); // IO_MousePos
-        IOFilestream.ReadExactly(new byte[4]); // IO_MouseX
-        IOFilestream.ReadExactly(new byte[4]); // IO_MouseY
-
-        if (IOFilestream.Position == IOFilestream.Length)
-        {
+            DebugLog.LogInfo("Hit EOF, ending replay.");
+            IOStream.Close();
             HandlerState = State.NORMAL;
         }
     }
