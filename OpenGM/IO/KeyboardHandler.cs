@@ -278,6 +278,15 @@ public class KeyboardHandler
             DrawManager.DebugBBoxes = !DrawManager.DebugBBoxes;
         }
 
+        if (state.IsKeyPressed(Keys.KeyPad3))
+        {
+            if (HandlerState == State.RECORD)
+            {
+                DebugLog.LogInfo("Finished recording.");
+                HandlerState = State.NORMAL;
+            }
+        }
+
         if (HandlerState == State.RECORD)
         {
             RecordIOState();
