@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
+using System.Diagnostics;
 using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -1062,7 +1063,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var font = args[0].Conv<int>();
 
             var library = TextManager.FontAssets;
-            var fontAsset = library.First(x => x.AssetIndex == font);
+            var fontAsset = library.FirstOrDefault(x => x.AssetIndex == font);
+
+            if (fontAsset == null)
+            {
+                DebugLog.LogError($"draw_set_font: Unknown font index {font}! Listing available fonts:");
+                foreach (var item in library)
+                {
+                    DebugLog.LogError($"- {item.name} (ID: {item.AssetIndex})");
+                }
+                return null;
+            }
+
             TextManager.fontAsset = fontAsset;
             return null;
         }
