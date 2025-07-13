@@ -229,6 +229,11 @@ internal class Entry
             window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
         }
 
+        if (CollisionManager.CompatMode)
+        {
+            DebugLog.LogInfo("Collision compatibility mode is enabled.");
+        }
+
         DebugLog.LogInfo($"Binding page textures...");
         PageManager.BindTextures();
 

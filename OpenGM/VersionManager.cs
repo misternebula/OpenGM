@@ -21,7 +21,6 @@ namespace OpenGM
             // TODO: the conditions for compat mode are for sure more nuanced than this
             if (
                 !CollisionManager.CompatModeOverridden &&
-                new Version(2,0,0,0) <= EngineVersion &&
                 EngineVersion < new Version(2022,1,0,0)
             )
             {
