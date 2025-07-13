@@ -135,6 +135,8 @@ public class KeyboardHandler
             throw new NullReferenceException("IOStream is null.");
         }
 
+        CustomWindow.Instance.UpdateFrequency = 0.0;
+
         try
         {
             IOStream.ReadExactly(new byte[4]); // IO_LastChar
@@ -174,6 +176,7 @@ public class KeyboardHandler
         catch (EndOfStreamException)
         {
             DebugLog.LogInfo("Hit EOF, ending replay.");
+            CustomWindow.Instance.UpdateFrequency = Entry.GameSpeed;
             IOStream.Close();
             HandlerState = State.NORMAL;
         }
