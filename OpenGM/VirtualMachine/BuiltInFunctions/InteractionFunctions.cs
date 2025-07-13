@@ -157,7 +157,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // keyboard_virtual_height
         // keyboard_clear
         // mouse_clear
-        // io_clear
+
+        [GMLFunction("io_clear")]
+        public static object? io_clear(object?[] args)
+        {
+            // TODO : clear other IO variables when we implement them
+
+            KeyboardHandler.KeyDown = new bool[256];
+            KeyboardHandler.KeyPressed = new bool[256];
+            KeyboardHandler.KeyReleased = new bool[256];
+
+            KeyboardHandler.MouseDown = new bool[5];
+            KeyboardHandler.KeyPressed = new bool[5];
+            KeyboardHandler.KeyReleased = new bool[5];
+            return null;
+        }
+
         // device_mouse_dbclick_enable
         // browser_input_capture
 

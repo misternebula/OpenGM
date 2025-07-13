@@ -451,7 +451,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return true;
         }
 
-        // audio_group_load_progress
+        [GMLFunction("audio_group_load_progress", GMLFunctionFlags.Stub)]
+        public static object audio_group_load_progress(object?[] args)
+        {
+            return 100;
+        }
+
         // audio_group_name
         // audio_group_stop_all
 

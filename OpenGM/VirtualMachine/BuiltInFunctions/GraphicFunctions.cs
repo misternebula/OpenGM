@@ -145,8 +145,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // window_default
-        // window_get_x
-        // window_get_y
+
+        [GMLFunction("window_get_x")]
+        public static object? window_get_x(object?[] args)
+        {
+            return CustomWindow.Instance.ClientLocation.X;
+        }
+
+        [GMLFunction("window_get_y")]
+        public static object? window_get_y(object?[] args)
+        { 
+            return CustomWindow.Instance.ClientLocation.Y;
+        }
 
         [GMLFunction("window_get_width")]
         public static object window_get_width(object?[] args)
