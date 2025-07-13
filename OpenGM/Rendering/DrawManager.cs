@@ -428,7 +428,7 @@ public static class DrawManager
          * yyRoom.prototype.Draw
          */
 
-        var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
+        var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId);
 
         if (CustomWindow.Instance != null) // only null in tests
         {
