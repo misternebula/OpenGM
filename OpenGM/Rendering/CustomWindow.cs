@@ -17,37 +17,10 @@ public class CustomWindow : GameWindow
      * below is for view, should be moved somewhere else
      */
 
-    public uint Width;
-    public uint Height;
-
-    private double _x;
-    public double X
-    {
-        get => _x;
-        set
-        {
-            _x = value;
-            // UpdatePositionResolution();
-        }
-    }
-
-    private double _y;
-    public double Y
-    {
-        get => _y;
-        set
-        {
-            _y = value;
-            // UpdatePositionResolution();
-        }
-    }
-
-    public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, uint width, uint height)
+    public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
         Instance = this;
-        Width = width;
-        Height = height;
         
         DebugLog.LogInfo($"-- CustomWindow .ctor --");
         DebugLog.LogInfo($"  Version: {nativeWindowSettings.API} {nativeWindowSettings.APIVersion}");
@@ -93,40 +66,6 @@ public class CustomWindow : GameWindow
         base.OnFramebufferResize(e);
         DebugLog.LogInfo($"OnFramebufferResize {e.Width}x{e.Height}");
         GL.Viewport(0, 0, e.Width, e.Height); // draw to entire framebuffer
-    }
-
-    /// <summary>
-    /// set the view position
-    /// </summary>
-    public void SetPosition(double x, double y)
-    {
-        _x = x;
-        _y = y;
-        // UpdatePositionResolution();
-    }
-
-    /// <summary>
-    /// set the view resolution
-    /// </summary>
-    public void SetResolution(int width, int height)
-    {
-        DebugLog.LogInfo($"SetResolution {Width}x{Height} -> {width}x{height}");
-        Width = (uint)width;
-        Height = (uint)height;
-        // UpdatePositionResolution();
-    }
-
-    /// <summary>
-    /// sets the view uniform
-    /// </summary>
-    public void UpdatePositionResolution()
-    {
-        /*
-        var matrix = Matrix4.CreateOrthographicOffCenter((float)X, Width + (float)X, Height + (float)Y, (float)Y, 0, 1);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadMatrix(ref matrix);
-        */
-        GL.Uniform4(VertexManager.u_view, new Vector4((float)X, (float)Y, Width, Height));
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)

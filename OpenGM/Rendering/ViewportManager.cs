@@ -11,6 +11,8 @@ public static class ViewportManager
 
     public static int[] view_camera = new int[8];
 
+    public static RuntimeView? CurrentRenderingView;
+
     public static void UpdateViews()
     {
         for (var i = 0; i < 8; i++)

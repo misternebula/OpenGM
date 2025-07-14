@@ -92,7 +92,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object camera_get_view_x(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-            var id = args[1].Conv<int>();
 
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)
@@ -107,7 +106,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object camera_get_view_y(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-            var id = args[1].Conv<int>();
 
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)
@@ -122,7 +120,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object camera_get_view_width(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-            var id = args[1].Conv<int>();
 
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)
@@ -137,7 +134,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object camera_get_view_height(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-            var id = args[1].Conv<int>();
 
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)
@@ -158,7 +154,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? camera_get_view_target(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-            var id = args[1].Conv<int>();
 
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)

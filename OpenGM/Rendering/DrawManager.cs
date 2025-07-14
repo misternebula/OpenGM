@@ -104,8 +104,8 @@ public static class DrawManager
                 {
                     var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
                     var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
-                    var camX = CustomWindow.Instance.X;
-                    var camY = CustomWindow.Instance.Y;
+                    var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
+                    var camY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
 
                     var vertices = new OpenTK.Mathematics.Vector2d[] {
                         new(gm.bbox.left - camX, gm.bbox.top - camY),
@@ -470,30 +470,35 @@ public static class DrawManager
         /*
          * DrawViews
          */
-        // TODO: at some point this must be replaced by drawing each view
 
-        /*
-         * DrawTheRoom
-         */
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+        for (var i = 0; i < 8; i++)
         {
-            return;
-        }
+            ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
-        {
-            return;
-        }
+            /*
+             * DrawTheRoom
+             */
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+            {
+                break;
+            }
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
-        {
-            return;
+            if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+            {
+                break;
+            }
+
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+            {
+                break;
+            }
         }
 
         if (SurfaceManager.UsingAppSurface)
         {
             SurfaceManager.surface_reset_target();
         }
+
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
@@ -506,7 +511,9 @@ public static class DrawManager
             }
             return;
         }
-        
+
+        ViewportManager.CurrentRenderingView = null;
+
         GL.Uniform1(VertexManager.u_flipY, 1); // flip when drawing to backbuffer
 
         /*
@@ -518,7 +525,7 @@ public static class DrawManager
         }
 
         /*
-         * DrawApplicationSurface 
+         * DrawApplicationSurface
          */
         if (SurfaceManager.UsingAppSurface)
         {

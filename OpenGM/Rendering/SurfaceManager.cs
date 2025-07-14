@@ -41,7 +41,7 @@ public static class SurfaceManager
         // application surface does view stuff
         if (surface == application_surface)
         {
-            CustomWindow.Instance.UpdatePositionResolution();
+            //CustomWindow.Instance.UpdatePositionResolution();
         }
 
         return true;
@@ -67,7 +67,7 @@ public static class SurfaceManager
             // application surface does view stuff
             if (surface == application_surface)
             {
-                CustomWindow.Instance.UpdatePositionResolution();
+                //CustomWindow.Instance.UpdatePositionResolution();
             }
         }
         else

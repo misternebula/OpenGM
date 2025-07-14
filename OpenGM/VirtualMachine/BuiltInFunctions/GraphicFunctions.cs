@@ -1515,8 +1515,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var tempX = x;
             var tempY = y;
 
-            var viewTopLeftX = CustomWindow.Instance.X;
-            var viewTopLeftY = CustomWindow.Instance.Y;
+            var viewTopLeftX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
+            var viewTopLeftY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
 
             while (tempX > viewTopLeftX)
             {
@@ -1533,8 +1533,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var xOffscreenValue = viewTopLeftX - tempX;
             var yOffscreenValue = viewTopLeftY - tempY;
 
-            var countToDrawHoriz = CustomMath.CeilToInt((RoomManager.CurrentRoom.CameraWidth + (float)xOffscreenValue) / sizeWidth);
-            var countToDrawVert = CustomMath.CeilToInt((RoomManager.CurrentRoom.CameraHeight + (float)yOffscreenValue) / sizeHeight);
+            var countToDrawHoriz = CustomMath.CeilToInt((ViewportManager.CurrentRenderingView!.ViewSize.X + (float)xOffscreenValue) / sizeWidth);
+            var countToDrawVert = CustomMath.CeilToInt((ViewportManager.CurrentRenderingView!.ViewSize.Y + (float)yOffscreenValue) / sizeHeight);
 
             for (var i = 0; i < countToDrawVert; i++)
             {
