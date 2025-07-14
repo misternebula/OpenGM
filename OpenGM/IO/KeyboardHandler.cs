@@ -243,11 +243,11 @@ public class KeyboardHandler
             {
                 if (item is GamemakerObject gm)
                 {
-                    DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
+                    DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Depth:{item.depth} Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
                 }
                 else
                 {
-                    DebugLog.Log($" - ??? InstanceID:{item.instanceId} Depth:{item.depth}");
+                    DebugLog.Log($" - {item.GetType().Name} InstanceID:{item.instanceId} Depth:{item.depth}");
                 }
             }
         }
