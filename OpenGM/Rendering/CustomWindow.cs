@@ -1,6 +1,5 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
-using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -42,8 +41,6 @@ public class CustomWindow : GameWindow
             // UpdatePositionResolution();
         }
     }
-
-    public GamemakerObject? FollowInstance = null!;
 
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, uint width, uint height)
         : base(gameWindowSettings, nativeWindowSettings)
@@ -144,9 +141,6 @@ public class CustomWindow : GameWindow
         DrawManager.FixedUpdate();
         AudioManager.Update();
 
-        // this should be moved at some point into view code
-        UpdateInstanceFollow();
-
         foreach (var item in DebugJobs)
         {
             Draw(item);
@@ -155,50 +149,6 @@ public class CustomWindow : GameWindow
         DebugJobs.Clear();
 
         SwapBuffers();
-    }
-
-    public void UpdateInstanceFollow()
-    {
-        if (FollowInstance == null)
-        {
-            if (RoomManager.CurrentRoom.FollowObject == null)
-            {
-                return;
-            }
-
-            FollowInstance = RoomManager.CurrentRoom.FollowObject;
-        }
-
-        var x = FollowInstance.x + (FollowInstance.sprite_width / 2);
-        var y = FollowInstance.y + (FollowInstance.sprite_height / 2);
-
-        var roomWidth = RoomManager.CurrentRoom.SizeX;
-        var roomHeight = RoomManager.CurrentRoom.SizeY;
-        var viewWidth = RoomManager.CurrentRoom.CameraWidth;
-        var viewHeight = RoomManager.CurrentRoom.CameraHeight;
-
-        x -= viewWidth / 2d;
-        y -= viewHeight / 2d;
-
-        if (y <= 0) // top of screen
-        {
-            y = 0;
-        }
-        else if (y >= roomHeight - viewHeight) // bottom of screen
-        {
-            y = roomHeight - viewHeight;
-        }
-
-        if (x <= 0) // left of screen
-        {
-            x = 0;
-        }
-        else if (x >= roomWidth - viewWidth) // right of screen
-        {
-            x = roomWidth - viewWidth;
-        }
-
-        SetPosition(x, y);
     }
 
     public static void Draw(GMBaseJob baseJob)
