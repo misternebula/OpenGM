@@ -2,6 +2,7 @@
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -474,6 +475,17 @@ public static class DrawManager
         for (var i = 0; i < 8; i++)
         {
             ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
+
+            if (!ViewportManager.CurrentRenderingView.Visible)
+            {
+                continue;
+            }
+
+            GL.Uniform4(VertexManager.u_view, new Vector4(
+                ViewportManager.CurrentRenderingView.ViewPosition.X,
+                ViewportManager.CurrentRenderingView.ViewPosition.Y,
+                ViewportManager.CurrentRenderingView.ViewSize.X,
+                ViewportManager.CurrentRenderingView.ViewSize.Y));
 
             /*
              * DrawTheRoom

@@ -1,4 +1,6 @@
-﻿namespace OpenGM.Rendering;
+﻿using OpenTK.Mathematics;
+
+namespace OpenGM.Rendering;
 public static class ViewportManager
 {
     public static int[] view_wport = new int[8];
@@ -28,6 +30,21 @@ public static class ViewportManager
             view_hview[i] = view.ViewSize.Y;
 
             view_camera[i] = view.Camera?.ID ?? -1;
+        }
+    }
+
+    public static void UpdateFromArrays()
+    {
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            view.PortSize = new(view_wport[i], view_hview[i]);
+
+            view.ViewPosition = new(view_xview[i], view_yview[i]);
+            view.ViewSize = new(view_wview[i], view_hview[i]);
+
+            // todo: view_camera???
         }
     }
 }
