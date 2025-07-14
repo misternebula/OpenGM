@@ -5,8 +5,6 @@ namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {
-    // TODO: pop builtin/array. yes, it is used in ch2
-    
     public static void PopToGlobal(string varName, object? value)
     {
         VariableResolver.GlobalVariables[varName] = value;
@@ -136,6 +134,30 @@ public static partial class VMExecutor
         else
         {
             builtinGetSet.setter!(value);
+        }
+    }
+
+    public static void PopToBuiltInArray(string varName, int index, object? value)
+    {
+        if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gettersetter))
+        {
+            VariableResolver.ArraySet(
+                index,
+                value,
+                () => gettersetter.getter() as IList, // already did TryGetValue above
+                array => gettersetter.setter!(array));
+        }
+        else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfgettersetter))
+        {
+            VariableResolver.ArraySet(
+                index,
+                value,
+                () => selfgettersetter.getter(Self.GMSelf) as IList, // already did TryGetValue above
+                array => selfgettersetter.setter!(Self.GMSelf, array));
+        }
+        else
+        {
+            throw new ArgumentException($"No such builtin array \"{varName}\"");
         }
     }
 
@@ -287,6 +309,11 @@ public static partial class VMExecutor
                         else if (instanceId == GMConstants.self)
                         {
                             PopToSelfArray(Self.Self, variableName, index, value);
+                            return (ExecutionResult.Success, null);
+                        }
+                        else if (instanceId == GMConstants.builtin)
+                        {
+                            PopToBuiltInArray(variableName, index, value);
                             return (ExecutionResult.Success, null);
                         }
                         else
