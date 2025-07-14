@@ -71,7 +71,9 @@ public class GMSprite : DrawWithDepth
         var col = (int)(Color & 0x00FFFFFF);
         var alpha = ((Color & 0xFF000000) >> 6) / 255.0;
 
-        SpriteManager.DrawSpriteExt(Definition, FrameIndex, X, Y, XScale, YScale, Rotation, col, alpha);
+        var layer = Element.Layer;
+
+        SpriteManager.DrawSpriteExt(Definition, FrameIndex, layer.X + X, layer.Y + Y, XScale, YScale, Rotation, col, alpha);
     }
 
     public void SetSprite(int definition)
