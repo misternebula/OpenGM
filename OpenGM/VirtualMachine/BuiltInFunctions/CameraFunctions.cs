@@ -23,7 +23,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? camera_set_view_pos(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-            var id = args[1].Conv<int>();
 
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)
