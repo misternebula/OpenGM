@@ -480,9 +480,25 @@ public static class DrawManager
             {
                 continue;
             }
-            
-            // if (view surface != -1) set_surface_target(view surface)
-            
+
+            if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+            {
+                SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
+                
+                // idk what the deal with scaled port stuff is. happens in both html5 and cpp
+                
+                // ignore viewport, use entire surface. idk why
+            }
+            else
+            {
+                GraphicsManager.SetViewPort(
+                    ViewportManager.CurrentRenderingView.PortPosition.X,
+                    ViewportManager.CurrentRenderingView.PortPosition.Y,
+                    ViewportManager.CurrentRenderingView.PortSize.X,
+                    ViewportManager.CurrentRenderingView.PortSize.Y
+                );
+            }
+                
             GraphicsManager.SetViewArea(
                 ViewportManager.CurrentRenderingView.ViewPosition.X,
                 ViewportManager.CurrentRenderingView.ViewPosition.Y,
@@ -507,8 +523,11 @@ public static class DrawManager
             {
                 break;
             }
-            
-            // if (view surface != -1) reset_surface_target()
+
+            if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+            {
+                SurfaceManager.surface_reset_target();
+            }
         }
 
         if (SurfaceManager.UsingAppSurface)

@@ -283,7 +283,7 @@ public static class RoomManager
             var camera = new Camera();
             CameraManager.RegisterCamera(camera);
 
-            var runtimeView = new RuntimeView()
+            var runtimeView = new RuntimeView
             {
                 Visible = view.Enabled,
                 ViewPosition = new Vector2i(view.PositionX, view.PositionY),
