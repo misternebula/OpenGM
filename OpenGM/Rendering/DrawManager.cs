@@ -613,6 +613,9 @@ public static class DrawManager
         /*
          * PostDraw
          */
+        GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
             return;
