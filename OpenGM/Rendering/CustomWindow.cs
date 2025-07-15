@@ -50,23 +50,6 @@ public class CustomWindow : GameWindow
         GL.BlendEquation(BlendEquationMode.FuncAdd);
     }
 
-    protected override void OnLoad()
-    {
-        base.OnLoad();
-        DebugLog.LogInfo($"OnLoad()");
-        // UpdatePositionResolution();
-    }
-
-    protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
-    {
-        base.OnFramebufferResize(e);
-        DebugLog.LogInfo($"OnFramebufferResize {e.Width}x{e.Height}");
-        // draw to entire framebuffer
-        // sets up initial state for surface stack to track
-        GraphicsManager.SetViewPort(0, 0, e.Width, e.Height);
-        GraphicsManager.SetViewArea(0, 0, e.Width, e.Height);
-    }
-
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);

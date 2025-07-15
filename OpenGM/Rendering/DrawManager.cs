@@ -431,14 +431,18 @@ public static class DrawManager
 
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId);
 
+        /*
+         * PreDraw
+         */
+        var size = CustomWindow.Instance.FramebufferSize;
+        GraphicsManager.SetViewPort(0, 0, size.X, size.Y);
+        GraphicsManager.SetViewArea(0, 0, size.X, size.Y);
+        
         if (CustomWindow.Instance != null) // only null in tests
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
         }
 
-        /*
-         * PreDraw
-         */
         if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
@@ -586,9 +590,6 @@ public static class DrawManager
          */
         if (SurfaceManager.UsingAppSurface)
         {
-            var size = CustomWindow.Instance!.FramebufferSize;
-            GraphicsManager.SetViewPort(0, 0, size.X, size.Y);
-            GraphicsManager.SetViewArea(0, 0, size.X, size.Y);
             GL.Disable(EnableCap.Blend);
             SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface,
                 0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
