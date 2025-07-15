@@ -294,13 +294,12 @@ public static class SurfaceManager
         var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
         var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
 
-        GraphicsManager.Draw(PrimitiveType.TriangleFan, new GraphicsManager.Vertex[]
-        {
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(vertexOne, drawColor, new(0, 0)),
             new(vertexTwo, drawColor, new(1, 0)),
             new(vertexThree, drawColor, new(1, 1)),
             new(vertexFour, drawColor, new(0, 1))
-        });
+        ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
         GL.Uniform1(GraphicsManager.u_doTex, 0);

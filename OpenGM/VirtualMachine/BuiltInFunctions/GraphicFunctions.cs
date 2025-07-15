@@ -876,7 +876,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
             else
             {
-                var verts = new GraphicsManager.Vertex[DrawManager.CirclePrecision * 3];
+                Span<GraphicsManager.Vertex> verts = stackalloc GraphicsManager.Vertex[DrawManager.CirclePrecision * 3];
 
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
