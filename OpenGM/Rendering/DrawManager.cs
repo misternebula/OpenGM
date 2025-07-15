@@ -472,61 +472,84 @@ public static class DrawManager
          * DrawViews
          */
 
-        for (var i = 0; i < 8; i++)
+        if (RoomManager.CurrentRoom.RoomAsset.EnableViews)
         {
-            ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
+            for (var i = 0; i < 8; i++)
+            {
+                ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
-            if (!ViewportManager.CurrentRenderingView.Visible)
-            {
-                continue;
-            }
+                if (!ViewportManager.CurrentRenderingView.Visible)
+                {
+                    continue;
+                }
 
-            if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
-            {
-                SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
-                
-                // idk what the deal with scaled port stuff is. happens in both html5 and cpp
-                
-                // ignore viewport, use entire surface. idk why
-            }
-            else
-            {
-                GraphicsManager.SetViewPort(
-                    ViewportManager.CurrentRenderingView.PortPosition.X,
-                    ViewportManager.CurrentRenderingView.PortPosition.Y,
-                    ViewportManager.CurrentRenderingView.PortSize.X,
-                    ViewportManager.CurrentRenderingView.PortSize.Y
+                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                {
+                    SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
+
+                    // idk what the deal with scaled port stuff is. happens in both html5 and cpp
+
+                    // ignore viewport, use entire surface. idk why
+                }
+                else
+                {
+                    GraphicsManager.SetViewPort(
+                        ViewportManager.CurrentRenderingView.PortPosition.X,
+                        ViewportManager.CurrentRenderingView.PortPosition.Y,
+                        ViewportManager.CurrentRenderingView.PortSize.X,
+                        ViewportManager.CurrentRenderingView.PortSize.Y
+                    );
+                }
+
+                GraphicsManager.SetViewArea(
+                    ViewportManager.CurrentRenderingView.ViewPosition.X,
+                    ViewportManager.CurrentRenderingView.ViewPosition.Y,
+                    ViewportManager.CurrentRenderingView.ViewSize.X,
+                    ViewportManager.CurrentRenderingView.ViewSize.Y
                 );
-            }
-                
-            GraphicsManager.SetViewArea(
-                ViewportManager.CurrentRenderingView.ViewPosition.X,
-                ViewportManager.CurrentRenderingView.ViewPosition.Y,
-                ViewportManager.CurrentRenderingView.ViewSize.X,
-                ViewportManager.CurrentRenderingView.ViewSize.Y
-            );
 
+                /*
+                 * DrawTheRoom
+                 */
+                if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+                {
+                    break;
+                }
+
+                if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+                {
+                    break;
+                }
+
+                if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+                {
+                    break;
+                }
+
+                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                {
+                    SurfaceManager.surface_reset_target();
+                }
+            }
+        }
+        else
+        {
             /*
              * DrawTheRoom
              */
             if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
             {
-                break;
+                return;
             }
 
             if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
             {
-                break;
+                return;
             }
 
             if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
             {
-                break;
-            }
-
-            if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
-            {
-                SurfaceManager.surface_reset_target();
+                return;
             }
         }
 
@@ -538,9 +561,7 @@ public static class DrawManager
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
-            // BUG: one new game in ch2, this becomes unbalanced. i have no idea why.
-            // i dont feel like actually fixing this right now
-            //Debugger.Break();
+            // BUG: room transitions become unbalanced. probably because of early returns above
             while (SurfaceManager.SurfaceStack.Count != 0)
             {
                 SurfaceManager.surface_reset_target();

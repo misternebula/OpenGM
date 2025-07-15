@@ -22,6 +22,12 @@ public partial class Room
     public List<GameObject> LooseObjects = new();
     public List<Tile> Tiles = new();
     public List<OldBackground> OldBackgrounds = new();
+    
+    public bool EnableViews;
+
+    // show color
+    // view clear screen? what is this?
+    // clear display buffer
 }
 
 [MemoryPackable]

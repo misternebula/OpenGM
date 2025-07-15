@@ -846,6 +846,7 @@ public static class GameConverter
                 CreationCodeId = codes.IndexOf(room.CreationCodeId),
                 GravityX = room.GravityX,
                 GravityY = room.GravityY,
+                EnableViews = room.Flags.HasFlag(UndertaleRoom.RoomEntryFlags.EnableViews)
             };
 
             for (var i = 0; i < 8; i++)
