@@ -13,10 +13,6 @@ public class CustomWindow : GameWindow
 
     public static List<GMBaseJob> DebugJobs = new();
 
-    /*
-     * below is for view, should be moved somewhere else
-     */
-
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -34,7 +30,7 @@ public class CustomWindow : GameWindow
         SurfaceManager.ApplicationWidth = FramebufferSize.X;
         SurfaceManager.ApplicationHeight = FramebufferSize.Y;
         
-        VertexManager.Init();
+        GraphicsManager.Init();
         
         /*
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>
@@ -65,7 +61,10 @@ public class CustomWindow : GameWindow
     {
         base.OnFramebufferResize(e);
         DebugLog.LogInfo($"OnFramebufferResize {e.Width}x{e.Height}");
-        GL.Viewport(0, 0, e.Width, e.Height); // draw to entire framebuffer
+        // draw to entire framebuffer
+        // sets up initial state for surface stack to track
+        GraphicsManager.SetViewPort(0, 0, e.Width, e.Height);
+        GraphicsManager.SetViewArea(0, 0, e.Width, e.Height);
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
@@ -236,7 +235,7 @@ public class CustomWindow : GameWindow
                 var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
 
                 GL.BindTexture(TextureTarget.Texture2D, pageId);
-                GL.Uniform1(VertexManager.u_doTex, 1);
+                GL.Uniform1(GraphicsManager.u_doTex, 1);
 
                 var topLeftPos = new Vector2d(topLeftX, topLeftY);
                 var topRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, topLeftY);
@@ -248,7 +247,7 @@ public class CustomWindow : GameWindow
                 var bottomRightCol = CustomMath.BlendBetweenPoints(bottomRightPos, points, textJob.Colors);
                 var bottomLeftCol = CustomMath.BlendBetweenPoints(bottomLeftPos, points, textJob.Colors);
 
-                VertexManager.Draw(PrimitiveType.TriangleFan, [
+                GraphicsManager.Draw(PrimitiveType.TriangleFan, [
                     new(topLeftPos, topLeftCol, new(leftX, topY)),
                     new(topRightPos, topRightCol, new(rightX, topY)),
                     new(bottomRightPos, bottomRightCol, new(rightX, bottomY)),
@@ -256,7 +255,7 @@ public class CustomWindow : GameWindow
                 ]);
 
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.Uniform1(VertexManager.u_doTex, 0);
+                GL.Uniform1(GraphicsManager.u_doTex, 0);
 
                 xOffset += glyph.shift * textJob.scale.X;
                 if (textJob.asset.IsSpriteFont())
@@ -271,7 +270,7 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -318,7 +317,7 @@ public class CustomWindow : GameWindow
         
         GL.End();
         */
-        VertexManager.Draw(PrimitiveType.TriangleFan, [
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(drawAreaTopLeft, spriteJob.Colors[0], topLeftUV),
             new(drawAreaTopRight, spriteJob.Colors[1], topRightUV),
             new(drawAreaBottomRight, spriteJob.Colors[2], bottomRightUV),
@@ -326,14 +325,14 @@ public class CustomWindow : GameWindow
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -414,7 +413,7 @@ public class CustomWindow : GameWindow
             var topRight = topLeft + new Vector2d(widthCos, widthSin);
             var bottomRight = topRight + bottomVector;
 
-            VertexManager.Draw(PrimitiveType.TriangleFan, [
+            GraphicsManager.Draw(PrimitiveType.TriangleFan, [
                 new(topLeft, partJob.Colors[0], uv0),
                 new(topRight, partJob.Colors[1], uv1),
                 new(bottomRight, partJob.Colors[2], uv2),
@@ -424,7 +423,7 @@ public class CustomWindow : GameWindow
 
         // GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -455,7 +454,7 @@ public class CustomWindow : GameWindow
 
         GL.End();
         */
-        VertexManager.Draw(PrimitiveType.TriangleFan, [
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
             new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x2 + height, lineJob.y2 - width), lineJob.col2, Vector2.Zero),
@@ -465,42 +464,42 @@ public class CustomWindow : GameWindow
 
     public static void Draw(GMLinesJob linesJob)
     {
-        var v = new VertexManager.Vertex[linesJob.Vertices.Length];
+        Span<GraphicsManager.Vertex> v = stackalloc GraphicsManager.Vertex[linesJob.Vertices.Length];
         for (var i = 0; i < linesJob.Vertices.Length; i++)
         {
             v[i] = new(linesJob.Vertices[i], linesJob.Colors[i], Vector2d.Zero);
         }
 
-        VertexManager.Draw(PrimitiveType.LineStrip, v);
+        GraphicsManager.Draw(PrimitiveType.LineStrip, v);
     }
 
     public static void Draw(GMPolygonJob polyJob)
     {
-        var v = new VertexManager.Vertex[polyJob.Vertices.Length];
+        Span<GraphicsManager.Vertex> v = stackalloc GraphicsManager.Vertex[polyJob.Vertices.Length];
         for (var i = 0; i < polyJob.Vertices.Length; i++)
         {
             v[i] = new(polyJob.Vertices[i], polyJob.Colors[i], Vector2d.Zero);
         }
 
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
-        VertexManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
+        GraphicsManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
     }
 
     public static void Draw(GMTexturedPolygonJob texPolyJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
-        var vArr = new VertexManager.Vertex[texPolyJob.Vertices.Length];
+        Span<GraphicsManager.Vertex> vArr = stackalloc GraphicsManager.Vertex[texPolyJob.Vertices.Length];
         for (var i = 0; i < texPolyJob.Vertices.Length; i++)
         {
-            vArr[i] = new VertexManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
+            vArr[i] = new GraphicsManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
         }
-        VertexManager.Draw(PrimitiveType.TriangleFan, vArr);
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, vArr);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 }
 

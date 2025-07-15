@@ -444,7 +444,7 @@ public static class DrawManager
             return;
         }
         
-        GL.Uniform1(VertexManager.u_flipY, 0); // dont flip when not drawing to backbuffer
+        GL.Uniform1(GraphicsManager.u_flipY, 0); // dont flip when not drawing to backbuffer
 
         SurfaceManager.SetApplicationSurface();
 
@@ -480,12 +480,15 @@ public static class DrawManager
             {
                 continue;
             }
-
-            GL.Uniform4(VertexManager.u_view, new Vector4(
+            
+            // if (view surface != -1) set_surface_target(view surface)
+            
+            GraphicsManager.SetViewArea(
                 ViewportManager.CurrentRenderingView.ViewPosition.X,
                 ViewportManager.CurrentRenderingView.ViewPosition.Y,
                 ViewportManager.CurrentRenderingView.ViewSize.X,
-                ViewportManager.CurrentRenderingView.ViewSize.Y));
+                ViewportManager.CurrentRenderingView.ViewSize.Y
+            );
 
             /*
              * DrawTheRoom
@@ -504,6 +507,8 @@ public static class DrawManager
             {
                 break;
             }
+            
+            // if (view surface != -1) reset_surface_target()
         }
 
         if (SurfaceManager.UsingAppSurface)
@@ -526,7 +531,7 @@ public static class DrawManager
 
         ViewportManager.CurrentRenderingView = null;
 
-        GL.Uniform1(VertexManager.u_flipY, 1); // flip when drawing to backbuffer
+        GL.Uniform1(GraphicsManager.u_flipY, 1); // flip when drawing to backbuffer
 
         /*
          * PostDraw
