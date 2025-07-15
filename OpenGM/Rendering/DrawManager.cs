@@ -434,9 +434,9 @@ public static class DrawManager
         /*
          * PreDraw
          */
-        var size = CustomWindow.Instance.FramebufferSize;
-        GraphicsManager.SetViewPort(0, 0, size.X, size.Y);
-        GraphicsManager.SetViewArea(0, 0, size.X, size.Y);
+        var fbsize = CustomWindow.Instance.FramebufferSize;
+        GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
         
         if (CustomWindow.Instance != null) // only null in tests
         {
@@ -475,6 +475,33 @@ public static class DrawManager
         /*
          * DrawViews
          */
+        
+        /*
+         * UpdateViews
+         */
+        /*
+        var left = 999999;
+        var right = -999999;
+        var top  = 999999;
+        var bottom = -999999;
+        
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+            
+            if (view.Visible )// && pView.surface_id==-1) 
+            {                    
+                if( left>view.PortPosition.X) left = view.PortPosition.X;
+                if( right<(view.PortPosition.X+view.PortSize.X) ) right= view.PortPosition.X+view.PortSize.X;
+                if( top>view.PortPosition.Y) top = view.PortPosition.Y;
+                if( bottom<(view.PortPosition.Y+view.PortSize.Y) ) bottom = view.PortPosition.Y+view.PortSize.Y;       
+            }
+        }
+        
+        var displayScaleX = SurfaceManager.ApplicationWidth /  (right-left);
+        var displayScaleY = SurfaceManager.ApplicationHeight /  (bottom-top);
+        */
+        
 
         if (RoomManager.CurrentRoom.RoomAsset.EnableViews)
         {
@@ -497,12 +524,15 @@ public static class DrawManager
                 }
                 else
                 {
+                    // BUG: this stretches. idk why
+                    /*
                     GraphicsManager.SetViewPort(
-                        ViewportManager.CurrentRenderingView.PortPosition.X,
-                        ViewportManager.CurrentRenderingView.PortPosition.Y,
-                        ViewportManager.CurrentRenderingView.PortSize.X,
-                        ViewportManager.CurrentRenderingView.PortSize.Y
+                        ViewportManager.CurrentRenderingView.PortPosition.X,// * displayScaleX,
+                        ViewportManager.CurrentRenderingView.PortPosition.Y,// * displayScaleY,
+                        ViewportManager.CurrentRenderingView.PortSize.X,// * displayScaleX,
+                        ViewportManager.CurrentRenderingView.PortSize.Y// * displayScaleY
                     );
+                    */
                 }
 
                 GraphicsManager.SetViewArea(
@@ -538,6 +568,9 @@ public static class DrawManager
         }
         else
         {
+            GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
+            GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY);
+            
             /*
              * DrawTheRoom
              */
@@ -590,9 +623,9 @@ public static class DrawManager
          */
         if (SurfaceManager.UsingAppSurface)
         {
+            // gamemaker actually uses alpha test enable here, and saves/restores the state. just change it to that when this breaks
             GL.Disable(EnableCap.Blend);
-            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface,
-                0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 0, 0, fbsize.X, fbsize.Y);
             GL.Enable(EnableCap.Blend);
         }
 
