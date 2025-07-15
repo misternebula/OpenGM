@@ -106,14 +106,6 @@ public static class SurfaceManager
 
             GL.DeleteFramebuffer(buffer);
             _framebuffers.Remove(id);
-
-#if DEBUG 
-            // sanity check
-            if (SurfaceStack.Contains(id))
-            {
-                System.Diagnostics.Debugger.Break();
-            }
-#endif
         }
     }
 
