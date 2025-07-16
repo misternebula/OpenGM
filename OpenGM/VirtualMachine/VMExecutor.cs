@@ -714,6 +714,12 @@ public static partial class VMExecutor
     /// works with: all number types, string, bool, IList
     /// </summary>
     public static T Conv<T>(this object? @this) => (T)@this.Conv(typeof(T));
+
+    /// <summary>
+    /// cast array elements to type using Conv.
+    /// we want to use our custom function when changing elements of an array.
+    /// </summary>
+    public static IEnumerable<T> ConvCast<T>(this IEnumerable @this) => @this.Cast<object?>().Select(x => x.Conv<T>());
     
     private static object Conv(this object? @this, Type type)
     {
