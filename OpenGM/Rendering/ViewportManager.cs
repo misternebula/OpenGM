@@ -6,10 +6,10 @@ public static class ViewportManager
     public static int[] view_wport = new int[8];
     public static int[] view_hport = new int[8];
 
-    public static int[] view_xview = new int[8];
-    public static int[] view_yview = new int[8];
-    public static int[] view_wview = new int[8];
-    public static int[] view_hview = new int[8];
+    public static float[] view_xview = new float[8];
+    public static float[] view_yview = new float[8];
+    public static float[] view_wview = new float[8];
+    public static float[] view_hview = new float[8];
 
     public static int[] view_camera = new int[8];
 
@@ -39,7 +39,7 @@ public static class ViewportManager
         {
             var view = RoomManager.CurrentRoom.Views[i];
 
-            view.PortSize = new(view_wport[i], view_hview[i]);
+            view.PortSize = new(view_wport[i], view_hport[i]);
 
             view.ViewPosition = new(view_xview[i], view_yview[i]);
             view.ViewSize = new(view_wview[i], view_hview[i]);

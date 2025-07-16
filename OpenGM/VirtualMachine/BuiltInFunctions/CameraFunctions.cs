@@ -30,8 +30,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            var x = args[1].Conv<double>();
-            var y = args[2].Conv<double>();
+            var x = args[1].Conv<float>();
+            var y = args[2].Conv<float>();
 
             camera.ViewX = x;
             camera.ViewY = y;
@@ -61,22 +61,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            GamemakerObject? instance = null;
-
-            if (id == GMConstants.noone)
-            {
-                // set view target to no one i guess
-            }
-            else if (id < GMConstants.FIRST_INSTANCE_ID)
-            {
-                instance = InstanceManager.FindByAssetId(id).FirstOrDefault();
-            }
-            else
-            {
-                instance = InstanceManager.FindByInstanceId(id);
-            }
-
-            camera.TargetInstance = instance;
+            camera.TargetInstance = id;
 
             return null;
         }
@@ -160,8 +145,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            // TODO : this can apparently return either an instance id or object index????
-            return camera.TargetInstance?.instanceId ?? -1;
+            return camera.TargetInstance;
         }
 
         [GMLFunction("view_get_camera")]

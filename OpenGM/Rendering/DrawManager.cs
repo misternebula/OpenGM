@@ -479,28 +479,7 @@ public static class DrawManager
         /*
          * UpdateViews
          */
-        /*
-        var left = 999999;
-        var right = -999999;
-        var top  = 999999;
-        var bottom = -999999;
-        
-        for (var i = 0; i < 8; i++)
-        {
-            var view = RoomManager.CurrentRoom.Views[i];
-            
-            if (view.Visible )// && pView.surface_id==-1) 
-            {                    
-                if( left>view.PortPosition.X) left = view.PortPosition.X;
-                if( right<(view.PortPosition.X+view.PortSize.X) ) right= view.PortPosition.X+view.PortSize.X;
-                if( top>view.PortPosition.Y) top = view.PortPosition.Y;
-                if( bottom<(view.PortPosition.Y+view.PortSize.Y) ) bottom = view.PortPosition.Y+view.PortSize.Y;       
-            }
-        }
-        
-        var displayScaleX = SurfaceManager.ApplicationWidth /  (right-left);
-        var displayScaleY = SurfaceManager.ApplicationHeight /  (bottom-top);
-        */
+        UpdateViews();
         
 
         if (RoomManager.CurrentRoom.RoomAsset.EnableViews)
@@ -656,6 +635,54 @@ public static class DrawManager
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();
+    }
+
+    public static void UpdateViews()
+    {
+        if (!RoomManager.CurrentRoom.RoomAsset.EnableViews)
+        {
+            return;
+        }
+
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            if (!view.Visible)
+            {
+                continue;
+            }
+
+            if (view.Camera == null)
+            {
+                continue;
+            }
+
+            view.Camera.Update();
+        }
+
+        /*
+        var left = 999999;
+        var right = -999999;
+        var top  = 999999;
+        var bottom = -999999;
+
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            if (view.Visible )// && pView.surface_id==-1)
+            {
+                if( left>view.PortPosition.X) left = view.PortPosition.X;
+                if( right<(view.PortPosition.X+view.PortSize.X) ) right= view.PortPosition.X+view.PortSize.X;
+                if( top>view.PortPosition.Y) top = view.PortPosition.Y;
+                if( bottom<(view.PortPosition.Y+view.PortSize.Y) ) bottom = view.PortPosition.Y+view.PortSize.Y;
+            }
+        }
+
+        var displayScaleX = SurfaceManager.ApplicationWidth /  (right-left);
+        var displayScaleY = SurfaceManager.ApplicationHeight /  (bottom-top);
+        */
     }
 
     public static void HandleKeyboard()

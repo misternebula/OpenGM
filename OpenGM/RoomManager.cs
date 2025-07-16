@@ -280,19 +280,26 @@ public static class RoomManager
         {
             var view = CurrentRoom.RoomAsset.Views[i];
 
-            var camera = new Camera();
+            var camera = new Camera()
+            {
+                ViewX = view.PositionX,
+                ViewY = view.PositionY,
+                ViewWidth = view.SizeX,
+                ViewHeight = view.SizeY,
+                SpeedX = view.SpeedX,
+                SpeedY = view.SpeedY,
+                BorderX = view.BorderX,
+                BorderY = view.BorderY,
+                ViewAngle = 0,
+                TargetInstance = view.FollowsObject
+            };
             CameraManager.RegisterCamera(camera);
 
             var runtimeView = new RuntimeView
             {
                 Visible = view.Enabled,
-                ViewPosition = new Vector2i(view.PositionX, view.PositionY),
-                ViewSize = new Vector2i(view.SizeX, view.SizeY),
                 PortPosition = new Vector2i(view.PortPositionX, view.PortPositionY),
                 PortSize = new Vector2i(view.PortSizeX, view.PortSizeY),
-                Angle = 0,
-                Border = new Vector2d(view.BorderX, view.BorderY),
-                Speed = new Vector2i(view.SpeedX, view.SpeedY),
                 Camera = camera
             };
 

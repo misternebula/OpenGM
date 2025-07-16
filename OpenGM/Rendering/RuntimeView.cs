@@ -11,14 +11,54 @@ public class RuntimeView
     public bool Visible = false;
     // TODO: camera area stuff instead of view here
     //       view.view seems to be old version stuff. view_xview etc doesnt even exist in docs now
-    public Vector2i ViewPosition = Vector2i.Zero;
-    public Vector2i ViewSize;
+    public Vector2 ViewPosition
+    {
+        get => new(Camera.ViewX, Camera.ViewY);
+        set
+        {
+            Camera.ViewX = value.X;
+            Camera.ViewY = value.Y;
+        }
+    }
+
+    public Vector2 ViewSize
+    {
+        get => new(Camera.ViewWidth, Camera.ViewHeight);
+        set
+        {
+            Camera.ViewWidth = value.X;
+            Camera.ViewHeight = value.Y;
+        }
+    }
+
     public Vector2i PortPosition = Vector2i.Zero;
     public Vector2i PortSize;
-    public double Angle;
-    public Vector2d Border = new Vector2d(32, 32);
-    public Vector2i Speed = new Vector2i(-1, -1);
+
+    public float Angle
+    {
+        get => Camera.ViewAngle;
+        set => Camera.ViewAngle = value;
+    }
+
+    public Vector2 Border
+    {
+        get => new(Camera.BorderX, Camera.BorderY);
+        set
+        {
+            Camera.BorderX = value.X;
+            Camera.BorderY = value.Y;
+        }
+    }
+    public Vector2 Speed
+    {
+        get => new(Camera.SpeedX, Camera.SpeedY);
+        set
+        {
+            Camera.SpeedX = value.X;
+            Camera.SpeedY = value.Y;
+        }
+    }
     // index
     public int SurfaceId = -1; // TODO: set
-    public Camera? Camera = null;
+    public Camera Camera = new();
 }

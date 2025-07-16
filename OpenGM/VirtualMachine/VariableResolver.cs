@@ -344,38 +344,28 @@ public static class VariableResolver
     public static object get_view_xview() => ViewportManager.view_xview;
     public static void set_view_xview(object? value)
     {
-        DebugLog.Log("set_view_xview");
-        foreach (var item in value.Conv<IList>().Cast<int>().ToArray())
-        {
-            DebugLog.Log($" - {item}");
-        }
-        ViewportManager.view_xview = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.view_xview = value.Conv<IList>().Cast<float>().ToArray();
         ViewportManager.UpdateFromArrays();
     }
 
     public static object get_view_yview() => ViewportManager.view_yview;
     public static void set_view_yview(object? value)
     {
-        DebugLog.Log("set_view_yview");
-        foreach (var item in value.Conv<IList>().Cast<int>().ToArray())
-        {
-            DebugLog.Log($" - {item}");
-        }
-        ViewportManager.view_yview = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.view_yview = value.Conv<IList>().Cast<float>().ToArray();
         ViewportManager.UpdateFromArrays();
     }
 
     public static object get_view_wview() => ViewportManager.view_wview;
     public static void set_view_wview(object? value)
     {
-        ViewportManager.view_wview = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.view_wview = value.Conv<IList>().Cast<float>().ToArray();
         ViewportManager.UpdateFromArrays();
     }
 
     public static object get_view_hview() => ViewportManager.view_hview;
     public static void set_view_hview(object? value)
     {
-        ViewportManager.view_hview = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.view_hview = value.Conv<IList>().Cast<float>().ToArray();
         ViewportManager.UpdateFromArrays();
     }
 
