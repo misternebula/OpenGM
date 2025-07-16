@@ -876,7 +876,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
             else
             {
-                var verts = new VertexManager.Vertex[DrawManager.CirclePrecision * 3];
+                Span<GraphicsManager.Vertex> verts = stackalloc GraphicsManager.Vertex[DrawManager.CirclePrecision * 3];
 
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
@@ -888,12 +888,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                         xm + (rx * CircleCos[i + 1]),
                         ym + (ry * CircleSin[i + 1]));
 
-                    verts[i * 3] = new VertexManager.Vertex(p1, col1, Vector2d.Zero);
-                    verts[(i * 3) + 1] = new VertexManager.Vertex(p2, col2, Vector2d.Zero);
-                    verts[(i * 3) + 2] = new VertexManager.Vertex(p3, col2, Vector2d.Zero);
+                    verts[i * 3] = new GraphicsManager.Vertex(p1, col1, Vector2d.Zero);
+                    verts[(i * 3) + 1] = new GraphicsManager.Vertex(p2, col2, Vector2d.Zero);
+                    verts[(i * 3) + 2] = new GraphicsManager.Vertex(p3, col2, Vector2d.Zero);
                 }
 
-                VertexManager.Draw(PrimitiveType.Triangles, verts);
+                GraphicsManager.Draw(PrimitiveType.Triangles, verts);
             }
         }
 
@@ -935,7 +935,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         public static PrimitiveType PrimType;
-        public static List<VertexManager.Vertex> Vertices = new();
+        public static List<GraphicsManager.Vertex> Vertices = new();
 
         [GMLFunction("draw_primitive_begin")]
         public static object? draw_primitive_begin(object?[] args)
@@ -969,7 +969,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("draw_primitive_end")]
         public static object? draw_primitive_end(object?[] args)
         {
-            VertexManager.Draw(PrimType, Vertices.ToArray());
+            GraphicsManager.Draw(PrimType, Vertices.ToArray());
             return null;
         }
 
@@ -1515,8 +1515,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var tempX = x;
             var tempY = y;
 
-            var viewTopLeftX = CustomWindow.Instance.X;
-            var viewTopLeftY = CustomWindow.Instance.Y;
+            var viewTopLeftX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
+            var viewTopLeftY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
 
             while (tempX > viewTopLeftX)
             {
@@ -1533,8 +1533,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var xOffscreenValue = viewTopLeftX - tempX;
             var yOffscreenValue = viewTopLeftY - tempY;
 
-            var countToDrawHoriz = CustomMath.CeilToInt((RoomManager.CurrentRoom.CameraWidth + (float)xOffscreenValue) / sizeWidth);
-            var countToDrawVert = CustomMath.CeilToInt((RoomManager.CurrentRoom.CameraHeight + (float)yOffscreenValue) / sizeHeight);
+            var countToDrawHoriz = CustomMath.CeilToInt((ViewportManager.CurrentRenderingView!.ViewSize.X + (float)xOffscreenValue) / sizeWidth);
+            var countToDrawVert = CustomMath.CeilToInt((ViewportManager.CurrentRenderingView!.ViewSize.Y + (float)yOffscreenValue) / sizeHeight);
 
             for (var i = 0; i < countToDrawVert; i++)
             {

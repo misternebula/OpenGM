@@ -327,25 +327,54 @@ public static class VariableResolver
     public static object? get_undefined() => null;
 
     public static object get_view_wport() => ViewportManager.view_wport;
-    public static void set_view_wport(object? value) => ViewportManager.view_wport = value.Conv<IList>().Cast<int>().ToArray();
+
+    public static void set_view_wport(object? value)
+    {
+        ViewportManager.view_wport = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_hport() => ViewportManager.view_hport;
-    public static void set_view_hport(object? value) => ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_hport(object? value)
+    {
+        ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_xview() => ViewportManager.view_xview;
-    public static void set_view_xview(object? value) => ViewportManager.view_xview = value.Conv<IList>().Cast<double>().ToArray();
+    public static void set_view_xview(object? value)
+    {
+        ViewportManager.view_xview = value.Conv<IList>().Cast<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_yview() => ViewportManager.view_yview;
-    public static void set_view_yview(object? value) => ViewportManager.view_yview = value.Conv<IList>().Cast<double>().ToArray();
+    public static void set_view_yview(object? value)
+    {
+        ViewportManager.view_yview = value.Conv<IList>().Cast<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_wview() => ViewportManager.view_wview;
-    public static void set_view_wview(object? value) => ViewportManager.view_wview = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_wview(object? value)
+    {
+        ViewportManager.view_wview = value.Conv<IList>().Cast<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_hview() => ViewportManager.view_hview;
-    public static void set_view_hview(object? value) => ViewportManager.view_hview = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_hview(object? value)
+    {
+        ViewportManager.view_hview = value.Conv<IList>().Cast<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_camera() => ViewportManager.view_camera;
-    public static void set_view_camera(object? value) => ViewportManager.view_camera = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_camera(object? value)
+    {
+        ViewportManager.view_camera = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object? get_pointer_null() => null;
 
