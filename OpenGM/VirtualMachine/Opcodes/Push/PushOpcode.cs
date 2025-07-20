@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using System.Collections;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 
@@ -168,44 +169,25 @@ public static partial class VMExecutor
 
     public static void PushIndex(int assetId, string varName)
     {
-        if (assetId < GMConstants.FIRST_INSTANCE_ID)
+        var inst = InstanceManager.Find(assetId);
+
+        if (inst == null)
         {
-            // Asset Id
+            DebugLog.LogError($"Tried to push variable {varName} from index {assetId}, which doesn't exist!!");
 
-            var asset = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId)!;
-
-            if (asset == null)
+            DebugLog.LogError($"--Stacktrace--");
+            foreach (var item in CallStack)
             {
-                DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, assetId)}!");
-                Call.Stack.Push(null, VMType.v);
-                return;
+                DebugLog.LogError($" - {item.CodeName}");
             }
 
-            PushSelf(asset, varName);
+            DebugLog.LogError(Environment.StackTrace);
+
+            Call.Stack.Push(null, VMType.v);
+            return;
         }
-        else
-        {
-            // Instance Id
-            var asset = InstanceManager.FindByInstanceId(assetId);
 
-            if (asset == null)
-            {
-                DebugLog.LogError($"Tried to push variable {varName} from instanceid {assetId}, which doesnt exist!!");
-
-                DebugLog.LogError($"--Stacktrace--");
-                foreach (var item in CallStack)
-                {
-                    DebugLog.LogError($" - {item.CodeName}");
-                }
-
-                DebugLog.LogError(Environment.StackTrace);
-
-                Call.Stack.Push(null, VMType.v);
-                return;
-            }
-
-            PushSelf(asset, varName);
-        }
+        PushSelf(inst, varName);
     }
 
     public static void PushOther(string varName)
@@ -507,6 +489,34 @@ public static partial class VMExecutor
                     {
                         // TODO: check builtin self var
                         var array = Self.Self.SelfVariables[variableName].Conv<IList>();
+                        Call.Stack.Push(array[index], VMType.v);
+                        return (ExecutionResult.Success, null);
+                    }
+                    else if (instanceId < 0)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        var inst = InstanceManager.Find(instanceId);
+
+                        if (inst == null)
+                        {
+                            DebugLog.LogError($"Tried to push variable {variableName} from {instanceId}, which doesn't exist!!");
+
+                            DebugLog.LogError($"--Stacktrace--");
+                            foreach (var item in CallStack)
+                            {
+                                DebugLog.LogError($" - {item.CodeName}");
+                            }
+
+                            DebugLog.LogError(Environment.StackTrace);
+
+                            Call.Stack.Push(null, VMType.v);
+                            return (ExecutionResult.Failed, null);
+                        }
+
+                        var array = inst.SelfVariables[variableName].Conv<IList>();
                         Call.Stack.Push(array[index], VMType.v);
                         return (ExecutionResult.Success, null);
                     }
