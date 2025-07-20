@@ -49,7 +49,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
-                throw new Exception();
+                throw new Exception($"Couldn't find layer {layer_id}");
             }
 
             return layer.Depth;
@@ -955,9 +955,62 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
 
-        // layer_sprite_get_angle
-        // layer_sprite_get_blend
-        // layer_sprite_get_alpha
+        [GMLFunction("layer_sprite_get_angle")]
+        public static object? layer_sprite_get_angle(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        return sprite.Rotation;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("layer_sprite_get_blend")]
+        public static object? layer_sprite_get_blend(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        return sprite.Blend;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("layer_sprite_get_alpha")]
+        public static object? layer_sprite_get_alpha(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        return sprite.Alpha;
+                    }
+                }
+            }
+
+            return 0;
+        }
 
         [GMLFunction("layer_sprite_get_x")]
         public static object? layer_sprite_get_x(object?[] args)

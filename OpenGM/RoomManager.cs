@@ -424,6 +424,10 @@ public static class RoomManager
                 {
                     var sprite = (element as CLayerSpriteElement)!;
 
+                    var c = sprite.Color;
+                    var blend = (int)(c & 0x00FFFFFF);
+                    var alpha = ((c & 0xFF000000) >> 6) / 255.0;
+
                     var newSprite = new GMSprite(sprite)
                     {
                         Definition = sprite.Definition,
@@ -431,7 +435,8 @@ public static class RoomManager
                         Y = sprite.Y,
                         XScale = sprite.ScaleX,
                         YScale = sprite.ScaleY,
-                        Color = sprite.Color,
+                        Blend = blend,
+                        Alpha = alpha,
                         AnimationSpeed = sprite.AnimationSpeed,
                         AnimationSpeedType = sprite.AnimationSpeedType,
                         FrameIndex = sprite.FrameIndex,
