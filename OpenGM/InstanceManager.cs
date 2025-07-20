@@ -126,6 +126,36 @@ public static class InstanceManager
         return false;
     }
 
+    public static GamemakerObject? Find(int id, int index = 0)
+    {
+        if (id == GMConstants.global)
+        {
+            throw new NotImplementedException();
+        }
+        else if (id == GMConstants.self)
+        {
+            return VMExecutor.Self.GMSelf;
+        }
+        else if (id == GMConstants.other)
+        {
+            return VMExecutor.Other.GMSelf;
+        }
+        else if (id < 0)
+        {
+            throw new NotImplementedException();
+        }
+        else if (id < GMConstants.FIRST_INSTANCE_ID)
+        {
+            // asset id
+            return FindByAssetId(id)[index];
+        }
+        else
+        {
+            // instance id
+            return instances.GetValueOrDefault(id);
+        }
+    }
+
     public static List<GamemakerObject> FindByAssetId(int assetId)
     {
         var result = new List<GamemakerObject>();
