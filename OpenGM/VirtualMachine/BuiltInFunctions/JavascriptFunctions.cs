@@ -69,7 +69,22 @@
 
         [GMLFunction("@@Other@@")]
         public static object Other(object?[] args) => VMExecutor.Other.GMSelf.instanceId;
-        // @@GetInstance@@
+
+        [GMLFunction("@@GetInstance@@")]
+        public static object? GetInstance(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (id < GMConstants.FIRST_INSTANCE_ID)
+            {
+                return InstanceManager.FindByAssetId(id).First().instanceId;
+            }
+            else
+            {
+                return InstanceManager.FindByInstanceId(id)?.instanceId;
+            }
+        }
+
         // @@GlobalScope@@
         // @@NewObject@@
         // @@NewProperty@@
