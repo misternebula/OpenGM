@@ -549,7 +549,15 @@ public static class DrawManager
         {
             GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
             GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY);
-            
+
+            // dummy view for full room rendering
+            ViewportManager.CurrentRenderingView = new()
+            {
+                ViewPosition = Vector2.Zero,
+                ViewSize = new(RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY),
+                PortSize = new(SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight)
+            };
+
             /*
              * DrawTheRoom
              */
