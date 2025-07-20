@@ -2,6 +2,7 @@
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -104,8 +105,8 @@ public static class DrawManager
                 {
                     var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
                     var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
-                    var camX = CustomWindow.Instance.X;
-                    var camY = CustomWindow.Instance.Y;
+                    var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
+                    var camY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
 
                     var vertices = new OpenTK.Mathematics.Vector2d[] {
                         new(gm.bbox.left - camX, gm.bbox.top - camY),
@@ -430,20 +431,24 @@ public static class DrawManager
 
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId);
 
+        /*
+         * PreDraw
+         */
+        var fbsize = CustomWindow.Instance.FramebufferSize;
+        GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        
         if (CustomWindow.Instance != null) // only null in tests
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
         }
 
-        /*
-         * PreDraw
-         */
         if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
         }
         
-        GL.Uniform1(VertexManager.u_flipY, 0); // dont flip when not drawing to backbuffer
+        GL.Uniform1(GraphicsManager.u_flipY, 0); // dont flip when not drawing to backbuffer
 
         SurfaceManager.SetApplicationSurface();
 
@@ -470,61 +475,147 @@ public static class DrawManager
         /*
          * DrawViews
          */
-        // TODO: at some point this must be replaced by drawing each view
-
+        
         /*
-         * DrawTheRoom
+         * UpdateViews
          */
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
-        {
-            return;
-        }
+        UpdateViews();
+        
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+        if (RoomManager.CurrentRoom.RoomAsset.EnableViews)
         {
-            return;
-        }
+            for (var i = 0; i < 8; i++)
+            {
+                ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+                if (!ViewportManager.CurrentRenderingView.Visible)
+                {
+                    continue;
+                }
+
+                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                {
+                    SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
+
+                    // idk what the deal with scaled port stuff is. happens in both html5 and cpp
+
+                    // ignore viewport, use entire surface. idk why
+                }
+                else
+                {
+                    // BUG: this stretches. idk why
+                    /*
+                    GraphicsManager.SetViewPort(
+                        ViewportManager.CurrentRenderingView.PortPosition.X,// * displayScaleX,
+                        ViewportManager.CurrentRenderingView.PortPosition.Y,// * displayScaleY,
+                        ViewportManager.CurrentRenderingView.PortSize.X,// * displayScaleX,
+                        ViewportManager.CurrentRenderingView.PortSize.Y// * displayScaleY
+                    );
+                    */
+                }
+
+                GraphicsManager.SetViewArea(
+                    ViewportManager.CurrentRenderingView.ViewPosition.X,
+                    ViewportManager.CurrentRenderingView.ViewPosition.Y,
+                    ViewportManager.CurrentRenderingView.ViewSize.X,
+                    ViewportManager.CurrentRenderingView.ViewSize.Y
+                );
+
+                /*
+                 * DrawTheRoom
+                 */
+                if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+                {
+                    break;
+                }
+
+                if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+                {
+                    break;
+                }
+
+                if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+                {
+                    break;
+                }
+
+                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                {
+                    SurfaceManager.surface_reset_target();
+                }
+            }
+        }
+        else
         {
-            return;
+            GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
+            GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY);
+
+            // dummy view for full room rendering
+            ViewportManager.CurrentRenderingView = new()
+            {
+                ViewPosition = Vector2.Zero,
+                ViewSize = new(RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY),
+                PortSize = new(SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight)
+            };
+
+            /*
+             * DrawTheRoom
+             */
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+            {
+                return;
+            }
+
+            if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+            {
+                return;
+            }
+
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+            {
+                return;
+            }
         }
 
         if (SurfaceManager.UsingAppSurface)
         {
             SurfaceManager.surface_reset_target();
         }
+
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
-            // BUG: one new game in ch2, this becomes unbalanced. i have no idea why.
-            // i dont feel like actually fixing this right now
-            //Debugger.Break();
+            // BUG: room transitions become unbalanced. probably because of early returns above
             while (SurfaceManager.SurfaceStack.Count != 0)
             {
                 SurfaceManager.surface_reset_target();
             }
             return;
         }
-        
-        GL.Uniform1(VertexManager.u_flipY, 1); // flip when drawing to backbuffer
+
+        ViewportManager.CurrentRenderingView = null;
+
+        GL.Uniform1(GraphicsManager.u_flipY, 1); // flip when drawing to backbuffer
 
         /*
          * PostDraw
          */
+        GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
             return;
         }
 
         /*
-         * DrawApplicationSurface 
+         * DrawApplicationSurface
          */
         if (SurfaceManager.UsingAppSurface)
         {
+            // gamemaker actually uses alpha test enable here, and saves/restores the state. just change it to that when this breaks
             GL.Disable(EnableCap.Blend);
-            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface,
-                0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 0, 0, fbsize.X, fbsize.Y);
             GL.Enable(EnableCap.Blend);
         }
 
@@ -552,6 +643,54 @@ public static class DrawManager
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();
+    }
+
+    public static void UpdateViews()
+    {
+        if (!RoomManager.CurrentRoom.RoomAsset.EnableViews)
+        {
+            return;
+        }
+
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            if (!view.Visible)
+            {
+                continue;
+            }
+
+            if (view.Camera == null)
+            {
+                continue;
+            }
+
+            view.Camera.Update();
+        }
+
+        /*
+        var left = 999999;
+        var right = -999999;
+        var top  = 999999;
+        var bottom = -999999;
+
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            if (view.Visible )// && pView.surface_id==-1)
+            {
+                if( left>view.PortPosition.X) left = view.PortPosition.X;
+                if( right<(view.PortPosition.X+view.PortSize.X) ) right= view.PortPosition.X+view.PortSize.X;
+                if( top>view.PortPosition.Y) top = view.PortPosition.Y;
+                if( bottom<(view.PortPosition.Y+view.PortSize.Y) ) bottom = view.PortPosition.Y+view.PortSize.Y;
+            }
+        }
+
+        var displayScaleX = SurfaceManager.ApplicationWidth /  (right-left);
+        var displayScaleY = SurfaceManager.ApplicationHeight /  (bottom-top);
+        */
     }
 
     public static void HandleKeyboard()

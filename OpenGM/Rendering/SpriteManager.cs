@@ -165,7 +165,13 @@ public static class SpriteManager
 
     public static int GetNumberOfFrames(int name)
     {
-        return _spriteDict[name].Textures.Count;
+        if (!_spriteDict.TryGetValue(name, out var value))
+        {
+            DebugLog.LogWarning($"Tried to get number of frames for sprite {name} (count = {_spriteDict.Count})");
+            return 0;
+        }
+
+        return value.Textures.Count;
     }
 
 

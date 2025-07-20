@@ -222,7 +222,7 @@ internal class Entry
             GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
             GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
 
-            window = new CustomWindow(gameSettings, nativeSettings, (uint)GameLoader.GeneralInfo.DefaultWindowSize.X, (uint)GameLoader.GeneralInfo.DefaultWindowSize.Y);
+            window = new CustomWindow(gameSettings, nativeSettings);
         }
         else
         {

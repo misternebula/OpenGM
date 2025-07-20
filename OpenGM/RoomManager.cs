@@ -3,6 +3,7 @@ using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -113,10 +114,6 @@ public static class RoomManager
     {
         DebugLog.LogInfo($"LOADING PERSISTENT ROOM AssetID:{room.AssetId} ({value.Container.RoomAsset.AssetId}) Name:{value.Container.RoomAsset.Name}");
         CurrentRoom = value.Container;
-
-        CustomWindow.Instance.SetPosition(0, 0);
-        CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-        CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
 
         DebugLog.Log("Instances in persistent room:");
         foreach (var instance in value.Instances)
@@ -264,17 +261,51 @@ public static class RoomManager
         }
     }
 
+    /*public static Vector2i CalculateCanvasSize()
+    {
+        // https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/Cameras_And_View_Ports.htm
+
+        // TODO : check for view_enabled here too
+        if (CurrentRoom.Views.All(x => !x.Visible))
+        {
+            // Use room size if all views are disabled.
+            // https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/view_enabled.htm
+            return new(CurrentRoom.SizeX, CurrentRoom.SizeY);
+        }
+    }*/
+
     private static void OnRoomChanged()
     {
-        DebugLog.Log($"Changing camera...");
-        if (CustomWindow.Instance != null) // only null in tests.
+        for (var i = 0; i < 8; i++)
         {
-            // reset view
-            CustomWindow.Instance.SetPosition(0, 0);
-            CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-            CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
-            //CustomWindow.Instance.UpdateInstanceFollow();
+            var view = CurrentRoom.RoomAsset.Views[i];
+
+            var camera = new Camera()
+            {
+                ViewX = view.PositionX,
+                ViewY = view.PositionY,
+                ViewWidth = view.SizeX,
+                ViewHeight = view.SizeY,
+                SpeedX = view.SpeedX,
+                SpeedY = view.SpeedY,
+                BorderX = view.BorderX,
+                BorderY = view.BorderY,
+                ViewAngle = 0,
+                TargetInstance = view.FollowsObject
+            };
+            CameraManager.RegisterCamera(camera);
+
+            var runtimeView = new RuntimeView
+            {
+                Visible = view.Enabled,
+                PortPosition = new Vector2i(view.PortPositionX, view.PortPositionY),
+                PortSize = new Vector2i(view.PortSizeX, view.PortSizeY),
+                Camera = camera
+            };
+
+            CurrentRoom.Views[i] = runtimeView;
         }
+
 
         var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
 

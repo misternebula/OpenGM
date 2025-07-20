@@ -846,10 +846,31 @@ public static class GameConverter
                 CreationCodeId = codes.IndexOf(room.CreationCodeId),
                 GravityX = room.GravityX,
                 GravityY = room.GravityY,
-                CameraWidth = room.Views[0].ViewWidth,
-                CameraHeight = room.Views[0].ViewHeight,
-                FollowsObject = data.GameObjects.IndexOf(room.Views[0].ObjectId)
+                EnableViews = room.Flags.HasFlag(UndertaleRoom.RoomEntryFlags.EnableViews)
             };
+
+            for (var i = 0; i < 8; i++)
+            {
+                var view = room.Views[i];
+
+                asset.Views[i] = new View()
+                {
+                    Enabled = view.Enabled,
+                    PositionX = view.ViewX,
+                    PositionY = view.ViewY,
+                    SizeX = view.ViewWidth,
+                    SizeY = view.ViewHeight,
+                    PortPositionX = view.PortX,
+                    PortPositionY = view.PortY,
+                    PortSizeX = view.PortWidth,
+                    PortSizeY = view.PortHeight,
+                    BorderX = (int)view.BorderX,
+                    BorderY = (int)view.BorderY,
+                    SpeedX = view.SpeedX,
+                    SpeedY = view.SpeedY,
+                    FollowsObject = data.GameObjects.IndexOf(view.ObjectId)
+                };
+            }
 
             var encounteredGameobjects = new List<UndertaleRoom.GameObject>();
 
