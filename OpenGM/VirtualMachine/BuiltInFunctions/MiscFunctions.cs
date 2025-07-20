@@ -62,8 +62,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // gif_save_buffer
         // gif_open
 
-        // alarm_set
-        // alarm_get
+        [GMLFunction("alarm_set")]
+        public static object? alarm_set(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var value = args[1].Conv<int>();
+
+            VMExecutor.Self.GMSelf.alarm[index] = value;
+            return null;
+        }
+
+         [GMLFunction("alarm_get")]
+        public static object? alarm_get(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            return VMExecutor.Self.GMSelf.alarm[index];
+        }
 
         [GMLFunction("variable_global_exists")]
         public static object variable_global_exists(object?[] args)
