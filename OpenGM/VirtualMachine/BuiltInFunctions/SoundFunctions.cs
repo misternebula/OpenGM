@@ -351,7 +351,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     return 0;
                 }
 
-                AL.GetSource(instance.SoundInstanceId, ALSourcef.Gain, out var gain);
+                AL.GetSource(instance.Source, ALSourcef.Gain, out var gain);
+                AudioManager.CheckALError();
                 return gain;
             }
             else
@@ -375,7 +376,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     return null;
                 }
 
-                return (double)AL.GetSource(soundAsset.Source, ALSourcef.Pitch);
+                var pitch = (double)AL.GetSource(soundAsset.Source, ALSourcef.Pitch);
+                AudioManager.CheckALError();
+                return pitch;
             }
             else
             {
