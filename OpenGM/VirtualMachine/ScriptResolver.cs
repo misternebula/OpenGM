@@ -170,14 +170,14 @@ public static class ScriptResolver
 
         var option = remove_empty ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None;
 
-        var splits = str.Split(delimiter, option);
-
-        if (max_splits != -1)
+        if (max_splits == -1)
         {
-            throw new NotImplementedException();
+            return str.Split(delimiter, option);
         }
-
-        return splits;
+        else
+        {
+            return str.Split(delimiter, max_splits + 1, option);
+        }
     }
 
     [GMLFunction("steam_is_screenshot_requested", GMLFunctionFlags.Stub)]
