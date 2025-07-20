@@ -1,6 +1,6 @@
 ﻿using OpenGM.VirtualMachine;
 
-namespace OpenGM.IO
+namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class ShaderFunctions
     {
