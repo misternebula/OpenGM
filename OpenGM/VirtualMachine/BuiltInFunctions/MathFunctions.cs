@@ -121,7 +121,14 @@ public static class MathFunctions
         return array.Count;
     }
 
-    // array_get
+    [GMLFunction("array_get")]
+    public static object? array_get(object?[] args)
+    {
+        var array = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+        return array[index];
+    }
+
     // array_set
     // array_set_pre
     // array_set_post
