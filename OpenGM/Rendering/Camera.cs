@@ -3,14 +3,14 @@
 namespace OpenGM.Rendering;
 public class Camera
 {
-    public int ID;
+    public int ID = -1;
 
     public float ViewX;
     public float ViewY;
     public float ViewWidth;
     public float ViewHeight;
-    public float SpeedX;
-    public float SpeedY;
+    public float SpeedX = -1;
+    public float SpeedY = -1;
     public float BorderX;
     public float BorderY;
     public float ViewAngle;

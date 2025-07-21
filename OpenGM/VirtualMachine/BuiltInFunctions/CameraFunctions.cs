@@ -6,7 +6,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     {
         // CCameraManager::SetupGMLFunctions
 
-        // camera_create
+        [GMLFunction("camera_create")]
+        public static object? camera_create(object?[] args)
+        {
+            var cam = CameraManager.CreateCamera();
+            return cam.ID;
+        }
+
         // camera_create_view
         // camera_destroy
         // camera_apply

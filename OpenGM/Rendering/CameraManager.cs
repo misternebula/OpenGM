@@ -19,4 +19,11 @@ public static class CameraManager
         _cameraDict.Add(camera.ID, camera);
         return camera.ID;
     }
+
+    public static Camera CreateCamera()
+    {
+        var cam = new Camera();
+        RegisterCamera(cam);
+        return cam;
+    }
 }
