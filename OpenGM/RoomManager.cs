@@ -31,6 +31,8 @@ public static class RoomManager
         }
 
         InstanceManager.instances.Clear();
+
+        CustomWindow.Instance.Close();
     }
 
     public static void StartGame()

@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine.BuiltInFunctions;
+﻿using OpenGM.IO;
+
+namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
 public static class GameFunctions
 {
@@ -709,7 +711,24 @@ public static class GameFunctions
         return null;
     }
 
-    // game_end
+    public static int GameEndReturnCode;
+
+    [GMLFunction("game_end")]
+    public static object? game_end(object?[] args)
+    {
+        GameEndReturnCode = 0;
+        if (args.Length > 0)
+        {
+            GameEndReturnCode = args[0].Conv<int>();
+        }
+
+        DebugLog.LogInfo($"-- GAME END (Code: {GameEndReturnCode}) --");
+
+        // TODO: run GameEnd events
+
+        RoomManager.New_Room = GMConstants.ROOM_ENDOFGAME;
+        return null;
+    }
 
     [GMLFunction("game_restart")]
     public static object? game_restart(object?[] args)

@@ -22,7 +22,7 @@ internal class Entry
 
     public static string? PathOverride = null;
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         var passedArgs = ProcessArgs(args);
 
@@ -41,12 +41,14 @@ internal class Entry
             if (!Path.Exists(PathOverride))
             {
                 DebugLog.LogError($"ERROR - Path {PathOverride} not found.");
-                return;
+                return -1;
             }
         }
 
         var dataWin = File.Exists(path) ? path : Path.Combine(path, "data.win");
         LoadGame(dataWin, passedArgs);
+
+        return GameFunctions.GameEndReturnCode;
     }
 
     static string[] ProcessArgs(string[] args)
