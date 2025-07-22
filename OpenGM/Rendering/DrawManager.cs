@@ -448,6 +448,7 @@ public static class DrawManager
             return;
         }
 
+        GraphicsManager.RenderTargetActive = true;
         SurfaceManager.SetApplicationSurface();
 
         if (SurfaceManager.UsingAppSurface)
@@ -601,6 +602,7 @@ public static class DrawManager
         }
 
         ViewportManager.CurrentRenderingView = null;
+        GraphicsManager.RenderTargetActive = false;
 
         /*
          * PostDraw
