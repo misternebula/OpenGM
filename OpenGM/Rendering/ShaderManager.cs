@@ -103,13 +103,17 @@ public static class ShaderManager
 
     public static void LoadMatrices(Camera camera)
     {
+        var world = Matrix4.Identity;
+        var worldView = world * camera.ViewMatrix;
+        var worldviewProjection = worldView * camera.ProjectionMatrix;
+
         var matrices = new Matrix4[]
         {
             camera.ViewMatrix, 
             camera.ProjectionMatrix,
-            // world
-            // world view
-            // world view projection
+            world,
+            worldView,
+            worldviewProjection
         };
 
         unsafe
