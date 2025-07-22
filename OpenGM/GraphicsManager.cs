@@ -1,3 +1,5 @@
+using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Runtime.CompilerServices;
@@ -10,13 +12,6 @@ namespace OpenGM;
 /// </summary>
 public static class GraphicsManager
 {
-    private static int u_view; // goes away when matrices are implemented
-    public static int u_doTex; // TODO: replace with 1x1 white texture
-    public static int u_flipY; // when matrices are implemented this becomes a check in GetProjMat
-
-    public static int alphaTestEnabled;
-    public static int alphaRefValue;
-
     [StructLayout(LayoutKind.Explicit)]
     public struct Vertex(Vector2d pos, Color4 color, Vector2d uv)
     {
@@ -27,54 +22,23 @@ public static class GraphicsManager
     }
 
     /// <summary>
+    /// 1x1 white image is used when for things that dont need textures
+    /// </summary>
+    public static int DefaultTexture;
+
+    /// <summary>
     /// setup shader and buffer
     /// </summary>
     public static void Init()
     {
-        // use one shader for everything
-        var vertexShader = GL.CreateShader(ShaderType.VertexShader);
-        GL.ShaderSource(vertexShader, File.ReadAllText("shader.vert"));
-        GL.CompileShader(vertexShader);
-        GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out var code);
-        if (code != (int)All.True)
-        {
-            var infoLog = GL.GetShaderInfoLog(vertexShader);
-            throw new Exception($"Error while compiling shader.vert.\n\n{infoLog}");
-        }
+        DebugLog.LogInfo($"Compiling shaders...");
+        ShaderManager.CompileShaders();
 
-        var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-        GL.ShaderSource(fragmentShader, File.ReadAllText("shader.frag"));
-        GL.CompileShader(fragmentShader);
-        GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out code);
-        if (code != (int)All.True)
-        {
-            var infoLog = GL.GetShaderInfoLog(fragmentShader);
-            throw new Exception($"Error while compiling shader.frag.\n\n{infoLog}");
-        }
-
-        var program = GL.CreateProgram();
-        GL.AttachShader(program, vertexShader);
-        GL.AttachShader(program, fragmentShader);
-        GL.LinkProgram(program);
-        GL.GetProgram(program, GetProgramParameterName.LinkStatus, out code);
-        if (code != (int)All.True)
-        {
-            var infoLog = GL.GetProgramInfoLog(program);
-            throw new Exception($"Error while linking program.\n\n{infoLog}");
-        }
-
-        GL.DeleteShader(vertexShader);
-        GL.DeleteShader(fragmentShader);
-
-        u_view = GL.GetUniformLocation(program, "u_view");
-        u_doTex = GL.GetUniformLocation(program, "u_doTex");
-        u_flipY = GL.GetUniformLocation(program, "u_flipY");
-
-        alphaTestEnabled = GL.GetUniformLocation(program, "alphaTestEnabled");
-        alphaRefValue = GL.GetUniformLocation(program, "alphaRefValue");
-
-        GL.UseProgram(program);
-
+        DefaultTexture = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, DefaultTexture);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
 
         // use one buffer for everything
         var vao = GL.GenVertexArray();
@@ -112,7 +76,6 @@ public static class GraphicsManager
     public static void SetViewArea(Vector4 viewArea)
     {
         ViewArea = viewArea;
-        GL.Uniform4(u_view, ViewArea);
     }
     public static void SetViewArea(float x, float y, float w, float h) => SetViewArea(new(x, y, w, h));
 }

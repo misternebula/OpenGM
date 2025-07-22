@@ -243,7 +243,6 @@ public static class SurfaceManager
     {
         // draw rectangle with that texture
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
         // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
@@ -265,7 +264,6 @@ public static class SurfaceManager
             new(new(x, y + h), Color4.White, new(0, 1)),
         ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
@@ -274,7 +272,6 @@ public static class SurfaceManager
         var h = GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var scaledWidth = w * xscale;
         var scaledHeight = h * yscale;
@@ -294,7 +291,6 @@ public static class SurfaceManager
         ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void BindSurfaceTexture(int surfaceId)

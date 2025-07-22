@@ -444,7 +444,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? gpu_set_alphatestenable(object?[] args)
         {
             var enabled = args[0].Conv<bool>();
-            GL.Uniform1(GraphicsManager.alphaTestEnabled, enabled ? 1 : 0);
+            GL.Uniform1(ShaderManager.gm_AlphaTestEnabled, enabled ? 1 : 0);
             return null;
         }
 
@@ -452,7 +452,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? gpu_set_alphatestref(object?[] args)
         {
             var alphaRef = args[0].Conv<int>();
-            GL.Uniform1(GraphicsManager.alphaRefValue, alphaRef / 255f);
+            GL.Uniform1(ShaderManager.gm_AlphaRefValue, alphaRef / 255f);
             return null;
         }
 

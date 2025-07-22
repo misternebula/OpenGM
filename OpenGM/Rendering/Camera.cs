@@ -1,4 +1,6 @@
-﻿using OpenGM.VirtualMachine;
+﻿using OpenGM.IO;
+using OpenGM.VirtualMachine;
+using OpenTK.Mathematics;
 
 namespace OpenGM.Rendering;
 public class Camera
@@ -15,6 +17,134 @@ public class Camera
     public float BorderY;
     public float ViewAngle;
     public int TargetInstance = -1;
+
+    private Matrix4 _projectionMatrix;
+    private Matrix4 _viewMatrix;
+    private Matrix4 _viewProjectionMatrix;
+    private Matrix4 _inverseProjectionMatrix;
+    private Matrix4 _inverseViewMatrix;
+    private Matrix4 _inverseViewProjectionMatrix;
+
+    public Matrix4 ProjectionMatrix
+    {
+        get
+        {
+            /*if (GraphicsManager.RenderTargetActive)
+            {
+                return _projectionMatrix;
+            }*/
+
+            // flip for backbuffer drawing
+            var flipMat = Matrix4.Identity;
+            flipMat[1, 1] = -1;
+
+            return _projectionMatrix * flipMat; // TODO right way round?
+        }
+    }
+
+    public Matrix4 ViewMatrix => _viewMatrix;
+    public Matrix4 ViewProjectionMatrix => _viewProjectionMatrix;
+    public Matrix4 InverseProjectionMatrix => _inverseProjectionMatrix;
+    public Matrix4 InverseViewMatrix => _inverseViewMatrix;
+    public Matrix4 InverseViewProjectionMatrix => _inverseViewProjectionMatrix;
+    public bool Is2D = true;
+
+    public bool IsOrthoProj()
+    {
+        return _projectionMatrix[2, 3] == 0; // index 11
+    }
+
+    public void SetViewMat(Matrix4 viewMat)
+    {
+        _viewMatrix = viewMat;
+        _inverseViewMatrix = _viewMatrix.Inverted();
+        _viewProjectionMatrix = _viewMatrix * _projectionMatrix; // TODO right way round?
+        _inverseViewProjectionMatrix = _viewProjectionMatrix.Inverted();
+
+        Update2D();
+    }
+
+    public void SetProjMat(Matrix4 projMat)
+    {
+        _projectionMatrix = projMat;
+        _inverseProjectionMatrix = _projectionMatrix.Inverted();
+        _viewProjectionMatrix = _viewMatrix * _projectionMatrix; // TODO right way round?
+        _inverseViewProjectionMatrix = _viewProjectionMatrix.Inverted();
+
+        Update2D();
+    }
+
+    public void Update2D()
+    {
+        if (IsOrthoProj())
+        {
+            if (_projectionMatrix[1, 0] == 0.0 &&   // 4
+                _projectionMatrix[2, 0] == 0.0 &&   // 8
+                _projectionMatrix[0, 1] == 0.0 &&   // 1
+                _projectionMatrix[2, 1] == 0.0 &&   // 9
+                _projectionMatrix[0, 2] == 0.0 &&   // 2
+                _projectionMatrix[1, 2] == 0.0)     // 6
+            {
+                if (_viewMatrix[0, 2] == 0.0 &&     // 2
+                    _viewMatrix[1, 2] == 0.0)       // 6
+                {
+                    Is2D = true;
+                    return;
+                }
+            }
+        }
+
+        Is2D = false;
+    }
+
+    public Vector3d GetCamPos()
+    {
+        return new Vector3d(
+            _inverseViewMatrix[3, 0],
+            _inverseViewMatrix[3, 1],
+            _inverseViewMatrix[3, 2]
+        );
+    }
+
+    public Vector3d GetCamDir()
+    {
+        return new Vector3d(
+            _viewMatrix[0, 2],
+            _viewMatrix[1, 2],
+            _viewMatrix[2, 2]
+        ).Normalized();
+    }
+
+    public Vector3d GetCamUp()
+    {
+        return new Vector3d(
+            _viewMatrix[0, 1],
+            _viewMatrix[1, 1],
+            _viewMatrix[2, 1]
+        ).Normalized();
+    }
+
+    public Vector3d GetCamRight()
+    {
+        return new Vector3d(
+            _viewMatrix[0, 0],
+            _viewMatrix[1, 0],
+            _viewMatrix[2, 0]
+        ).Normalized();
+    }
+
+    public void Build2DView(float x, float y)
+    {
+        var v1 = new Vector3(x, y, -16000);
+        var v2 = new Vector3(x, y, 0);
+        var v3 = new Vector3((float)Math.Sin(-ViewAngle * CustomMath.Deg2Rad), (float)Math.Cos(-ViewAngle * CustomMath.Deg2Rad), 0);
+
+        var viewMat = Matrix4.LookAt(v1, v2, v3);
+        var projMat = Matrix4.CreateOrthographic(ViewWidth, ViewHeight, 1, 32000);
+
+        SetViewMat(viewMat);
+        SetProjMat(projMat);
+    }
 
     public void Update()
     {
@@ -113,5 +243,7 @@ public class Camera
 
         ViewX = l - ViewWidth;
         ViewY = t - ViewHeight;
+
+        Build2DView(l + halfHeight, t + halfHeight);
     }
 }
