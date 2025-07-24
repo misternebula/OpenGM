@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 
@@ -69,7 +70,7 @@ public static partial class VMExecutor
             }
             else
             {
-                throw new NotImplementedException($"This should never happen");
+                throw new UnreachableException($"we check stacktop id above");
             }
         }
         else if (id is GMConstants.global or GMConstants.all)
