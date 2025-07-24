@@ -422,8 +422,20 @@ public static class MathFunctions
 
     // exp
     // ln
-    // log2
-    // log10
+
+    [GMLFunction("log2")]
+    public static object log2(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        return Math.Log2(n);
+    }
+
+    [GMLFunction("log10")]
+    public static object log10(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        return Math.Log10(n);
+    }
 
     [GMLFunction("sin")]
     public static object sin(object?[] args)
