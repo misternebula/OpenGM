@@ -2,7 +2,12 @@
 {
     public static class GamepadFunctions
     {
-        // gamepad_is_supported
+        [GMLFunction("gamepad_is_supported", GMLFunctionFlags.Stub)]
+        public static object gamepad_is_supported(object?[] args)
+        {
+            // TODO : implement
+            return true;
+        }
 
         [GMLFunction("gamepad_get_device_count", GMLFunctionFlags.Stub)]
         public static object gamepad_get_device_count(object?[] args)
