@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Collections;
@@ -285,7 +286,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if ((start != 0 && start != 1) || (end != 0 && end != 1))
             {
-                throw new NotImplementedException("actual fog");
+                //throw new NotImplementedException("actual fog");
+                DebugLog.LogWarning($"Actual fog!! Start:{start} End:{end}");
             }
 
             SpriteManager.FogEnabled = enable;
