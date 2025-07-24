@@ -322,9 +322,14 @@ public static class AudioManager
         return _audioClips[assetIndex].Offset;
     }
 
-    public static AudioAsset GetAudioAsset(int assetIndex)
+    public static AudioAsset? GetAudioAsset(int assetIndex)
     {
-        return _audioClips[assetIndex];
+        if (!_audioClips.TryGetValue(assetIndex, out var asset))
+        {
+            return null;
+        }
+        
+        return asset;
     }
 
     public static void StopAllAudio()

@@ -125,6 +125,12 @@ public static class GameConverter
 
     public static void ExportGlobalInitCode(BinaryWriter writer, UndertaleData data)
     {
+        if (data.GlobalInitScripts is null)
+        {
+            writer.Write(0);
+            return;
+        }
+
         writer.Write(data.GlobalInitScripts.Count);
 
         foreach (var item in data.GlobalInitScripts)

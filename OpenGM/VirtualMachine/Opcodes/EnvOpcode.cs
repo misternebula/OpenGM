@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;
 
@@ -10,7 +11,11 @@ public static partial class VMExecutor
 
         if (id == GMConstants.stacktop)
         {
-            id = Call.Stack.Pop(VMType.v).Conv<int>();
+            var top = Call.Stack.Peek();
+            if (top.value is not GMLObject)
+            {
+                id = top.value.Conv<int>();
+            }
         }
 
         // marks the beginning of the instances pushed. popenv will stop jumping when it reaches this
@@ -48,6 +53,25 @@ public static partial class VMExecutor
             };
 
             EnvStack.Push(newCtx);
+        }
+        else if (id == GMConstants.stacktop)
+        {
+            // TODO: this doesn't account for legacy values (all, etc)
+            var value = Call.Stack.Pop(VMType.v);
+            if (value is GMLObject obj)
+            {
+                var newCtx = new VMEnvFrame
+                {
+                    Self = obj,
+                    ObjectDefinition = null,
+                };
+
+                EnvStack.Push(newCtx);
+            }
+            else
+            {
+                throw new UnreachableException($"we check stacktop id above");
+            }
         }
         else if (id is GMConstants.global or GMConstants.all)
         {

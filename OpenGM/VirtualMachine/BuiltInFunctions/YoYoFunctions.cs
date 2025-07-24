@@ -37,6 +37,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // os_request_permission
         // os_check_permision
 
+        [GMLFunction("os_is_paused", GMLFunctionFlags.Stub)]
+        public static object os_is_paused(object?[] args)
+        {
+            return false;
+        }
+
         [GMLFunction("code_is_compiled")]
         public static object code_is_compiled(object?[] args)
         {
