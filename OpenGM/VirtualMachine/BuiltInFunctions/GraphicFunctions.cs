@@ -1602,6 +1602,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("surface_exists")]
         public static object surface_exists(object?[] args)
         {
+            if (args[0] == null)
+            {
+                return false;
+            }
+
             var surface = args[0].Conv<int>();
             return SurfaceManager.surface_exists(surface);
         }
@@ -1609,6 +1614,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("surface_get_width")]
         public static object surface_get_width(object?[] args)
         {
+            if (args[0] == null)
+            {
+                return 0;
+            }
+
             var surface_id = args[0].Conv<int>();
             return SurfaceManager.GetSurfaceWidth(surface_id);
         }
@@ -1616,6 +1626,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("surface_get_height")]
         public static object surface_get_height(object?[] args)
         {
+            if (args[0] == null)
+            {
+                return 0;
+            }
+
             var surface_id = args[0].Conv<int>();
             return SurfaceManager.GetSurfaceHeight(surface_id);
         }
