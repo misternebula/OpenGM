@@ -14,7 +14,7 @@ public static partial class VMExecutor
             var top = Call.Stack.Peek();
             if (top.value is not GMLObject)
             {
-                id = top.value.Conv<int>();
+                id = Call.Stack.Pop(VMType.v).Conv<int>();
             }
         }
 
