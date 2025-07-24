@@ -17,8 +17,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? sprite_get_name(object?[] args)
         {
             var index = args[0].Conv<int>();
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return "";
+            }
 
-            return SpriteManager._spriteDict[index].Name;
+            return sprite.Name;
         }
 
         [GMLFunction("sprite_get_number")]
@@ -32,7 +36,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_width(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.Width;
         }
 
@@ -40,7 +48,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_height(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.Height;
         }
 
@@ -48,7 +60,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_xoffset(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.OriginX;
         }
 
@@ -56,7 +72,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_yoffset(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.OriginY;
         }
 
@@ -66,7 +86,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_left(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.MarginLeft;
         }
 
@@ -74,7 +98,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_right(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.MarginRight;
         }
 
@@ -82,7 +110,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_top(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.MarginTop;
         }
 
@@ -90,7 +122,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_bottom(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+            
             return sprite.MarginBottom;
         }
 

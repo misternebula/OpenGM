@@ -23,6 +23,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var priority = args[1].Conv<double>();
             var loop = args[2].Conv<bool>();
             var asset = AudioManager.GetAudioAsset(index);
+
+            if (asset is null)
+            {
+                DebugLog.LogWarning($"Tried to play nonexistent sound {index}");
+                return -1;
+            }
+
             var gain = asset.Gain;
             var offset = asset.Offset;
             var pitch = asset.Pitch;
@@ -307,7 +314,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (index < GMConstants.FIRST_INSTANCE_ID)
             {
                 var asset = AudioManager.GetAudioAsset(index);
-                return AudioManager.GetClipLength(asset);
+                if (asset != null)
+                {
+                    return AudioManager.GetClipLength(asset);
+                }
+                return -1;
             }
             else
             {
@@ -358,7 +369,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             else
             {
                 var asset = AudioManager.GetAudioAsset(index);
-                return asset.Gain;
+                return asset?.Gain ?? 0;
             }
         }
 
