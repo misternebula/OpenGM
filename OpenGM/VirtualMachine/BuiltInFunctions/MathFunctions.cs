@@ -47,7 +47,7 @@ public static class MathFunctions
             // pass method directly
             Method value => value,
             // idk
-            _ => throw new NotImplementedException($"Don't know what to do with type {(args[1] != null ? args[1]!.GetType() : "null")}")
+            _ => throw new NotImplementedException($"Don't know what to do with type {args[1]?.GetType().ToString() ?? "null"}")
         };
 
         if (struct_ref_or_instance_id is null)
