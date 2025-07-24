@@ -40,11 +40,14 @@ public static class MathFunctions
         // seems to always be self, static, or null.
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279
         var struct_ref_or_instance_id = args[0];
-        var func = args[1].Conv<int>();
-
-        var method = new Method
-        {
-            func = ScriptResolver.ScriptsByIndex[func]
+        
+        var method = args[1] switch {
+            // pass by id
+            int value => new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]),
+            // pass method directly
+            Method value => value,
+            // idk
+            _ => throw new NotImplementedException($"Don't know what to do with type {(args[1] != null ? args[1]!.GetType() : "null")}")
         };
 
         if (struct_ref_or_instance_id is null)
@@ -69,7 +72,7 @@ public static class MathFunctions
             }
             else
             {
-                throw new NotImplementedException();
+                method.inst = InstanceManager.Find(num);
             }
         }
         else if (struct_ref_or_instance_id is GMLObject gmlo)
