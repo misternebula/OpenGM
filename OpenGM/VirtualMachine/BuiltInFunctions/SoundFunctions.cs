@@ -200,7 +200,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return !(bool?)audio_is_playing(args);
         }
 
-        // audio_exists
+        [GMLFunction("audio_exists")]
+        public static object? audio_exists(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            if (index < GMConstants.FIRST_INSTANCE_ID)
+            {
+                return AudioManager.GetAudioInstances(index).Any();
+            }
+            else
+            {
+                return AudioManager.GetAudioInstance(index) != null;
+            }
+        }
+
         // audio_system_is_available
         // audio_sound_is_playable
         // audio_master_gain
