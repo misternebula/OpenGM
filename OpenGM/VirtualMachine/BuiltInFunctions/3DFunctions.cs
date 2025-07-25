@@ -284,14 +284,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var start = args[2].Conv<double>();
             var end = args[3].Conv<double>();
 
-            if ((start != 0 && start != 1) || (end != 0 && end != 1))
-            {
-                //throw new NotImplementedException("actual fog");
-                DebugLog.LogWarning($"Actual fog!! Start:{start} End:{end}");
-            }
-
-            SpriteManager.FogEnabled = enable;
-            SpriteManager.FogColor = colour;
+            GraphicsManager.SetFog(enable, colour, start, end);
 
             return null;
         }

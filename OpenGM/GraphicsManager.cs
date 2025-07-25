@@ -16,6 +16,11 @@ public static class GraphicsManager
 
     public static int alphaTestEnabled;
     public static int alphaRefValue;
+    public static int gm_FogStart;
+    public static int gm_RcpFogRange;
+    public static int gm_PS_FogEnabled;
+    public static int gm_FogColour;
+    public static int gm_VS_FogEnabled;
 
     [StructLayout(LayoutKind.Explicit)]
     public struct Vertex(Vector2d pos, Color4 color, Vector2d uv)
@@ -72,6 +77,11 @@ public static class GraphicsManager
 
         alphaTestEnabled = GL.GetUniformLocation(program, "alphaTestEnabled");
         alphaRefValue = GL.GetUniformLocation(program, "alphaRefValue");
+        gm_FogStart = GL.GetUniformLocation(program, "gm_FogStart");
+        gm_RcpFogRange = GL.GetUniformLocation(program, "gm_RcpFogRange");
+        gm_PS_FogEnabled = GL.GetUniformLocation(program, "gm_PS_FogEnabled");
+        gm_FogColour = GL.GetUniformLocation(program, "gm_FogColour");
+        gm_VS_FogEnabled = GL.GetUniformLocation(program, "gm_VS_FogEnabled");
 
         GL.UseProgram(program);
 
@@ -115,4 +125,17 @@ public static class GraphicsManager
         GL.Uniform4(u_view, ViewArea);
     }
     public static void SetViewArea(float x, float y, float w, float h) => SetViewArea(new(x, y, w, h));
+
+    public static void SetFog(bool enable, int color, double start, double end)
+    {
+        GL.Uniform1(gm_FogStart, start);
+
+        var range = end - start;
+        var rcpRange = range == 0 ? 0 : 1 / range;
+        GL.Uniform1(gm_RcpFogRange, rcpRange);
+
+        GL.Uniform1(gm_PS_FogEnabled, enable ? 1 : 0);
+        GL.Uniform1(gm_FogColour, color);
+        GL.Uniform1(gm_VS_FogEnabled, enable ? 1 : 0);
+    }
 }
