@@ -96,30 +96,39 @@ public static class MathFunctions
     // instanceof
 
     [GMLFunction("array_length")]
-    public static object array_length(object?[] args)
-    {
-        var array = args[0].Conv<IList>();
-        return array.Count;
-    }
-
     [GMLFunction("array_length_1d")]
-    public static object array_length_1d(object?[] args)
+    public static object? array_length(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         return array.Count;
     }
 
     [GMLFunction("array_length_2d")]
-    public static object array_length_2d(object?[] args)
+    public static object? array_length_2d(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         var index0 = array[0];
         return (index0 as IList)!.Count;
     }
 
     [GMLFunction("array_height_2d")]
-    public static object array_height_2d(object?[] args)
+    public static object? array_height_2d(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         return array.Count;
     }
@@ -712,7 +721,7 @@ public static class MathFunctions
             {
                 return s;
             }
-            else
+            else if (valueOrFormat is int or short or long or double or float)
             {
                 // real
                 var num = valueOrFormat.Conv<double>();
@@ -722,6 +731,10 @@ public static class MathFunctions
                 return (truncated % 1) == 0
                     ? truncated.ToString()
                     : Math.Round(truncated, 2).ToString();
+            }
+            else
+            {
+                return (string)valueOrFormat;
             }
         }
     }

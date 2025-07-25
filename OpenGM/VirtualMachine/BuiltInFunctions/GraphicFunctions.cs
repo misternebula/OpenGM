@@ -1297,7 +1297,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var colour = args[7].Conv<int>();
             var alpha = args[8].Conv<double>();
 
-            if (subimg == -1)
+            if (subimg == -1 && VMExecutor.Self.Self is GamemakerObject)
             {
                 subimg = (int)VMExecutor.Self.GMSelf.image_index;
             }
