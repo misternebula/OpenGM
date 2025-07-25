@@ -546,6 +546,9 @@ public static class RoomManager
             var dummy = new GMLObject();
             VMExecutor.ExecuteCode(createCode, dummy);
             dummy = null;
+
+            // HACK: why does the dummy object stay on envstack? no idea!!!
+            VMExecutor.EnvStack.Clear();
         }
 
         DebugLog.LogInfo($"Calling RoomStart...");

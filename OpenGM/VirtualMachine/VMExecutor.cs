@@ -25,13 +25,21 @@ public class VMEnvFrame
 
         if (Self is GamemakerObject gm)
         {
-            var ret = $"{gm.object_index} ({gm.instanceId})\r\nStack:";
-            /*
-            foreach (var item in Stack)
+            var ret = $"{gm.Definition.Name} ({gm.object_index}, instance {gm.instanceId})";
+            return ret;
+        }
+        else if (Self is GMLObject obj)
+        {
+            var ret = "GML Struct";
+            if (obj.SelfVariables.Count > 0)
             {
-                ret += $"- {item}\r\n";
+                var first = obj.SelfVariables.Keys.First();
+                ret += $" ({obj.SelfVariables.Count} entries, \"{first}\"...)";
             }
-            */
+            else
+            {
+                ret += " (no entries)";
+            }
 
             return ret;
         }
@@ -162,6 +170,15 @@ public static partial class VMExecutor
             return defaultReturnValue;
         }
 
+        var newCtx = new VMEnvFrame
+        {
+            Self = obj!,
+            ObjectDefinition = objectDefinition,
+        };
+
+        // Make the current object the current instance
+        EnvStack.Push(newCtx);
+
         if (VerboseStackLogs)
         {
             //if (!script.IsGlobalInit)
@@ -171,17 +188,17 @@ public static partial class VMExecutor
             var leftPadding = string.Concat(Enumerable.Repeat(space, count));
 
             DebugLog.LogInfo($"{leftPadding}------------------------------ {codeName} ------------------------------ ");
-            //}
+            DebugLog.LogInfo($"ENV STACK:");
+
+            var i = 1;
+            foreach (var env in EnvStack)
+            {
+                DebugLog.LogInfo($"{i}. {env?.ToString() ?? "null"}");
+                i++;
+            }
+
+            DebugLog.LogInfo($"");
         }
-
-        var newCtx = new VMEnvFrame
-        {
-            Self = obj!,
-            ObjectDefinition = objectDefinition,
-        };
-
-        // Make the current object the current instance
-        EnvStack.Push(newCtx);
 
         var call = new VMCallFrame
         {
