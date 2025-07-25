@@ -66,7 +66,25 @@ internal class GMTilesLayer : DrawWithDepth
                 var tileWidth = _tileSet.TileWidth + (_tileSet.OutputBorderX * 2); // Width of tile in tileset, not actual tile graphic
                 var tileHeight = _tileSet.TileHeight + (_tileSet.OutputBorderY * 2); // ditto
 
-                // TODO : Handle mirror, rotate, flip
+                var angle = 0;
+                if (tile.Rotate)
+                {
+                    angle = 90;
+                }
+
+                var scale = Vector2.One;
+
+                if (tile.Mirror)
+                {
+                    scale.X = -1;
+                }
+
+                if (tile.Flip)
+                {
+                    scale.Y = -1;
+                }
+
+                // TODO: adjust screenpos / origin to account for rotation / flipping / mirroring
 
                 CustomWindow.Draw(new GMSpritePartJob()
                 {
@@ -77,8 +95,8 @@ internal class GMTilesLayer : DrawWithDepth
                     Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
                     left = (tileSetColumn * tileWidth) + _tileSet.OutputBorderX,
                     top = (tileSetRow * tileHeight) + _tileSet.OutputBorderX,
-                    scale = Vector2.One,
-                    angle = 0,
+                    scale = scale,
+                    angle = angle,
                     origin = Vector2.Zero
                 });
             }
