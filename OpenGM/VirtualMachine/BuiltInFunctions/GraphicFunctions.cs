@@ -1641,7 +1641,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return -1;
         }
 
-        // surface_get_target
+        [GMLFunction("surface_get_target")]
+        public static object surface_get_target(object?[] args)
+        {
+            return SurfaceManager.surface_get_target();
+        }
 
         [GMLFunction("surface_set_target")]
         public static object surface_set_target(object?[] args)
