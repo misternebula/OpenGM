@@ -489,6 +489,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_start_recording
         // audio_stop_recording
         // audio_get_recorder_count
+
+        [GMLFunction("audio_get_recorder_count")]
+        public static object? audio_get_recorder_count(object?[] args)
+        {
+            return AudioManager.GetRecordingDeviceNames().Count();
+        }
+
         // audio_get_recorder_info
         // audio_sound_get_listener_mask
         // audio_sound_set_listener_mask
