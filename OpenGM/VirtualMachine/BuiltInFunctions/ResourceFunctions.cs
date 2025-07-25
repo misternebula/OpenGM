@@ -338,9 +338,63 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // path_get_closed
         // path_get_precision
         // path_get_number
-        // path_get_point_x
-        // path_get_point_y
-        // path_get_point_speed
+
+        [GMLFunction("path_get_point_x")]
+        public static object? path_get_point_x(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var n = args[0].Conv<int>();
+
+            if (!PathManager.Paths.TryGetValue(index, out var path))
+            {
+                return -1; // this isn't documented anywhere, smh gamemaker
+            }
+
+            if (n >= path.points.Count)
+            {
+                return 0;
+            }
+
+            return path.points[n].x;
+        }
+
+        [GMLFunction("path_get_point_y")]
+        public static object? path_get_point_y(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var n = args[0].Conv<int>();
+
+            if (!PathManager.Paths.TryGetValue(index, out var path))
+            {
+                return -1; // this isn't documented anywhere, smh gamemaker
+            }
+
+            if (n >= path.points.Count)
+            {
+                return 0;
+            }
+
+            return path.points[n].y;
+        }
+
+        [GMLFunction("path_get_point_speed")]
+        public static object? path_get_point_speed(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var n = args[0].Conv<int>();
+
+            if (!PathManager.Paths.TryGetValue(index, out var path))
+            {
+                return -1; // this isn't documented anywhere, smh gamemaker
+            }
+
+            if (n >= path.points.Count)
+            {
+                return 0;
+            }
+
+            return path.points[n].speed;
+        }
 
         [GMLFunction("path_get_x")]
         public static object? path_get_x(object?[] args)
