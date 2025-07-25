@@ -534,7 +534,14 @@ public static class MathFunctions
         return Math.Pow(x, n);
     }
 
-    // logn
+    [GMLFunction("logn")]
+    public static object logn(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        var val = args[1].Conv<double>();
+
+        return Math.Log(val, n);
+    }
 
     [GMLFunction("min")]
     public static object min(object?[] args)
