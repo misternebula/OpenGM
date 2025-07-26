@@ -7,6 +7,8 @@ public static class FileFunctions
 {
     private static readonly Dictionary<int, FileHandle> _fileHandles = new(32);
     private static IniFile? _iniFile;
+    private static FileInfo[]? _findFile;
+    private static int _findFileIdx;
 
     // file_bin_open
     // file_bin_rewrite
@@ -241,18 +243,38 @@ public static class FileFunctions
     [GMLFunction("file_find_first", GMLFunctionFlags.Stub)]
     public static object? file_find_first(object?[] args)
     {
-        return "";
+        var mask = args[0].Conv<string>();
+        var attr = args[1].Conv<int>(); // TODO: do something with attr
+
+        var folder = Directory.GetParent(Path.Combine(Entry.DataWinFolder, mask));
+        var filename = Path.GetFileName(mask);
+        if (folder == null)
+        {
+            return "";
+        }
+
+        _findFile = folder.GetFiles(filename);
+        _findFileIdx = 0;
+        return _findFile.ElementAtOrDefault(_findFileIdx)?.Name ?? "";
     }
 
     [GMLFunction("file_find_next", GMLFunctionFlags.Stub)]
     public static object? file_find_next(object?[] args)
     {
-        return "";
+        if (_findFile == null)
+        {
+            return ""; // idk if this is supposed to error or what
+        }
+
+        _findFileIdx++;
+        return _findFile.ElementAtOrDefault(_findFileIdx)?.Name ?? "";
     }
 
     [GMLFunction("file_find_close", GMLFunctionFlags.Stub)]
     public static object? file_find_close(object?[] args)
     {
+        _findFile = null;
+        _findFileIdx = 0;
         return null;
     }
 

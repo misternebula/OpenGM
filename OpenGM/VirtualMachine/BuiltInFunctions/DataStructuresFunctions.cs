@@ -519,9 +519,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_find_value(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = args[1]!;
+            var key = args[1];
 
-            if (!_dsMapDict.ContainsKey(id))
+            if (key is null || !_dsMapDict.ContainsKey(id))
             {
                 return null;
             }
@@ -537,10 +537,79 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // ds_map_is_map
         // ds_map_is_list
-        // ds_map_find_previous
-        // ds_map_find_next
-        // ds_map_find_first
-        // ds_map_find_last
+
+        [GMLFunction("ds_map_find_previous")]
+        public static object? ds_map_find_previous(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var key = args[1];
+
+            if (key is null || !_dsMapDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var dict = _dsMapDict[id];
+            var index = dict.Keys.ToList().IndexOf(key);
+            if (index == -1 || index == 0)
+            {
+                return null;
+            }
+
+            return dict.Keys.ElementAt(index - 1);
+        }
+
+        [GMLFunction("ds_map_find_next")]
+        public static object? ds_map_find_next(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var key = args[1];
+
+            if (key is null || !_dsMapDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var dict = _dsMapDict[id];
+            var index = dict.Keys.ToList().IndexOf(key);
+            if (index == -1 || index == dict.Keys.Count - 1)
+            {
+                return null;
+            }
+
+            return dict.Keys.ElementAt(index + 1);
+        }
+
+        [GMLFunction("ds_map_find_first")]
+        public static object? ds_map_find_first(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsMapDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var dict = _dsMapDict[id];
+
+            return dict.Keys.FirstOrDefault();
+        }
+
+        [GMLFunction("ds_map_find_last")]
+        public static object? ds_map_find_last(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsMapDict.ContainsKey(id))
+            {
+                return null;
+            }
+
+            var dict = _dsMapDict[id];
+
+            return dict.Keys.LastOrDefault();
+        }
+
         // ds_map_write
         // ds_map_read
         // ds_map_secure_save

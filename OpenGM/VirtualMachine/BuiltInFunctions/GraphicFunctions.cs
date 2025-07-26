@@ -36,6 +36,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return Monitors.GetPrimaryMonitor().VerticalResolution;
         }
 
+        [GMLFunction("display_get_gui_width", GMLFunctionFlags.Stub)]
+        public static object display_get_gui_width(object?[] args)
+        {
+            return display_get_width(args);
+        }
+
+        [GMLFunction("display_get_gui_height", GMLFunctionFlags.Stub)]
+        public static object display_get_gui_height(object?[] args)
+        {
+            return display_get_height(args);
+        }
+
         // display_get_frequency
         // display_get_orientation
         // diplay_reset
