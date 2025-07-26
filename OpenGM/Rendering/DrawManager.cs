@@ -447,9 +447,8 @@ public static class DrawManager
         {
             return;
         }
-        
-        GL.Uniform1(GraphicsManager.u_flipY, 0); // dont flip when not drawing to backbuffer
 
+        GraphicsManager.RenderTargetActive = true;
         SurfaceManager.SetApplicationSurface();
 
         if (SurfaceManager.UsingAppSurface)
@@ -521,6 +520,8 @@ public static class DrawManager
                     ViewportManager.CurrentRenderingView.ViewSize.Y
                 );
 
+                ShaderManager.LoadMatrices(ViewportManager.CurrentRenderingView.Camera);
+
                 /*
                  * DrawTheRoom
                  */
@@ -551,12 +552,19 @@ public static class DrawManager
             GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY);
 
             // dummy view for full room rendering
+
             ViewportManager.CurrentRenderingView = new()
             {
                 ViewPosition = Vector2.Zero,
                 ViewSize = new(RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY),
                 PortSize = new(SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight)
             };
+
+            var cam = ViewportManager.CurrentRenderingView.Camera;
+
+            cam.Build2DView(cam.ViewX + (cam.ViewWidth / 2), cam.ViewY + (cam.ViewHeight / 2));
+
+            ShaderManager.LoadMatrices(ViewportManager.CurrentRenderingView.Camera);
 
             /*
              * DrawTheRoom
@@ -594,8 +602,7 @@ public static class DrawManager
         }
 
         ViewportManager.CurrentRenderingView = null;
-
-        GL.Uniform1(GraphicsManager.u_flipY, 1); // flip when drawing to backbuffer
+        GraphicsManager.RenderTargetActive = false;
 
         /*
          * PostDraw

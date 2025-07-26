@@ -41,13 +41,29 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             camera.ViewX = x;
             camera.ViewY = y;
+            camera.Build2DView(camera.ViewX + (camera.ViewWidth / 2), camera.ViewY + (camera.ViewHeight / 2));
 
             return null;
         }
 
-        [GMLFunction("camera_set_view_size", GMLFunctionFlags.Stub)]
+        [GMLFunction("camera_set_view_size")]
         public static object? camera_set_view_size(object?[] args)
         {
+            var camera_id = args[0].Conv<int>();
+
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
+            {
+                return null;
+            }
+
+            var w = args[1].Conv<float>();
+            var h = args[2].Conv<float>();
+
+            camera.ViewWidth = w;
+            camera.ViewHeight = h;
+            camera.Build2DView(camera.ViewX + (camera.ViewWidth / 2), camera.ViewY + (camera.ViewHeight / 2));
+
             return null;
         }
 

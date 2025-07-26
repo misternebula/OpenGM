@@ -218,7 +218,6 @@ public class CustomWindow : GameWindow
                 var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
 
                 GL.BindTexture(TextureTarget.Texture2D, pageId);
-                GL.Uniform1(GraphicsManager.u_doTex, 1);
 
                 var topLeftPos = new Vector2d(topLeftX, topLeftY);
                 var topRightPos = new Vector2d(topLeftX + glyph.w * textJob.scale.X, topLeftY);
@@ -238,7 +237,6 @@ public class CustomWindow : GameWindow
                 ]);
 
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.Uniform1(GraphicsManager.u_doTex, 0);
 
                 xOffset += glyph.shift * textJob.scale.X;
                 if (textJob.asset.IsSpriteFont())
@@ -253,7 +251,6 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -308,14 +305,12 @@ public class CustomWindow : GameWindow
         ]);
         
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -406,7 +401,6 @@ public class CustomWindow : GameWindow
 
         // GL.End();
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -472,7 +466,6 @@ public class CustomWindow : GameWindow
     {
         var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
         GL.BindTexture(TextureTarget.Texture2D, id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         Span<GraphicsManager.Vertex> vArr = stackalloc GraphicsManager.Vertex[texPolyJob.Vertices.Length];
         for (var i = 0; i < texPolyJob.Vertices.Length; i++)
@@ -482,7 +475,6 @@ public class CustomWindow : GameWindow
         GraphicsManager.Draw(PrimitiveType.TriangleFan, vArr);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 }
 
