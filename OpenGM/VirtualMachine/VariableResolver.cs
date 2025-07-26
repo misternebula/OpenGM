@@ -145,8 +145,8 @@ public static class VariableResolver
         // view_object
         // view_surface_id
         { "view_camera", (get_view_camera, set_view_camera)},
-        // mouse_x
-        // mouse_y
+        { "mouse_x", (get_mouse_x, null)},
+        { "mouse_y", (get_mouse_y, null)},
         // mouse_button
         // mouse_lastbutton
         // keyboard_key
@@ -450,6 +450,11 @@ public static class VariableResolver
         ViewportManager.view_visible = value.Conv<IList>().Cast<bool>().ToArray();
         ViewportManager.UpdateFromArrays();
     }
+
+    // TODO: these should be room coordinates with respect to the view the mouse is over
+    public static object get_mouse_x() => KeyboardHandler.MousePos.X;
+
+    public static object get_mouse_y() => KeyboardHandler.MousePos.Y;
 
     public static object? get_pointer_null() => null;
 
