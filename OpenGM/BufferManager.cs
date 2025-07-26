@@ -15,7 +15,8 @@ public static class BufferManager
         {
             Data = new byte[size],
             Alignment = alignment,
-            Type = type
+            Type = type,
+            Size = size
         };
 
         if (srcBuffer != null && srcBuffer.Length > 0)
