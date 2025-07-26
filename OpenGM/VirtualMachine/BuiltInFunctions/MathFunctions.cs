@@ -154,7 +154,12 @@ public static class MathFunctions
     public static object? array_create(object?[] args)
     {
         var size = args[0].Conv<int>();
-        var value = args[1];
+
+        object? value = 0;
+        if (args.Length > 1)
+        {
+            value = args[1];
+        }
 
         var newArray = new object?[size];
         Array.Fill(newArray, value);
