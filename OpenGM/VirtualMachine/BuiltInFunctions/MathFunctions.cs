@@ -154,15 +154,9 @@ public static class MathFunctions
     public static object? array_create(object?[] args)
     {
         var size = args[0].Conv<int>();
+        var value = args.ElementAtOrDefault(1) ?? 0;
 
-        object? value = 0;
-        if (args.Length > 1)
-        {
-            value = args[1];
-        }
-
-        var newArray = new object?[size];
-        Array.Fill(newArray, value);
+        var newArray = Enumerable.Repeat(value, size).ToList();
 
         return newArray;
     }
@@ -879,7 +873,25 @@ public static class MathFunctions
         return str[index - 1].ToString();
     }
 
-    // string_ord_at
+    [GMLFunction("string_ord_at")]
+    public static object string_ord_at(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+        var index = args[1].Conv<int>();
+
+        if (string.IsNullOrEmpty(str) || index > str.Length)
+        {
+            return -1;
+        }
+
+        if (index <= 0)
+        {
+            return (int)str[0];
+        }
+
+        return (int)str[index - 1];
+    }
+
     // string_byte_length
     // string_byte_at
     // string_set_byte_at

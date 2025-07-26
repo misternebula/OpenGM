@@ -237,9 +237,25 @@ public static class FileFunctions
     // directory_exists
     // directory_create
     // directory_destroy
-    // file_find_first
-    // file_find_next
-    // file_find_close
+    
+    [GMLFunction("file_find_first", GMLFunctionFlags.Stub)]
+    public static object? file_find_first(object?[] args)
+    {
+        return "";
+    }
+
+    [GMLFunction("file_find_next", GMLFunctionFlags.Stub)]
+    public static object? file_find_next(object?[] args)
+    {
+        return "";
+    }
+
+    [GMLFunction("file_find_close", GMLFunctionFlags.Stub)]
+    public static object? file_find_close(object?[] args)
+    {
+        return null;
+    }
+
     // file_attributes
     // filename_name
     // filename_path
