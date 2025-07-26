@@ -330,4 +330,15 @@ public static class SurfaceManager
             ClearBufferMask.ColorBufferBit,
             BlitFramebufferFilter.Nearest);
     }
+
+    public static byte[] ReadPixels(int surfaceId, int x, int y, int w, int h)
+    {
+        BindSurfaceTexture(surfaceId);
+
+        var pixels = new byte[w * h * 4];
+        GL.ReadPixels(x, y, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        return pixels;
+    }
 }

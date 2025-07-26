@@ -60,10 +60,38 @@
         // buffer_get_type
         // buffer_get_alignment
         // buffer_fill
-        // buffer_get_size
+
+        [GMLFunction("buffer_get_size")]
+        public static object? buffer_get_size(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            if (!BufferManager.Buffers.TryGetValue(index, out var buffer))
+            {
+                return -1; // TODO: HTML returns eBuffer_UnknownBuffer
+            }
+
+            return buffer.Size;
+        }
+
         // buffer_tell
         // buffer_resize
-        // buffer_md5
+
+        [GMLFunction("buffer_md5")]
+        public static object? buffer_md5(object?[] args)
+        {
+            var buffer = args[0].Conv<int>();
+            var offset = args[1].Conv<int>();
+            var size = args[2].Conv<int>();
+
+            if (!BufferManager.Buffers.TryGetValue(buffer, out var b))
+            {
+                return -1; // TODO: HTML returns eBuffer_UnknownBuffer
+            }
+
+            return b.MD5(offset, size);
+        }
+
         // buffer_sha1
         // buffer_crc32
         // buffer_base64_encode
@@ -71,7 +99,18 @@
         // buffer_base64_decode_ext
         // buffer_sizeof
         // buffer_get_address
-        // buffer_get_surface
+
+        [GMLFunction("buffer_get_surface")]
+        public static object? buffer_get_surface(object?[] args)
+        {
+            var buffer = args[0].Conv<int>();
+            var surface = args[1].Conv<int>();
+            var offset = args[2].Conv<int>();
+
+            BufferManager.BufferGetSurface(buffer, surface, offset);
+
+            return null;
+        }
 
         [GMLFunction("buffer_set_surface")]
         public static object? buffer_set_surface(object?[] args)
