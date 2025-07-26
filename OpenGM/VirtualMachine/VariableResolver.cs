@@ -124,7 +124,7 @@ public static class VariableResolver
         // background_alpha
         // view_enabled
         { "view_current", (get_view_current, null)},
-        // view_visible
+        { "view_visible", (get_view_visible, set_view_visible)},
         { "view_xview", (get_view_xview, set_view_xview)},
         { "view_yview", (get_view_yview, set_view_yview)},
         { "view_wview", (get_view_wview, set_view_wview)},
@@ -437,6 +437,13 @@ public static class VariableResolver
     public static void set_view_camera(object? value)
     {
         ViewportManager.view_camera = value.Conv<IList>().Cast<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
+
+    public static object get_view_visible() => ViewportManager.view_visible;
+    public static void set_view_visible(object? value)
+    {
+        ViewportManager.view_visible = value.Conv<IList>().Cast<bool>().ToArray();
         ViewportManager.UpdateFromArrays();
     }
 
