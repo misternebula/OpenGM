@@ -162,6 +162,7 @@ public static class VariableResolver
         // caption_health
         { "fps", (get_fps, null) },
         // fps_real
+        { "delta_time", (get_delta_time, null) },
         { "current_time", (get_current_time, null)},
         // current_year
         { "current_month", (get_current_month, null)},
@@ -251,6 +252,11 @@ public static class VariableResolver
     public static object get_fps()
     {
         return Entry.GameSpeed; // TODO : this shouldnt be the desired fps, but the current fps (fluctuating)
+    }
+
+    public static object get_delta_time()
+    {
+        return CustomWindow.Instance.DeltaTime;
     }
 
     public static object get_x(GamemakerObject instance) => instance.x;

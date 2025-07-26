@@ -10,6 +10,25 @@ public static class ExtensionManager
 
     public static void Init()
     {
+        ScriptResolver.GMLFunctionType MakeStubFunction(string functionName) 
+        {
+            return (object?[] args) => {
+                var alwaysLog = ScriptResolver.AlwaysLogStubs;
+                var logged = ScriptResolver.LoggedStubs;
+                
+                if (alwaysLog || !logged.Contains(functionName)) {
+                    if (!alwaysLog)
+                    {
+                        logged.Add(functionName);
+                    }
+
+                    DebugLog.LogWarning($"Extension function {functionName} stubbed out.");
+                }
+                
+                return null;
+            };
+        };
+
         foreach (var extension in Extensions)
         {
             foreach (var file in extension.Files)
@@ -21,10 +40,7 @@ public static class ExtensionManager
 
                 foreach (var func in file.Functions)
                 {
-                    ScriptResolver.BuiltInFunctions.Add(func.Name, (object?[] args) => {
-                        DebugLog.LogWarning($"Extension function {func.Name} stubbed out.");
-                        return null;
-                    });
+                    ScriptResolver.BuiltInFunctions.Add(func.Name, MakeStubFunction(func.Name));
                 }
             }
         }
