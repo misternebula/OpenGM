@@ -437,4 +437,11 @@ public static class AudioManager
         var sampleLength = numberOfBits / (channelCount * bitDepth);
         return sampleLength / (double)frequency;
     }
+
+    public static IEnumerable<string> GetRecordingDeviceNames()
+    {
+        var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
+        CheckALCError();
+        return list;
+    }
 }

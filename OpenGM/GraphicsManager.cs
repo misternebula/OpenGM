@@ -36,9 +36,6 @@ public static class GraphicsManager
     /// </summary>
     public static void Init()
     {
-        DebugLog.LogInfo($"Compiling shaders...");
-        ShaderManager.CompileShaders();
-
         DefaultTexture = GL.GenTexture();
         GL.BindTexture(TextureTarget.Texture2D, DefaultTexture);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
@@ -83,4 +80,17 @@ public static class GraphicsManager
         ViewArea = viewArea;
     }
     public static void SetViewArea(float x, float y, float w, float h) => SetViewArea(new(x, y, w, h));
+
+    public static void SetFog(bool enable, int color, double start, double end)
+    {
+        GL.Uniform1(ShaderManager.gm_FogStart, start);
+
+        var range = end - start;
+        var rcpRange = range == 0 ? 0 : 1 / range;
+        GL.Uniform1(ShaderManager.gm_RcpFogRange, rcpRange);
+
+        GL.Uniform1(ShaderManager.gm_PS_FogEnabled, enable ? 1 : 0);
+        GL.Uniform1(ShaderManager.gm_FogColour, color);
+        GL.Uniform1(ShaderManager.gm_VS_FogEnabled, enable ? 1 : 0);
+    }
 }

@@ -200,7 +200,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return !(bool?)audio_is_playing(args);
         }
 
-        // audio_exists
+        [GMLFunction("audio_exists")]
+        public static object? audio_exists(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            if (index < GMConstants.FIRST_INSTANCE_ID)
+            {
+                return AudioManager.GetAudioInstances(index).Any();
+            }
+            else
+            {
+                return AudioManager.GetAudioInstance(index) != null;
+            }
+        }
+
         // audio_system_is_available
         // audio_sound_is_playable
         // audio_master_gain
@@ -489,6 +503,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_start_recording
         // audio_stop_recording
         // audio_get_recorder_count
+
+        [GMLFunction("audio_get_recorder_count")]
+        public static object? audio_get_recorder_count(object?[] args)
+        {
+            return AudioManager.GetRecordingDeviceNames().Count();
+        }
+
         // audio_get_recorder_info
         // audio_sound_get_listener_mask
         // audio_sound_set_listener_mask

@@ -42,6 +42,8 @@ public static class SurfaceManager
         return true;
     }
 
+    public static int surface_get_target() => _currentSurfaceId;
+
     public static bool surface_reset_target()
     {
         var (prevSurfaceId, prevViewPort, prevViewArea) = SurfaceStack.Pop();

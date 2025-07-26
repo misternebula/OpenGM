@@ -548,6 +548,32 @@ public static class RoomManager
             var dummy = new GMLObject();
             VMExecutor.ExecuteCode(createCode, dummy);
             dummy = null;
+
+            if (VMExecutor.EnvStack.Count != 0)
+            {
+                DebugLog.LogWarning("EnvStack not empty after room creation code!");
+                foreach (var item in VMExecutor.EnvStack)
+                {
+                    if (item == null)
+                    {
+                        DebugLog.LogWarning(" - NULL");
+                    }
+                    else
+                    {
+                        if (item.Self is GamemakerObject)
+                        {
+                            DebugLog.LogWarning($" - {item.ObjectDefinition?.Name} ({item.GMSelf.instanceId})");
+                        }
+                        else
+                        {
+                            DebugLog.LogWarning($" - {item.GetType()}");
+                        }
+                    }
+                }
+
+                // HACK: why does the dummy object stay on envstack? no idea!!!
+                VMExecutor.EnvStack.Clear();
+            }
         }
 
         DebugLog.LogInfo($"Calling RoomStart...");

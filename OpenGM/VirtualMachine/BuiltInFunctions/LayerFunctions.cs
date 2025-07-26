@@ -49,7 +49,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
-                throw new Exception($"Couldn't find layer {layer_id}");
+                DebugLog.LogWarning($"layer_get_depth - Couldn't find layer {layer_id}.");
+                return -1;
             }
 
             return layer.Depth;

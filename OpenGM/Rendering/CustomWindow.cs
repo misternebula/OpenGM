@@ -321,8 +321,8 @@ public class CustomWindow : GameWindow
         var xscale = partJob.scale.X;
         var yscale = partJob.scale.Y;
 
-        var sinAngle = Math.Sin(partJob.angle);
-        var cosAngle = Math.Cos(partJob.angle);
+        var sinAngle = Math.Sin(CustomMath.Deg2Rad * partJob.angle);
+        var cosAngle = Math.Cos(CustomMath.Deg2Rad * partJob.angle);
 
         double xUVOffset;
         var fVar7 = (double)partJob.texture.TargetX;

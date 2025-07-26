@@ -13,8 +13,6 @@ public static class SpriteManager
     public static int DrawColor = 16777215;
     // https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Drawing/Colour_And_Alpha/draw_set_alpha.htm
     public static double DrawAlpha = 1;
-    public static int FogColor = 0;
-    public static bool FogEnabled = false;
 
     public static Dictionary<int, SpriteData> _spriteDict = new();
 

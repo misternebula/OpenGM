@@ -84,7 +84,15 @@ public static class VariableResolver
         { "room", (get_room, set_room) },
         // room_first
         // room_last
-        // ...
+        // transition_kind
+        // transition_steps
+        // score
+        // lives
+        // health
+        // game_id
+        // game_display_name
+        // game_project_name
+        // game_save_id
         { "working_directory", (get_working_directory, null) },
         // temp_directory
         // program_directory
@@ -96,10 +104,27 @@ public static class VariableResolver
         { "room_speed", (get_room_speed, set_room_speed) },
         { "room_persistent", (get_room_persistent, set_room_persistent)},
         { "background_color", (get_background_color, set_background_color)},
-        // ...
+        // background_showcolor
+        // background_colour
+        // background_showcolour
+        // background_visible
+        // background_foreground
+        // background_index
+        // background_x
+        // background_y
+        // background_width
+        // background_height
+        // background_htiled
+        // background_vtiled
+        // background_xscale
+        // background_yscale
+        // background_hspeed
+        // background_vspeed
+        // background_blend
+        // background_alpha
         // view_enabled
         { "view_current", (get_view_current, null)},
-        // view_visible
+        { "view_visible", (get_view_visible, set_view_visible)},
         { "view_xview", (get_view_xview, set_view_xview)},
         { "view_yview", (get_view_yview, set_view_yview)},
         { "view_wview", (get_view_wview, set_view_wview)},
@@ -108,18 +133,57 @@ public static class VariableResolver
         // view_yport
         { "view_wport", (get_view_wport, set_view_wport)},
         { "view_hport", (get_view_hport, set_view_hport)},
-        // ...
+        // view_angle
+        // view_hborder
+        // view_vborder
+        // view_hspeed
+        // view_vspeed
+        // view_object
+        // view_surface_id
         { "view_camera", (get_view_camera, set_view_camera)},
-        // ...
+        // mouse_x
+        // mouse_y
+        // mouse_button
+        // mouse_lastbutton
+        // keyboard_key
+        // keyboard_lastkey
+        // keyboard_lastchar
+        // keyboard_string
+        // cursor_sprite
+        // show_score
+        // show_lives
+        // show_health
+        // caption_score
+        // caption_lives
+        // caption_health
         { "fps", (get_fps, null) },
+        // fps_real
         { "current_time", (get_current_time, null)},
-        // ...
+        // current_year
         { "current_month", (get_current_month, null)},
-        // ...
+        // current_day
+        // current_weekday
+        // current_hour
+        // current_minute
+        { "current_second", (get_current_second, null)},
+        // event_type
+        // event_number
+        // event_object
+        // event_action
+        // error_occurred
+        // error_last
+        // gamemaker_registered
+        // gamemaker_pro
         { "application_surface", (get_application_surface, null) },
-        // ...
+        // font_texture_page_size
+
+        // InitYoYoBuiltInVariables
         { "os_type", (get_os_type, null) },
-        // ...
+        // os_device
+        // os_version
+        // os_browser
+        // browser_width
+        // browser_height
     };
 
     // InitLocalVariables
@@ -376,6 +440,13 @@ public static class VariableResolver
         ViewportManager.UpdateFromArrays();
     }
 
+    public static object get_view_visible() => ViewportManager.view_visible;
+    public static void set_view_visible(object? value)
+    {
+        ViewportManager.view_visible = value.Conv<IList>().Cast<bool>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
+
     public static object? get_pointer_null() => null;
 
     public static object get_xprevious(GamemakerObject instance) => instance.xprevious;
@@ -403,6 +474,8 @@ public static class VariableResolver
     public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
 
     public static object get_current_month() => DateTime.Now.Month;
+
+    public static object get_current_second() => DateTime.Now.Second;
 
     public static object get_debug_mode() => false;
 

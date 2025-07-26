@@ -130,7 +130,7 @@ public static class InstanceManager
     {
         if (id == GMConstants.global)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Tried to find global instance.");
         }
         else if (id == GMConstants.self)
         {
@@ -142,7 +142,7 @@ public static class InstanceManager
         }
         else if (id < 0)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException($"Tried to find instance with id {id}");
         }
         else if (id < GMConstants.FIRST_INSTANCE_ID)
         {

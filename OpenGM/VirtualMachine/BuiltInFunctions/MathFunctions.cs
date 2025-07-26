@@ -96,30 +96,39 @@ public static class MathFunctions
     // instanceof
 
     [GMLFunction("array_length")]
-    public static object array_length(object?[] args)
-    {
-        var array = args[0].Conv<IList>();
-        return array.Count;
-    }
-
     [GMLFunction("array_length_1d")]
-    public static object array_length_1d(object?[] args)
+    public static object? array_length(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         return array.Count;
     }
 
     [GMLFunction("array_length_2d")]
-    public static object array_length_2d(object?[] args)
+    public static object? array_length_2d(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         var index0 = array[0];
         return (index0 as IList)!.Count;
     }
 
     [GMLFunction("array_height_2d")]
-    public static object array_height_2d(object?[] args)
+    public static object? array_height_2d(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         return array.Count;
     }
@@ -422,8 +431,20 @@ public static class MathFunctions
 
     // exp
     // ln
-    // log2
-    // log10
+
+    [GMLFunction("log2")]
+    public static object log2(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        return Math.Log2(n);
+    }
+
+    [GMLFunction("log10")]
+    public static object log10(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        return Math.Log10(n);
+    }
 
     [GMLFunction("sin")]
     public static object sin(object?[] args)
@@ -513,7 +534,14 @@ public static class MathFunctions
         return Math.Pow(x, n);
     }
 
-    // logn
+    [GMLFunction("logn")]
+    public static object logn(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        var val = args[1].Conv<double>();
+
+        return Math.Log(val, n);
+    }
 
     [GMLFunction("min")]
     public static object min(object?[] args)
@@ -700,7 +728,7 @@ public static class MathFunctions
             {
                 return s;
             }
-            else
+            else if (valueOrFormat is int or short or long or double or float)
             {
                 // real
                 var num = valueOrFormat.Conv<double>();
@@ -710,6 +738,10 @@ public static class MathFunctions
                 return (truncated % 1) == 0
                     ? truncated.ToString()
                     : Math.Round(truncated, 2).ToString();
+            }
+            else
+            {
+                return (string)valueOrFormat;
             }
         }
     }

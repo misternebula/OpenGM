@@ -185,14 +185,22 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
                 return;
             }
 
-            _sprite_index = value;
-
-            if (value == -1)
+            if (value < 0)
             {
+                DebugLog.LogWarning($"Tried to set sprite_index of {Definition.Name} to {value}!");
                 return;
             }
 
+            _sprite_index = value;
+
             var sprite = SpriteManager.GetSpriteAsset(_sprite_index);
+
+            if (sprite == null)
+            {
+                DebugLog.LogWarning($"Couldn't find sprite for index {_sprite_index}!");
+                return;
+            }
+
             _cachedSpriteWidth = sprite!.Textures[0].TargetWidth;
             _cachedSpriteHeight = sprite.Textures[0].TargetHeight;
             _cached_sprite_xoffset = sprite.Origin.X;

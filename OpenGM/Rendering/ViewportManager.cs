@@ -12,6 +12,7 @@ public static class ViewportManager
     public static float[] view_hview = new float[8];
 
     public static int[] view_camera = new int[8];
+    public static bool[] view_visible = new bool[8];
 
     public static RuntimeView? CurrentRenderingView;
 
@@ -30,6 +31,7 @@ public static class ViewportManager
             view_hview[i] = view.ViewSize.Y;
 
             view_camera[i] = view.Camera?.ID ?? -1;
+            view_visible[i] = view.Visible;
         }
     }
 
@@ -43,6 +45,8 @@ public static class ViewportManager
 
             view.ViewPosition = new(view_xview[i], view_yview[i]);
             view.ViewSize = new(view_wview[i], view_hview[i]);
+
+            view.Visible = view_visible[i];
 
             // todo: view_camera???
         }

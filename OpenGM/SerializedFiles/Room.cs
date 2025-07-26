@@ -207,7 +207,7 @@ public class TileBlob
     public int TileIndex; // bits 0-18
     public bool Mirror; // bit 28
     public bool Flip; // bit 29
-    public bool Rotate; // bit 30
+    public bool Rotate; // bit 30 (clockwise)
 
     public TileBlob(uint blobData)
     {
