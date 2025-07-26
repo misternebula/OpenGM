@@ -9,8 +9,12 @@ public static class VariableResolver
 {
     /// <summary>
     /// general form of the array index setting logic.
+    /// 
     /// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
-    /// `getter` SHOULD NOT COPY.
+    /// `getter` SHOULD NOT COPY, since the reference is used to modify the list.
+    /// 
+    /// NOTE: this may try to grow fixed size lists (arrays). it will throw here
+    /// BUG: when using a typed list, values of the wrong type may be added. it will throw here
     /// </summary>
     public static void ArraySet(int index, object? value,
         Func<IList?> getter,
