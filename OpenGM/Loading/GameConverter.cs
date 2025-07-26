@@ -27,6 +27,7 @@ public static class GameConverter
         ExportAssetOrder(writer, data);
         ConvertScripts(writer, data);
         ConvertCode(writer, data, data.Code);
+        ExportExtensions(writer, data);
         ExportGlobalInitCode(writer, data);
         ExportObjectDefinitions(writer, data);
         ExportBackgrounds(writer, data);
@@ -115,6 +116,47 @@ public static class GameConverter
             else
             {
                 asset.ParentAssetId = -1;
+            }
+
+            writer.WriteMemoryPack(asset);
+        }
+
+        Console.WriteLine($" Done!");
+    }
+
+    public static void ExportExtensions(BinaryWriter writer, UndertaleData data)
+    {
+        var extensions = data.Extensions;
+        if (extensions is null)
+        {
+            writer.Write(0);
+            return;
+        }
+
+        Console.Write($"Exporting extensions...");
+        writer.Write(extensions.Count);
+        foreach (var extension in extensions)
+        {
+            var asset = new Extension();
+            asset.Name = extension.Name.Content;
+            
+            foreach (var file in extension.Files)
+            {
+                var fileAsset = new ExtensionFile();
+                fileAsset.Name = file.Filename.Content;
+                fileAsset.Kind = (ExtensionKind)file.Kind;
+
+                foreach (var function in file.Functions)
+                {
+                    var funcAsset = new ExtensionFunction();
+                    funcAsset.Id = function.ID;
+                    funcAsset.Name = function.Name.Content;
+                    funcAsset.ReturnType = (ExtensionVarType)function.RetType;
+
+                    fileAsset.Functions.Add(funcAsset);
+                }
+
+                asset.Files.Add(fileAsset);
             }
 
             writer.WriteMemoryPack(asset);
