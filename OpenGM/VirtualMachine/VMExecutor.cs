@@ -750,6 +750,20 @@ public static partial class VMExecutor
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 
+    public static object? DictHash(object? key)
+    {
+        var result = key;
+
+        switch (key)
+        {
+            case int or long or short or double or bool:
+                result = key.Conv<double>();
+                break;
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// custom cast function.
     /// works with: all number types, string, bool, IList

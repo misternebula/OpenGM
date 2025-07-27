@@ -776,7 +776,7 @@ public static class MathFunctions
             }
             else
             {
-                return (string)valueOrFormat;
+                return valueOrFormat.ToString() ?? "[unknown]";
             }
         }
     }
