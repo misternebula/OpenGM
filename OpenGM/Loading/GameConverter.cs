@@ -151,7 +151,13 @@ public static class GameConverter
                     var funcAsset = new ExtensionFunction();
                     funcAsset.Id = function.ID;
                     funcAsset.Name = function.Name.Content;
+                    funcAsset.ExternalName = function.ExtName.Content;
                     funcAsset.ReturnType = (ExtensionVarType)function.RetType;
+
+                    foreach (var arg in function.Arguments)
+                    {
+                        funcAsset.Arguments.Add((ExtensionVarType)arg.Type);
+                    }
 
                     fileAsset.Functions.Add(funcAsset);
                 }
