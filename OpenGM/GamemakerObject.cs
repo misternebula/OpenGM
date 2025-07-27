@@ -26,7 +26,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public ObjectDefinition Definition;
 
     public int object_index => Definition.AssetId;
-    public int[] alarm = Enumerable.Repeat(-1, 12).ToArray(); // doubles will be ArraySet here
+    public object?[] alarm = Enumerable.Repeat((object?)-1, 12).ToArray(); // doubles will be ArraySet here
 
     public bool persistent = false;
 
@@ -587,15 +587,15 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     {
         for (var i = 0; i < alarm.Length; i++)
         {
-            if (alarm[i] != -1)
+            if (alarm[i].Conv<int>() != -1)
             {
-                alarm[i]--;
+                alarm[i] = alarm[i].Conv<int>() - 1;
 
-                if (alarm[i] == 0)
+                if (alarm[i].Conv<int>() == 0)
                 {
                     ExecuteEvent(this, Definition, EventType.Alarm, i);
 
-                    if (alarm[i] == 0)
+                    if (alarm[i].Conv<int>() == 0)
                     {
                         alarm[i] = -1;
                     }
