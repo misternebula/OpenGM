@@ -14,7 +14,6 @@ public static class VariableResolver
     /// `getter` SHOULD NOT COPY, since the reference is used to modify the list.
     /// 
     /// NOTE: this may try to grow fixed size lists (arrays). it will throw here
-    /// BUG: when using a typed list, values of the wrong type may be added. it will throw here
     /// </summary>
     public static void ArraySet(int index, object? value,
         Func<IList?> getter,
@@ -33,8 +32,8 @@ public static class VariableResolver
             var numToAdd = index - array.Count + 1;
             for (var i = 0; i < numToAdd; i++)
             {
-                // no clue if this is correct
                 // we want new list for every element here so its in the for loop
+                // TODO: check this is the correct implementation at some point
                 array.Add(value switch
                 {
                     int or short or long or float or double => 0,
@@ -51,25 +50,26 @@ public static class VariableResolver
 
         if (onlyGrow) return;
 
+        // use Conv is array is typed
         if (value is not null)
         {
-            var type = array.GetType();
-            var memberType = typeof(object);
+            var arrayType = array.GetType();
 
-            if (type.IsGenericType)
+            Type elementType;
+            if (arrayType.IsGenericType) // List<T>
             {
-                memberType = type.GenericTypeArguments.Single() ?? memberType;
+                elementType = arrayType.GenericTypeArguments[0];
             }
-            else if (type.IsArray)
+            else if (arrayType.IsArray) // T[]
             {
-                memberType = type.GetElementType() ?? memberType;
+                elementType = arrayType.GetElementType()!;
             }
-
-            if (!memberType.IsAssignableFrom(value.GetType()))
+            else
             {
-                array[index] = value.Conv(memberType);
-                return;
+                throw new UnreachableException("array is somehow not a list or array");
             }
+            
+            array[index] = value.Conv(elementType);
         }
 
         array[index] = value;
@@ -391,7 +391,7 @@ public static class VariableResolver
     public static object get_application_surface() => SurfaceManager.application_surface;
 
     public static object get_alarm(GamemakerObject instance) => instance.alarm;
-    public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().ToArray();
+    public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().ConvAll<int>().ToArray();
 
     public static object get_argument_count() => VMExecutor.Call.Locals["arguments"].Conv<IList>().Count;
     public static object get_argument() => VMExecutor.Call.Locals["arguments"]!;

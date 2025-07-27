@@ -862,5 +862,8 @@ public static partial class VMExecutor
         throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
     }
 
+    /// <summary>
+    /// Conv elements of array. Used instead of Cast because Cast does not convert types (e.g. int to float)
+    /// </summary>
     public static IEnumerable<T> ConvAll<T>(this IEnumerable @this) => @this.Cast<object?>().Select(e => e.Conv<T>());
 }
