@@ -39,13 +39,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("display_get_gui_width", GMLFunctionFlags.Stub)]
         public static object display_get_gui_width(object?[] args)
         {
-            return display_get_width(args);
+            return window_get_width(args);
         }
 
         [GMLFunction("display_get_gui_height", GMLFunctionFlags.Stub)]
         public static object display_get_gui_height(object?[] args)
         {
-            return display_get_height(args);
+            return window_get_height(args);
         }
 
         // display_get_frequency
