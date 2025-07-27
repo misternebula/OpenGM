@@ -17,7 +17,8 @@ public static class MathFunctions
     [GMLFunction("is_string")]
     public static object is_string(object?[] args) => args[0] is string;
 
-    // is_array
+    [GMLFunction("is_array")]
+    public static object is_array(object?[] args) => args[0] is IList || (args[0]?.GetType().IsArray ?? false);
 
     [GMLFunction("is_undefined")]
     public static object is_undefined(object?[] args) => args[0] is null;
