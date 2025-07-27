@@ -14,6 +14,8 @@ public static class ExtensionManager
     public static Dictionary<string, IntPtr> _nativeLibs = new();
 
     // https://stackoverflow.com/a/26700515
+    // this is what lets us make delegates from a Type[] array
+    // final element is return type, all elements before are argument types
     private static readonly Func<Type[],Type> MakeNewCustomDelegate = (Func<Type[],Type>)Delegate.CreateDelegate(
         typeof(Func<Type[], Type>),
         typeof(Expression)
@@ -83,6 +85,7 @@ public static class ExtensionManager
                     var lastDir = Directory.GetCurrentDirectory();
                     Directory.SetCurrentDirectory(Entry.DataWinFolder);
 
+                    // load the library, if it fails then get the win32 error and throw it
                     handle = WinLoadLibrary(path);
                     if (handle == 0)
                     {
@@ -90,6 +93,7 @@ public static class ExtensionManager
                         throw new Exception($"Failed to load extension DLL at {path} (error code {err})");
                     }
 
+                    // cd back to last dir and add library handle to _nativeLibs
                     Directory.SetCurrentDirectory(lastDir);
                     _nativeLibs[file.Name] = handle;
                 }
@@ -97,6 +101,8 @@ public static class ExtensionManager
                 foreach (var func in file.Functions)
                 {
                     var types = new List<Type>();
+
+                    // add types of every argument
                     foreach (var arg in func.Arguments)
                     {
                         types.Add(arg switch
@@ -107,6 +113,7 @@ public static class ExtensionManager
                         });
                     }
 
+                    // add return type as last element
                     types.Add(func.ReturnType switch
                     {
                         ExtensionVarType.String => typeof(string),
@@ -114,6 +121,7 @@ public static class ExtensionManager
                         _ => throw new UnreachableException()
                     });
 
+                    // get the address of the function based on its external name
                     var funcPtr = WinGetProcAddress(handle, func.ExternalName);
                     if (funcPtr == 0)
                     {
@@ -121,10 +129,16 @@ public static class ExtensionManager
                         throw new Exception($"Failed to load extension function {func.ExternalName} (error code {err})");
                     }
 
-                    Console.WriteLine($"{func.ExternalName}({func.Arguments.Count} args): {funcPtr}");
+                    DebugLog.LogVerbose($"{func.ExternalName}({func.Arguments.Count} args): {funcPtr}");
 
+                    // create delegate type
                     var deleType = MakeNewCustomDelegate([.. types]);
+
+                    // convert the address of our external function to said delegate type
                     var dele = Marshal.GetDelegateForFunctionPointer(funcPtr, deleType);
+
+                    // shove the delegate's DynamicInvoke into BuiltInFunctions
+                    // (which conveniently has the same type semantics as GMLFunctionType)
                     ScriptResolver.BuiltInFunctions.Add(func.Name, dele.DynamicInvoke);
                 }
             }
