@@ -590,7 +590,7 @@ public static class CollisionManager
         return true;
     }
 
-    public static bool Collision_Line(GamemakerObject self, double x1, double x2, double y1, double y2, bool precise)
+    public static bool Collision_Line(GamemakerObject self, double x1, double y1, double x2, double y2, bool precise)
     {
         if (self.Marked)
         {
