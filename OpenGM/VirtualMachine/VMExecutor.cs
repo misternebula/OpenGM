@@ -756,7 +756,7 @@ public static partial class VMExecutor
     /// </summary>
     public static T Conv<T>(this object? @this) => (T)@this.Conv(typeof(T));
     
-    private static object Conv(this object? @this, Type type)
+    public static object Conv(this object? @this, Type type)
     {
         // TODO: check all numeric primitives
 
@@ -861,4 +861,6 @@ public static partial class VMExecutor
             
         throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
     }
+
+    public static IEnumerable<T> ConvAll<T>(this IEnumerable @this) => @this.Cast<object?>().Select(e => e.Conv<T>());
 }
