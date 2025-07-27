@@ -50,28 +50,30 @@ public static class VariableResolver
 
         if (onlyGrow) return;
 
-        if (value is not null)
+        var arrayType = array.GetType();
+
+        Type elementType;
+        if (arrayType.IsGenericType) // List<T>
         {
-            var type = array.GetType();
-            var memberType = typeof(object);
-
-            if (type.IsGenericType)
-            {
-                memberType = type.GenericTypeArguments.Single() ?? memberType;
-            }
-            else if (type.IsArray)
-            {
-                memberType = type.GetElementType() ?? memberType;
-            }
-
-            if (!memberType.IsAssignableFrom(value.GetType()))
-            {
-                array[index] = value.Conv(memberType);
-                return;
-            }
+            elementType = arrayType.GenericTypeArguments[0];
+        }
+        else if (arrayType.IsArray) // T[]
+        {
+            elementType = arrayType.GetElementType()!;
+        }
+        else
+        {
+            throw new UnreachableException($"array is not list or array (is {arrayType}");
         }
 
-        array[index] = value;
+        if (elementType != typeof(object)) // typed array
+        {
+            array[index] = value.Conv(elementType);
+        }
+        else // untyped array
+        {
+            array[index] = value;
+        }
     }
 
     public static readonly Dictionary<string, object?> GlobalVariables = new();

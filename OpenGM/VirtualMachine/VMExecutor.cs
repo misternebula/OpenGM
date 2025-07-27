@@ -859,7 +859,7 @@ public static partial class VMExecutor
             if (type == typeof(bool)) return true; // methods are always evaluated to true i think?
         }
             
-        throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
+        throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType()}) to {type}");
     }
 
     /// <summary>
