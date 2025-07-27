@@ -637,6 +637,33 @@ public static class MathFunctions
     [GMLFunction("string")]
     public static object @string(params object?[] args)
     {
+        static string StringifyDict(Dictionary<string, object?> dict)
+        {
+            var result = "{ ";
+
+            var i = 0;
+            foreach (var kv in dict)
+            {
+                result += $"\"{kv.Key}\": ";
+
+                result += kv.Value switch
+                {
+                    Dictionary<string, object?> otherDict => StringifyDict(otherDict),
+                    _ => @string([kv.Value])
+                };
+
+                if (i < dict.Count - 1)
+                {
+                    result += ", ";
+                }
+
+                i++;
+            }
+
+            result += " }";
+            return result;
+        }
+
         var valueOrFormat = args[0];
 
         var values = new object?[] { };
@@ -737,6 +764,14 @@ public static class MathFunctions
                 return (truncated % 1) == 0
                     ? truncated.ToString()
                     : Math.Round(truncated, 2).ToString();
+            }
+            else if (valueOrFormat is GMLObject obj)
+            {
+                return StringifyDict(obj.SelfVariables);
+            }
+            else if (valueOrFormat is Dictionary<string, object?> dict)
+            {
+                return StringifyDict(dict);
             }
             else
             {
