@@ -167,18 +167,18 @@ public static partial class VMExecutor
         Call.Stack.Push(arguments[index], VMType.v);
     }
 
-    public static void PushIndex(int assetId, string varName)
+    public static void PushIndex(object? item, string varName)
     {
-        var inst = InstanceManager.Find(assetId);
+        var inst = FetchSelf(item);
 
         if (inst == null)
         {
-            DebugLog.LogError($"Tried to push variable {varName} from index {assetId}, which doesn't exist!!");
+            DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
 
             DebugLog.LogError($"--Stacktrace--");
-            foreach (var item in CallStack)
+            foreach (var stackItem in CallStack)
             {
-                DebugLog.LogError($" - {item.CodeName}");
+                DebugLog.LogError($" - {stackItem.CodeName}");
             }
 
             DebugLog.LogError(Environment.StackTrace);
@@ -197,8 +197,8 @@ public static partial class VMExecutor
 
     public static void PushStacktop(string varName)
     {
-        var instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
-        PushIndex(instanceId, varName);
+        var top = Call.Stack.Pop(VMType.v);
+        PushIndex(top, varName);
     }
 
     public static void PushArgumentArrayIndex(string varName, int index)

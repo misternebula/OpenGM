@@ -29,7 +29,15 @@
         }
 
         [GMLFunction("@@This@@")]
-        public static object This(object?[] args) => VMExecutor.Self.GMSelf.instanceId;
+        public static object This(object?[] args)
+        {
+            if (VMExecutor.Self.Self is GamemakerObject)
+            {
+                return VMExecutor.Self.GMSelf.instanceId;
+            }
+
+            return VMExecutor.Self.Self;
+        }
 
         // @@Global@@
 
@@ -68,7 +76,15 @@
         }
 
         [GMLFunction("@@Other@@")]
-        public static object Other(object?[] args) => VMExecutor.Other.GMSelf.instanceId;
+        public static object Other(object?[] args)
+        {
+            if (VMExecutor.Other.Self is GamemakerObject)
+            {
+                return VMExecutor.Other.GMSelf.instanceId;
+            }
+
+            return VMExecutor.Other.Self;
+        }
 
         [GMLFunction("@@GetInstance@@")]
         public static object? GetInstance(object?[] args)

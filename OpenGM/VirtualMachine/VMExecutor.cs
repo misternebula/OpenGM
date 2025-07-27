@@ -636,7 +636,7 @@ public static partial class VMExecutor
             case VMOpcode.CALLV:
             {
                 var method = Call.Stack.Pop(VMType.v) as Method;
-                var self = Call.Stack.Pop(VMType.v).Conv<int>(); // TODO: if method.inst is null, use this as self (https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/method_get_self.htm)
+                var self = Call.Stack.Pop(VMType.v);
 
                 var args = new object?[instruction.IntData];
 
@@ -649,6 +649,12 @@ public static partial class VMExecutor
                 if (method == null)
                 {
                     throw new NotImplementedException("method is null");
+                }
+
+                var context = method.inst;
+                if (method.inst is null && self is not null)
+                {
+                    context = FetchSelf(self);
                 }
 
                 //DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
@@ -712,6 +718,24 @@ public static partial class VMExecutor
         }
 
         return (ExecutionResult.Success, null);
+    }
+
+    public static IStackContextSelf? FetchSelf(object? value)
+    {
+        if (value is null)
+        {
+            throw new ArgumentException($"Trying to fetch IStackContextSelf for undefined! Current script:{CallStack.First().CodeName}");
+        }
+        else if (value is IStackContextSelf self)
+        {
+            return self;
+        }
+        else if (value is int or long or short)
+        {
+            return InstanceManager.Find((int)value);
+        }
+
+        throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
     }
 
     public static int VMTypeToSize(VMType type) => type switch

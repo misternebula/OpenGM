@@ -913,7 +913,7 @@ public static class MathFunctions
         var str = args[1].Conv<string>();
         var index = args[2].Conv<int>();
 
-        return str.Insert(index - 1, substr);
+        return str.Insert(Math.Min(index - 1, str.Length), substr);
     }
 
     [GMLFunction("string_lower")]
