@@ -55,13 +55,21 @@ public static partial class VMExecutor
 
     public static void PopToSelfArray(IStackContextSelf self, string varName, int index, object? value)
     {
-        if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
+        if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gs))
         {
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => gettersetter.getter(gm) as IList, // already did TryGetValue above
-                array => gettersetter.setter!(gm, array));
+                () => gs.getter() as IList, // already did TryGetValue above
+                array => gs.setter!(array));
+        }
+        else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gsSelf) && self is GamemakerObject gm)
+        {
+            VariableResolver.ArraySet(
+                index,
+                value,
+                () => gsSelf.getter(gm) as IList, // already did TryGetValue above
+                array => gsSelf.setter!(gm, array));
         }
         else
         {
