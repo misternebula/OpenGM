@@ -102,11 +102,11 @@ public class Camera
 
     public void Build2DView(float x, float y)
     {
-        var v1 = new Vector3(x, y, -16000);
-        var v2 = new Vector3(x, y, 0);
-        var v3 = new Vector3((float)Math.Sin(-ViewAngle * CustomMath.Deg2Rad), (float)Math.Cos(-ViewAngle * CustomMath.Deg2Rad), 0);
+        var pos = new Vector3(x, y, -16000);
+        var at = new Vector3(x, y, 0);
+        var up = new Vector3((float)Math.Sin(-ViewAngle * CustomMath.Deg2Rad), (float)Math.Cos(-ViewAngle * CustomMath.Deg2Rad), 0);
 
-        var viewMat = Matrix4.LookAt(v2, v1, v3);
+        var viewMat = Matrix4.LookAt(at, pos, up);
         var projMat = Matrix4.CreateOrthographic(ViewWidth, ViewHeight, 0, 32000);
 
         SetViewMat(viewMat);
