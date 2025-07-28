@@ -163,7 +163,7 @@ public static class DrawManager
         // g_pLayerManager.UpdateLayers();
         // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
 
-        var stepList = _drawObjects.OrderBy(x => x.instanceId);
+        var stepList = _drawObjects.Where(x => x is not GamemakerObject obj || obj.Active).OrderBy(x => x.instanceId);
         if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
         {
             return;
@@ -291,7 +291,7 @@ public static class DrawManager
     {
         foreach (var item in stepList)
         {
-            if (item is GamemakerObject gm && gm.Active)
+            if (item is GamemakerObject gm)
             {
                 gm.UpdateAlarms();
             }
