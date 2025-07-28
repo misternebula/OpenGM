@@ -241,6 +241,18 @@ public static partial class VMExecutor
                     var stackStr = "{ ";
                     foreach (var item in Call.Stack)
                     {
+                        if (item.value is string str)
+                        {
+                            if (str.Length > 80)
+                            {
+                                str = str[..80] + $"[{str.Length - 80} more characters...]";
+                                str = str.Replace("\n", "\\n");
+                            }
+
+                            stackStr += $"{str}, ";
+                            continue;
+                        }
+
                         stackStr += $"{item}, ";
                     }
 
