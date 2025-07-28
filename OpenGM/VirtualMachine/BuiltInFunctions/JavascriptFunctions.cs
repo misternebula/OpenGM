@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine.BuiltInFunctions
+﻿using OpenGM.Loading;
+
+namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class JavascriptFunctions
     {
@@ -9,14 +11,33 @@
             var values = args[1..];
             var obj = new GMLObject();
 
+            VMScript script;
             if (ctor is Method m)
             {
-                VMExecutor.ExecuteCode(m.func.GetCode(), obj, args: values);
+                script = m.func;
             }
             else
             {
                 var constructorIndex = ctor.Conv<int>();
-                VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
+                script = ScriptResolver.ScriptsByIndex[constructorIndex];
+            }
+
+            var code = script.GetCode()!;
+            VMExecutor.ExecuteCode(code, obj, args: values);
+
+            // TODO: this is definitely NOT how static variables are supposed to work
+            if (code.ParentAssetId != -1)
+            {
+                var parent = GameLoader.Codes[code.ParentAssetId];
+                var def = parent.Functions.FirstOrDefault(x => x.FunctionName == code.Name);
+
+                if (def is not null)
+                {
+                    foreach (var kv in def.StaticVariables)
+                    {
+                        obj.SelfVariables[kv.Key] = kv.Value;
+                    }
+                }
             }
 
             return obj;

@@ -50,7 +50,13 @@
             return false;
         }
 
-        // gamepad_button_check_released
+        [GMLFunction("gamepad_button_check_released", GMLFunctionFlags.Stub)]
+        public static object gamepad_button_check_released(object?[] args)
+        {
+            // TODO : implement
+            return false;
+        }
+
         // gamepad_button_value
         // gamepad_axis_count
 

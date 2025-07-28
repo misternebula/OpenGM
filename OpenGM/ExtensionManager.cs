@@ -49,7 +49,11 @@ public static class ExtensionManager
         {
             foreach (var func in file.Functions)
             {
-                ScriptResolver.BuiltInFunctions.Add(func.Name, MakeStubFunction(func.Name));
+                var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, MakeStubFunction(func.Name));
+                if (!success)
+                {
+                    DebugLog.LogError($"Could not add stub for extension function {func.Name}");
+                }
             }
         }
 
@@ -57,6 +61,12 @@ public static class ExtensionManager
         {
             foreach (var file in extension.Files)
             {
+                if (file.Kind == ExtensionKind.Generic)
+                {
+                    StubAllFuncs(file);
+                    continue;
+                }
+
                 if (file.Kind != ExtensionKind.Dll)
                 {
                     continue;
@@ -137,9 +147,13 @@ public static class ExtensionManager
                     // convert the address of our external function to said delegate type
                     var dele = Marshal.GetDelegateForFunctionPointer(funcPtr, deleType);
 
-                    // shove the delegate's DynamicInvoke into BuiltInFunctions
+                    // try and shove the delegate's DynamicInvoke into BuiltInFunctions
                     // (which conveniently has the same type semantics as GMLFunctionType)
-                    ScriptResolver.BuiltInFunctions.Add(func.Name, dele.DynamicInvoke);
+                    var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, dele.DynamicInvoke);
+                    if (!success)
+                    {
+                        DebugLog.LogError($"Could not add extension function {func.Name} to functions list");
+                    }
                 }
             }
         }

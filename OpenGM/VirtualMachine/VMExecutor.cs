@@ -30,18 +30,7 @@ public class VMEnvFrame
         }
         else if (Self is GMLObject obj)
         {
-            var ret = "GML Struct";
-            if (obj.SelfVariables.Count > 0)
-            {
-                var first = obj.SelfVariables.Keys.First();
-                ret += $" ({obj.SelfVariables.Count} entries, \"{first}\"...)";
-            }
-            else
-            {
-                ret += " (no entries)";
-            }
-
-            return ret;
+            return "[" + obj.ToString() + "]";
         }
         else
         {
@@ -133,6 +122,7 @@ public static partial class VMExecutor
     }
 
     public static bool VerboseStackLogs;
+    public static bool ForceVerboseStackLogs = false;
     public static bool DebugMode;
     public static VMCodeInstruction? CurrentInstruction;
     
@@ -240,6 +230,18 @@ public static partial class VMExecutor
                     var stackStr = "{ ";
                     foreach (var item in Call.Stack)
                     {
+                        if (item.value is string str)
+                        {
+                            if (str.Length > 80)
+                            {
+                                str = str[..80] + $"[{str.Length - 80} more characters...]";
+                                str = str.Replace("\n", "\\n");
+                            }
+
+                            stackStr += $"{str}, ";
+                            continue;
+                        }
+
                         stackStr += $"{item}, ";
                     }
 
@@ -659,7 +661,7 @@ public static partial class VMExecutor
 
                 //DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
 
-                Call.Stack.Push(ExecuteCode(method.func.GetCode(), method.inst, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
+                Call.Stack.Push(ExecuteCode(method.func.GetCode(), context, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
 
                 break;
             }

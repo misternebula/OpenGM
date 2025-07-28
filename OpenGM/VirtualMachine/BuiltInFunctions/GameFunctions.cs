@@ -98,7 +98,7 @@ public static class GameFunctions
     {
         var obj = args[0].Conv<int>();
 
-        GamemakerObject objToCheck = null!;
+        GamemakerObject? objToCheck = null;
 
         if (obj == GMConstants.other)
         {
@@ -107,12 +107,17 @@ public static class GameFunctions
         else if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             // object index
-            objToCheck = InstanceManager.FindByAssetId(obj).First();
+            objToCheck = InstanceManager.FindByAssetId(obj).FirstOrDefault();
         }
         else
         {
             // instance id
-            objToCheck = InstanceManager.FindByInstanceId(obj)!;
+            objToCheck = InstanceManager.FindByInstanceId(obj);
+        }
+
+        if (objToCheck is null)
+        {
+            return 1e10;
         }
 
         // compute bounding boxes if needed

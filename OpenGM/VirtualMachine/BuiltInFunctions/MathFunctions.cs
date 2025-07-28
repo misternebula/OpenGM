@@ -142,7 +142,18 @@ public static class MathFunctions
         return array[index];
     }
 
-    // array_set
+    [GMLFunction("array_set")]
+    public static object? array_set(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+        var value = args[2];
+
+        variable[index] = value;
+
+        return null;
+    }
+
     // array_set_pre
     // array_set_post
     // array_get_2D
@@ -162,7 +173,29 @@ public static class MathFunctions
         return newArray;
     }
 
-    // array_copy
+    [GMLFunction("array_copy")]
+    public static object? array_copy(object?[] args)
+    {
+        // TODO: account for negative values, check if the result is as expected
+        var dest = args[0].Conv<IList>();
+        var destIndex = args[1].Conv<int>();
+        var src = args[2].Conv<IList>();
+        var srcIndex = args[3].Conv<int>();
+        var length = args[4].Conv<int>();
+
+        var targetLength = destIndex + length;
+        while (dest.Count < targetLength)
+        {
+            dest.Add(null);
+        }
+
+        for (var i = 0; i < length; i++)
+        {
+            dest[destIndex + i] = src[srcIndex + i];
+        }
+
+        return null;
+    }
 
     [GMLFunction("array_resize")]
     public static object? array_resize(object?[] args)
@@ -202,7 +235,21 @@ public static class MathFunctions
         return null;
     }
 
-    // array_pop
+    [GMLFunction("array_pop")]
+    public static object? array_pop(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        if (variable.Count == 0)
+        {
+            return null;
+        }
+
+        var end = variable.Count - 1;
+        var value = variable[end];
+        variable.RemoveAt(end);
+        return value;
+    }
+
     // array_insert
 
     [GMLFunction("array_delete")]
