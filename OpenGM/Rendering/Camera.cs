@@ -111,7 +111,7 @@ public class Camera
                 t = ViewY + SpeedY;
         }
 
-        ViewX = l - ViewWidth;
-        ViewY = t - ViewHeight;
+        ViewX = l;
+        ViewY = t;
     }
 }
