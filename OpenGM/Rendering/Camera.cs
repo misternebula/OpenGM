@@ -106,8 +106,8 @@ public class Camera
         var v2 = new Vector3(x, y, 0);
         var v3 = new Vector3((float)Math.Sin(-ViewAngle * CustomMath.Deg2Rad), (float)Math.Cos(-ViewAngle * CustomMath.Deg2Rad), 0);
 
-        var viewMat = Matrix4.LookAt(v1, v2, v3);
-        var projMat = Matrix4.CreateOrthographic(ViewWidth, ViewHeight, 1, 32000);
+        var viewMat = Matrix4.LookAt(v2, v1, v3);
+        var projMat = Matrix4.CreateOrthographic(ViewWidth, ViewHeight, 0, 32000);
 
         SetViewMat(viewMat);
         SetProjMat(projMat);
