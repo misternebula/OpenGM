@@ -48,7 +48,7 @@ public static class VariableResolver
             }
         }
 
-        if (onlyGrow) return;
+        if (onlyGrow) return; // TODO: should we call the setter here too just in case?
 
         var arrayType = array.GetType();
 
@@ -74,6 +74,8 @@ public static class VariableResolver
         {
             array[index] = value;
         }
+
+        setter(array); // allow any custom code in the setter to run
     }
 
     public static readonly Dictionary<string, object?> GlobalVariables = new();
