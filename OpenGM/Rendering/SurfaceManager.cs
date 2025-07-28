@@ -39,7 +39,7 @@ public static class SurfaceManager
         
         // even if drawing to a view surface or app surface, itll use the whole area
 
-        GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
+        //GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
 
         return true;
     }
@@ -57,7 +57,7 @@ public static class SurfaceManager
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
 
-        GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
+        //GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
 
         return true;
     }
