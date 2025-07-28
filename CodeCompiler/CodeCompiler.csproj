@@ -23,4 +23,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Scripts\Undertale\" />
+  </ItemGroup>
+
 </Project>

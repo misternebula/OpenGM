@@ -10,16 +10,28 @@ namespace CodeCompiler;
 internal class Program
 {
 	private static string GamePath = "";
+    private static string ScriptsFolder = "";
 
 	static void Main(string[] args)
-	{
-		GamePath = Path.GetFullPath(Environment.CurrentDirectory + "../../../OpenGM/bin/game");
+    {
+        GamePath = Path.GetFullPath(Environment.CurrentDirectory + "../../../OpenGM/bin/game");
 
-		CompileScripts(Path.Combine(GamePath, "data.win"), Directory.GetFiles("Scripts"));
-		CompileScripts(GetChapterDataWin(1), GetChapterScripts(1));
-		CompileScripts(GetChapterDataWin(2), GetChapterScripts(2));
-		CompileScripts(GetChapterDataWin(3), GetChapterScripts(3));
-		CompileScripts(GetChapterDataWin(4), GetChapterScripts(4));
+        var game = args[0];
+        switch (game)
+        {
+            case "deltarune":
+                ScriptsFolder = Path.Combine("Scripts", "Deltarune");
+                CompileScripts(Path.Combine(GamePath, "data.win"), Directory.GetFiles(ScriptsFolder));
+                CompileScripts(GetChapterDataWin(1), GetChapterScripts(1));
+                CompileScripts(GetChapterDataWin(2), GetChapterScripts(2));
+                CompileScripts(GetChapterDataWin(3), GetChapterScripts(3));
+                CompileScripts(GetChapterDataWin(4), GetChapterScripts(4));
+                break;
+            case "undertale":
+                ScriptsFolder = Path.Combine("Scripts", "Undertale");
+                CompileScripts(Path.Combine(GamePath, "data.win"), Directory.GetFiles(ScriptsFolder));
+                break;
+        }
 	}
 
 	public static string GetChapterDataWin(int chapterNum)
@@ -29,7 +41,7 @@ internal class Program
 
 	public static string[]? GetChapterScripts(int chapterNum)
 	{
-		var scriptsFolder = Path.Combine("Scripts", $"chapter{chapterNum}_windows");
+		var scriptsFolder = Path.Combine(ScriptsFolder, $"chapter{chapterNum}_windows");
 		return !Path.Exists(scriptsFolder) ? null : Directory.GetFiles(scriptsFolder);
 	}
 
