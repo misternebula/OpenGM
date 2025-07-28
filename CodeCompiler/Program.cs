@@ -47,24 +47,24 @@ internal class Program
 
 	public static void CompileScripts(string winPath, string[]? scriptPaths)
 	{
-		if (scriptPaths == null || scriptPaths.Length == 0)
-		{
-			return;
-		}
+        var asmFolder = Path.Combine(Path.GetDirectoryName(winPath)!, "replacement_scripts");
+        Directory.CreateDirectory(asmFolder);
 
-		Console.WriteLine($"Creating FileStream...");
+        Console.WriteLine($"Clearing output folder...");
+        foreach (var file in Directory.GetFiles(asmFolder))
+        {
+            File.Delete(file);
+        }
+
+        if (scriptPaths == null || scriptPaths.Length == 0)
+        {
+            return;
+        }
+
+        Console.WriteLine($"Creating FileStream...");
 		using var stream = new FileStream(winPath, FileMode.Open, FileAccess.Read);
 		Console.WriteLine($"Reading data.win...");
 		var data = UndertaleIO.Read(stream);
-
-		var asmFolder = Path.Combine(Path.GetDirectoryName(winPath)!, "replacement_scripts");
-		Directory.CreateDirectory(asmFolder);
-
-		Console.WriteLine($"Clearing output folder...");
-		foreach (var file in Directory.GetFiles(asmFolder))
-		{
-			File.Delete(file);
-		}
 
 		var compileGroup = new CompileGroup(data);
 		var codeNames = new List<string>();
