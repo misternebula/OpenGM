@@ -252,8 +252,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // font_get_italic
         // font_get_first
         // font_get_last
-        // font_add_enable_aa
-        // font_add_get_enable_aa
+
+        [GMLFunction("font_add_enable_aa", GMLFunctionFlags.Stub)]
+        public static object? font_add_enable_aa(object?[] args)
+        {
+            // html runner also stubs these out so lol lmao
+            return null;
+        }
+
+        [GMLFunction("font_add_get_enable_aa", GMLFunctionFlags.Stub)]
+        public static object? font_add_get_enable_aa(object?[] args)
+        {
+            // html runner also stubs these out so lol lmao
+            return false;
+        }
+
         // font_add
         // font_add_sprite
 
@@ -299,7 +312,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 };
 
                 newFont.entries.Add(fontAssetEntry);
-                newFont.entriesDict.Add(fontAssetEntry.characterIndex, fontAssetEntry);
+                newFont.entriesDict[fontAssetEntry.characterIndex] = fontAssetEntry;
             }
 
             TextManager.FontAssets.Add(newFont);

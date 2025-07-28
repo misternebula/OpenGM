@@ -133,6 +133,7 @@ public static partial class VMExecutor
     }
 
     public static bool VerboseStackLogs;
+    public static bool ForceVerboseStackLogs = false;
     public static bool DebugMode;
     public static VMCodeInstruction? CurrentInstruction;
     

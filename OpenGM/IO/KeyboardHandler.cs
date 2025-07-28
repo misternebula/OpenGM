@@ -214,7 +214,7 @@ public class KeyboardHandler
         }
 
         // debug
-        VMExecutor.VerboseStackLogs = state.IsKeyDown(Keys.F1);
+        VMExecutor.VerboseStackLogs = VMExecutor.ForceVerboseStackLogs || state.IsKeyDown(Keys.F1);
 
         if (state.IsKeyDown(Keys.F2))
         {

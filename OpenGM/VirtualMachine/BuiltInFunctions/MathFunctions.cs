@@ -202,7 +202,21 @@ public static class MathFunctions
         return null;
     }
 
-    // array_pop
+    [GMLFunction("array_pop")]
+    public static object? array_pop(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        if (variable.Count == 0)
+        {
+            return null;
+        }
+
+        var end = variable.Count - 1;
+        var value = variable[end];
+        variable.RemoveAt(end);
+        return value;
+    }
+
     // array_insert
 
     [GMLFunction("array_delete")]

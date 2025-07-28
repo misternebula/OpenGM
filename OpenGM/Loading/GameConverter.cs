@@ -1223,7 +1223,7 @@ public static class GameConverter
 
                 // i cant remember why theres two of this lol
                 fontAsset.entries.Add(glyphAsset);
-                fontAsset.entriesDict.Add(glyphAsset.characterIndex, glyphAsset);
+                fontAsset.entriesDict[glyphAsset.characterIndex] = glyphAsset;
             }
 
             writer.WriteMemoryPack(fontAsset);

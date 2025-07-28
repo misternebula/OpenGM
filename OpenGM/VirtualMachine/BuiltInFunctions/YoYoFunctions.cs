@@ -49,6 +49,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return GameLoader.GeneralInfo.IsYYC;
         }
 
+        // used by PT
+        [GMLFunction("switch_get_operation_mode", GMLFunctionFlags.Stub)]
+        public static object? switch_get_operation_mode(object?[] args)
+        {
+            return null;
+        }
+
         // ...
 
         private static DataSource? VideoDataSource;

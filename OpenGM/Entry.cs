@@ -156,6 +156,11 @@ internal class Entry
 
                     break;
 
+                case "--stack-logs":
+                    VMExecutor.VerboseStackLogs = true;
+                    VMExecutor.ForceVerboseStackLogs = true;
+                    break;
+
                 case "--":
                     endOfOptions = true;
                     break;
