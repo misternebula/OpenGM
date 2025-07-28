@@ -1,5 +1,6 @@
 ﻿using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace OpenGM.IO;
@@ -26,6 +27,8 @@ public class KeyboardHandler
     public static bool[] MousePressed = new bool[5];
     public static bool[] MouseReleased = new bool[5];
 
+    public static Vector2 MousePos = new();
+
     public static void UpdateMouseState(MouseState state)
     {
         var mouseButtons = new[] { MouseButton.Left, MouseButton.Middle, MouseButton.Right, MouseButton.Button1, MouseButton.Button2 };
@@ -39,6 +42,9 @@ public class KeyboardHandler
             MouseReleased[i] = !isDown && wasDown;
             MouseDown[i] = isDown;
         }
+
+        MousePos.X = state.X;
+        MousePos.Y = state.Y;
     }
 
     /// <summary>
@@ -208,7 +214,7 @@ public class KeyboardHandler
         }
 
         // debug
-        VMExecutor.VerboseStackLogs = state.IsKeyDown(Keys.F1);
+        VMExecutor.VerboseStackLogs = VMExecutor.ForceVerboseStackLogs || state.IsKeyDown(Keys.F1);
 
         if (state.IsKeyDown(Keys.F2))
         {

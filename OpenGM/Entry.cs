@@ -156,6 +156,11 @@ internal class Entry
 
                     break;
 
+                case "--stack-logs":
+                    VMExecutor.VerboseStackLogs = true;
+                    VMExecutor.ForceVerboseStackLogs = true;
+                    break;
+
                 case "--":
                     endOfOptions = true;
                     break;
@@ -200,6 +205,7 @@ internal class Entry
         GameLoader.LoadGame();
         VersionManager.Init();
         ScriptResolver.InitGMLFunctions(); // needs version stuff
+        ExtensionManager.Init();
 
         VMExecutor.EnvStack.Clear();
         VMExecutor.CallStack.Clear();

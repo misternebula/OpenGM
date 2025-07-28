@@ -13,6 +13,8 @@ public class CustomWindow : GameWindow
 
     public static List<GMBaseJob> DebugJobs = new();
 
+    public double DeltaTime = 0.0;
+
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -53,6 +55,8 @@ public class CustomWindow : GameWindow
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         base.OnUpdateFrame(args);
+
+        DeltaTime = args.Time;
 
         ViewportManager.UpdateViews();
 

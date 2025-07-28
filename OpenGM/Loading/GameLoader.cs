@@ -38,6 +38,7 @@ public static class GameLoader
         AssetIndexManager.LoadAssetIndexes(reader);
         LoadScripts(reader);
         LoadCode(reader);
+        LoadExtensions(reader);
         LoadGlobalInitCode(reader);
         LoadObjects(reader);
         LoadBackgrounds(reader);
@@ -121,6 +122,22 @@ public static class GameLoader
             File.WriteAllText("used functions.txt", string.Join('\n', allUsedFunctions2));
         }
 
+        Console.WriteLine($" Done!");
+    }
+
+    private static void LoadExtensions(BinaryReader reader)
+    {
+        Console.Write($"Loading extensions...");
+
+        ExtensionManager.Extensions.Clear();
+
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<Extension>();
+
+            ExtensionManager.Extensions.Add(asset);
+        }
         Console.WriteLine($" Done!");
     }
 

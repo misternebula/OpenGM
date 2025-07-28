@@ -36,6 +36,30 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return Monitors.GetPrimaryMonitor().VerticalResolution;
         }
 
+        [GMLFunction("display_get_gui_width", GMLFunctionFlags.Stub)]
+        public static object display_get_gui_width(object?[] args)
+        {
+            return window_get_width(args);
+        }
+
+        [GMLFunction("display_get_gui_height", GMLFunctionFlags.Stub)]
+        public static object display_get_gui_height(object?[] args)
+        {
+            return window_get_height(args);
+        }
+    
+        [GMLFunction("display_get_dpi_x", GMLFunctionFlags.Stub)]
+        public static object display_get_dpi_x(object?[] args)
+        {
+            return 1;
+        }
+    
+        [GMLFunction("display_get_dpi_y", GMLFunctionFlags.Stub)]
+        public static object display_get_dpi_y(object?[] args)
+        {
+            return 1;
+        }
+
         // display_get_frequency
         // display_get_orientation
         // diplay_reset
@@ -1509,8 +1533,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
 
-            var sizeWidth = spriteTex.TargetWidth;
-            var sizeHeight = spriteTex.TargetHeight;
+            var sizeWidth = spriteTex.TargetWidth * xscale;
+            var sizeHeight = spriteTex.TargetHeight * yscale;
 
             var tempX = x;
             var tempY = y;

@@ -39,6 +39,8 @@ public static class SurfaceManager
         
         // even if drawing to a view surface or app surface, itll use the whole area
 
+        GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
+
         return true;
     }
 
@@ -54,6 +56,8 @@ public static class SurfaceManager
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
+
+        GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
 
         return true;
     }
@@ -325,5 +329,16 @@ public static class SurfaceManager
             x, y, x + ws, y + hs,
             ClearBufferMask.ColorBufferBit,
             BlitFramebufferFilter.Nearest);
+    }
+
+    public static byte[] ReadPixels(int surfaceId, int x, int y, int w, int h)
+    {
+        BindSurfaceTexture(surfaceId);
+
+        var pixels = new byte[w * h * 4];
+        GL.ReadPixels(x, y, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        return pixels;
     }
 }

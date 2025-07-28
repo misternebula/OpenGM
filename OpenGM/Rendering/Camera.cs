@@ -208,8 +208,8 @@ public class Camera
                 t = ViewY + SpeedY;
         }
 
-        ViewX = l - ViewWidth;
-        ViewY = t - ViewHeight;
+        ViewX = l;
+        ViewY = t;
 
         Build2DView(l + halfHeight, t + halfHeight);
     }

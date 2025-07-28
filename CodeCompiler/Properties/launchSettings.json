@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "CC Deltarune": {
+      "commandName": "Project",
+      "commandLineArgs": "deltarune"
+    },
+    "CC Undertale": {
+      "commandName": "Project",
+      "commandLineArgs": "undertale"
+    }
+  }
+}

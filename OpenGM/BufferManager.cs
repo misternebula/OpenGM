@@ -15,7 +15,8 @@ public static class BufferManager
         {
             Data = new byte[size],
             Alignment = alignment,
-            Type = type
+            Type = type,
+            Size = size
         };
 
         if (srcBuffer != null && srcBuffer.Length > 0)
@@ -57,6 +58,7 @@ public static class BufferManager
         return newId;
     }
 
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/12fd29600c6cd12f6663059b7a7c15fb8740080f/scripts/yyBuffer.js#L512
     public static object ReadBuffer(int bufferIndex, BufferDataType type)
     {
         DebugLog.Log($"ReadBuffer index:{bufferIndex} type:{type}");
@@ -64,22 +66,22 @@ public static class BufferManager
         var buffer = Buffers[bufferIndex];
 
         // Deal with basic alignment first
-        buffer.SeekPosition = (((buffer.SeekPosition + buffer.AlignmentOffset) + (buffer.Alignment - 1)) & ~(buffer.Alignment - 1)) - buffer.AlignmentOffset;
+        buffer.BufferIndex = (((buffer.BufferIndex + buffer.AlignmentOffset) + (buffer.Alignment - 1)) & ~(buffer.Alignment - 1)) - buffer.AlignmentOffset;
 
-        if (buffer.SeekPosition >= buffer.Data.Length - 1 && buffer.Type == BufferType.Wrap)
+        if (buffer.BufferIndex >= buffer.Size && buffer.Type == BufferType.Wrap)
         {
             // while loop incase its a stupid alignment on a small buffer
-            while (buffer.SeekPosition >= buffer.Data.Length - 1)
+            while (buffer.BufferIndex >= buffer.Size)
             {
                 buffer.CalculateNextAlignmentOffset();
-                buffer.SeekPosition -= buffer.Data.Length - 1;
+                buffer.BufferIndex -= buffer.Size;
             }
         }
 
         // Out of space?
-        if (buffer.SeekPosition >= buffer.Data.Length - 1)
+        if (buffer.BufferIndex >= buffer.Size)
         {
-            return type == BufferDataType.buffer_string ? "" : -3;
+            return type == BufferDataType.buffer_string ? "" : -3; // eBuffer_OutOfBounds
         }
 
         object res = null!;
@@ -89,7 +91,7 @@ public static class BufferManager
         switch (type)
         {
             case BufferDataType.buffer_bool:
-                var byteVal = buffer.Data[buffer.SeekPosition++];
+                var byteVal = buffer.Data[buffer.BufferIndex++];
                 if (byteVal == 1)
                 {
                     res = true;
@@ -100,7 +102,7 @@ public static class BufferManager
                 }
                 break;
             case BufferDataType.buffer_u8:
-                res = buffer.Data[buffer.SeekPosition++];
+                res = buffer.Data[buffer.BufferIndex++];
                 break;
             case BufferDataType.buffer_string:
             case BufferDataType.buffer_text:
@@ -108,11 +110,11 @@ public static class BufferManager
                 string? chr;
                 byte chrCode = 0;
 
-                while (buffer.SeekPosition < buffer.UsedSize)
+                while (buffer.BufferIndex < buffer.UsedSize)
                 {
                     var v = 0;
                     chr = null;
-                    chrCode = buffer.Data[buffer.SeekPosition++];
+                    chrCode = buffer.Data[buffer.BufferIndex++];
 
                     if ((chrCode & 0x80) == 0)
                     {
@@ -121,25 +123,25 @@ public static class BufferManager
                     else if ((chrCode & 0xe0) == 0xc0)
                     {
                         v = (chrCode & 0x1f) << 6;
-                        chrCode = buffer.Data[buffer.SeekPosition++];
+                        chrCode = buffer.Data[buffer.BufferIndex++];
                         v |= (chrCode & 0x3f);
                     }
                     else if ((chrCode & 0xf0) == 0xe0)
                     {
                         v = (chrCode & 0x0f) << 12;
-                        chrCode = buffer.Data[buffer.SeekPosition++];
+                        chrCode = buffer.Data[buffer.BufferIndex++];
                         v |= (chrCode & 0x3f) << 6;
-                        chrCode = buffer.Data[buffer.SeekPosition++];
+                        chrCode = buffer.Data[buffer.BufferIndex++];
                         v |= (chrCode & 0x3f);
                     }
                     else
                     {
                         v = (chrCode & 0x07) << 18;
-                        chrCode = buffer.Data[buffer.SeekPosition++];
+                        chrCode = buffer.Data[buffer.BufferIndex++];
                         v |= (chrCode & 0x3f) << 12;
-                        chrCode = buffer.Data[buffer.SeekPosition++];
+                        chrCode = buffer.Data[buffer.BufferIndex++];
                         v |= (chrCode & 0x3f) << 6;
-                        chrCode = buffer.Data[buffer.SeekPosition++];
+                        chrCode = buffer.Data[buffer.BufferIndex++];
                         v |= (chrCode & 0x3f);
                         chr = new string((char)((v >> 10) + 0xD7C0), 1) + new string((char)((v & 0x3FF) | 0xDC00), 1);
                     }
@@ -159,14 +161,14 @@ public static class BufferManager
 
                 break;
             case BufferDataType.buffer_s8:
-                res = (sbyte)buffer.Data[buffer.SeekPosition++];
+                res = (sbyte)buffer.Data[buffer.BufferIndex++];
                 break;
             case BufferDataType.buffer_u16:
             {
                 var bytes = new[]
                 {
-                    buffer.Data[buffer.SeekPosition++], 
-                    buffer.Data[buffer.SeekPosition++]
+                    buffer.Data[buffer.BufferIndex++], 
+                    buffer.Data[buffer.BufferIndex++]
                 };
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
@@ -177,8 +179,8 @@ public static class BufferManager
             {
                 var bytes = new[]
                 {
-                    buffer.Data[buffer.SeekPosition++], 
-                    buffer.Data[buffer.SeekPosition++]
+                    buffer.Data[buffer.BufferIndex++], 
+                    buffer.Data[buffer.BufferIndex++]
                 };
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
@@ -191,10 +193,10 @@ public static class BufferManager
             {
                 var bytes = new[]
                 {
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++]
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++]
                 };
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
@@ -205,10 +207,10 @@ public static class BufferManager
             {
                 var bytes = new[]
                 {
-                    buffer.Data[buffer.SeekPosition++], 
-                    buffer.Data[buffer.SeekPosition++], 
-                    buffer.Data[buffer.SeekPosition++], 
-                    buffer.Data[buffer.SeekPosition++]
+                    buffer.Data[buffer.BufferIndex++], 
+                    buffer.Data[buffer.BufferIndex++], 
+                    buffer.Data[buffer.BufferIndex++], 
+                    buffer.Data[buffer.BufferIndex++]
                 };
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
@@ -221,14 +223,14 @@ public static class BufferManager
             {
                 var bytes = new[]
                 {
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++],
-                    buffer.Data[buffer.SeekPosition++]
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++],
+                    buffer.Data[buffer.BufferIndex++]
                 };
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
@@ -286,7 +288,7 @@ public static class BufferManager
 
     public static void BufferSetSurface(int bufferId, int surfaceId, int offset)
     {
-        // Copy data from buffer into surface
+        // Copy buffer data to surface
 
         var buffer = Buffers[bufferId];
 
@@ -309,5 +311,31 @@ public static class BufferManager
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
         GL.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
+    public static void BufferGetSurface(int bufferId, int surfaceId, int offset)
+    {
+        // Copy surface data to buffer
+
+        var buffer = Buffers[bufferId];
+
+        if (buffer == null || !SurfaceManager.surface_exists(surfaceId))
+        {
+            return;
+        }
+
+        var pixels = SurfaceManager.ReadPixels(surfaceId, 0, 0, SurfaceManager.GetSurfaceWidth(surfaceId), SurfaceManager.GetSurfaceHeight(surfaceId));
+
+        if (buffer.Type == BufferType.Grow && offset + pixels.Length > buffer.Size)
+        {
+            buffer.Resize(offset + pixels.Length);
+        }
+
+        for (var i = 0; i < pixels.Length; i++)
+        {
+            buffer.Poke(BufferDataType.buffer_u8, i, pixels[i]);
+        }
+
+        pixels = null; // probably not needed
     }
 }

@@ -7,6 +7,8 @@ public static class FileFunctions
 {
     private static readonly Dictionary<int, FileHandle> _fileHandles = new(32);
     private static IniFile? _iniFile;
+    private static FileInfo[]? _findFile;
+    private static int _findFileIdx;
 
     // file_bin_open
     // file_bin_rewrite
@@ -237,9 +239,45 @@ public static class FileFunctions
     // directory_exists
     // directory_create
     // directory_destroy
-    // file_find_first
-    // file_find_next
-    // file_find_close
+    
+    [GMLFunction("file_find_first", GMLFunctionFlags.Stub)]
+    public static object? file_find_first(object?[] args)
+    {
+        var mask = args[0].Conv<string>();
+        var attr = args[1].Conv<int>(); // TODO: do something with attr
+
+        var folder = Directory.GetParent(Path.Combine(Entry.DataWinFolder, mask));
+        var filename = Path.GetFileName(mask);
+        if (folder == null)
+        {
+            return "";
+        }
+
+        _findFile = folder.GetFiles(filename);
+        _findFileIdx = 0;
+        return _findFile.ElementAtOrDefault(_findFileIdx)?.Name ?? "";
+    }
+
+    [GMLFunction("file_find_next", GMLFunctionFlags.Stub)]
+    public static object? file_find_next(object?[] args)
+    {
+        if (_findFile == null)
+        {
+            return ""; // idk if this is supposed to error or what
+        }
+
+        _findFileIdx++;
+        return _findFile.ElementAtOrDefault(_findFileIdx)?.Name ?? "";
+    }
+
+    [GMLFunction("file_find_close", GMLFunctionFlags.Stub)]
+    public static object? file_find_close(object?[] args)
+    {
+        _findFile = null;
+        _findFileIdx = 0;
+        return null;
+    }
+
     // file_attributes
     // filename_name
     // filename_path
@@ -269,7 +307,20 @@ public static class FileFunctions
         return Environment.GetEnvironmentVariable(name);
     }
 
-    // ini_open_from_string
+    [GMLFunction("ini_open_from_string")]
+    public static object? ini_open_from_string(object?[] args)
+    {
+        var content = args[0].Conv<string>();
+
+        if (_iniFile != null)
+        {
+            ini_close(new object[0]);
+        }
+
+        _iniFile = IniFile.FromContent(content);
+
+        return null;
+    }
 
     [GMLFunction("ini_open")]
     public static object? ini_open(object?[] args)
@@ -293,38 +344,9 @@ public static class FileFunctions
             return null;
         }
 
-        var lines = File.ReadAllLines(filepath);
-
-        KeyValuePair<string, string> ParseKeyValue(string line)
-        {
-            var lineByEquals = line.Split('=');
-            var key = lineByEquals[0].Trim();
-            var value = lineByEquals[1].Trim();
-            value = value.Trim('"');
-            return new KeyValuePair<string, string>(key, value);
-        }
-
-        _iniFile = new IniFile { Name = name };
-        IniSection? currentSection = null;
-
-        for (var i = 0; i < lines.Length; i++)
-        {
-            var currentLine = lines[i];
-            if (currentLine.StartsWith('[') && currentLine.EndsWith("]"))
-            {
-                currentSection = new IniSection(currentLine.TrimStart('[').TrimEnd(']'));
-                _iniFile.Sections.Add(currentSection);
-                continue;
-            }
-
-            if (string.IsNullOrEmpty(currentLine))
-            {
-                continue;
-            }
-
-            var keyvalue = ParseKeyValue(currentLine);
-            currentSection?.Dict.Add(keyvalue.Key, keyvalue.Value);
-        }
+        var text = File.ReadAllText(filepath);
+        _iniFile = IniFile.FromContent(text);
+        _iniFile.Name = name;
 
         return null;
     }
@@ -337,27 +359,23 @@ public static class FileFunctions
             return null;
         }
 
-        var filepath = Path.Combine(Entry.DataWinFolder, _iniFile!.Name);
-        File.Delete(filepath);
-        var fileStream = new FileStream(filepath, FileMode.Append, FileAccess.Write);
-        var streamWriter = new StreamWriter(fileStream);
+        var text = _iniFile.ToString();
 
-        foreach (var section in _iniFile.Sections)
+        if (_iniFile.Name is not null)
         {
-            streamWriter.WriteLine($"[{section.Name}]");
-            foreach (var kv in section.Dict)
-            {
-                streamWriter.WriteLine($"{kv.Key}=\"{kv.Value}\"");
-            }
+            var filepath = Path.Combine(Entry.DataWinFolder, _iniFile!.Name);
+            File.Delete(filepath);
+            var fileStream = new FileStream(filepath, FileMode.Append, FileAccess.Write);
+            var streamWriter = new StreamWriter(fileStream);
+
+            streamWriter.Write(text);
+            streamWriter.Close();
+            streamWriter.Dispose();
         }
 
-        var text = streamWriter.ToString();
-
-        streamWriter.Close();
-        streamWriter.Dispose();
         _iniFile = null;
 
-        return text; // BUG: this does NOT return the written text
+        return text;
     }
 
     [GMLFunction("ini_read_string")]

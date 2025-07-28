@@ -17,7 +17,8 @@ public static class MathFunctions
     [GMLFunction("is_string")]
     public static object is_string(object?[] args) => args[0] is string;
 
-    // is_array
+    [GMLFunction("is_array")]
+    public static object is_array(object?[] args) => args[0] is IList;
 
     [GMLFunction("is_undefined")]
     public static object is_undefined(object?[] args) => args[0] is null;
@@ -141,7 +142,18 @@ public static class MathFunctions
         return array[index];
     }
 
-    // array_set
+    [GMLFunction("array_set")]
+    public static object? array_set(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+        var value = args[2];
+
+        variable[index] = value;
+
+        return null;
+    }
+
     // array_set_pre
     // array_set_post
     // array_get_2D
@@ -154,15 +166,36 @@ public static class MathFunctions
     public static object? array_create(object?[] args)
     {
         var size = args[0].Conv<int>();
-        var value = args[1];
+        var value = args.ElementAtOrDefault(1) ?? 0;
 
-        var newArray = new object?[size];
-        Array.Fill(newArray, value);
+        var newArray = Enumerable.Repeat(value, size).ToList();
 
         return newArray;
     }
 
-    // array_copy
+    [GMLFunction("array_copy")]
+    public static object? array_copy(object?[] args)
+    {
+        // TODO: account for negative values, check if the result is as expected
+        var dest = args[0].Conv<IList>();
+        var destIndex = args[1].Conv<int>();
+        var src = args[2].Conv<IList>();
+        var srcIndex = args[3].Conv<int>();
+        var length = args[4].Conv<int>();
+
+        var targetLength = destIndex + length;
+        while (dest.Count < targetLength)
+        {
+            dest.Add(null);
+        }
+
+        for (var i = 0; i < length; i++)
+        {
+            dest[destIndex + i] = src[srcIndex + i];
+        }
+
+        return null;
+    }
 
     [GMLFunction("array_resize")]
     public static object? array_resize(object?[] args)
@@ -202,7 +235,21 @@ public static class MathFunctions
         return null;
     }
 
-    // array_pop
+    [GMLFunction("array_pop")]
+    public static object? array_pop(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        if (variable.Count == 0)
+        {
+            return null;
+        }
+
+        var end = variable.Count - 1;
+        var value = variable[end];
+        variable.RemoveAt(end);
+        return value;
+    }
+
     // array_insert
 
     [GMLFunction("array_delete")]
@@ -638,6 +685,33 @@ public static class MathFunctions
     [GMLFunction("string")]
     public static object @string(params object?[] args)
     {
+        static string StringifyDict(Dictionary<string, object?> dict)
+        {
+            var result = "{ ";
+
+            var i = 0;
+            foreach (var kv in dict)
+            {
+                result += $"\"{kv.Key}\": ";
+
+                result += kv.Value switch
+                {
+                    Dictionary<string, object?> otherDict => StringifyDict(otherDict),
+                    _ => @string([kv.Value])
+                };
+
+                if (i < dict.Count - 1)
+                {
+                    result += ", ";
+                }
+
+                i++;
+            }
+
+            result += " }";
+            return result;
+        }
+
         var valueOrFormat = args[0];
 
         var values = new object?[] { };
@@ -739,9 +813,17 @@ public static class MathFunctions
                     ? truncated.ToString()
                     : Math.Round(truncated, 2).ToString();
             }
+            else if (valueOrFormat is GMLObject obj)
+            {
+                return StringifyDict(obj.SelfVariables);
+            }
+            else if (valueOrFormat is Dictionary<string, object?> dict)
+            {
+                return StringifyDict(dict);
+            }
             else
             {
-                return (string)valueOrFormat;
+                return valueOrFormat.ToString() ?? "[unknown]";
             }
         }
     }
@@ -874,7 +956,25 @@ public static class MathFunctions
         return str[index - 1].ToString();
     }
 
-    // string_ord_at
+    [GMLFunction("string_ord_at")]
+    public static object string_ord_at(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+        var index = args[1].Conv<int>();
+
+        if (string.IsNullOrEmpty(str) || index > str.Length)
+        {
+            return -1;
+        }
+
+        if (index <= 0)
+        {
+            return (int)str[0];
+        }
+
+        return (int)str[index - 1];
+    }
+
     // string_byte_length
     // string_byte_at
     // string_set_byte_at
@@ -896,7 +996,7 @@ public static class MathFunctions
         var str = args[1].Conv<string>();
         var index = args[2].Conv<int>();
 
-        return str.Insert(index - 1, substr);
+        return str.Insert(Math.Min(index - 1, str.Length), substr);
     }
 
     [GMLFunction("string_lower")]

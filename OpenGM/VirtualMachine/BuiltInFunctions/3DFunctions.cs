@@ -451,7 +451,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // gpu_set_texfilter
+        [GMLFunction("gpu_set_texfilter", GMLFunctionFlags.Stub)]
+        public static object? gpu_set_texfilter(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("gpu_set_texfilter_ext", GMLFunctionFlags.Stub)]
         public static object? gpu_set_texfilter_ext(object?[] args)
