@@ -601,8 +601,7 @@ public static partial class VMExecutor
                 
                 // by the magic of reference types this will be set properly
                 VariableResolver.ArraySet(index, value,
-                    () => array,
-                    _ => throw new UnreachableException("this is called when getter is null"));
+                    () => array);
 
                 break;
             }

@@ -17,14 +17,21 @@ public static class VariableResolver
     /// </summary>
     public static void ArraySet(int index, object? value,
         Func<IList?> getter,
-        Action<IList> setter,
+        Action<IList>? setter = null,
         bool onlyGrow = false)
     {
         var array = getter();
         if (array == null)
         {
             array = new List<object?>();
-            setter(array);
+            if (setter != null)
+            {
+                setter(array);
+            }
+            else
+            {
+                throw new Exception("setter and getter are null?!");
+            }
         }
 
         if (index >= array.Count)
@@ -75,7 +82,10 @@ public static class VariableResolver
             array[index] = value;
         }
 
-        setter(array); // allow any custom code in the setter to run
+        if (setter != null)
+        {
+            setter(array); // allow any custom code in the setter to run
+        }
     }
 
     public static readonly Dictionary<string, object?> GlobalVariables = new();
