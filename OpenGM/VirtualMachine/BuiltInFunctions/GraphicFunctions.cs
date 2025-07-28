@@ -1533,8 +1533,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
 
-            var sizeWidth = spriteTex.TargetWidth;
-            var sizeHeight = spriteTex.TargetHeight;
+            var sizeWidth = spriteTex.TargetWidth * xscale;
+            var sizeHeight = spriteTex.TargetHeight * yscale;
 
             var tempX = x;
             var tempY = y;
