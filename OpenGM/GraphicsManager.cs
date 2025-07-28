@@ -55,6 +55,8 @@ public static class GraphicsManager
         GL.EnableVertexAttribArray(1);
         GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), (2 + 4) * sizeof(float));
         GL.EnableVertexAttribArray(2);
+
+        ShaderManager.CompileShaders();
     }
 
     /// <summary>
