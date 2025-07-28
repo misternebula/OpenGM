@@ -37,7 +37,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return -1;
         }
 
-        // shader_set_uniform_i
+        [GMLFunction("shader_set_uniform_i", GMLFunctionFlags.Stub)]
+        public static object? shader_set_uniform_i(object?[] args)
+        {
+            return null;
+        }
+
         // shader_set_uniform_i_array
 
         [GMLFunction("shader_set_uniform_f", GMLFunctionFlags.Stub)]

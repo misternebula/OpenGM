@@ -47,6 +47,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             return window_get_height(args);
         }
+    
+        [GMLFunction("display_get_dpi_x", GMLFunctionFlags.Stub)]
+        public static object display_get_dpi_x(object?[] args)
+        {
+            return 1;
+        }
+    
+        [GMLFunction("display_get_dpi_y", GMLFunctionFlags.Stub)]
+        public static object display_get_dpi_y(object?[] args)
+        {
+            return 1;
+        }
 
         // display_get_frequency
         // display_get_orientation

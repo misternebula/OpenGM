@@ -173,6 +173,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
+        [GMLFunction("device_mouse_x_to_gui", GMLFunctionFlags.Stub)]
+        public static object? device_mouse_x_to_gui(object?[] args)
+        {
+            return 0;
+        }
+
+        [GMLFunction("device_mouse_y_to_gui", GMLFunctionFlags.Stub)]
+        public static object? device_mouse_y_to_gui(object?[] args)
+        {
+            return 0;
+        }
+
         // device_mouse_dbclick_enable
         // browser_input_capture
 
