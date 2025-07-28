@@ -30,18 +30,7 @@ public class VMEnvFrame
         }
         else if (Self is GMLObject obj)
         {
-            var ret = "GML Struct";
-            if (obj.SelfVariables.Count > 0)
-            {
-                var first = obj.SelfVariables.Keys.First();
-                ret += $" ({obj.SelfVariables.Count} entries, \"{first}\"...)";
-            }
-            else
-            {
-                ret += " (no entries)";
-            }
-
-            return ret;
+            return "[" + obj.ToString() + "]";
         }
         else
         {
