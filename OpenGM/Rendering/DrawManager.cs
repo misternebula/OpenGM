@@ -291,7 +291,7 @@ public static class DrawManager
     {
         foreach (var item in stepList)
         {
-            if (item is GamemakerObject gm)
+            if (item is GamemakerObject gm && gm.Active)
             {
                 gm.UpdateAlarms();
             }
