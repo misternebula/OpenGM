@@ -458,18 +458,6 @@ public static class DrawManager
             }
         }
 
-        // ROOM BACKGROUNDS
-        // this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
-        foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
-        {
-            if (item == null)
-            {
-                continue;
-            }
-
-            item.Draw();
-        }
-
         /*
          * DrawViews
          */
@@ -518,6 +506,18 @@ public static class DrawManager
                     ViewportManager.CurrentRenderingView.ViewSize.X,
                     ViewportManager.CurrentRenderingView.ViewSize.Y
                 );
+
+                // ROOM BACKGROUNDS
+                // this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
+                foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
+                {
+                    if (item == null)
+                    {
+                        continue;
+                    }
+
+                    item.Draw();
+                }
 
                 /*
                  * DrawTheRoom
