@@ -37,7 +37,20 @@
 
         // buffer_poke
         // buffer_peek
-        // buffer_seek
+
+        [GMLFunction("buffer_seek")]
+        public static object buffer_seek(object?[] args)
+        {
+            var bufferIndex = args[0].Conv<int>();
+            var seekType = (BufferSeek)args[1].Conv<int>();
+            var offset = args[2].Conv<int>();
+
+            var buffer = BufferManager.Buffers[bufferIndex];
+            buffer.Seek(seekType, offset);
+
+            return buffer.BufferIndex;
+        }
+
         // buffer_save
         // buffer_save_ext
 
@@ -75,7 +88,18 @@
         }
 
         // buffer_tell
-        // buffer_resize
+
+        [GMLFunction("buffer_resize")]
+        public static object buffer_resize(object?[] args)
+        {
+            var bufferIndex = args[0].Conv<int>();
+            var size = args[1].Conv<int>();
+
+            var buffer = BufferManager.Buffers[bufferIndex];
+            buffer.Resize(size);
+
+            return buffer.BufferIndex;
+        }
 
         [GMLFunction("buffer_md5")]
         public static object? buffer_md5(object?[] args)
