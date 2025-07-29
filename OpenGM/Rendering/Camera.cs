@@ -211,6 +211,6 @@ public class Camera
         ViewX = l;
         ViewY = t;
 
-        Build2DView(l + halfHeight, t + halfHeight);
+        Build2DView(l + halfWidth, t + halfHeight);
     }
 }
