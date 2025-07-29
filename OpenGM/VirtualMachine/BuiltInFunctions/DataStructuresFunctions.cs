@@ -757,7 +757,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_queue_head(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var value = args[1]!;
 
             if (!_dsQueueDict.ContainsKey(id))
             {
@@ -778,7 +777,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_queue_tail(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var value = args[1]!;
 
             if (!_dsQueueDict.ContainsKey(id))
             {
@@ -866,7 +864,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_stack_top(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var value = args[1]!;
 
             if (!_dsStackDict.ContainsKey(id))
             {
