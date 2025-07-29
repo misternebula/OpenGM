@@ -636,6 +636,7 @@ public static class DrawManager
         if (RoomManager.CurrentRoom != null)
         {
             RoomManager.CurrentRoom.RemoveMarked();
+            RoomManager.CurrentRoom.HandleObjectActivation();
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();

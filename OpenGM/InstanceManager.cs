@@ -17,9 +17,13 @@ public class ObjectDictEntry
 public static class InstanceManager
 {
     public static Dictionary<int, GamemakerObject> instances = new();
+    public static Dictionary<int, GamemakerObject> inactiveInstances = new();
     public static Dictionary<int, ObjectDefinition> ObjectDefinitions = new();
 
-    public static List<int> LastDeactivatedIDs = [];
+    public static IEnumerable<GamemakerObject> allInstances =>
+        InstanceManager.instances
+            .Concat(InstanceManager.inactiveInstances)
+            .Select(kv => kv.Value);
 
     public static int NextInstanceID;
 
@@ -46,7 +50,12 @@ public static class InstanceManager
         }
     }
 
-    public static void RegisterInstance(GamemakerObject obj)
+    /// <summary>
+    /// Adds an instance to the instance pool. This does not register it
+    /// with DrawManager; use <see cref="GamemakerObject.Register"/> for
+    /// this purpose.
+    /// </summary>
+    public static void AddInstance(GamemakerObject obj)
     {
         if (instances.ContainsKey(obj.instanceId))
         {
@@ -77,6 +86,44 @@ public static class InstanceManager
 
         var entry = ObjectMap[obj.Definition.AssetId];
         entry.Instances.Add(obj);
+    }
+
+    /// <summary>
+    /// Removes an instance to the instance pool. This does not remove it
+    /// from DrawManager; use <see cref="GamemakerObject.Unregister"/> for
+    /// this purpose.
+    /// </summary>
+    public static void RemoveInstance(GamemakerObject obj)
+    {
+        if (!instances.ContainsKey(obj.instanceId))
+        {
+            DebugLog.LogWarning($"Tried to unregister a non-registered object with instanceId:{obj.instanceId}\nObject:{obj.Definition.Name}");
+
+            DebugLog.LogError($"--Stacktrace--");
+            foreach (var item in VMExecutor.CallStack)
+            {
+                DebugLog.LogError($" - {item.CodeName}");
+            }
+
+            return;
+        }
+
+        if (obj == null)
+        {
+            DebugLog.LogError($"Tried to unregister a null instance!");
+            return;
+        }
+
+        if (obj.Definition == null)
+        {
+            DebugLog.LogError($"Tried to unregister an instance with no definition! obj:{obj}");
+            return;
+        }
+
+        instances.Remove(obj.instanceId);
+
+        var entry = ObjectMap[obj.Definition.AssetId];
+        entry.Instances.Remove(obj);
     }
 
     public static int instance_create(double x, double y, int obj)
@@ -125,7 +172,7 @@ public static class InstanceManager
         return false;
     }
 
-    public static GamemakerObject? Find(int id, int index = 0)
+    public static GamemakerObject? Find(int id, int index = 0, bool all = false)
     {
         if (id == GMConstants.global)
         {
@@ -146,16 +193,16 @@ public static class InstanceManager
         else if (id < GMConstants.FIRST_INSTANCE_ID)
         {
             // asset id
-            return FindByAssetId(id)[index];
+            return FindByAssetId(id, all)[index];
         }
         else
         {
             // instance id
-            return instances.GetValueOrDefault(id);
+            return FindByInstanceId(id, all);
         }
     }
 
-    public static List<GamemakerObject> FindByAssetId(int assetId)
+    public static List<GamemakerObject> FindByAssetId(int assetId, bool all = false)
     {
         var result = new List<GamemakerObject>();
 
@@ -165,27 +212,21 @@ public static class InstanceManager
             return result;
         }
 
-        switch (assetId)
-        {
-            case GMConstants.self:
-                result.Add(VMExecutor.Self.GMSelf);
-                return result;
-            case GMConstants.other:
-                var myId = VMExecutor.Self.GMSelf.instanceId;
-                result.AddRange(instances.Where(e => e.Key != myId).Select(e => e.Value));
-                return result;
-            case GMConstants.all:
-                result.AddRange(instances.Select(e => e.Value));
-                return result;
-            case GMConstants.noone:
-                return result;
-            default:
-                throw new Exception($"Tried to find instances with asset id {assetId}");
-        }
+        return FindByLegacyValue(assetId, all);
 
         void AddChild(int id)
         {
             result.AddRange(ObjectMap[id].Instances);
+
+            if (all)
+            {
+                var instances = inactiveInstances
+                    .Select(kv => kv.Value)
+                    .Where(inst => inst.Definition.AssetId == id);
+
+                result.AddRange(instances);
+            }
+
             foreach (var child in ObjectMap[id].ChildrenIndexes)
             {
                 AddChild(child);
@@ -193,7 +234,32 @@ public static class InstanceManager
         }
     }
 
-    public static GamemakerObject? FindByInstanceId(int instanceId)
+    public static List<GamemakerObject> FindByLegacyValue(int value, bool all = false)
+    {
+        var result = new List<GamemakerObject>();
+
+        var instList = all ? allInstances : instances.Select(kv => kv.Value);
+
+        switch (value)
+        {
+            case GMConstants.self:
+                result.Add(VMExecutor.Self.GMSelf);
+                return result;
+            case GMConstants.other:
+                var myId = VMExecutor.Self.GMSelf.instanceId;
+                result.AddRange(instList.Where(inst => inst.instanceId != myId));
+                return result;
+            case GMConstants.all:
+                result.AddRange(instList);
+                return result;
+            case GMConstants.noone:
+                return result;
+            default:
+                throw new Exception($"Tried to find instances with asset id {value}");
+        }
+    }
+
+    public static GamemakerObject? FindByInstanceId(int instanceId, bool all = false)
     {
         if (instanceId == GMConstants.self)
         {
@@ -202,10 +268,17 @@ public static class InstanceManager
 
         if (instanceId < GMConstants.FIRST_INSTANCE_ID)
         {
-            throw new Exception($"Tried to find instance by asset id {instanceId}");
+            throw new Exception($"Tried to find instance by instance id {instanceId}");
         }
 
-        return !instances.TryGetValue(instanceId, out var value) ? null : value;
+        var result = instances.GetValueOrDefault(instanceId);
+
+        if (all)
+        {
+            result ??= inactiveInstances.GetValueOrDefault(instanceId);
+        }
+
+        return result;
     }
 
     public static bool instance_exists_instanceid(int instanceId)
@@ -267,6 +340,11 @@ public static class InstanceManager
         }
     }
 
+    public static void ClearInactive()
+    {
+        inactiveInstances.Clear();
+    }
+
     public static void ClearNullInstances() // TODO: we dont need to null check instances??????
     {
         var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
@@ -293,14 +371,7 @@ public static class InstanceManager
     {
         foreach (var id in toRemove)
         {
-            var instance = instances[id];
-
-            if (instance != null)
-            {
-                ObjectMap[instance.Definition.AssetId].Instances.Remove(instance);
-            }
-
-            instances.Remove(id);
+            instances[id].Unregister();
         }
     }
 

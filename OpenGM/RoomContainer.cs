@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 
@@ -57,16 +58,73 @@ public class RoomContainer
         }
     }
 
+    public void HandleObjectActivation()
+    {
+        var deactivateList = new List<GamemakerObject>();
+        var activateList = new List<GamemakerObject>();
+
+        foreach (var (_, instance) in InstanceManager.instances)
+        {
+            if (instance.NextActive)
+            {
+                continue;
+            }
+
+            deactivateList.Add(instance);
+        }
+
+        foreach (var (_, instance) in InstanceManager.inactiveInstances)
+        {
+            if (!instance.NextActive)
+            {
+                continue;
+            }
+
+            activateList.Add(instance);
+        }
+
+        foreach (var instance in deactivateList)
+        {
+            DeactivateInstance(instance);
+        }
+
+        foreach (var instance in activateList)
+        {
+            ReactivateInstance(instance);
+        }
+    }
+
     public void DeleteInstance(GamemakerObject obj)
     {
         // physics stuff
 
         // g_pLayerManager.RemoveInstance(this, pInst);
-        InstanceManager.instances.Remove(obj.instanceId);
-        InstanceManager.ObjectMap[obj.Definition.AssetId].Instances.Remove(obj);
+        // InstanceManager.RemoveInstance(obj);
         // this.m_Active.DeleteItem(pInst);
         // this.m_Deactive.DeleteItem(pInst);
         obj.Destroy();
+    }
+
+    public void DeactivateInstance(GamemakerObject obj)
+    {
+        obj.Unregister();
+        obj.Active = false;
+
+        if (!InstanceManager.inactiveInstances.TryAdd(obj.instanceId, obj))
+        {
+            DebugLog.LogWarning($"Could not add instance id {obj.instanceId} ({obj.Definition.Name}) to inactive instances list");
+        }
+    }
+
+    public void ReactivateInstance(GamemakerObject obj)
+    {
+        if (!InstanceManager.inactiveInstances.Remove(obj.instanceId))
+        {
+            DebugLog.LogWarning($"Could not remove instance id {obj.instanceId} ({obj.Definition.Name}) from inactive instances list");
+        }
+
+        obj.Register();
+        obj.Active = true;
     }
 }
 
