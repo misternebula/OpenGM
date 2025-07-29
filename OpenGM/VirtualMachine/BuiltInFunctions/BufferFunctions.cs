@@ -51,7 +51,15 @@
             return buffer.BufferIndex;
         }
 
-        // buffer_save
+        [GMLFunction("buffer_save")]
+        public static object? buffer_save(object?[] args)
+        {
+            var bufferIndex = args[0].Conv<int>();
+            var filename = args[0].Conv<string>();
+            BufferManager.SaveBuffer(bufferIndex, filename);
+            return null;
+        }
+
         // buffer_save_ext
 
         [GMLFunction("buffer_load")]
