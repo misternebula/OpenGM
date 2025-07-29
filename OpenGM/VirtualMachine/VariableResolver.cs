@@ -81,11 +81,6 @@ public static class VariableResolver
         {
             array[index] = value;
         }
-
-        if (setter != null)
-        {
-            setter(array); // allow any custom code in the setter to run
-        }
     }
 
     public static readonly Dictionary<string, object?> GlobalVariables = new();
