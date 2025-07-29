@@ -216,6 +216,7 @@ public static class RoomManager
             }
 
             //InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
+            InstanceManager.ClearInactive();
             InstanceManager.ClearNullInstances();
             InstanceManager.ClearNonPersistent();
 

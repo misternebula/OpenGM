@@ -738,7 +738,7 @@ public static partial class VMExecutor
         }
         else if (value is int or long or short)
         {
-            return InstanceManager.Find((int)value);
+            return InstanceManager.Find((int)value, all: true);
         }
 
         throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");

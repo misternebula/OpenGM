@@ -590,16 +590,14 @@ public static class GameFunctions
             notme = args[0].Conv<bool>();
         }
 
-        InstanceManager.LastDeactivatedIDs.Clear();
-        foreach (var (id, instance) in InstanceManager.instances)
+        foreach (var instance in InstanceManager.allInstances)
         {
-            InstanceManager.LastDeactivatedIDs.Add(id);
-            instance.Active = false;
+            instance.NextActive = false;
         }
 
         if (notme)
         {
-            VMExecutor.Self.GMSelf.Active = true;
+            VMExecutor.Self.GMSelf.NextActive = true;
         }
 
         return null;
@@ -613,17 +611,17 @@ public static class GameFunctions
         if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             // asset id
-            var instances = InstanceManager.FindByAssetId(obj);
+            var instances = InstanceManager.FindByAssetId(obj, all: true);
             foreach (var instance in instances)
             {
-                instance.Active = false;
+                instance.NextActive = false;
             }
         }
         else
         {
             // instance id
-            var instance = InstanceManager.FindByInstanceId(obj)!;
-            instance.Active = false;
+            var instance = InstanceManager.FindByInstanceId(obj, all: true)!;
+            instance.NextActive = false;
         }
 
         return null;
@@ -634,15 +632,10 @@ public static class GameFunctions
     [GMLFunction("instance_activate_all")]
     public static object? instance_activate_all(object?[] args)
     {
-        foreach (var id in InstanceManager.LastDeactivatedIDs)
+        foreach (var obj in InstanceManager.allInstances)
         {
-            if (InstanceManager.instances.TryGetValue(id, out var instance))
-            {
-                instance.Active = true;
-            }
+            obj.NextActive = true;
         }
-
-        InstanceManager.LastDeactivatedIDs.Clear();
 
         return null;
     }
@@ -655,17 +648,17 @@ public static class GameFunctions
         if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             // asset id
-            var instances = InstanceManager.FindByAssetId(obj);
+            var instances = InstanceManager.FindByAssetId(obj, all: true);
             foreach (var instance in instances)
             {
-                instance.Active = true;
+                instance.NextActive = true;
             }
         }
         else
         {
             // instance id
-            var instance = InstanceManager.FindByInstanceId(obj)!;
-            instance.Active = true;
+            var instance = InstanceManager.FindByInstanceId(obj, all: true)!;
+            instance.NextActive = true;
         }
 
         return null;

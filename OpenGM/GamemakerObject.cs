@@ -409,6 +409,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public double path_orientation;
 
     public bool Active = true;
+    public bool NextActive = true; // Whether the object should be active or not next frame
     public bool Marked = false; // Marked for deletion at the end of the frame
     public bool IsOutsideRoom = false; // Store state so event isn't called multiple times
 
@@ -427,7 +428,21 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         xstart = x;
         ystart = y;
 
-        InstanceManager.RegisterInstance(this);
+        Register();
+    }
+
+    public override void Destroy()
+    {
+        Destroyed = true;
+        Unregister();
+    }
+
+    /// <summary>
+    /// Adds this instance to the instance pool and registers it with DrawManager.
+    /// </summary>
+    public void Register()
+    {
+        InstanceManager.AddInstance(this);
         DrawManager.Register(this);
 
         /*if (margins != Vector4.Zero)
@@ -437,9 +452,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         bbox_dirty = true;
     }
 
-    public override void Destroy()
+    /// <summary>
+    /// Removes this instance from the instance pool and unregisters it from DrawManager.
+    /// </summary>
+    public void Unregister()
     {
-        Destroyed = true;
+        InstanceManager.RemoveInstance(this);
         DrawManager.Unregister(this);
         //CollisionManager.UnregisterCollider(this);
     }
