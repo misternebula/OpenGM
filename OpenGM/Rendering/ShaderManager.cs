@@ -1,13 +1,8 @@
 ﻿using OpenGM.IO;
 using OpenGM.Loading;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenGM.Rendering;
 
@@ -15,7 +10,7 @@ public static class ShaderManager
 {
     public static int DefaultProgram;
 
-    private static Dictionary<int, int> ShaderPrograms = new();
+    public static Dictionary<int, RuntimeShader> Shaders = new();
 
     public static void CompileShaders()
     {
@@ -24,10 +19,35 @@ public static class ShaderManager
         foreach (var (shaderIndex, shader) in GameLoader.Shaders)
         {
             var program = CompileShader(shader.VertexSource, shader.FragmentSource);
-            ShaderPrograms.Add(shaderIndex, program);
+
+            var runtimeShader = new RuntimeShader();
+            runtimeShader.ShaderIndex = shaderIndex;
+            runtimeShader.ProgramID = program;
+            FindUniforms(runtimeShader);
+
+            Shaders.Add(shaderIndex, runtimeShader);
         }
 
         ShaderReset(); // use default
+    }
+
+    public static void FindUniforms(RuntimeShader shader)
+    {
+        GL.GetProgram(shader.ProgramID, GetProgramParameterName.ActiveUniforms, out var count);
+
+        GL.GetProgram(shader.ProgramID, GetProgramParameterName.ActiveUniformMaxLength, out var maxLength);
+
+        for (var i = 0; i < count; i++)
+        {
+            GL.GetActiveUniform(shader.ProgramID, i, maxLength, out _, out var size, out var type, out var name);
+            shader.Uniforms.Add(name, new()
+            {
+                Location = i,
+                Name = name,
+                Size = size,
+                Type = type
+            });
+        }
     }
 
     private static int CompileShader(string vertSource, string fragSource)
@@ -76,15 +96,19 @@ public static class ShaderManager
     public static int gm_FogColour;
     public static int gm_VS_FogEnabled;
 
+    public static int CurrentShaderIndex;
+
     public static void ShaderSet(int index)
     {
-        var program = ShaderPrograms[index];
-        GL.UseProgram(program);
-        AttachUniforms(program);
+        CurrentShaderIndex = index;
+        var shader = Shaders[index];
+        GL.UseProgram(shader.ProgramID);
+        AttachUniforms(shader.ProgramID);
     }
 
     public static void ShaderReset()
     {
+        CurrentShaderIndex = -1;
         GL.UseProgram(DefaultProgram);
         AttachUniforms(DefaultProgram);
     }
