@@ -18,6 +18,7 @@ public class Camera
     public float ViewAngle;
     public int TargetInstance = -1;
 
+    // matrices are updated when view pos/size change
     private Matrix4 _projectionMatrix;
     private Matrix4 _viewMatrix;
     private Matrix4 _viewProjectionMatrix;
@@ -100,6 +101,9 @@ public class Camera
         ).Normalized();
     }
 
+    /// <summary>
+    /// update matrices from view fields (x and y are usually also view fields)
+    /// </summary>
     public void Build2DView(float x, float y)
     {
         var pos = new Vector3(x, y, -16000);
@@ -113,6 +117,21 @@ public class Camera
         SetProjMat(projMat);
     }
 
+    /// <summary>
+    /// apply camera matrices to uniforms
+    /// </summary>
+    public void ApplyMatrices()
+    {
+        // TODO: global view extent stuff, used for culling and for tiled stuff
+        
+        // sets view area. do we even need view area??? i just removed it for now
+        
+        ShaderManager.LoadMatrices(this);
+    }
+
+    /// <summary>
+    /// update instance following
+    /// </summary>
     public void Update()
     {
         if (TargetInstance < 0)
@@ -212,5 +231,15 @@ public class Camera
         ViewY = t;
 
         Build2DView(l + halfWidth, t + halfHeight);
+    }
+
+    public void Begin()
+    {
+        // TODO: evnevnet
+    }
+
+    public void End()
+    {
+        // TODO: evnet
     }
 }

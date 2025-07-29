@@ -74,12 +74,12 @@ public static class GraphicsManager
     }
     public static void SetViewPort(int x, int y, int w, int h) => SetViewPort(new(x, y, w, h));
 
+    // TODO: i have no idea when this is actually used over UpdateCamera. also, this is supposed to set and apply matrices
+    /*
     public static Vector4 ViewArea { get; private set; }
-    public static void SetViewArea(Vector4 viewArea)
-    {
-        ViewArea = viewArea;
-    }
+    public static void SetViewArea(Vector4 viewArea) => ViewArea = viewArea;
     public static void SetViewArea(float x, float y, float w, float h) => SetViewArea(new(x, y, w, h));
+    */
 
     public static void SetFog(bool enable, int color, double start, double end)
     {

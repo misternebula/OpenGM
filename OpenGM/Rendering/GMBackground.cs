@@ -31,6 +31,7 @@ public class GMBackground : DrawWithDepth
 
         var c = Element.Color.ABGRToCol4(Element.Alpha);
 
+        // TODO: use room extents
         var camWidth = ViewportManager.CurrentRenderingView!.ViewSize.X;
         var camHeight = ViewportManager.CurrentRenderingView!.ViewSize.Y;
         var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
