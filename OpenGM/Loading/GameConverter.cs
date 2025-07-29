@@ -1474,7 +1474,7 @@ public static class GameConverter
             asset.Name = shader.Name.Content;
             asset.ShaderType = (int)shader.Type;
 
-            switch (shader.Type)
+            /*switch (shader.Type)
             {
                 case UndertaleShader.ShaderType.GLSL_ES:
                     asset.VertexSource = shader.GLSL_ES_Vertex.Content;
@@ -1491,7 +1491,11 @@ public static class GameConverter
                 default:
                     // There are other shader types (HLSL11, PSSL, CG_PS3, CG_VITA) but they shouldn't show up
                     throw new NotImplementedException();
-            }
+            }*/
+
+            // just always use glsl because we use opengl
+            asset.VertexSource = shader.GLSL_Vertex.Content;
+            asset.FragmentSource = shader.GLSL_Fragment.Content;
 
             asset.ShaderAttributes = new string[shader.VertexShaderAttributes.Count];
             for (var i = 0; i < shader.VertexShaderAttributes.Count; i++)
