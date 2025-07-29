@@ -319,6 +319,7 @@ public static partial class VMExecutor
         var returnValue = Call.ReturnValue;
         EnvStack.Pop();
 
+        CallStack.Pop();
 
         if (VerboseStackLogs)
         {
