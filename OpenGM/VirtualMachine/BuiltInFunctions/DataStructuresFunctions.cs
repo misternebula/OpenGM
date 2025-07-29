@@ -8,6 +8,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         private static Dictionary<int, List<object?>> _dsListDict = new();
         private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
         private static Dictionary<int, Queue<object?>> _dsQueueDict = new();
+        private static Dictionary<int, Stack<object?>> _dsStackDict = new();
         private static Dictionary<int, PriorityQueue<object, double>> _priorityDict = new();
 
         // ...
@@ -756,7 +757,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_queue_head(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var value = args[1]!;
 
             if (!_dsQueueDict.ContainsKey(id))
             {
@@ -777,7 +777,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_queue_tail(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var value = args[1]!;
 
             if (!_dsQueueDict.ContainsKey(id))
             {
@@ -795,6 +794,124 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // ds_queue_copy
+
+        [GMLFunction("ds_stack_create")]
+        public static object ds_stack_create(params object?[] args)
+        {
+            var highestIndex = -1;
+            if (_dsStackDict.Count > 0)
+            {
+                highestIndex = _dsStackDict.Keys.Max();
+            }
+
+            _dsStackDict.Add(highestIndex + 1, new());
+            return highestIndex + 1;
+        }
+
+        [GMLFunction("ds_stack_destroy")]
+        public static object? ds_stack_destroy(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            _dsStackDict.Remove(index);
+            return null;
+        }
+
+        [GMLFunction("ds_stack_clear")]
+        public static object? ds_stack_clear(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsStackDict.ContainsKey(id))
+            {
+                return false;
+            }
+
+            var queue = _dsStackDict[id];
+            queue.Clear();
+
+            return null;
+        }
+
+        [GMLFunction("ds_stack_empty")]
+        public static object? ds_stack_empty(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsStackDict.ContainsKey(id))
+            {
+                return false;
+            }
+
+            var queue = _dsStackDict[id];
+            return queue.Count == 0;
+        }
+
+        [GMLFunction("ds_stack_size")]
+        public static object? ds_stack_size(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsStackDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsStackDict[id];
+            return queue.Count;
+        }
+
+        [GMLFunction("ds_stack_top")]
+        public static object? ds_stack_top(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsStackDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsStackDict[id];
+            
+            if (queue.Count == 0)
+            {
+                return null;
+            }
+
+            return queue.Peek();
+        }
+
+        [GMLFunction("ds_stack_pop")]
+        public static object? ds_stack_pop(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (!_dsStackDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsStackDict[id];
+            return queue.Pop();
+        }
+
+        [GMLFunction("ds_stack_push")]
+        public static object? ds_stack_push(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var value = args[1]!;
+
+            if (!_dsStackDict.ContainsKey(id))
+            {
+                return -1;
+            }
+
+            var queue = _dsStackDict[id];
+            queue.Push(value);
+
+            return null;
+        }
+
+        // ds_stack_copy
 
         // ...
     }
