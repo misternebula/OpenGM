@@ -89,7 +89,42 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return ret;
         }
 
-        // audio_play_sound_on
+        [GMLFunction("audio_play_sound_on")]
+        public static object? audio_play_sound_on(object?[] args)
+        {
+            var emitter = args[0].Conv<int>();
+            var sound = args[1].Conv<int>();
+            var loop = args[2].Conv<bool>();
+            var priority = args[3].Conv<double>();
+
+            var gain = 1f;
+            var offset = 0f;
+            var pitch = 1f;
+            var listener_mask = 1;
+
+            if (args.Length > 4)
+            {
+                gain = args[4].Conv<float>();
+            }
+
+            if (args.Length > 5)
+            {
+                offset = args[5].Conv<float>();
+            }
+
+            if (args.Length > 6)
+            {
+                pitch = args[6].Conv<float>();
+            }
+
+            if (args.Length > 7)
+            {
+                listener_mask = args[7].Conv<int>();
+            }
+
+            return AudioManager.PlaySoundOnEmitter(AudioManager.GetAudioEmitter(emitter), sound, priority, loop, gain, offset, pitch, listener_mask);
+        }
+
         // audio_play_sound_at
 
         [GMLFunction("audio_falloff_set_model")]
