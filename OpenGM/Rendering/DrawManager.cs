@@ -98,42 +98,6 @@ public static class DrawManager
             }
         }
 
-
-        if (DebugBBoxes)
-        {
-            foreach (var item in items)
-            {
-                if (item is GamemakerObject gm && gm.Active)
-                {
-                    var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
-                    var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
-                    var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
-                    var camY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
-
-                    var vertices = new OpenTK.Mathematics.Vector2d[] {
-                        new(gm.bbox.left - camX, gm.bbox.top - camY),
-                        new(gm.bbox.right - camX, gm.bbox.top - camY),
-                        new(gm.bbox.right - camX, gm.bbox.bottom - camY),
-                        new(gm.bbox.left - camX, gm.bbox.bottom - camY)
-                    };
-
-                    CustomWindow.Draw(new GMPolygonJob()
-                    {
-                        Colors = [color, color, color, color],
-                        Vertices = vertices,
-                        Outline = true
-                    });
-
-                    CustomWindow.Draw(new GMPolygonJob()
-                    {
-                        Colors = [fill, fill, fill, fill],
-                        Vertices = vertices,
-                        Outline = false
-                    });
-                }
-            }
-        }
-
         if (RoomManager.New_Room != -1)
         {
             RoomManager.ChangeToWaitingRoom();
@@ -540,6 +504,39 @@ public static class DrawManager
                 if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
                 {
                     break;
+                }
+
+                if (DebugBBoxes)
+                {
+                    foreach (var item in _drawObjects)
+                    {
+                        if (item is GamemakerObject gm && gm.Active)
+                        {
+                            var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
+                            var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
+
+                            var vertices = new OpenTK.Mathematics.Vector2d[] {
+                                new(gm.bbox.left, gm.bbox.top),
+                                new(gm.bbox.right, gm.bbox.top),
+                                new(gm.bbox.right, gm.bbox.bottom),
+                                new(gm.bbox.left, gm.bbox.bottom)
+                            };
+
+                            CustomWindow.Draw(new GMPolygonJob()
+                            {
+                                Colors = [color, color, color, color],
+                                Vertices = vertices,
+                                Outline = true
+                            });
+
+                            CustomWindow.Draw(new GMPolygonJob()
+                            {
+                                Colors = [fill, fill, fill, fill],
+                                Vertices = vertices,
+                                Outline = false
+                            });
+                        }
+                    }
                 }
 
                 if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
