@@ -22,24 +22,33 @@ public static class GameConverter
         using var stream = File.OpenWrite(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
         using var writer = new BinaryWriter(stream);
 
-        // must match order of gameloader
-        ExportGeneralInfo(writer, data);
-        ExportAssetOrder(writer, data);
-        ConvertScripts(writer, data);
-        ConvertCode(writer, data, data.Code);
-        ExportExtensions(writer, data);
-        ExportGlobalInitCode(writer, data);
-        ExportObjectDefinitions(writer, data);
-        ExportBackgrounds(writer, data);
-        ExportRooms(writer, data);
-        ConvertSprites(writer, data, data.Sprites);
-        ExportFonts(writer, data);
-        ExportPages(writer, data);
-        ExportTextureGroups(writer, data);
-        ExportTileSets(writer, data);
-        ExportSounds(writer, data);
-        ExportPaths(writer, data);
-        ExportShaders(writer, data);
+        try
+        {
+            // must match order of gameloader
+            ExportGeneralInfo(writer, data);
+            ExportAssetOrder(writer, data);
+            ConvertScripts(writer, data);
+            ConvertCode(writer, data, data.Code);
+            ExportExtensions(writer, data);
+            ExportGlobalInitCode(writer, data);
+            ExportObjectDefinitions(writer, data);
+            ExportBackgrounds(writer, data);
+            ExportRooms(writer, data);
+            ConvertSprites(writer, data, data.Sprites);
+            ExportFonts(writer, data);
+            ExportPages(writer, data);
+            ExportTextureGroups(writer, data);
+            ExportTileSets(writer, data);
+            ExportSounds(writer, data);
+            ExportPaths(writer, data);
+            ExportShaders(writer, data);
+        }
+        catch
+        {
+            writer.Close();
+            File.Delete(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
+            throw;
+        }
 
         GC.Collect(); // gc after doing a buncha loading
     }
