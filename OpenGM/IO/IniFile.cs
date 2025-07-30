@@ -36,7 +36,6 @@ public class IniFile
                 continue;
             }
 
-            Console.WriteLine(currentLine.Length);
             var keyvalue = ParseKeyValue(currentLine);
             currentSection?.Dict.Add(keyvalue.Key, keyvalue.Value);
         }
