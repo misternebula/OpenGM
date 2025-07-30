@@ -211,6 +211,8 @@ public static class VariableResolver
         { "application_surface", (get_application_surface, null) },
         // font_texture_page_size
 
+        { "async_load", (get_async_load, null) },
+
         // InitYoYoBuiltInVariables
         { "os_type", (get_os_type, null) },
         // os_device
@@ -393,6 +395,8 @@ public static class VariableResolver
 
     public static object get_room_speed() => Entry.GameSpeed;
     public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
+
+    public static object get_async_load() => AsyncManager.AsyncLoadDsIndex;
 
     public static object get_os_type() => 0; // TODO : Check if this is actually os_windows
 

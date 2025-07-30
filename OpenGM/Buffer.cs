@@ -1,4 +1,6 @@
-﻿namespace OpenGM;
+﻿using OpenGM.IO;
+
+namespace OpenGM;
 public class Buffer
 {
     public byte[] Data = null!;
@@ -202,6 +204,126 @@ public class Buffer
         var dataToHash = Data.Skip(offset).Take(size).ToArray();
         var md5 = System.Security.Cryptography.MD5.HashData(dataToHash);
         return Convert.ToHexString(md5);
+    }
+}
+
+public abstract class BufferAsyncRequest
+{
+    public int Id;
+    public BufferAsyncGroup? Group;
+    public GamemakerObject Instance = null!;
+
+    public Buffer TargetBuffer = null!;
+    public string Filename = null!;
+    public int Offset;
+    public int Size;
+
+    public abstract Task<bool> Start();
+}
+
+public class BufferAsyncReadRequest : BufferAsyncRequest
+{
+    public BufferAsyncReadRequest(Buffer targetBuffer, string filename, int offset, int size)
+    {
+        Id = AsyncManager.NextAsyncId++;
+
+        TargetBuffer = targetBuffer;
+        Filename = filename;
+        Offset = offset;
+        Size = size;
+    }
+
+    public override async Task<bool> Start()
+    {
+        var filepath = Path.Combine(Entry.DataWinFolder, Group?.Name ?? "default", Filename);
+
+        if (!File.Exists(filepath))
+        {
+            DebugLog.LogError($"LoadBuffer: {filepath} doesnt exist.");
+            return false;
+        }
+
+        var bytes = await File.ReadAllBytesAsync(filepath);
+
+        if (Size < 0)
+        {
+            Size = bytes.Length;
+        }
+
+        if (TargetBuffer.Size < Offset + Size)
+        {
+            TargetBuffer.Resize(Offset + Size);
+        }
+
+        for (var i = 0; i < Size; i++)
+        {
+            TargetBuffer.Data[i + Offset] = bytes[i];
+        }
+
+        return true;
+    }
+}
+
+public class BufferAsyncWriteRequest : BufferAsyncRequest
+{
+    public BufferAsyncWriteRequest(Buffer targetBuffer, string filename, int offset, int size)
+    {
+        Id = AsyncManager.NextAsyncId++;
+
+        TargetBuffer = targetBuffer;
+        Filename = filename;
+        Offset = offset;
+        Size = size;
+    }
+
+    public override async Task<bool> Start()
+    {
+        var filepath = Path.Combine(Entry.DataWinFolder, Group?.Name ?? "default", Filename);
+        var result = new AsyncResult(Id, false, Instance);
+
+        if (!File.Exists(filepath))
+        {
+            DebugLog.LogError($"LoadBuffer: {filepath} doesnt exist.");
+            AsyncManager.AsyncResults.Enqueue(result);
+            return false;
+        }
+
+        if (Size < 0)
+        {
+            Size = TargetBuffer.UsedSize - Offset;
+        }
+
+        var outBuffer = TargetBuffer.Data[Offset..Size];
+        await File.WriteAllBytesAsync(filepath, outBuffer);
+
+        result.Status = true;
+        AsyncManager.AsyncResults.Enqueue(result);
+        return true;
+    }
+}
+
+public class BufferAsyncGroup
+{
+    public int Id;
+    public string Name;
+    public List<BufferAsyncRequest> Requests = new();
+
+    public GamemakerObject Instance;
+
+    public BufferAsyncGroup(string name, GamemakerObject instance)
+    {
+        Id = AsyncManager.NextAsyncId++;
+        Name = name;
+        Instance = instance;
+    }
+
+    public async Task StartAll()
+    {
+        var results = await Task.WhenAll(Requests.Select(r => r.Start()));
+        var success = results.Any(r => !r);
+
+        var result = new AsyncResult(Id, success, Instance);
+        AsyncManager.AsyncResults.Enqueue(result);
     }
 }
 

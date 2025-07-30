@@ -285,6 +285,9 @@ public static class DrawManager
             }
         }
         */
+
+        // TODO: figure out where this goes
+        AsyncManager.HandleAsyncQueue();
     }
 
     public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)

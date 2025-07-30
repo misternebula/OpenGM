@@ -24,18 +24,19 @@ public class IniFile
         for (var i = 0; i < lines.Length; i++)
         {
             var currentLine = lines[i];
-            if (currentLine.StartsWith('[') && currentLine.EndsWith("]"))
+            if (currentLine.StartsWith('[') && currentLine.EndsWith(']'))
             {
                 currentSection = new IniSection(currentLine.TrimStart('[').TrimEnd(']'));
                 iniFile.Sections.Add(currentSection);
                 continue;
             }
 
-            if (string.IsNullOrEmpty(currentLine))
+            if (string.IsNullOrEmpty(currentLine?.Trim()))
             {
                 continue;
             }
 
+            Console.WriteLine(currentLine.Length);
             var keyvalue = ParseKeyValue(currentLine);
             currentSection?.Dict.Add(keyvalue.Key, keyvalue.Value);
         }
