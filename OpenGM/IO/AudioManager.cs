@@ -46,6 +46,7 @@ public static class AudioManager
 
     private static List<AudioInstance> _audioSources = new();
     private static Dictionary<int, AudioAsset> _audioClips = new();
+    private static List<AudioEmitter> _audioEmitters = new();
 
     private static bool _inited;
 
@@ -443,5 +444,26 @@ public static class AudioManager
         var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
         CheckALCError();
         return list;
+    }
+
+    public static int AudioEmitterCreate()
+    {
+        var inactiveIndex = _audioEmitters.FindIndex(x => x.Active == false);
+
+        if (inactiveIndex != -1)
+        {
+            _audioEmitters[inactiveIndex].Reset();
+            return inactiveIndex;
+        }
+
+        var index = _audioEmitters.Count;
+        var emitter = new AudioEmitter { ID = index };
+        _audioEmitters.Add(emitter);
+        return index;
+    }
+
+    public static AudioEmitter GetAudioEmitter(int index)
+    {
+        return _audioEmitters[index];
     }
 }

@@ -10,10 +10,41 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_listener_position
         // audio_listener_velocity
         // audio_listener_orientation
-        // audio_emitter_position
-        // audio_emitter_velocity
+
+        [GMLFunction("audio_emitter_position")]
+        public static object? audio_emitter_position(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var x = args[1].Conv<float>();
+            var y = args[2].Conv<float>();
+            var z = args[3].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.Position = new(x, y, z);
+            return null;
+        }
+
+        [GMLFunction("audio_emitter_velocity")]
+        public static object? audio_emitter_velocity(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var vx = args[1].Conv<float>();
+            var vy = args[2].Conv<float>();
+            var vz = args[3].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.Velocity = new(vx, vy, vz);
+            return null;
+        }
+
         // audio_system
-        // audio_emitter_create
+
+        [GMLFunction("audio_emitter_create")]
+        public static object? audio_emitter_create(object?[] args)
+        {
+            return AudioManager.AudioEmitterCreate();
+        }
+
         // audio_emitter_free
 
         [GMLFunction("audio_play_sound")]
@@ -60,7 +91,30 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // audio_play_sound_on
         // audio_play_sound_at
-        // audio_falloff_set_model
+
+        [GMLFunction("audio_falloff_set_model")]
+        public static object? audio_falloff_set_model(object?[] args)
+        {
+            var model = (FalloffModel)args[0].Conv<int>();
+
+            var alModel = model switch
+            {
+                FalloffModel.NONE => ALDistanceModel.None,
+                FalloffModel.INVERSE_DISTANCE => ALDistanceModel.InverseDistance,
+                FalloffModel.INVERSE_DISTANCE_CLAMPED => ALDistanceModel.InverseDistanceClamped,
+                FalloffModel.LINEAR_DISTANCE => ALDistanceModel.LinearDistance,
+                FalloffModel.LINEAR_DISTANCE_CLAMPED => ALDistanceModel.LinearDistanceClamped,
+                FalloffModel.EXPONENT_DISTANCE => ALDistanceModel.ExponentDistance,
+                FalloffModel.EXPONENT_DISTANCE_CLAMPED => ALDistanceModel.ExponentDistanceClamped,
+                FalloffModel.INVERSE_DISTANCE_SCALED => throw new NotImplementedException(),
+                FalloffModel.EXPONENT_DISTANCE_SCALED => throw new NotImplementedException(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            AL.DistanceModel(alModel);
+            AudioManager.CheckALError();
+            return null;
+        }
 
         [GMLFunction("audio_stop_sound")]
         public static object? audio_stop_sound(object?[] args)
@@ -222,7 +276,32 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_get_type
         // audio_emitter_gain
         // audio_emitter_pitch
-        // audio_emitter_falloff
+
+        [GMLFunction("audio_emitter_falloff")]
+        public static object? audio_emitter_falloff(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var falloff_ref = args[1].Conv<float>();
+            var falloff_max = args[2].Conv<float>();
+            var falloff_factor = args[3].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.FalloffRef = falloff_ref;
+            emitter.FalloffMax = falloff_max;
+            emitter.FalloffFac = falloff_factor;
+
+            foreach (var sound in emitter.AttachedSounds)
+            {
+                AL.Source(sound.Source, ALSourcef.ReferenceDistance, falloff_ref);
+                AudioManager.CheckALError();
+                AL.Source(sound.Source, ALSourcef.MaxDistance, falloff_max);
+                AudioManager.CheckALError();
+                AL.Source(sound.Source, ALSourcef.RolloffFactor, falloff_factor);
+                AudioManager.CheckALError();
+            }
+
+            return null;
+        }
 
         [GMLFunction("audio_channel_num")]
         public static object? audio_channel_num(object?[] args)
