@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -43,7 +44,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // external_call
         // external_free
 
-        // window_handle
+        [GMLFunction("window_handle")]
+        public static object? window_handle(object?[] args)
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                unsafe
+                {
+                    // converting this to long so conversions wont fail
+                    return (long)OpenTK.Windowing.GraphicsLibraryFramework.GLFW.GetWin32Window(CustomWindow.Instance.WindowPtr);
+                }
+            }
+            
+            DebugLog.LogWarning("window_handle not implemented for current platform.");
+            return null;
+        }
+
         // window_device
 
         [GMLFunction("show_debug_message")]

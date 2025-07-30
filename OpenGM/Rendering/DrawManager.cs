@@ -13,6 +13,8 @@ public static class DrawManager
 
     public static List<DrawWithDepth> _drawObjects = new();
 
+    public static Vector2i? GuiSize = null;
+
     public static bool DebugBBoxes = false;
 
     public static void Register(DrawWithDepth obj)
@@ -285,6 +287,9 @@ public static class DrawManager
             }
         }
         */
+
+        // TODO: figure out where this goes
+        AsyncManager.HandleAsyncQueue();
     }
 
     public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)
@@ -629,6 +634,12 @@ public static class DrawManager
         /*
          * DrawGUI
          */
+
+        if (GuiSize is Vector2i vec)
+        {
+            GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y);
+        }
+
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
         {
             return;
@@ -643,6 +654,8 @@ public static class DrawManager
         {
             return;
         }
+
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
 
         if (RoomManager.CurrentRoom != null)
         {

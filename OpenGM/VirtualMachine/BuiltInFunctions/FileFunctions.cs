@@ -345,6 +345,16 @@ public static class FileFunctions
         }
 
         var text = File.ReadAllText(filepath);
+
+        // remove null bytes
+        var i = 0;
+        while (i < text.Length && text[i] > 0)
+        {
+            i++;
+        }
+        
+        text = text[..i];
+
         _iniFile = IniFile.FromContent(text);
         _iniFile.Name = name;
 

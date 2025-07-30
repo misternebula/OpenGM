@@ -100,7 +100,7 @@ public static class MathFunctions
     [GMLFunction("array_length_1d")]
     public static object? array_length(object?[] args)
     {
-        if (args[0] is null)
+        if (args[0] is not IList)
         {
             return null;
         }
@@ -828,7 +828,12 @@ public static class MathFunctions
         }
     }
 
-    // int64
+    [GMLFunction("int64")]
+    public static object int64(object?[] args)
+    {
+        return args[0].Conv<long>();
+    }
+
     // ptr
 
     [GMLFunction("string_format")]

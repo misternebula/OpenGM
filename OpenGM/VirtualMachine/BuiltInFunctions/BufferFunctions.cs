@@ -25,7 +25,20 @@
             return null;
         }
 
-        // buffer_write
+        [GMLFunction("buffer_write")]
+        public static object buffer_write(object?[] args)
+        {
+            var bufferIndex = args[0].Conv<int>();
+            var type = args[1].Conv<int>();
+            var value = args[2]!;
+
+            if (BufferManager.WriteBuffer(bufferIndex, value, (BufferDataType)type) is not null)
+            {
+                return -1;
+            }
+
+            return 0;
+        }
 
         [GMLFunction("buffer_read")]
         public static object buffer_read(object?[] args)
@@ -55,7 +68,7 @@
         public static object? buffer_save(object?[] args)
         {
             var bufferIndex = args[0].Conv<int>();
-            var filename = args[0].Conv<string>();
+            var filename = args[1].Conv<string>();
             BufferManager.SaveBuffer(bufferIndex, filename);
             return null;
         }
@@ -71,10 +84,85 @@
 
         // buffer_load_ext
         // buffer_load_partial
-        // buffer_save_async
-        // buffer_load_async
-        // buffer_async_group_begin
-        // buffer_async_group_end
+
+        [GMLFunction("buffer_save_async")]
+        public static object? buffer_save_async(object?[] args)
+        {
+            var bufferIndex = args[0].Conv<int>();
+            var filename = args[1].Conv<string>();
+            var offset = args[2].Conv<int>();
+            var size = args[3].Conv<int>();
+
+            var buffer = BufferManager.Buffers[bufferIndex];
+
+            var request = new BufferAsyncWriteRequest(buffer, filename, offset, size);
+            request.Group = BufferManager.AsyncGroup;
+            request.Instance = VMExecutor.Self.GMSelf;
+
+            if (BufferManager.AsyncGroup is not null)
+            {
+                BufferManager.AsyncGroup.Requests.Add(request);
+            }
+            else
+            {
+                _ = request.Start();
+            }
+
+            return request.Id;
+        }
+
+        [GMLFunction("buffer_load_async")]
+        public static object? buffer_load_async(object?[] args)
+        {
+            var bufferIndex = args[0].Conv<int>();
+            var filename = args[1].Conv<string>();
+            var offset = args[2].Conv<int>();
+            var size = args[3].Conv<int>();
+
+            var buffer = BufferManager.Buffers[bufferIndex];
+
+            var request = new BufferAsyncReadRequest(buffer, filename, offset, size);
+            request.Group = BufferManager.AsyncGroup;
+            request.Instance = VMExecutor.Self.GMSelf;
+
+            if (BufferManager.AsyncGroup is not null)
+            {
+                BufferManager.AsyncGroup.Requests.Add(request);
+            }
+            else
+            {
+                _ = request.Start();
+            }
+
+            return request.Id;
+        }
+        
+        [GMLFunction("buffer_async_group_begin")]
+        public static object? buffer_async_group_begin(object?[] args)
+        {
+            var name = args[0].Conv<string>();
+
+            BufferManager.AsyncGroup = new(name, VMExecutor.Self.GMSelf);
+
+            return null;
+        }
+
+        [GMLFunction("buffer_async_group_end")]
+        public static object? buffer_async_group_end(object?[] args)
+        {
+            if (BufferManager.AsyncGroup is null)
+            {
+                throw new InvalidOperationException("Tried to end non-existent buffer async group");
+            }
+
+            var group = BufferManager.AsyncGroup;
+            BufferManager.AsyncGroup = null;
+
+            _ = group.StartAll();
+
+            return group.Id;
+        }
+
         // buffer_async_group_option
         // buffer_copy
         // buffer_exists
@@ -130,7 +218,9 @@
         // buffer_base64_decode
         // buffer_base64_decode_ext
         // buffer_sizeof
-        // buffer_get_address
+
+        // buffer_get_address is staying unimplemented and unstubbed until
+        // someone can add it in a GC-friendly way
 
         [GMLFunction("buffer_get_surface")]
         public static object? buffer_get_surface(object?[] args)

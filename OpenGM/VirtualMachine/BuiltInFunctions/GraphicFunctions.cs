@@ -77,6 +77,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("display_set_gui_size", GMLFunctionFlags.Stub)]
         public static object? display_set_gui_size(object?[] args)
         {
+            var width = args[0].Conv<int>();
+            var height = args[1].Conv<int>();
+
+            DrawManager.GuiSize = new(width, height);
+
+            return null;
+        }
+
+        [GMLFunction("display_set_gui_maximise", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_set_gui_maximize", GMLFunctionFlags.Stub)]
+        public static object? display_set_gui_maximise(object?[] args)
+        {
             return null;
         }
 
@@ -1606,8 +1618,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
 
-            var sizeWidth = spriteTex.TargetWidth * xscale;
-            var sizeHeight = spriteTex.TargetHeight * yscale;
+            var sizeWidth = spriteTex.BoundingWidth * xscale;
+            var sizeHeight = spriteTex.BoundingHeight * yscale;
 
             var tempX = x;
             var tempY = y;

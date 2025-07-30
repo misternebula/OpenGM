@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.VirtualMachine;
 using OpenTK.Graphics.ES11;
 using System.Text;
 
@@ -8,6 +9,9 @@ public static class BufferManager
 {
     private static int _nextId;
     public static Dictionary<int, Buffer> Buffers = new();
+
+    public static BufferAsyncGroup? AsyncGroup = null;
+    public static int NextAsyncId = 0;
 
     public static int CreateBuffer(int size, BufferType type, int alignment, byte[]? srcBuffer = null)
     {
@@ -242,6 +246,158 @@ public static class BufferManager
         }
 
         return res;
+    }
+
+    public static object? WriteBuffer(int bufferIndex, object value, BufferDataType type)
+    {
+        DebugLog.Log($"WriteBuffer index:{bufferIndex} value:{value.GetType().Name} type:{type}");
+
+        var buffer = Buffers[bufferIndex];
+
+        // Deal with basic alignment first
+        buffer.BufferIndex = (((buffer.BufferIndex + buffer.AlignmentOffset) + (buffer.Alignment - 1)) & ~(buffer.Alignment - 1)) - buffer.AlignmentOffset;
+
+        if (buffer.BufferIndex >= buffer.Size && buffer.Type == BufferType.Wrap)
+        {
+            // while loop incase its a stupid alignment on a small buffer
+            while (buffer.BufferIndex >= buffer.Size)
+            {
+                buffer.CalculateNextAlignmentOffset();
+                buffer.BufferIndex -= buffer.Size;
+            }
+        }
+
+        // Out of space?
+        if (buffer.BufferIndex >= buffer.Size)
+        {
+            return type == BufferDataType.buffer_string ? "" : -3; // eBuffer_OutOfBounds
+        }
+
+        var sizeNeeded = BufferDataTypeToSize(type);
+        // TODO : do that unicode -> utf8 stuff
+        if (type is BufferDataType.buffer_string)
+        {
+            sizeNeeded = value.Conv<string>().Length;
+        }
+
+        if (type is BufferDataType.buffer_text)
+        {
+            sizeNeeded = value.Conv<string>().Length + 1;
+        }
+
+        if (buffer.BufferIndex + sizeNeeded > buffer.Size) {
+            // Resize buffer...
+            if (buffer.Type is BufferType.Grow) {
+                var newSize = buffer.Size;
+
+                if (newSize < 4)
+                {
+                    newSize = 4;
+                }
+
+                while (buffer.BufferIndex + sizeNeeded > newSize) {
+                    newSize <<= 1; 
+                }
+
+                buffer.Resize(newSize);
+            } else {
+                if (buffer.Type is not BufferType.Wrap) {
+                    return type == BufferDataType.buffer_string ? "" : -2;      // out of space
+                }
+            }
+        }
+
+        // TODO : endianness might be fucked here. double check this, or make it endian agnostic
+
+        switch (type)
+        {
+            case BufferDataType.buffer_bool:
+                value = value.Conv<bool>() ? 1 : 0;
+                goto case BufferDataType.buffer_u8;
+            case BufferDataType.buffer_u8:
+                buffer.Data[buffer.BufferIndex++] = Convert.ToByte(value);
+                break;  
+            case BufferDataType.buffer_string:
+            case BufferDataType.buffer_text:
+                var str = value.Conv<string>();
+                foreach (var chr in str)
+                {
+                    buffer.Data[buffer.BufferIndex++] = (byte)chr;
+                }
+                // "text" mode doesn't add a NULL at the end.
+                if (type is BufferDataType.buffer_text)
+                {
+                    buffer.Data[buffer.BufferIndex++] = 0;
+                }
+                break;
+            case BufferDataType.buffer_s8:
+                // casting *should* account for sign and wraparound here
+                buffer.Data[buffer.BufferIndex++] = Convert.ToByte(value);
+                break;
+            case BufferDataType.buffer_u16:
+            {
+                var bytes = BitConverter.GetBytes(Convert.ToUInt16(value));
+                if (BitConverter.IsLittleEndian)
+                { Array.Reverse(bytes); }
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    buffer.Data[buffer.BufferIndex++] = bytes[i];
+                }
+                break;
+            }
+            case BufferDataType.buffer_s16:
+            {
+                var bytes = BitConverter.GetBytes(Convert.ToInt16(value));
+                if (BitConverter.IsLittleEndian)
+                { Array.Reverse(bytes); }
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    buffer.Data[buffer.BufferIndex++] = bytes[i];
+                }
+                break;
+            }
+            case BufferDataType.buffer_f16:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_u32:
+            {
+                var bytes = BitConverter.GetBytes(Convert.ToUInt32(value));
+                if (BitConverter.IsLittleEndian)
+                { Array.Reverse(bytes); }
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    buffer.Data[buffer.BufferIndex++] = bytes[i];
+                }
+                break;
+            }
+            case BufferDataType.buffer_s32:
+            {
+                var bytes = BitConverter.GetBytes(Convert.ToInt32(value));
+                if (BitConverter.IsLittleEndian)
+                { Array.Reverse(bytes); }
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    buffer.Data[buffer.BufferIndex++] = bytes[i];
+                }
+                break;
+            }
+            case BufferDataType.buffer_f32:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_u64:
+            {
+                var bytes = BitConverter.GetBytes(Convert.ToUInt64(value));
+                if (BitConverter.IsLittleEndian)
+                { Array.Reverse(bytes); }
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    buffer.Data[buffer.BufferIndex++] = bytes[i];
+                }
+                break;
+            }
+            case BufferDataType.buffer_f64:
+                throw new NotImplementedException();
+        }
+
+        return null;
     }
 
     public static int BufferDataTypeToSize(BufferDataType type)

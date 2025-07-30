@@ -209,6 +209,8 @@ public static class InstanceManager
         if (assetId >= 0)
         {
             AddChild(assetId);
+            // TODO: find out if we can have this list sorted through other means
+            result.Sort((a, b) => a.instanceId.CompareTo(b.instanceId));
             return result;
         }
 
