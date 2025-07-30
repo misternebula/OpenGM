@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenTK.Audio.OpenAL;
+using OpenTK.Mathematics;
 using StbVorbisSharp;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -7,7 +8,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     public static class SoundFunctions
     {
         // MCI_command
-        // audio_listener_position
+
+        [GMLFunction("audio_listener_position")]
+        public static object? audio_listener_position(object?[] args)
+        {
+            var x = args[0].Conv<float>();
+            var y = args[1].Conv<float>();
+            var z = args[2].Conv<float>();
+
+            AudioManager.Listener.Position = new Vector3(x, y, z);
+            return null;
+        }
+
         // audio_listener_velocity
         // audio_listener_orientation
 

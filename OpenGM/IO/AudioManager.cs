@@ -48,6 +48,8 @@ public static class AudioManager
     private static Dictionary<int, AudioAsset> _audioClips = new();
     private static List<AudioEmitter> _audioEmitters = new();
 
+    public static AudioListener Listener = new();
+
     private static bool _inited;
 
     public static void Init()
@@ -202,6 +204,8 @@ public static class AudioManager
 
     public static void Update()
     {
+        UpdateListener(Listener);
+
         /*
          * we should have a pool of clips
          * when playing, add to the pool. and when its done, remove it and deletesource
@@ -489,5 +493,12 @@ public static class AudioManager
     public static AudioEmitter GetAudioEmitter(int index)
     {
         return _audioEmitters[index];
+    }
+
+    public static void UpdateListener(AudioListener listener)
+    {
+        AL.Listener(ALListener3f.Position, listener.Position.X, listener.Position.Y, listener.Position.Z);
+        AL.Listener(ALListener3f.Velocity, listener.Velocity.X, listener.Velocity.Y, listener.Velocity.Z);
+        AL.Listener(ALListenerfv.Orientation, ref listener.At, ref listener.Up);
     }
 }
