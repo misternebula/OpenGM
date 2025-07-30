@@ -41,8 +41,8 @@ public class GMBackground : DrawWithDepth
         var layerX = Element.Layer.X;
         var layerY = Element.Layer.Y;
 
-        float TotalX() => offsetX + layerX;
-        float TotalY() => offsetY + layerY;
+        float TotalX() => offsetX + layerX + origin.X;
+        float TotalY() => offsetY + layerY + origin.Y;
 
         if (Element.HTiled)
         {

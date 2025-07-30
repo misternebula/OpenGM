@@ -100,7 +100,7 @@ public static class MathFunctions
     [GMLFunction("array_length_1d")]
     public static object? array_length(object?[] args)
     {
-        if (args[0] is null)
+        if (args[0] is not IList)
         {
             return null;
         }
