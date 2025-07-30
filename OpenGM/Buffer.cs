@@ -236,10 +236,12 @@ public class BufferAsyncReadRequest : BufferAsyncRequest
     public override async Task<bool> Start()
     {
         var filepath = Path.Combine(Entry.DataWinFolder, Group?.Name ?? "default", Filename);
+        var result = new AsyncResult(Id, false, Instance);
 
         if (!File.Exists(filepath))
         {
             DebugLog.LogError($"LoadBuffer: {filepath} doesnt exist.");
+            AsyncManager.AsyncResults.Enqueue(result);
             return false;
         }
 
@@ -260,6 +262,8 @@ public class BufferAsyncReadRequest : BufferAsyncRequest
             TargetBuffer.Data[i + Offset] = bytes[i];
         }
 
+        result.Status = true;
+        AsyncManager.AsyncResults.Enqueue(result);
         return true;
     }
 }
