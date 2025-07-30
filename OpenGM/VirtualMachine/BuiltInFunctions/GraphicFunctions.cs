@@ -85,6 +85,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
+        [GMLFunction("display_set_gui_maximise", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_set_gui_maximize", GMLFunctionFlags.Stub)]
+        public static object? display_set_gui_maximise(object?[] args)
+        {
+            return null;
+        }
+
         // window_set_visible
         // window_get_visible
 

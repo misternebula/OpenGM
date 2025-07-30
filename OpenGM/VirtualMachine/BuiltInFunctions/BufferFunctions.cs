@@ -218,7 +218,9 @@
         // buffer_base64_decode
         // buffer_base64_decode_ext
         // buffer_sizeof
-        // buffer_get_address
+
+        // buffer_get_address is staying unimplemented and unstubbed until
+        // someone can add it in a GC-friendly way
 
         [GMLFunction("buffer_get_surface")]
         public static object? buffer_get_surface(object?[] args)

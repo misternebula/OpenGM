@@ -218,8 +218,8 @@ public static class VariableResolver
         // os_device
         // os_version
         // os_browser
-        // browser_width
-        // browser_height
+        { "browser_width", (get_browser_width, null) },
+        { "browser_height", (get_browser_height, null) },
     };
 
     // InitLocalVariables
@@ -399,6 +399,9 @@ public static class VariableResolver
     public static object get_async_load() => AsyncManager.AsyncLoadDsIndex;
 
     public static object get_os_type() => 0; // TODO : Check if this is actually os_windows
+
+    public static object get_browser_width() => CustomWindow.Instance.ClientSize.X;
+    public static object get_browser_height() => CustomWindow.Instance.ClientSize.Y;
 
     public static object get_application_surface() => SurfaceManager.application_surface;
 

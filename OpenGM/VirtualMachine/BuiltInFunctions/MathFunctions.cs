@@ -828,7 +828,12 @@ public static class MathFunctions
         }
     }
 
-    // int64
+    [GMLFunction("int64")]
+    public static object int64(object?[] args)
+    {
+        return args[0].Conv<long>();
+    }
+
     // ptr
 
     [GMLFunction("string_format")]

@@ -315,7 +315,7 @@ public static class BufferManager
                 value = value.Conv<bool>() ? 1 : 0;
                 goto case BufferDataType.buffer_u8;
             case BufferDataType.buffer_u8:
-                buffer.Data[buffer.BufferIndex++] = (byte)value.Conv<int>();
+                buffer.Data[buffer.BufferIndex++] = Convert.ToByte(value);
                 break;  
             case BufferDataType.buffer_string:
             case BufferDataType.buffer_text:
@@ -332,11 +332,11 @@ public static class BufferManager
                 break;
             case BufferDataType.buffer_s8:
                 // casting *should* account for sign and wraparound here
-                buffer.Data[buffer.BufferIndex++] = (byte)value;
+                buffer.Data[buffer.BufferIndex++] = Convert.ToByte(value);
                 break;
             case BufferDataType.buffer_u16:
             {
-                var bytes = BitConverter.GetBytes((ushort)value);
+                var bytes = BitConverter.GetBytes(Convert.ToUInt16(value));
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
@@ -347,7 +347,7 @@ public static class BufferManager
             }
             case BufferDataType.buffer_s16:
             {
-                var bytes = BitConverter.GetBytes((short)value);
+                var bytes = BitConverter.GetBytes(Convert.ToInt16(value));
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
@@ -360,7 +360,7 @@ public static class BufferManager
                 throw new NotImplementedException();
             case BufferDataType.buffer_u32:
             {
-                var bytes = BitConverter.GetBytes((uint)value);
+                var bytes = BitConverter.GetBytes(Convert.ToUInt32(value));
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
@@ -371,7 +371,7 @@ public static class BufferManager
             }
             case BufferDataType.buffer_s32:
             {
-                var bytes = BitConverter.GetBytes((int)value);
+                var bytes = BitConverter.GetBytes(Convert.ToInt32(value));
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
@@ -384,7 +384,7 @@ public static class BufferManager
                 throw new NotImplementedException();
             case BufferDataType.buffer_u64:
             {
-                var bytes = BitConverter.GetBytes((ulong)value);
+                var bytes = BitConverter.GetBytes(Convert.ToUInt64(value));
                 if (BitConverter.IsLittleEndian)
                 { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
