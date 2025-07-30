@@ -77,6 +77,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("display_set_gui_size", GMLFunctionFlags.Stub)]
         public static object? display_set_gui_size(object?[] args)
         {
+            var width = args[0].Conv<int>();
+            var height = args[1].Conv<int>();
+
+            DrawManager.GuiSize = new(width, height);
+
             return null;
         }
 
