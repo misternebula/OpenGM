@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System.Numerics;
 
 namespace OpenGM;
 public static class CustomMath
@@ -8,7 +9,7 @@ public static class CustomMath
 
     public static double Epsilon = 0.00001; // not const, as this value can be changed
 
-    public static double Min(params double[] values)
+    public static TNumber Min<TNumber>(params TNumber[] values) where TNumber : struct, INumber<TNumber>
     {
         if (values.Length == 2)
         {
@@ -19,29 +20,7 @@ public static class CustomMath
         return values.Min();
     }
 
-    public static float Min(params float[] values)
-    {
-        if (values.Length == 2)
-        {
-            // Avoid expensive LINQ query in most common situation
-            return values[0] < values[1] ? values[0] : values[1];
-        }
-
-        return values.Min();
-    }
-
-    public static int Min(params int[] values)
-    {
-        if (values.Length == 2)
-        {
-            // Avoid expensive LINQ query in most common situation
-            return values[0] < values[1] ? values[0] : values[1];
-        }
-
-        return values.Min();
-    }
-
-    public static double Max(params double[] values)
+    public static TNumber Max<TNumber>(params TNumber[] values) where TNumber : struct, INumber<TNumber>
     {
         if (values.Length == 2)
         {
@@ -52,49 +31,27 @@ public static class CustomMath
         return values.Max();
     }
 
-    public static float Max(params float[] values)
+    public static int FloorToInt<TFloat>(TFloat value) where TFloat : struct, IFloatingPoint<TFloat>
     {
-        if (values.Length == 2)
-        {
-            // Avoid expensive LINQ query in most common situation
-            return values[0] > values[1] ? values[0] : values[1];
-        }
-
-        return values.Max();
+        return int.CreateTruncating(TFloat.Floor(value));
     }
 
-    public static int Max(params int[] values)
+    public static int CeilToInt<TFloat>(TFloat value) where TFloat : struct, IFloatingPoint<TFloat>
     {
-        if (values.Length == 2)
-        {
-            // Avoid expensive LINQ query in most common situation
-            return values[0] > values[1] ? values[0] : values[1];
-        }
-
-        return values.Max();
+        return int.CreateTruncating(TFloat.Ceiling(value));
     }
 
-    public static int FloorToInt(double value)
+    public static int RoundToInt<TFloat>(TFloat value) where TFloat : struct, IFloatingPoint<TFloat>
     {
-        return (int)Math.Floor(value);
-    }
-
-    public static int CeilToInt(double value)
-    {
-        return (int)Math.Ceiling(value);
-    }
-
-    public static int RoundToInt(double value)
-    {
-        return (int)Math.Round(value);
+        return int.CreateTruncating(TFloat.Round(value));
     }
 
     /// <summary>
     /// like Math.Sign but returns 1 when passed 0 (matches unity impl)
     /// </summary>
-    public static double Sign(double value)
+    public static int Sign<TNumber>(TNumber value) where TNumber : struct, INumber<TNumber>
     {
-        return value == 0 ? 1 : Math.Sign(value);
+        return value.Equals(0) ? 1 : TNumber.Sign(value);
     }
 
     public static bool ApproxEqual(double a, double b) => Math.Abs(a - b) <= Epsilon;
