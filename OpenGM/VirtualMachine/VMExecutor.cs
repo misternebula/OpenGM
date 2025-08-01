@@ -386,9 +386,30 @@ public static partial class VMExecutor
                 // first ??= 0;
                 // second ??= 0;
                 
-                // TODO: array and undefined cmp
+                // TODO: array cmp
 
-                if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
+                if (first == null || second == null)
+                {
+                    switch (instruction.Comparison)
+                    {
+                        case VMComparison.LT:
+                        case VMComparison.GT:
+                            Call.Stack.Push(false, VMType.b);
+                            break;
+                        case VMComparison.LTE:
+                        case VMComparison.GTE:
+                        case VMComparison.EQ:
+                            Call.Stack.Push((first == null) && (second == null), VMType.b);
+                            break;
+                        case VMComparison.NEQ:
+                            Call.Stack.Push((first == null) != (second == null), VMType.b);
+                            break;
+                        case VMComparison.None:
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
                 {
                     var firstNumber = first.Conv<double>();
                     var secondNumber = second.Conv<double>();
