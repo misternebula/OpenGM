@@ -42,6 +42,7 @@ public static class GameConverter
             ExportSounds(writer, data);
             ExportPaths(writer, data);
             ExportShaders(writer, data);
+            ExportAnimCurves(writer, data);
         }
         catch
         {
@@ -1512,5 +1513,46 @@ public static class GameConverter
         }
 
         Console.WriteLine(" Done!");
+    }
+
+    public static void ExportAnimCurves(BinaryWriter writer, UndertaleData data)
+    {
+        Console.Write($"Exporting animation curves...");
+        
+        writer.Write(data.AnimationCurves.Count);
+        foreach (var animcurve in data.AnimationCurves)
+        {
+            var asset = new AnimCurve();
+            asset.AssetIndex = data.AnimationCurves.IndexOf(animcurve);
+            asset.Name = animcurve.Name.Content;
+
+            foreach (var channel in animcurve.Channels)
+            {
+                var channelAsset = new AnimCurveChannel
+                {
+                    Name = channel.Name.Content,
+                    CurveType = (CurveType)channel.Curve,
+                    Iterations = (int)channel.Iterations
+                };
+
+                foreach (var point in channel.Points)
+                {
+                    var pointAsset = new AnimCurvePoint { 
+                        X = point.X, 
+                        Y = point.Value, 
+                        BezierX0 = point.BezierX0, 
+                        BezierY0 = point.BezierY0,
+                        BezierX1 = point.BezierX1,
+                        BezierY1 = point.BezierY1
+                    };
+
+                    channelAsset.Points.Add(pointAsset);
+                }
+
+                asset.Channels.Add(channelAsset);
+            }
+
+            writer.WriteMemoryPack(asset);
+        }
     }
 }

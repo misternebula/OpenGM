@@ -3,6 +3,7 @@ using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using StbImageSharp;
 
 namespace OpenGM.Loading;
@@ -51,6 +52,7 @@ public static class GameLoader
         AudioManager.LoadSounds(reader);
         LoadPaths(reader);
         LoadShaders(reader);
+        LoadAnimCurves(reader);
         
         GC.Collect(); // gc after doing a buncha loading
     }
@@ -439,6 +441,53 @@ public static class GameLoader
         {
             var asset = reader.ReadMemoryPack<Shader>();
             Shaders.Add(asset.AssetIndex, asset);
+        }
+
+        Console.WriteLine($" Done!");
+    }
+
+    public static Dictionary<int, RuntimeAnimCurve> AnimCurves = new();
+
+    private static void LoadAnimCurves(BinaryReader reader)
+    {
+        Console.Write($"Loading animation curves...");
+        AnimCurves.Clear();
+
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<AnimCurve>();
+
+            var curve = new RuntimeAnimCurve();
+            curve.name = asset.Name;
+
+            var channelArray = new RuntimeAnimCurveChannel[asset.Channels.Count];
+            for (var j = 0; j < asset.Channels.Count; j++)
+            {
+                var channel = asset.Channels[j];
+                channelArray[j] = new RuntimeAnimCurveChannel();
+                channelArray[j].name = channel.Name;
+                channelArray[j].type = channel.CurveType;
+                channelArray[j].iterations = channel.Iterations;
+
+                var pointsArray = new RuntimeAnimCurvePoint[channel.Points.Count];
+                for (var k = 0; k < channel.Points.Count; k++)
+                {
+                    var point = channel.Points[k];
+                    pointsArray[k] = new RuntimeAnimCurvePoint();
+                    pointsArray[k].posx = point.X;
+                    pointsArray[k].value = point.Y;
+                    pointsArray[k].BezierX0 = point.BezierX0;
+                    pointsArray[k].BezierY0 = point.BezierY0;
+                    pointsArray[k].BezierX1 = point.BezierX1;
+                    pointsArray[k].BezierY1 = point.BezierY1;
+                }
+
+                channelArray[j].points = pointsArray;
+            }
+
+            curve.channels = channelArray;
+            AnimCurves.Add(asset.AssetIndex, curve);
         }
 
         Console.WriteLine($" Done!");

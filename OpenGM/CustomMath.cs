@@ -19,6 +19,17 @@ public static class CustomMath
         return values.Min();
     }
 
+    public static float Min(params float[] values)
+    {
+        if (values.Length == 2)
+        {
+            // Avoid expensive LINQ query in most common situation
+            return values[0] < values[1] ? values[0] : values[1];
+        }
+
+        return values.Min();
+    }
+
     public static int Min(params int[] values)
     {
         if (values.Length == 2)
@@ -31,6 +42,17 @@ public static class CustomMath
     }
 
     public static double Max(params double[] values)
+    {
+        if (values.Length == 2)
+        {
+            // Avoid expensive LINQ query in most common situation
+            return values[0] > values[1] ? values[0] : values[1];
+        }
+
+        return values.Max();
+    }
+
+    public static float Max(params float[] values)
     {
         if (values.Length == 2)
         {

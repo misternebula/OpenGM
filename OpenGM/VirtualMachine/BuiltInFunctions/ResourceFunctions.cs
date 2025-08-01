@@ -1,6 +1,7 @@
 ﻿using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
+using System.Collections;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -651,5 +652,55 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // asset_get_type
+
+        // ... sequence stuff
+
+        // animcurve_get
+
+        [GMLFunction("animcurve_get_channel")]
+        public static object? animcurve_get_channel(object?[] args)
+        {
+            var curve_struct_or_id = args[0];
+            var channel_name_or_index = args[1];
+
+            RuntimeAnimCurve curveStruct;
+            if (curve_struct_or_id is RuntimeAnimCurve _struct)
+            {
+                curveStruct = _struct;
+            }
+            else
+            {
+                curveStruct = GameLoader.AnimCurves[curve_struct_or_id.Conv<int>()];
+            }
+
+            if (channel_name_or_index is string str)
+            {
+                foreach (var channel in curveStruct.channels)
+                {
+                    if (channel.name == str)
+                    {
+                        return channel;
+                    }
+                }
+
+                throw new($"Channel with name {str} not found.");
+            }
+            else
+            {
+                return curveStruct.channels[channel_name_or_index.Conv<int>()];
+            }
+        }
+
+        // animcurve_get_channel_index
+
+        [GMLFunction("animcurve_channel_evaluate")]
+        public static object? animcurve_channel_evaluate(object?[] args)
+        {
+            var channel_struct = args[0].Conv<RuntimeAnimCurveChannel>();
+            var posx = args[1].Conv<float>();
+            return channel_struct.Evaluate(posx);
+        }
+
+        // ...
     }
 }

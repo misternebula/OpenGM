@@ -819,7 +819,7 @@ public static partial class VMExecutor
                 }
             }
         }
-        else if (@this is int or long or short)
+        else if (@this is int or long or short or Enum)
         {
             var l = Convert.ToInt64(@this);
 
