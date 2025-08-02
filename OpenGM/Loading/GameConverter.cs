@@ -1517,6 +1517,12 @@ public static class GameConverter
 
     public static void ExportAnimCurves(BinaryWriter writer, UndertaleData data)
     {
+        if (data.AnimationCurves is null)
+        {
+            writer.Write(0);
+            return;
+        }
+
         Console.Write($"Exporting animation curves...");
         
         writer.Write(data.AnimationCurves.Count);
