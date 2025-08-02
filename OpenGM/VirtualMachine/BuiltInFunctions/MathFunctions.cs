@@ -507,7 +507,12 @@ public static class MathFunctions
         return Math.Cos(val);
     }
 
-    // tan
+    [GMLFunction("tan")]
+    public static object tan(object?[] args)
+    {
+        var val = args[0].Conv<double>();
+        return Math.Tan(val);
+    }
 
     [GMLFunction("arcsin")]
     public static object arcsin(object?[] args)
