@@ -303,6 +303,41 @@ public static class SurfaceManager
         GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
+    public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
+    {
+        // todo: im writing this at 3am, this doesn't work. idk why it doesnt work. probably a dumb reason. i eep
+        var surfWidth = GetSurfaceWidth(id);
+        var surfHeight = GetSurfaceHeight(id);
+
+        BindSurfaceTexture(id);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
+
+        var vertexOne = new Vector2d(x, y);
+        var vertexTwo = new Vector2d(x + w, y);
+        var vertexThree = new Vector2d(x + w, y + h);
+        var vertexFour = new Vector2d(x, y + h);
+
+        var uvLeft = left / surfWidth;
+        var uvRight = (left + w) / surfWidth;
+        var uvTop = top / surfHeight;
+        var uvBottom = (top + h) / surfHeight;
+
+        var uvOne = new Vector2d(uvLeft, uvTop);
+        var uvTwo = new Vector2d(uvRight, uvTop);
+        var uvThree = new Vector2d(uvRight, uvBottom);
+        var uvFour = new Vector2d(uvLeft, uvBottom);
+
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
+            new(vertexOne, Color4.White, uvOne),
+            new(vertexTwo, Color4.White, uvTwo),
+            new(vertexThree, Color4.White, uvThree),
+            new(vertexFour, Color4.White, uvFour)
+        ]);
+
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
+    }
+
     public static void BindSurfaceTexture(int surfaceId)
     {
         var buffer = _framebuffers[surfaceId];

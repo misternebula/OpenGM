@@ -1827,7 +1827,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // draw_surface_stretched_ext
-        // draw_surface_part
+
+        [GMLFunction("draw_surface_part")]
+        public static object? draw_surface_part(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var left = args[1].Conv<int>();
+            var top = args[2].Conv<int>();
+            var w = args[3].Conv<int>();
+            var h = args[4].Conv<int>();
+            var x = args[5].Conv<double>();
+            var y = args[6].Conv<double>();
+
+            SurfaceManager.draw_surface_part(id, left, top, w, h, x, y);
+            return null;
+        }
+
         // draw_surface_part_ext
         // draw_surface_general
 
