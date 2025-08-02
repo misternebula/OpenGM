@@ -413,6 +413,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public bool Marked = false; // Marked for deletion at the end of the frame
     public bool IsOutsideRoom = false; // Store state so event isn't called multiple times
 
+    public int Layer = -1;
+
     public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
     {
         Definition = obj;

@@ -273,6 +273,7 @@ public static class VariableResolver
         // path_orientation
         // path_endaction
         // ...
+        { "layer", (get_layer, set_layer)}
     };
 
     public static object get_working_directory()
@@ -540,4 +541,7 @@ public static class VariableResolver
     {
         // TODO : Implement
     }
+
+    public static object get_layer(GamemakerObject instance) => instance.Layer;
+    public static void set_layer(GamemakerObject instance, object? value) => instance.Layer = value.Conv<int>();
 }
