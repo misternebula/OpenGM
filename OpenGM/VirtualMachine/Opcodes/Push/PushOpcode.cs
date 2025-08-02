@@ -217,6 +217,29 @@ public static partial class VMExecutor
         Call.Stack.Push(array[index], VMType.v);
     }
 
+    public static void PushStatic(string varname)
+    {
+        var currentFunc = Call.Function;
+
+        if (currentFunc == null)
+        {
+            // uhhhhh fuckin uhhh
+            throw new NotImplementedException();
+        }
+
+        if (!currentFunc.HasStaticInitRan)
+        {
+            throw new NotImplementedException($"Tried to push static variable {varname} before static initialization!");
+        }
+
+        if (!currentFunc.StaticVariables.TryGetValue(varname, out var value))
+        {
+            throw new NotImplementedException("StaticVariables should contain every static variable after initialization!?");
+        }
+
+        Call.Stack.Push(value, VMType.v);
+    }
+
     public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
     {
         switch (instruction.TypeOne)
@@ -310,6 +333,11 @@ public static partial class VMExecutor
             else if (variableType == VariableType.Stacktop)
             {
                 PushStacktop(variableName);
+                return (ExecutionResult.Success, null);
+            }
+            else if (variableType == VariableType.Static)
+            {
+                PushStatic(variableName);
                 return (ExecutionResult.Success, null);
             }
         }
