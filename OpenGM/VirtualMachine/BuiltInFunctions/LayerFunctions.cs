@@ -95,7 +95,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
                 if (layer == null)
                 {
-                    DebugLog.Log($"layer_set_visible() - could not find specified layer in current room");
+                    DebugLog.Log($"layer_set_visible() - could not find specified layer \"{s}\" in current room");
                     return null;
                 }
             }
