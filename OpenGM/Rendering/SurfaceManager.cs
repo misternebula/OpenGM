@@ -39,7 +39,7 @@ public static class SurfaceManager
         
         // even if drawing to a view surface or app surface, itll use the whole area
 
-        GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
+        //GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
 
         return true;
     }
@@ -57,7 +57,7 @@ public static class SurfaceManager
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
 
-        GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
+        //GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
 
         return true;
     }
@@ -249,7 +249,6 @@ public static class SurfaceManager
     {
         // draw rectangle with that texture
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
         // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
@@ -271,7 +270,6 @@ public static class SurfaceManager
             new(new(x, y + h), Color4.White, new(0, 1)),
         ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
@@ -280,7 +278,6 @@ public static class SurfaceManager
         var h = GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var scaledWidth = w * xscale;
         var scaledHeight = h * yscale;
@@ -300,7 +297,6 @@ public static class SurfaceManager
         ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)

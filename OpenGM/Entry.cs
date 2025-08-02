@@ -245,6 +245,9 @@ internal class Entry
         DebugLog.LogInfo($"Binding page textures...");
         PageManager.BindTextures();
 
+        DebugLog.LogInfo("Compiling shaders...");
+        ShaderManager.CompileShaders();
+
         DebugLog.LogInfo($"Executing global init scripts...");
 
         foreach (var item in ScriptResolver.GlobalInit)

@@ -16,6 +16,7 @@ public class RuntimeView
         get => new(Camera.ViewX, Camera.ViewY);
         set
         {
+            // BUG: doesnt update matrices??? is this bad??? i dont know what gamemaker does
             Camera.ViewX = value.X;
             Camera.ViewY = value.Y;
         }

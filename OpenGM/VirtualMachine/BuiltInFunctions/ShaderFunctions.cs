@@ -1,34 +1,42 @@
-﻿using OpenGM.VirtualMachine;
+﻿using OpenGM.Rendering;
+using OpenTK.Graphics.OpenGL;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class ShaderFunctions
     {
-        [GMLFunction("shader_set", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_set")]
         public static object? shader_set(object?[] args)
         {
             var shaderId = args[0].Conv<int>();
+            ShaderManager.ShaderSet(shaderId);
             return null;
         }
 
         // shader_get_name
 
-        [GMLFunction("shader_reset", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_reset")]
         public static object? shader_reset(object?[] args)
         {
+            ShaderManager.ShaderReset();
             return null;
         }
 
-        [GMLFunction("shader_current", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_current")]
         public static object? shader_current(object?[] args)
         {
-            return null;
+            return ShaderManager.CurrentShaderIndex;
         }
 
-        [GMLFunction("shader_get_uniform", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_get_uniform")]
         public static object? shader_get_uniform(object?[] args)
         {
-            return null;
+            var shader = args[0].Conv<int>();
+            var uniform = args[1].Conv<string>();
+
+            var runtimeShader = ShaderManager.Shaders[shader];
+
+            return runtimeShader.Uniforms[uniform].Location;
         }
 
         [GMLFunction("shader_get_sampler_index", GMLFunctionFlags.Stub)]
@@ -37,9 +45,30 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return -1;
         }
 
-        [GMLFunction("shader_set_uniform_i", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_set_uniform_i")]
         public static object? shader_set_uniform_i(object?[] args)
         {
+            var handle = args[0].Conv<int>();
+
+            var valueCount = args.Length - 1;
+            switch (valueCount)
+            {
+                case 1:
+                    GL.Uniform1(handle, args[1].Conv<int>());
+                    break;
+                case 2:
+                    GL.Uniform2(handle, args[1].Conv<int>(), args[2].Conv<int>());
+                    break;
+                case 3:
+                    GL.Uniform3(handle, args[1].Conv<int>(), args[2].Conv<int>(), args[3].Conv<int>());
+                    break;
+                case 4:
+                    GL.Uniform4(handle, args[1].Conv<int>(), args[2].Conv<int>(), args[3].Conv<int>(), args[4].Conv<int>());
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
             return null;
         }
 

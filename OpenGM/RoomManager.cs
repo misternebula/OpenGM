@@ -295,6 +295,8 @@ public static class RoomManager
             camera.ViewAngle = 0;
             camera.TargetInstance = view.FollowsObject;
 
+            camera.Build2DView(camera.ViewX + (camera.ViewWidth / 2), camera.ViewY + (camera.ViewHeight / 2));
+
             var runtimeView = new RuntimeView
             {
                 Visible = view.Enabled,
