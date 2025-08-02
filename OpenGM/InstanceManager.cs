@@ -138,13 +138,45 @@ public static class InstanceManager
         return newGM.instanceId;
     }
 
-    public static int instance_create_depth(double x, double y, int depth, int obj)
+    public static int instance_create_depth(double x, double y, int depth, int obj, GMLObject? var_struct)
     {
         var definition = ObjectDefinitions[obj];
 
         var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+
+        if (var_struct != null)
+        {
+            foreach (var var in var_struct.SelfVariables)
+            {
+                VMExecutor.PopToSelf(newGM, var.Key, var.Value);
+            }
+        }
+
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        newGM._createRan = true;
+        return newGM.instanceId;
+    }
+
+    public static int instance_create_layer(double x, double y, LayerContainer layer, int obj, GMLObject? var_struct)
+    {
+        var definition = ObjectDefinitions[obj];
+
+        var newGM = new GamemakerObject(definition, x, y, layer.Depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+        layer.ElementsToDraw.Add(newGM);
+        newGM.Layer = layer.ID;
+
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+
+        if (var_struct != null)
+        {
+            foreach (var var in var_struct.SelfVariables)
+            {
+                VMExecutor.PopToSelf(newGM, var.Key, var.Value);
+            }
+        }
+
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
         newGM._createRan = true;
         return newGM.instanceId;
