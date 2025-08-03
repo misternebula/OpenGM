@@ -212,9 +212,9 @@ public class TileBlob
     public TileBlob(uint blobData)
     {
         TileIndex = (int)blobData & 0x7FFFF;
-        Mirror = (blobData & 0x8000000) != 0;
-        Flip = (blobData & 0x10000000) != 0;
-        Rotate = (blobData & 0x20000000) != 0;
+        Mirror = (blobData & 0x10000000) != 0;
+        Flip = (blobData & 0x20000000) != 0;
+        Rotate = (blobData & 0x40000000) != 0;
     }
 
     public int ToNumber() 
