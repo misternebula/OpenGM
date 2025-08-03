@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace OpenGM;
 
@@ -127,9 +128,8 @@ public static class ExtensionManager
         }
     }
 
-    static ScriptResolver.GMLFunctionType MakeStubFunction(string functionName) 
-    {
-        return (object?[] args) => {
+    static ScriptResolver.GMLFunctionType MakeStubFunction(string functionName) =>
+        (object?[] args) => {
             var alwaysLog = ScriptResolver.AlwaysLogStubs;
             var logged = ScriptResolver.LoggedStubs;
             
@@ -144,20 +144,22 @@ public static class ExtensionManager
             
             return null;
         };
-    }
     
-    static ScriptResolver.GMLFunctionType ConvertExtensionFunc(Delegate dele) 
-    {
-        return (object?[] args) => 
+    static ScriptResolver.GMLFunctionType ConvertExtensionFunc(Delegate dele) =>
+        (object?[] args) => 
         {
             unsafe
             {
-                var pins = args.Select(x => GCHandle.Alloc(x, GCHandleType.Pinned)).ToArray();
+                var pins = new GCHandle?[args.Length];
                 for (var i = 0; i < args.Length; i++)
                 {
-                    if (args[i] is string)
+                    if (args[i] is string str)
                     {
-                        args[i] = pins[i].AddrOfPinnedObject();
+                        var bytes = Encoding.ASCII.GetBytes(str + char.MinValue);
+
+                        var pin = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+                        pins[i] = pin;
+                        args[i] = pin.AddrOfPinnedObject();
                     }
                 }
 
@@ -165,13 +167,12 @@ public static class ExtensionManager
                 
                 foreach (var pin in pins)
                 {
-                    pin.Free();
+                    pin?.Free();
                 }
 
                 return result;
             }
         };
-    }
 
     static void StubAllFuncs(ExtensionFile file)
     {
