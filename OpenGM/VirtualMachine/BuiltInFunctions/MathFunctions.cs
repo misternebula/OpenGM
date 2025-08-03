@@ -69,7 +69,7 @@ public static class MathFunctions
                  * just dummy implementing this so it'll run the initialize part of the constructor
                  */
                 method.inst = null;
-                DebugLog.LogWarning("Method() called with -16 (static) struct ref - not implemented.");
+                DebugLog.LogWarning($"Method() called with -16 (static) struct ref - not implemented. ({VMExecutor.Call.CodeName})");
             }
             else
             {
