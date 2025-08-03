@@ -16,6 +16,7 @@ public static class DrawManager
     public static Vector2i? GuiSize = null;
 
     public static bool DebugBBoxes = false;
+    public static bool ShouldDrawGui = true;
 
     public static void Register(DrawWithDepth obj)
     {
@@ -620,28 +621,30 @@ public static class DrawManager
         /*
          * DrawGUI
          */
-
-        if (GuiSize is Vector2i vec)
+        if (ShouldDrawGui)
         {
-            GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y);
-        }
+            if (GuiSize is Vector2i vec)
+            {
+                GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y);
+            }
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
-        {
-            return;
-        }
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
+            {
+                return;
+            }
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUI))
-        {
-            return;
-        }
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUI))
+            {
+                return;
+            }
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd))
-        {
-            return;
-        }
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd))
+            {
+                return;
+            }
 
-        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+            GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        }
 
         if (RoomManager.CurrentRoom != null)
         {
