@@ -118,7 +118,7 @@ public static class ExtensionManager
                     var dele = Marshal.GetDelegateForFunctionPointer(funcPtr, deleType);
 
                     // wrap the delegate in another function and throw it into BuiltInFunctions
-                    var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, ConvertExtensionFunc(dele));
+                    var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, ConvertExtensionFunc(dele, types));
                     if (!success)
                     {
                         DebugLog.LogError($"Could not add extension function {func.Name} to functions list");
@@ -145,25 +145,44 @@ public static class ExtensionManager
             return null;
         };
     
-    static ScriptResolver.GMLFunctionType ConvertExtensionFunc(Delegate dele) =>
+    static ScriptResolver.GMLFunctionType ConvertExtensionFunc(Delegate dele, List<Type> types) =>
         (object?[] args) => 
         {
             var pins = new GCHandle?[args.Length];
+            var newArgs = new List<object?>();
             try 
             {
-                for (var i = 0; i < args.Length; i++)
+                for (var i = 0; i < types.Count - 1; i++)
                 {
+                    if (args.Length < i)
+                    {
+                        if (types[i] == typeof(double))
+                        {
+                            newArgs.Add((double)0);
+                        }
+                        else
+                        {
+                            // TODO: are strings just null pointers?
+                            newArgs.Add((nint)0);
+                        }
+
+                        continue;
+                    }
+
                     if (args[i] is string str)
                     {
                         var bytes = Encoding.ASCII.GetBytes(str + char.MinValue);
 
                         var pin = GCHandle.Alloc(bytes, GCHandleType.Pinned);
                         pins[i] = pin;
-                        args[i] = pin.AddrOfPinnedObject();
+                        newArgs.Add(pin.AddrOfPinnedObject());
+                        continue;
                     }
+
+                    newArgs.Add(args[i]);
                 }
 
-                var result = dele.DynamicInvoke(args);
+                var result = dele.DynamicInvoke([.. newArgs]);
 
                 return result;
             }
