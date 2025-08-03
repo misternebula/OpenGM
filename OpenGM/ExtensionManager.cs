@@ -148,9 +148,9 @@ public static class ExtensionManager
     static ScriptResolver.GMLFunctionType ConvertExtensionFunc(Delegate dele) =>
         (object?[] args) => 
         {
-            unsafe
+            var pins = new GCHandle?[args.Length];
+            try 
             {
-                var pins = new GCHandle?[args.Length];
                 for (var i = 0; i < args.Length; i++)
                 {
                     if (args[i] is string str)
@@ -164,13 +164,15 @@ public static class ExtensionManager
                 }
 
                 var result = dele.DynamicInvoke(args);
-                
+
+                return result;
+            }
+            finally
+            {
                 foreach (var pin in pins)
                 {
                     pin?.Free();
                 }
-
-                return result;
             }
         };
 
