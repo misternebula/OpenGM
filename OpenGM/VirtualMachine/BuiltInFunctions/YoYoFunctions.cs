@@ -20,14 +20,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // os_get_info
 
-        [GMLFunction("os_get_language", GMLFunctionFlags.Stub)]
+        [GMLFunction("os_get_language")]
         public static object os_get_language(object?[] args)
         {
             var lang = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
             return (lang == "iv") ? "en" : lang; //just in case it returns iv
         }
 
-        [GMLFunction("os_get_region", GMLFunctionFlags.Stub)]
+        [GMLFunction("os_get_region")]
         public static object os_get_region(object?[] args)
         {
             bool invariant = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "iv"); //just in case it returns iv
