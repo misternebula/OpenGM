@@ -97,12 +97,12 @@ public static class InstanceManager
     {
         if (!instances.ContainsKey(obj.instanceId))
         {
-            DebugLog.LogWarning($"Tried to unregister a non-registered object with instanceId:{obj.instanceId}\nObject:{obj.Definition.Name}");
+            DebugLog.LogVerbose($"Tried to unregister a non-registered object with instanceId:{obj.instanceId}\nObject:{obj.Definition.Name}");
 
-            DebugLog.LogError($"--Stacktrace--");
+            DebugLog.LogVerbose($"--Stacktrace--");
             foreach (var item in VMExecutor.CallStack)
             {
-                DebugLog.LogError($" - {item.CodeName}");
+                DebugLog.LogVerbose($" - {item.CodeName}");
             }
 
             return;
