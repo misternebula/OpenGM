@@ -1112,35 +1112,39 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             // TODO: make these properties actually correct
-            var result = new GMLObject();
-            result.SelfVariables["ascender"] = 0;
-            result.SelfVariables["ascenderOffset"] = 0;
-            result.SelfVariables["size"] = font.Size;
-            result.SelfVariables["spriteIndex"] = font.spriteIndex;
-            result.SelfVariables["texture"] = font.texture;
-            result.SelfVariables["name"] = font.name;
-            result.SelfVariables["bold"] = false;
-            result.SelfVariables["italic"] = false;
+            var result = new GMLObject
+            {
+                ["ascender"] = 0,
+                ["ascenderOffset"] = 0,
+                ["size"] = font.Size,
+                ["spriteIndex"] = font.spriteIndex,
+                ["texture"] = font.texture,
+                ["name"] = font.name,
+                ["bold"] = false,
+                ["italic"] = false
+            };
 
             var glyphs = new GMLObject();
 
             foreach (var (glyph, info) in font.entriesDict)
             {
-                var gmlGlyph = new GMLObject();
-                gmlGlyph.SelfVariables["char"] = info.characterIndex;
-                gmlGlyph.SelfVariables["x"] = info.x;
-                gmlGlyph.SelfVariables["y"] = info.y;
-                gmlGlyph.SelfVariables["w"] = info.w;
-                gmlGlyph.SelfVariables["h"] = info.h;
-                gmlGlyph.SelfVariables["shift"] = info.shift;
-                gmlGlyph.SelfVariables["offset"] = info.xOffset;
-                gmlGlyph.SelfVariables["kerning"] = new List<object?>();
+                var gmlGlyph = new GMLObject
+                {
+                    ["char"] = info.characterIndex,
+                    ["x"] = info.x,
+                    ["y"] = info.y,
+                    ["w"] = info.w,
+                    ["h"] = info.h,
+                    ["shift"] = info.shift,
+                    ["offset"] = info.xOffset,
+                    ["kerning"] = new List<object?>()
+                };
 
                 var character = ((char)glyph).ToString();
-                glyphs.SelfVariables[character] = gmlGlyph;
+                glyphs[character] = gmlGlyph;
             }
 
-            result.SelfVariables["glyphs"] = glyphs;
+            result["glyphs"] = glyphs;
 
             return result;
         }
