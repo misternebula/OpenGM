@@ -148,7 +148,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return KeyboardHandler.MousePressed[numb];
         }
 
-        // mouse_check_button_released
+        [GMLFunction("mouse_check_button_released")]
+        public static object mouse_check_button_released(object?[] args)
+        {
+            var numb = args[0].Conv<int>();
+            return KeyboardHandler.MouseReleased[numb];
+        }
+
         // mouse_wheel_up
         // mouse_wheel_down
         // keyboard_virtual_show
@@ -157,7 +163,34 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // keyboard_virtual_height
         // keyboard_clear
         // mouse_clear
-        // io_clear
+
+        [GMLFunction("io_clear")]
+        public static object? io_clear(object?[] args)
+        {
+            // TODO : clear other IO variables when we implement them
+
+            KeyboardHandler.KeyDown = new bool[256];
+            KeyboardHandler.KeyPressed = new bool[256];
+            KeyboardHandler.KeyReleased = new bool[256];
+
+            KeyboardHandler.MouseDown = new bool[5];
+            KeyboardHandler.KeyPressed = new bool[5];
+            KeyboardHandler.KeyReleased = new bool[5];
+            return null;
+        }
+
+        [GMLFunction("device_mouse_x_to_gui", GMLFunctionFlags.Stub)]
+        public static object? device_mouse_x_to_gui(object?[] args)
+        {
+            return 0;
+        }
+
+        [GMLFunction("device_mouse_y_to_gui", GMLFunctionFlags.Stub)]
+        public static object? device_mouse_y_to_gui(object?[] args)
+        {
+            return 0;
+        }
+
         // device_mouse_dbclick_enable
         // browser_input_capture
 

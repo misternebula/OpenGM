@@ -1,6 +1,8 @@
 ﻿using OpenGM.IO;
+using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -11,7 +13,10 @@ public static class DrawManager
 
     public static List<DrawWithDepth> _drawObjects = new();
 
+    public static Vector2i? GuiSize = null;
+
     public static bool DebugBBoxes = false;
+    public static bool ShouldDrawGui = true;
 
     public static void Register(DrawWithDepth obj)
     {
@@ -56,8 +61,13 @@ public static class DrawManager
     {
         foreach (var item in items)
         {
-            if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded && gm.visible)
+            if (item is GamemakerObject gm)
             {
+                if (!gm._createRan || !RoomManager.RoomLoaded || !gm.visible || !gm.Active)
+                {
+                    continue;
+                }
+
                 if (drawType == EventSubtypeDraw.Draw)
                 {
                     var hasDrawScript = gm.Definition.DrawScript.ContainsKey(EventSubtypeDraw.Draw);
@@ -86,42 +96,6 @@ public static class DrawManager
             else if (drawType == EventSubtypeDraw.Draw)
             {
                 item.Draw();
-            }
-        }
-
-
-        if (DebugBBoxes)
-        {
-            foreach (var item in items)
-            {
-                if (item is GamemakerObject gm && gm.Active)
-                {
-                    var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
-                    var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
-                    var camX = CustomWindow.Instance.X;
-                    var camY = CustomWindow.Instance.Y;
-
-                    var vertices = new OpenTK.Mathematics.Vector2d[] {
-                        new(gm.bbox.left - camX, gm.bbox.top - camY),
-                        new(gm.bbox.right - camX, gm.bbox.top - camY),
-                        new(gm.bbox.right - camX, gm.bbox.bottom - camY),
-                        new(gm.bbox.left - camX, gm.bbox.bottom - camY)
-                    };
-
-                    CustomWindow.Draw(new GMPolygonJob()
-                    {
-                        Colors = [color, color, color, color],
-                        Vertices = vertices,
-                        Outline = true
-                    });
-
-                    CustomWindow.Draw(new GMPolygonJob()
-                    {
-                        Colors = [fill, fill, fill, fill],
-                        Vertices = vertices,
-                        Outline = false
-                    });
-                }
             }
         }
 
@@ -156,7 +130,7 @@ public static class DrawManager
         // g_pLayerManager.UpdateLayers();
         // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
 
-        var stepList = _drawObjects.OrderBy(x => x.instanceId);
+        var stepList = _drawObjects.Where(x => x is not GamemakerObject obj || obj.Active).OrderBy(x => x.instanceId);
         if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
         {
             return;
@@ -278,6 +252,9 @@ public static class DrawManager
             }
         }
         */
+
+        // TODO: figure out where this goes
+        AsyncManager.HandleAsyncQueue();
     }
 
     public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)
@@ -297,10 +274,9 @@ public static class DrawManager
         {
             if (item is GamemakerObject gmo)
             {
-                foreach (var id in gmo.Definition.CollisionScript.Keys)
+                foreach (var id in GetCollisionScripts(gmo.Definition).Keys)
                 {
                     //var collide = CollisionManager.instance_place_assetid(gmo.x, gmo.y, id, gmo);
-
                     var instanceId = CollisionManager.Command_InstancePlace(gmo, gmo.x, gmo.y, id);
 
                     if (instanceId == GMConstants.noone)
@@ -320,6 +296,34 @@ public static class DrawManager
                 }
             }
         }
+    }
+
+    // TODO : this is really bad, this needs to be cached somewhere
+    public static Dictionary<int, VMCode> GetCollisionScripts(ObjectDefinition obj)
+    {
+        var ret = new Dictionary<int, VMCode>();
+
+        void AddScripts(ObjectDefinition obj)
+        {
+            foreach (var item in obj.CollisionScript)
+            {
+                if (ret.ContainsKey(item.Key))
+                {
+                    continue;
+                }
+
+                ret.Add(item.Key, item.Value);
+            }
+        }
+
+        var parent = obj;
+        while (parent != null)
+        {
+            AddScripts(parent);
+            parent = parent.parent;
+        }
+
+        return ret;
     }
 
     public static void HandleOther()
@@ -395,23 +399,25 @@ public static class DrawManager
          * yyRoom.prototype.Draw
          */
 
-        var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
+        var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId);
 
+        /*
+         * PreDraw
+         */
+        var fbsize = CustomWindow.Instance.FramebufferSize;
+        GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        
         if (CustomWindow.Instance != null) // only null in tests
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
         }
 
-        /*
-         * PreDraw
-         */
         if (RunDrawScript(drawList, EventSubtypeDraw.PreDraw))
         {
             return;
         }
         
-        GL.Uniform1(VertexManager.u_flipY, 0); // dont flip when not drawing to backbuffer
-
         SurfaceManager.SetApplicationSurface();
 
         if (SurfaceManager.UsingAppSurface)
@@ -422,103 +428,279 @@ public static class DrawManager
             }
         }
 
-        // ROOM BACKGROUNDS
-        // this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
-        foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
-        {
-            if (item == null)
-            {
-                continue;
-            }
-
-            item.Draw();
-        }
-
         /*
          * DrawViews
          */
-        // TODO: at some point this must be replaced by drawing each view
-
+        
         /*
-         * DrawTheRoom
+         * UpdateViews
          */
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
-        {
-            return;
-        }
+        UpdateViews();
+        
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+        if (RoomManager.CurrentRoom.RoomAsset.EnableViews)
         {
-            return;
-        }
+            for (var i = 0; i < 8; i++)
+            {
+                ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+                if (!ViewportManager.CurrentRenderingView.Visible)
+                {
+                    continue;
+                }
+
+                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                {
+                    SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
+
+                    // idk what the deal with scaled port stuff is. happens in both html5 and cpp
+
+                    // ignore viewport, use entire surface. idk why
+                }
+                else
+                {
+                    // BUG: this stretches. idk why
+                    /*
+                    GraphicsManager.SetViewPort(
+                        ViewportManager.CurrentRenderingView.PortPosition.X,// * displayScaleX,
+                        ViewportManager.CurrentRenderingView.PortPosition.Y,// * displayScaleY,
+                        ViewportManager.CurrentRenderingView.PortSize.X,// * displayScaleX,
+                        ViewportManager.CurrentRenderingView.PortSize.Y// * displayScaleY
+                    );
+                    */
+                }
+
+                GraphicsManager.SetViewArea(
+                    ViewportManager.CurrentRenderingView.ViewPosition.X,
+                    ViewportManager.CurrentRenderingView.ViewPosition.Y,
+                    ViewportManager.CurrentRenderingView.ViewSize.X,
+                    ViewportManager.CurrentRenderingView.ViewSize.Y
+                );
+
+                // ROOM BACKGROUNDS
+                // this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
+                foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
+                {
+                    if (item == null)
+                    {
+                        continue;
+                    }
+
+                    item.Draw();
+                }
+
+                /*
+                 * DrawTheRoom
+                 */
+                if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+                {
+                    break;
+                }
+
+                if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+                {
+                    break;
+                }
+
+                if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+                {
+                    break;
+                }
+
+                if (DebugBBoxes)
+                {
+                    foreach (var item in _drawObjects)
+                    {
+                        if (item is GamemakerObject gm && gm.Active)
+                        {
+                            var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
+                            var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
+
+                            var vertices = new OpenTK.Mathematics.Vector2d[] {
+                                new(gm.bbox.left, gm.bbox.top),
+                                new(gm.bbox.right, gm.bbox.top),
+                                new(gm.bbox.right, gm.bbox.bottom),
+                                new(gm.bbox.left, gm.bbox.bottom)
+                            };
+
+                            CustomWindow.Draw(new GMPolygonJob()
+                            {
+                                Colors = [color, color, color, color],
+                                Vertices = vertices,
+                                Outline = true
+                            });
+
+                            CustomWindow.Draw(new GMPolygonJob()
+                            {
+                                Colors = [fill, fill, fill, fill],
+                                Vertices = vertices,
+                                Outline = false
+                            });
+                        }
+                    }
+                }
+
+                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                {
+                    SurfaceManager.surface_reset_target();
+                }
+            }
+        }
+        else
         {
-            return;
+            GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
+            GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY);
+
+            // dummy view for full room rendering
+            ViewportManager.CurrentRenderingView = new()
+            {
+                ViewPosition = Vector2.Zero,
+                ViewSize = new(RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY),
+                PortSize = new(SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight)
+            };
+
+            /*
+             * DrawTheRoom
+             */
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
+            {
+                return;
+            }
+
+            if (RunDrawScript(drawList, EventSubtypeDraw.Draw))
+            {
+                return;
+            }
+
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawEnd))
+            {
+                return;
+            }
         }
 
         if (SurfaceManager.UsingAppSurface)
         {
             SurfaceManager.surface_reset_target();
         }
+
         if (SurfaceManager.SurfaceStack.Count != 0)
         {
             DebugLog.LogError("Unbalanced surface stack. You MUST use surface_reset_target() for each set.");
-            // BUG: one new game in ch2, this becomes unbalanced. i have no idea why.
-            // i dont feel like actually fixing this right now
-            //Debugger.Break();
+            // BUG: room transitions become unbalanced. probably because of early returns above
             while (SurfaceManager.SurfaceStack.Count != 0)
             {
                 SurfaceManager.surface_reset_target();
             }
             return;
         }
-        
-        GL.Uniform1(VertexManager.u_flipY, 1); // flip when drawing to backbuffer
+
+        ViewportManager.CurrentRenderingView = null;
 
         /*
          * PostDraw
          */
+        GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
             return;
         }
 
         /*
-         * DrawApplicationSurface 
+         * DrawApplicationSurface
          */
         if (SurfaceManager.UsingAppSurface)
         {
+            // gamemaker actually uses alpha test enable here, and saves/restores the state. just change it to that when this breaks
             GL.Disable(EnableCap.Blend);
-            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface,
-                0, 0, CustomWindow.Instance!.FramebufferSize.X, CustomWindow.Instance.FramebufferSize.Y);
+            SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 0, 0, fbsize.X, fbsize.Y);
             GL.Enable(EnableCap.Blend);
         }
 
         /*
          * DrawGUI
          */
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
+        if (ShouldDrawGui)
         {
-            return;
-        }
+            if (GuiSize is Vector2i vec)
+            {
+                GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y);
+            }
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUI))
-        {
-            return;
-        }
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
+            {
+                return;
+            }
 
-        if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd))
-        {
-            return;
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUI))
+            {
+                return;
+            }
+
+            if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIEnd))
+            {
+                return;
+            }
+
+            GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
         }
 
         if (RoomManager.CurrentRoom != null)
         {
             RoomManager.CurrentRoom.RemoveMarked();
+            RoomManager.CurrentRoom.HandleObjectActivation();
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();
+    }
+
+    public static void UpdateViews()
+    {
+        if (!RoomManager.CurrentRoom.RoomAsset.EnableViews)
+        {
+            return;
+        }
+
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            if (!view.Visible)
+            {
+                continue;
+            }
+
+            if (view.Camera == null)
+            {
+                continue;
+            }
+
+            view.Camera.Update();
+        }
+
+        /*
+        var left = 999999;
+        var right = -999999;
+        var top  = 999999;
+        var bottom = -999999;
+
+        for (var i = 0; i < 8; i++)
+        {
+            var view = RoomManager.CurrentRoom.Views[i];
+
+            if (view.Visible )// && pView.surface_id==-1)
+            {
+                if( left>view.PortPosition.X) left = view.PortPosition.X;
+                if( right<(view.PortPosition.X+view.PortSize.X) ) right= view.PortPosition.X+view.PortSize.X;
+                if( top>view.PortPosition.Y) top = view.PortPosition.Y;
+                if( bottom<(view.PortPosition.Y+view.PortSize.Y) ) bottom = view.PortPosition.Y+view.PortSize.Y;
+            }
+        }
+
+        var displayScaleX = SurfaceManager.ApplicationWidth /  (right-left);
+        var displayScaleY = SurfaceManager.ApplicationHeight /  (bottom-top);
+        */
     }
 
     public static void HandleKeyboard()

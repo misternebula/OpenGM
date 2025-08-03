@@ -3,6 +3,7 @@ using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
+using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
 
@@ -30,6 +31,8 @@ public static class RoomManager
         }
 
         InstanceManager.instances.Clear();
+
+        CustomWindow.Instance.Close();
     }
 
     public static void StartGame()
@@ -114,14 +117,12 @@ public static class RoomManager
         DebugLog.LogInfo($"LOADING PERSISTENT ROOM AssetID:{room.AssetId} ({value.Container.RoomAsset.AssetId}) Name:{value.Container.RoomAsset.Name}");
         CurrentRoom = value.Container;
 
-        CustomWindow.Instance.SetPosition(0, 0);
-        CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-        CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
-
+        DebugLog.Log("Instances in persistent room:");
         foreach (var instance in value.Instances)
         {
-            DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name}");
+            DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}");
             InstanceManager.instances.Add(instance.instanceId, instance);
+            InstanceManager.ObjectMap[instance.Definition.AssetId].Instances.Add(instance);
             GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
             DrawManager.Register(instance);
         }
@@ -215,6 +216,7 @@ public static class RoomManager
             }
 
             //InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
+            InstanceManager.ClearInactive();
             InstanceManager.ClearNullInstances();
             InstanceManager.ClearNonPersistent();
 
@@ -262,17 +264,48 @@ public static class RoomManager
         }
     }
 
+    /*public static Vector2i CalculateCanvasSize()
+    {
+        // https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/Cameras_And_View_Ports.htm
+
+        // TODO : check for view_enabled here too
+        if (CurrentRoom.Views.All(x => !x.Visible))
+        {
+            // Use room size if all views are disabled.
+            // https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/view_enabled.htm
+            return new(CurrentRoom.SizeX, CurrentRoom.SizeY);
+        }
+    }*/
+
     private static void OnRoomChanged()
     {
-        DebugLog.Log($"Changing camera...");
-        if (CustomWindow.Instance != null) // only null in tests.
+        for (var i = 0; i < 8; i++)
         {
-            // reset view
-            CustomWindow.Instance.SetPosition(0, 0);
-            CustomWindow.Instance.SetResolution(CurrentRoom.CameraWidth, CurrentRoom.CameraHeight);
-            CustomWindow.Instance.FollowInstance = CurrentRoom.FollowObject;
-            //CustomWindow.Instance.UpdateInstanceFollow();
+            var view = CurrentRoom.RoomAsset.Views[i];
+
+            var camera = CameraManager.CreateCamera();
+            camera.ViewX = view.PositionX;
+            camera.ViewY = view.PositionY;
+            camera.ViewWidth = view.SizeX;
+            camera.ViewHeight = view.SizeY;
+            camera.SpeedX = view.SpeedX;
+            camera.SpeedY = view.SpeedY;
+            camera.BorderX = view.BorderX;
+            camera.BorderY = view.BorderY;
+            camera.ViewAngle = 0;
+            camera.TargetInstance = view.FollowsObject;
+
+            var runtimeView = new RuntimeView
+            {
+                Visible = view.Enabled,
+                PortPosition = new Vector2i(view.PortPositionX, view.PortPositionY),
+                PortSize = new Vector2i(view.PortSizeX, view.PortSizeY),
+                Camera = camera
+            };
+
+            CurrentRoom.Views[i] = runtimeView;
         }
+
 
         var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
 
@@ -314,6 +347,7 @@ public static class RoomManager
 
                     var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
                     var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+                    newGM.Layer = layer.LayerID;
 
                     //newGM._createRan = true;
                     newGM.depth = layer.LayerDepth;
@@ -391,6 +425,10 @@ public static class RoomManager
                 {
                     var sprite = (element as CLayerSpriteElement)!;
 
+                    var c = sprite.Color;
+                    var blend = (int)(c & 0x00FFFFFF);
+                    var alpha = ((c & 0xFF000000) >> 6) / 255.0;
+
                     var newSprite = new GMSprite(sprite)
                     {
                         Definition = sprite.Definition,
@@ -398,7 +436,8 @@ public static class RoomManager
                         Y = sprite.Y,
                         XScale = sprite.ScaleX,
                         YScale = sprite.ScaleY,
-                        Color = sprite.Color,
+                        Blend = blend,
+                        Alpha = alpha,
                         AnimationSpeed = sprite.AnimationSpeed,
                         AnimationSpeedType = sprite.AnimationSpeedType,
                         FrameIndex = sprite.FrameIndex,
@@ -465,7 +504,8 @@ public static class RoomManager
                 YScale = item.ScaleY,
                 Color = item.Color,
                 Definition = item.Definition,
-                SpriteMode = item.SpriteMode
+                SpriteMode = item.SpriteMode,
+                Visible = true
             };
 
             CurrentRoom.Tiles.Add(newTile);
@@ -508,6 +548,32 @@ public static class RoomManager
             var dummy = new GMLObject();
             VMExecutor.ExecuteCode(createCode, dummy);
             dummy = null;
+
+            if (VMExecutor.EnvStack.Count != 0)
+            {
+                DebugLog.LogWarning("EnvStack not empty after room creation code!");
+                foreach (var item in VMExecutor.EnvStack)
+                {
+                    if (item == null)
+                    {
+                        DebugLog.LogWarning(" - NULL");
+                    }
+                    else
+                    {
+                        if (item.Self is GamemakerObject)
+                        {
+                            DebugLog.LogWarning($" - {item.ObjectDefinition?.Name} ({item.GMSelf.instanceId})");
+                        }
+                        else
+                        {
+                            DebugLog.LogWarning($" - {item.GetType()}");
+                        }
+                    }
+                }
+
+                // HACK: why does the dummy object stay on envstack? no idea!!!
+                VMExecutor.EnvStack.Clear();
+            }
         }
 
         DebugLog.LogInfo($"Calling RoomStart...");
@@ -535,19 +601,35 @@ public static class RoomManager
 
     public static void room_goto_next()
     {
-        New_Room = CurrentRoom.AssetId + 1;
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, CurrentRoom.AssetId);
+
+        if (order.Length > idx + 1)
+        {
+            New_Room = order[idx + 1];
+        }
+
     }
 
     public static void room_goto_previous()
     {
-        New_Room = CurrentRoom.AssetId - 1;
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, CurrentRoom.AssetId);
+
+        if (idx > 0)
+        {
+            New_Room = order[idx - 1];
+        }
     }
 
     public static int room_next(int numb)
     {
-        if (RoomList.Count > numb + 1)
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, numb);
+
+        if (order.Length > idx + 1)
         {
-            return numb + 1;
+            return order[idx + 1];
         }
 
         return -1;
@@ -555,11 +637,14 @@ public static class RoomManager
 
     public static int room_previous(int numb)
     {
-        if (numb == 0)
+        var order = GameLoader.GeneralInfo.RoomOrder;
+        var idx = Array.IndexOf(order, numb);
+
+        if (idx <= 0)
         {
             return -1;
         }
 
-        return numb - 1;
+        return order[idx - 1];
     }
 }

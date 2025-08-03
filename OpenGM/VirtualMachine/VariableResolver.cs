@@ -9,19 +9,29 @@ public static class VariableResolver
 {
     /// <summary>
     /// general form of the array index setting logic.
+    /// 
     /// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
-    /// `getter` SHOULD NOT COPY.
+    /// `getter` SHOULD NOT COPY, since the reference is used to modify the list.
+    /// 
+    /// NOTE: this may try to grow fixed size lists (arrays). it will throw here
     /// </summary>
     public static void ArraySet(int index, object? value,
         Func<IList?> getter,
-        Action<IList> setter,
+        Action<IList>? setter = null,
         bool onlyGrow = false)
     {
         var array = getter();
         if (array == null)
         {
             array = new List<object?>();
-            setter(array);
+            if (setter != null)
+            {
+                setter(array);
+            }
+            else
+            {
+                throw new Exception("setter and getter are null?!");
+            }
         }
 
         if (index >= array.Count)
@@ -29,8 +39,8 @@ public static class VariableResolver
             var numToAdd = index - array.Count + 1;
             for (var i = 0; i < numToAdd; i++)
             {
-                // no clue if this is correct
                 // we want new list for every element here so its in the for loop
+                // TODO: check this is the correct implementation at some point
                 array.Add(value switch
                 {
                     int or short or long or float or double => 0,
@@ -45,9 +55,32 @@ public static class VariableResolver
             }
         }
 
-        if (onlyGrow) return;
+        if (onlyGrow) return; // TODO: should we call the setter here too just in case?
 
-        array[index] = value;
+        var arrayType = array.GetType();
+
+        Type elementType;
+        if (arrayType.IsGenericType) // List<T>
+        {
+            elementType = arrayType.GenericTypeArguments[0];
+        }
+        else if (arrayType.IsArray) // T[]
+        {
+            elementType = arrayType.GetElementType()!;
+        }
+        else
+        {
+            throw new UnreachableException($"array is not list or array (is {arrayType}");
+        }
+
+        if (elementType != typeof(object)) // typed array
+        {
+            array[index] = value.Conv(elementType);
+        }
+        else // untyped array
+        {
+            array[index] = value;
+        }
     }
 
     public static readonly Dictionary<string, object?> GlobalVariables = new();
@@ -84,7 +117,15 @@ public static class VariableResolver
         { "room", (get_room, set_room) },
         // room_first
         // room_last
-        // ...
+        // transition_kind
+        // transition_steps
+        // score
+        // lives
+        // health
+        // game_id
+        // game_display_name
+        // game_project_name
+        // game_save_id
         { "working_directory", (get_working_directory, null) },
         // temp_directory
         // program_directory
@@ -96,10 +137,27 @@ public static class VariableResolver
         { "room_speed", (get_room_speed, set_room_speed) },
         { "room_persistent", (get_room_persistent, set_room_persistent)},
         { "background_color", (get_background_color, set_background_color)},
-        // ...
+        // background_showcolor
+        // background_colour
+        // background_showcolour
+        // background_visible
+        // background_foreground
+        // background_index
+        // background_x
+        // background_y
+        // background_width
+        // background_height
+        // background_htiled
+        // background_vtiled
+        // background_xscale
+        // background_yscale
+        // background_hspeed
+        // background_vspeed
+        // background_blend
+        // background_alpha
         // view_enabled
         { "view_current", (get_view_current, null)},
-        // view_visible
+        { "view_visible", (get_view_visible, set_view_visible)},
         { "view_xview", (get_view_xview, set_view_xview)},
         { "view_yview", (get_view_yview, set_view_yview)},
         { "view_wview", (get_view_wview, set_view_wview)},
@@ -108,18 +166,60 @@ public static class VariableResolver
         // view_yport
         { "view_wport", (get_view_wport, set_view_wport)},
         { "view_hport", (get_view_hport, set_view_hport)},
-        // ...
+        // view_angle
+        // view_hborder
+        // view_vborder
+        // view_hspeed
+        // view_vspeed
+        // view_object
+        // view_surface_id
         { "view_camera", (get_view_camera, set_view_camera)},
-        // ...
+        { "mouse_x", (get_mouse_x, null)},
+        { "mouse_y", (get_mouse_y, null)},
+        // mouse_button
+        // mouse_lastbutton
+        // keyboard_key
+        // keyboard_lastkey
+        // keyboard_lastchar
+        // keyboard_string
+        // cursor_sprite
+        // show_score
+        // show_lives
+        // show_health
+        // caption_score
+        // caption_lives
+        // caption_health
         { "fps", (get_fps, null) },
+        // fps_real
+        { "delta_time", (get_delta_time, null) },
         { "current_time", (get_current_time, null)},
-        // ...
+        // current_year
         { "current_month", (get_current_month, null)},
-        // ...
+        // current_day
+        // current_weekday
+        // current_hour
+        // current_minute
+        { "current_second", (get_current_second, null)},
+        // event_type
+        // event_number
+        // event_object
+        // event_action
+        // error_occurred
+        // error_last
+        // gamemaker_registered
+        // gamemaker_pro
         { "application_surface", (get_application_surface, null) },
-        // ...
+        // font_texture_page_size
+
+        { "async_load", (get_async_load, null) },
+
+        // InitYoYoBuiltInVariables
         { "os_type", (get_os_type, null) },
-        // ...
+        // os_device
+        // os_version
+        // os_browser
+        { "browser_width", (get_browser_width, null) },
+        { "browser_height", (get_browser_height, null) },
     };
 
     // InitLocalVariables
@@ -173,6 +273,7 @@ public static class VariableResolver
         // path_orientation
         // path_endaction
         // ...
+        { "layer", (get_layer, set_layer)}
     };
 
     public static object get_working_directory()
@@ -183,6 +284,11 @@ public static class VariableResolver
     public static object get_fps()
     {
         return Entry.GameSpeed; // TODO : this shouldnt be the desired fps, but the current fps (fluctuating)
+    }
+
+    public static object get_delta_time()
+    {
+        return CustomWindow.Instance.DeltaTime;
     }
 
     public static object get_x(GamemakerObject instance) => instance.x;
@@ -291,12 +397,17 @@ public static class VariableResolver
     public static object get_room_speed() => Entry.GameSpeed;
     public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
 
+    public static object get_async_load() => AsyncManager.AsyncLoadDsIndex;
+
     public static object get_os_type() => 0; // TODO : Check if this is actually os_windows
+
+    public static object get_browser_width() => CustomWindow.Instance.ClientSize.X;
+    public static object get_browser_height() => CustomWindow.Instance.ClientSize.Y;
 
     public static object get_application_surface() => SurfaceManager.application_surface;
 
     public static object get_alarm(GamemakerObject instance) => instance.alarm;
-    public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().Cast<object?>().ToArray();
+    public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().ConvAll<int>().ToArray();
 
     public static object get_argument_count() => VMExecutor.Call.Locals["arguments"].Conv<IList>().Count;
     public static object get_argument() => VMExecutor.Call.Locals["arguments"]!;
@@ -327,25 +438,66 @@ public static class VariableResolver
     public static object? get_undefined() => null;
 
     public static object get_view_wport() => ViewportManager.view_wport;
-    public static void set_view_wport(object? value) => ViewportManager.view_wport = value.Conv<IList>().Cast<int>().ToArray();
+
+    public static void set_view_wport(object? value)
+    {
+        ViewportManager.view_wport = value.Conv<IList>().ConvAll<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_hport() => ViewportManager.view_hport;
-    public static void set_view_hport(object? value) => ViewportManager.view_hport = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_hport(object? value)
+    {
+        ViewportManager.view_hport = value.Conv<IList>().ConvAll<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_xview() => ViewportManager.view_xview;
-    public static void set_view_xview(object? value) => ViewportManager.view_xview = value.Conv<IList>().Cast<double>().ToArray();
+    public static void set_view_xview(object? value)
+    {
+        ViewportManager.view_xview = value.Conv<IList>().ConvAll<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_yview() => ViewportManager.view_yview;
-    public static void set_view_yview(object? value) => ViewportManager.view_yview = value.Conv<IList>().Cast<double>().ToArray();
+    public static void set_view_yview(object? value)
+    {
+        ViewportManager.view_yview = value.Conv<IList>().ConvAll<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_wview() => ViewportManager.view_wview;
-    public static void set_view_wview(object? value) => ViewportManager.view_wview = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_wview(object? value)
+    {
+        ViewportManager.view_wview = value.Conv<IList>().ConvAll<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_hview() => ViewportManager.view_hview;
-    public static void set_view_hview(object? value) => ViewportManager.view_hview = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_hview(object? value)
+    {
+        ViewportManager.view_hview = value.Conv<IList>().ConvAll<float>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_camera() => ViewportManager.view_camera;
-    public static void set_view_camera(object? value) => ViewportManager.view_camera = value.Conv<IList>().Cast<int>().ToArray();
+    public static void set_view_camera(object? value)
+    {
+        ViewportManager.view_camera = value.Conv<IList>().ConvAll<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
+
+    public static object get_view_visible() => ViewportManager.view_visible;
+    public static void set_view_visible(object? value)
+    {
+        ViewportManager.view_visible = value.Conv<IList>().ConvAll<bool>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
+
+    // TODO: these should be room coordinates with respect to the view the mouse is over
+    public static object get_mouse_x() => KeyboardHandler.MousePos.X;
+
+    public static object get_mouse_y() => KeyboardHandler.MousePos.Y;
 
     public static object? get_pointer_null() => null;
 
@@ -375,6 +527,8 @@ public static class VariableResolver
 
     public static object get_current_month() => DateTime.Now.Month;
 
+    public static object get_current_second() => DateTime.Now.Second;
+
     public static object get_debug_mode() => false;
 
     public static object? get_background_color()
@@ -387,4 +541,7 @@ public static class VariableResolver
     {
         // TODO : Implement
     }
+
+    public static object get_layer(GamemakerObject instance) => instance.Layer;
+    public static void set_layer(GamemakerObject instance, object? value) => instance.Layer = value.Conv<int>();
 }

@@ -66,19 +66,42 @@ internal class GMTilesLayer : DrawWithDepth
                 var tileWidth = _tileSet.TileWidth + (_tileSet.OutputBorderX * 2); // Width of tile in tileset, not actual tile graphic
                 var tileHeight = _tileSet.TileHeight + (_tileSet.OutputBorderY * 2); // ditto
 
-                // TODO : Handle mirror, rotate, flip
+                var offset = new Vector2d();
+
+                var angle = 0;
+                if (tile.Rotate)
+                {
+                    angle = 90;
+                    offset += new Vector2(_tileSet.TileHeight, 0);
+                }
+
+                var scale = Vector2.One;
+
+                if (tile.Mirror)
+                {
+                    scale.X = -1;
+                    offset += new Vector2(_tileSet.TileWidth, 0);
+                }
+
+                if (tile.Flip)
+                {
+                    scale.Y = -1;
+                    offset += new Vector2(0, _tileSet.TileHeight);
+                }
+
+                // TODO: adjust screenpos / origin to account for rotation / flipping / mirroring
 
                 CustomWindow.Draw(new GMSpritePartJob()
                 {
                     texture = _tileSet.Texture,
                     width = _tileSet.TileWidth,
                     height = _tileSet.TileHeight,
-                    screenPos = new Vector2d(Element.x + _x * _tileSet.TileWidth, Element.y + _y * _tileSet.TileHeight),
+                    screenPos = new Vector2d(Element.x + _x * _tileSet.TileWidth, Element.y + _y * _tileSet.TileHeight) + offset,
                     Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
                     left = (tileSetColumn * tileWidth) + _tileSet.OutputBorderX,
                     top = (tileSetRow * tileHeight) + _tileSet.OutputBorderX,
-                    scale = Vector2.One,
-                    angle = 0,
+                    scale = scale,
+                    angle = angle,
                     origin = Vector2.Zero
                 });
             }

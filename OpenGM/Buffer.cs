@@ -1,16 +1,48 @@
-﻿namespace OpenGM;
+﻿using OpenGM.IO;
+using System.Runtime.InteropServices;
+
+namespace OpenGM;
 public class Buffer
 {
-    public byte[] Data = null!;
+    public byte[] Data { get; private set; }
+    public GCHandle? DataPin;
     public BufferType Type;
     public int Alignment;
     public int AlignmentOffset;
-    public int SeekPosition;
-    public int UsedSize = 0;
+    public int BufferIndex;
+    public int UsedSize;
+    public int Size;
+
+    public Buffer(int size, BufferType type, int alignment)
+    {
+        Data = new byte[size];
+        Type = type;
+        Alignment = alignment;
+        Size = size;
+    }
+
+    ~Buffer()
+    {
+        if (DataPin is GCHandle handle)
+        {
+            handle.Free();
+        }
+    }
+
+    public nint MakeFixedPointer()
+    {
+        if (DataPin is null)
+        {
+            DataPin = GCHandle.Alloc(Data, GCHandleType.Pinned);
+            DebugLog.LogVerbose($"Pinning buffer to 0x{((GCHandle)DataPin).AddrOfPinnedObject():X16}");
+        }
+
+        return ((GCHandle)DataPin).AddrOfPinnedObject();
+    }
 
     public void CalculateNextAlignmentOffset()
     {
-        AlignmentOffset = (AlignmentOffset + Data.Length - 1) % Alignment;
+        AlignmentOffset = (AlignmentOffset + Size) % Alignment;
     }
 
     public void UpdateUsedSize(int size = -1, bool reset = false)
@@ -18,7 +50,7 @@ public class Buffer
         var newSize = size;
         if (newSize == -1)
         {
-            newSize = SeekPosition;
+            newSize = BufferIndex;
         }
 
         if (reset)
@@ -28,7 +60,7 @@ public class Buffer
         else
         {
             UsedSize = CustomMath.Max(UsedSize, newSize);
-            UsedSize = CustomMath.Max(UsedSize, Data.Length - 1);
+            UsedSize = CustomMath.Max(UsedSize, Size);
         }
     }
 
@@ -46,14 +78,14 @@ public class Buffer
                     offset = 0;
                 }
 
-                SeekPosition = offset;
+                BufferIndex = offset;
                 break;
             case BufferSeek.SeekRelative:
-                SeekPosition += offset;
+                BufferIndex += offset;
 
-                if (SeekPosition < 0)
+                if (BufferIndex < 0)
                 {
-                    SeekPosition = 0;
+                    BufferIndex = 0;
                 }
 
                 break;
@@ -62,16 +94,269 @@ public class Buffer
                 // The other two cases check for negative seek positions, but this one doesnt.
                 // A positive offset moves the seek position BACKWARDS now? wtf gamemaker
 
-                SeekPosition = Data.Length - 1 - offset;
-                if (SeekPosition > Data.Length - 1)
+                BufferIndex = Size - offset;
+                if (BufferIndex > Size)
                 {
-                    SeekPosition = Data.Length - 1;
+                    BufferIndex = Size;
                 }
 
                 break;
         }
 
-        return SeekPosition;
+        return BufferIndex;
+    }
+
+    public void Resize(int newSize)
+    {
+        var newData = new byte[newSize];
+
+        for (var i = 0; i < newSize; i++)
+        {
+            if (i < Data.Length)
+            {
+                newData[i] = Data[i];
+            }
+        }
+
+        Data = newData;
+        Size = newSize;
+        UpdateUsedSize();
+    }
+
+    public void Poke(BufferDataType type, int offset, object value)
+    {
+        if (offset < 0)
+        {
+            return;
+        }
+
+        var size = BufferManager.BufferDataTypeToSize(type);
+
+        if (Type != BufferType.Wrap)
+        {
+            if (offset > (Size - size))
+            {
+                return; // // can't write off the end of the buffer
+            }
+        }
+        else
+        {
+            while (offset >= Size)
+            {
+                offset -= Size;
+            }
+        }
+
+        switch (type)
+        {
+            case BufferDataType.buffer_bool:
+                Data[offset] = (byte)((bool)value ? 1 : 0);
+                UpdateUsedSize(offset + 1);
+                break;
+            case BufferDataType.buffer_u8:
+                Data[offset] = (byte)value;
+                UpdateUsedSize(offset + 1);
+                break;
+            case BufferDataType.buffer_s8:
+                Data[offset] = (byte)value;
+                UpdateUsedSize(offset + 1);
+                break;
+            case BufferDataType.buffer_u16:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_s16:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_s32:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_u32:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_f32:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_f64:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_u64:
+                throw new NotImplementedException();
+            case BufferDataType.buffer_string:
+            case BufferDataType.buffer_text:
+                throw new NotImplementedException();
+        }
+
+        UpdateUsedSize(offset + size);
+    }
+
+    public string MD5(int offset, int size)
+    {
+        if (Size == 0)
+        {
+            return "";
+        }
+
+        if (size < 0)
+        {
+            size = Size;
+        }
+
+        if (Type == BufferType.Wrap)
+        {
+            while (offset < 0)
+            {
+                offset += Size;
+            }
+
+            while (offset >= Size)
+            {
+                offset -= Size;
+            }
+        }
+        else
+        {
+            if (offset < 0)
+            {
+                offset = 0;
+            }
+
+            if (offset >= Size)
+            {
+                offset = Size - 1;
+            }
+
+            if ((offset + size) >= Size)
+            {
+                size = Size - offset;
+            }
+        }
+
+        if (size > Size - offset)
+        {
+            return "";
+        }
+
+        var dataToHash = Data.Skip(offset).Take(size).ToArray();
+        var md5 = System.Security.Cryptography.MD5.HashData(dataToHash);
+        return Convert.ToHexString(md5);
+    }
+}
+
+public abstract class BufferAsyncRequest
+{
+    public int Id;
+    public BufferAsyncGroup? Group;
+    public GamemakerObject Instance = null!;
+
+    public Buffer TargetBuffer = null!;
+    public string Filename = null!;
+    public int Offset;
+    public int Size;
+
+    public abstract Task<bool> Start();
+}
+
+public class BufferAsyncReadRequest : BufferAsyncRequest
+{
+    public BufferAsyncReadRequest(Buffer targetBuffer, string filename, int offset, int size)
+    {
+        Id = AsyncManager.NextAsyncId++;
+
+        TargetBuffer = targetBuffer;
+        Filename = filename;
+        Offset = offset;
+        Size = size;
+    }
+
+    public override async Task<bool> Start()
+    {
+        var filepath = Path.Combine(Entry.DataWinFolder, Group?.Name ?? "default", Filename);
+        var result = new AsyncResult(Id, false, Instance);
+
+        if (!File.Exists(filepath))
+        {
+            DebugLog.LogError($"LoadBuffer: {filepath} doesnt exist.");
+            AsyncManager.AsyncResults.Enqueue(result);
+            return false;
+        }
+
+        var bytes = await File.ReadAllBytesAsync(filepath);
+
+        if (Size < 0)
+        {
+            Size = bytes.Length;
+        }
+
+        if (TargetBuffer.Size < Offset + Size)
+        {
+            TargetBuffer.Resize(Offset + Size);
+        }
+
+        for (var i = 0; i < Size; i++)
+        {
+            TargetBuffer.Data[i + Offset] = bytes[i];
+        }
+
+        result.Status = true;
+        AsyncManager.AsyncResults.Enqueue(result);
+        return true;
+    }
+}
+
+public class BufferAsyncWriteRequest : BufferAsyncRequest
+{
+    public BufferAsyncWriteRequest(Buffer targetBuffer, string filename, int offset, int size)
+    {
+        Id = AsyncManager.NextAsyncId++;
+
+        TargetBuffer = targetBuffer;
+        Filename = filename;
+        Offset = offset;
+        Size = size;
+    }
+
+    public override async Task<bool> Start()
+    {
+        var filepath = Path.Combine(Entry.DataWinFolder, Group?.Name ?? "default", Filename);
+        var result = new AsyncResult(Id, false, Instance);
+
+        if (!File.Exists(filepath))
+        {
+            DebugLog.LogError($"LoadBuffer: {filepath} doesnt exist.");
+            AsyncManager.AsyncResults.Enqueue(result);
+            return false;
+        }
+
+        if (Size < 0)
+        {
+            Size = TargetBuffer.UsedSize - Offset;
+        }
+
+        var outBuffer = TargetBuffer.Data[Offset..Size];
+        await File.WriteAllBytesAsync(filepath, outBuffer);
+
+        result.Status = true;
+        AsyncManager.AsyncResults.Enqueue(result);
+        return true;
+    }
+}
+
+public class BufferAsyncGroup
+{
+    public int Id;
+    public string Name;
+    public List<BufferAsyncRequest> Requests = new();
+
+    public GamemakerObject Instance;
+
+    public BufferAsyncGroup(string name, GamemakerObject instance)
+    {
+        Id = AsyncManager.NextAsyncId++;
+        Name = name;
+        Instance = instance;
+    }
+
+    public async Task StartAll()
+    {
+        var results = await Task.WhenAll(Requests.Select(r => r.Start()));
+        var success = results.Any(r => !r);
+
+        var result = new AsyncResult(Id, success, Instance);
+        AsyncManager.AsyncResults.Enqueue(result);
     }
 }
 

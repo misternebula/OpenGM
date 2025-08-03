@@ -25,15 +25,12 @@ public class VMEnvFrame
 
         if (Self is GamemakerObject gm)
         {
-            var ret = $"{gm.object_index} ({gm.instanceId})\r\nStack:";
-            /*
-            foreach (var item in Stack)
-            {
-                ret += $"- {item}\r\n";
-            }
-            */
-
+            var ret = $"{gm.Definition.Name} ({gm.object_index}, instance {gm.instanceId})";
             return ret;
+        }
+        else if (Self is GMLObject obj)
+        {
+            return "[" + obj.ToString() + "]";
         }
         else
         {
@@ -125,6 +122,7 @@ public static partial class VMExecutor
     }
 
     public static bool VerboseStackLogs;
+    public static bool ForceVerboseStackLogs = false;
     public static bool DebugMode;
     public static VMCodeInstruction? CurrentInstruction;
     
@@ -162,6 +160,15 @@ public static partial class VMExecutor
             return defaultReturnValue;
         }
 
+        var newCtx = new VMEnvFrame
+        {
+            Self = obj!,
+            ObjectDefinition = objectDefinition,
+        };
+
+        // Make the current object the current instance
+        EnvStack.Push(newCtx);
+
         if (VerboseStackLogs)
         {
             //if (!script.IsGlobalInit)
@@ -171,17 +178,17 @@ public static partial class VMExecutor
             var leftPadding = string.Concat(Enumerable.Repeat(space, count));
 
             DebugLog.LogInfo($"{leftPadding}------------------------------ {codeName} ------------------------------ ");
-            //}
+            DebugLog.LogInfo($"ENV STACK:");
+
+            var i = 1;
+            foreach (var env in EnvStack)
+            {
+                DebugLog.LogInfo($"{i}. {env?.ToString() ?? "null"}");
+                i++;
+            }
+
+            DebugLog.LogInfo($"");
         }
-
-        var newCtx = new VMEnvFrame
-        {
-            Self = obj!,
-            ObjectDefinition = objectDefinition,
-        };
-
-        // Make the current object the current instance
-        EnvStack.Push(newCtx);
 
         var call = new VMCallFrame
         {
@@ -223,6 +230,18 @@ public static partial class VMExecutor
                     var stackStr = "{ ";
                     foreach (var item in Call.Stack)
                     {
+                        if (item.value is string str)
+                        {
+                            if (str.Length > 80)
+                            {
+                                str = str[..80] + $"[{str.Length - 80} more characters...]";
+                                str = str.Replace("\n", "\\n");
+                            }
+
+                            stackStr += $"{str}, ";
+                            continue;
+                        }
+
                         stackStr += $"{item}, ";
                     }
 
@@ -367,9 +386,30 @@ public static partial class VMExecutor
                 // first ??= 0;
                 // second ??= 0;
                 
-                // TODO: array and undefined cmp
+                // TODO: array cmp
 
-                if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
+                if (first == null || second == null)
+                {
+                    switch (instruction.Comparison)
+                    {
+                        case VMComparison.LT:
+                        case VMComparison.GT:
+                            Call.Stack.Push(false, VMType.b);
+                            break;
+                        case VMComparison.LTE:
+                        case VMComparison.GTE:
+                        case VMComparison.EQ:
+                            Call.Stack.Push((first == null) && (second == null), VMType.b);
+                            break;
+                        case VMComparison.NEQ:
+                            Call.Stack.Push((first == null) != (second == null), VMType.b);
+                            break;
+                        case VMComparison.None:
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
                 {
                     var firstNumber = first.Conv<double>();
                     var secondNumber = second.Conv<double>();
@@ -405,61 +445,100 @@ public static partial class VMExecutor
                 {
                     // this should handle strings and whatever else
 
-                    if (instruction.Comparison == VMComparison.EQ)
+                    double firstDouble;
+                    double secondDouble;
+                    bool firstIsNumerical;
+                    bool secondIsNumerical;
+
+                    if (first is bool or int or short or long or double or float)
                     {
-                        if (first is null && second is null)
-                        {
-                            Call.Stack.Push(true, VMType.b);
-                        }
-                        else if (first is null || second is null)
-                        {
-                            Call.Stack.Push(false, VMType.b);
-                        }
-                        else
-                        {
-                            Call.Stack.Push(first?.Equals(second), VMType.b);
-                        }
-                    }
-                    else if (instruction.Comparison == VMComparison.NEQ)
-                    {
-                        if (first is null && second is null)
-                        {
-                            Call.Stack.Push(false, VMType.b);
-                        }
-                        else if (first is null || second is null)
-                        {
-                            Call.Stack.Push(true, VMType.b);
-                        }
-                        else
-                        {
-                            Call.Stack.Push(!first?.Equals(second), VMType.b);
-                        }
+                        firstDouble = first.Conv<double>();
+                        firstIsNumerical = true;
                     }
                     else
                     {
-                        var firstValue = first is string s1 ? double.Parse(s1) : first.Conv<double>();
-                        var secondValue = second is string s2 ? double.Parse(s2) : second.Conv<double>();
+                        firstIsNumerical = double.TryParse(first as string, out firstDouble);
+                    }
+
+                    if (second is bool or int or short or long or double or float)
+                    {
+                        secondDouble = second.Conv<double>();
+                        secondIsNumerical = true;
+                    }
+                    else
+                    {
+                        secondIsNumerical = double.TryParse(second as string, out secondDouble);
+                    }
+
+                    if (firstIsNumerical && secondIsNumerical)
+                    {
+                        // both represent numbers - easy comparison
+
+                        var equal = CustomMath.ApproxEqual(firstDouble, secondDouble);
 
                         switch (instruction.Comparison)
                         {
                             case VMComparison.LT:
-                                Call.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxLessThan(firstDouble, secondDouble), VMType.b);
                                 break;
                             case VMComparison.LTE:
-                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstDouble, secondDouble), VMType.b);
+                                break;
+                            case VMComparison.EQ:
+                                Call.Stack.Push(equal, VMType.b);
+                                break;
+                            case VMComparison.NEQ:
+                                Call.Stack.Push(!equal, VMType.b);
                                 break;
                             case VMComparison.GTE:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstDouble, secondDouble), VMType.b);
                                 break;
                             case VMComparison.GT:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstDouble, secondDouble), VMType.b);
                                 break;
                             case VMComparison.None:
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
+                    }
+                    else if (firstIsNumerical != secondIsNumerical)
+                    {
+                        // only one represents a number - only EQ and NEQ is valid here
 
-                        //return (ExecutionResult.Failed, $"cant cmp {instruction.Comparison} on {first?.GetType()} {first} and {second?.GetType()} {second}");
+                        // TODO: can these ever be anything other than these hardcoded values?
+                        if (instruction.Comparison == VMComparison.EQ)
+                        {
+                            Call.Stack.Push(false, VMType.b);
+                        }
+                        else if (instruction.Comparison == VMComparison.NEQ)
+                        {
+                            Call.Stack.Push(true, VMType.b);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException("Only EQ and NEQ is valid between a numerical value and a non-numerical value.");
+                        }
+                    }
+                    else
+                    {
+                        // neither represent a number - pure string comparison
+
+                        var s1 = first as string;
+                        var s2 = second as string;
+
+                        if (instruction.Comparison == VMComparison.EQ)
+                        {
+                            Call.Stack.Push(s1 == s2, VMType.b);
+                        }
+                        else if (instruction.Comparison == VMComparison.NEQ)
+                        {
+                            Call.Stack.Push(s1 != s2, VMType.b);
+                        }
+                        else
+                        {
+                            // TODO: implement
+                            throw new NotImplementedException();
+                        }
                     }
                 }
                 break;
@@ -582,8 +661,7 @@ public static partial class VMExecutor
                 
                 // by the magic of reference types this will be set properly
                 VariableResolver.ArraySet(index, value,
-                    () => array,
-                    _ => throw new UnreachableException("this is called when getter is null"));
+                    () => array);
 
                 break;
             }
@@ -618,8 +696,8 @@ public static partial class VMExecutor
             }
             case VMOpcode.CALLV:
             {
-                var method = Call.Stack.Pop(VMType.v) as Method;
-                var self = Call.Stack.Pop(VMType.v).Conv<int>(); // TODO: if method.inst is null, use this as self (https://manual.gamemaker.io/lts/en/GameMaker_Language/GML_Reference/Variable_Functions/method_get_self.htm)
+                var method = FetchMethod(Call.Stack.Pop(VMType.v));
+                var self = Call.Stack.Pop(VMType.v);
 
                 var args = new object?[instruction.IntData];
 
@@ -634,9 +712,15 @@ public static partial class VMExecutor
                     throw new NotImplementedException("method is null");
                 }
 
+                var context = method.inst;
+                if (method.inst is null && self is not null)
+                {
+                    context = FetchSelf(self);
+                }
+
                 //DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
 
-                Call.Stack.Push(ExecuteCode(method.func.GetCode(), method.inst, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
+                Call.Stack.Push(ExecuteCode(method.func.GetCode(), context, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
 
                 break;
             }
@@ -697,6 +781,42 @@ public static partial class VMExecutor
         return (ExecutionResult.Success, null);
     }
 
+    public static IStackContextSelf? FetchSelf(object? value)
+    {
+        if (value is null)
+        {
+            throw new ArgumentException($"Trying to fetch IStackContextSelf for undefined! Current script:{CallStack.First().CodeName}");
+        }
+        else if (value is IStackContextSelf self)
+        {
+            return self;
+        }
+        else if (value is int or long or short)
+        {
+            return InstanceManager.Find((int)value, all: true);
+        }
+
+        throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
+    }
+
+    internal static Method? FetchMethod(object? value)
+    {
+        if (value is null)
+        {
+            throw new ArgumentException($"Trying to fetch method for undefined! Current script:{CallStack.First().CodeName}");
+        }
+        else if (value is Method method)
+        {
+            return method;
+        }
+        else if (value is int or long or short)
+        {
+            return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]);
+        }
+
+        throw new ArgumentException($"Don't know how to fetch method for {value} ({value.GetType().FullName})");
+    }
+
     public static int VMTypeToSize(VMType type) => type switch
     {
         VMType.v => 16,
@@ -709,13 +829,27 @@ public static partial class VMExecutor
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 
+    public static object? DictHash(object? key)
+    {
+        var result = key;
+
+        switch (key)
+        {
+            case int or long or short or double or bool:
+                result = key.Conv<double>();
+                break;
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// custom cast function.
     /// works with: all number types, string, bool, IList
     /// </summary>
     public static T Conv<T>(this object? @this) => (T)@this.Conv(typeof(T));
     
-    private static object Conv(this object? @this, Type type)
+    public static object Conv(this object? @this, Type type)
     {
         // TODO: check all numeric primitives
 
@@ -763,7 +897,7 @@ public static partial class VMExecutor
                 }
             }
         }
-        else if (@this is int or long or short)
+        else if (@this is int or long or short or Enum)
         {
             var l = Convert.ToInt64(@this);
 
@@ -818,6 +952,11 @@ public static partial class VMExecutor
             if (type == typeof(bool)) return true; // methods are always evaluated to true i think?
         }
             
-        throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType().FullName}) to {type}");
+        throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType()}) to {type}");
     }
+
+    /// <summary>
+    /// Conv elements of array. Used instead of Cast because Cast does not convert types (e.g. int to float)
+    /// </summary>
+    public static IEnumerable<T> ConvAll<T>(this IEnumerable @this) => @this.Cast<object?>().Select(e => e.Conv<T>());
 }

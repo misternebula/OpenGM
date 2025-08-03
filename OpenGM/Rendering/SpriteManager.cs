@@ -13,8 +13,6 @@ public static class SpriteManager
     public static int DrawColor = 16777215;
     // https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Drawing/Colour_And_Alpha/draw_set_alpha.htm
     public static double DrawAlpha = 1;
-    public static int FogColor = 0;
-    public static bool FogEnabled = false;
 
     public static Dictionary<int, SpriteData> _spriteDict = new();
 
@@ -71,11 +69,12 @@ public static class SpriteManager
 
     public static void DrawSpriteExt(int name, double index, double x, double y, double xscale, double yscale, double rot, int blend, double alpha)
     {
-        if (index < 0) 
+        if (index < 0 || name < 0) 
         {
             DebugLog.LogWarning($"Tried to draw sprite {name} with index {index}.");
             return;
         }
+
         var sprite = GetSpritePageItem(name, index);
         var origin = GetSpriteOrigin(name);
 
@@ -165,7 +164,13 @@ public static class SpriteManager
 
     public static int GetNumberOfFrames(int name)
     {
-        return _spriteDict[name].Textures.Count;
+        if (!_spriteDict.TryGetValue(name, out var value))
+        {
+            DebugLog.LogWarning($"Tried to get number of frames for sprite {name} (count = {_spriteDict.Count})");
+            return 0;
+        }
+
+        return value.Textures.Count;
     }
 
 

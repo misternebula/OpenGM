@@ -18,8 +18,12 @@ public static class ScriptResolver
 
     public static void InitGMLFunctions()
     {
-        if (BuiltInFunctions.Count > 0) return; // already init'd
-        
+        if (BuiltInFunctions.Count > 0)
+        {
+            // already init'd
+            return;
+        }
+
         GMLFunctionType MakeStubFunction(GMLFunctionType function, string functionName, DebugLog.LogType stubLogType) 
         {
             return (object?[] args) =>
@@ -166,14 +170,14 @@ public static class ScriptResolver
 
         var option = remove_empty ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None;
 
-        var splits = str.Split(delimiter, option);
-
-        if (max_splits != -1)
+        if (max_splits == -1)
         {
-            throw new NotImplementedException();
+            return str.Split(delimiter, option);
         }
-
-        return splits;
+        else
+        {
+            return str.Split(delimiter, max_splits + 1, option);
+        }
     }
 
     [GMLFunction("steam_is_screenshot_requested", GMLFunctionFlags.Stub)]

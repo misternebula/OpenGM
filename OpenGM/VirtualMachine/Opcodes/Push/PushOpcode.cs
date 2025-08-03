@@ -166,46 +166,27 @@ public static partial class VMExecutor
         Call.Stack.Push(arguments[index], VMType.v);
     }
 
-    public static void PushIndex(int assetId, string varName)
+    public static void PushIndex(object? item, string varName)
     {
-        if (assetId < GMConstants.FIRST_INSTANCE_ID)
+        var inst = FetchSelf(item);
+
+        if (inst == null)
         {
-            // Asset Id
+            DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
 
-            var asset = InstanceManager.FindByAssetId(assetId).MinBy(x => x.instanceId)!;
-
-            if (asset == null)
+            DebugLog.LogError($"--Stacktrace--");
+            foreach (var stackItem in CallStack)
             {
-                DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, assetId)}!");
-                Call.Stack.Push(null, VMType.v);
-                return;
+                DebugLog.LogError($" - {stackItem.CodeName}");
             }
 
-            PushSelf(asset, varName);
+            DebugLog.LogError(Environment.StackTrace);
+
+            Call.Stack.Push(null, VMType.v);
+            return;
         }
-        else
-        {
-            // Instance Id
-            var asset = InstanceManager.FindByInstanceId(assetId);
 
-            if (asset == null)
-            {
-                DebugLog.LogError($"Tried to push variable {varName} from instanceid {assetId}, which doesnt exist!!");
-
-                DebugLog.LogError($"--Stacktrace--");
-                foreach (var item in CallStack)
-                {
-                    DebugLog.LogError($" - {item.CodeName}");
-                }
-
-                DebugLog.LogError(Environment.StackTrace);
-
-                Call.Stack.Push(null, VMType.v);
-                return;
-            }
-
-            PushSelf(asset, varName);
-        }
+        PushSelf(inst, varName);
     }
 
     public static void PushOther(string varName)
@@ -215,8 +196,8 @@ public static partial class VMExecutor
 
     public static void PushStacktop(string varName)
     {
-        var instanceId = Call.Stack.Pop(VMType.v).Conv<int>();
-        PushIndex(instanceId, varName);
+        var top = Call.Stack.Pop(VMType.v);
+        PushIndex(top, varName);
     }
 
     public static void PushArgumentArrayIndex(string varName, int index)
@@ -234,6 +215,29 @@ public static partial class VMExecutor
         var array = arguments[argIndex].Conv<IList>();
 
         Call.Stack.Push(array[index], VMType.v);
+    }
+
+    public static void PushStatic(string varname)
+    {
+        var currentFunc = Call.Function;
+
+        if (currentFunc == null)
+        {
+            // uhhhhh fuckin uhhh
+            throw new NotImplementedException();
+        }
+
+        if (!currentFunc.HasStaticInitRan)
+        {
+            throw new NotImplementedException($"Tried to push static variable {varname} before static initialization!");
+        }
+
+        if (!currentFunc.StaticVariables.TryGetValue(varname, out var value))
+        {
+            throw new NotImplementedException("StaticVariables should contain every static variable after initialization!?");
+        }
+
+        Call.Stack.Push(value, VMType.v);
     }
 
     public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
@@ -329,6 +333,11 @@ public static partial class VMExecutor
             else if (variableType == VariableType.Stacktop)
             {
                 PushStacktop(variableName);
+                return (ExecutionResult.Success, null);
+            }
+            else if (variableType == VariableType.Static)
+            {
+                PushStatic(variableName);
                 return (ExecutionResult.Success, null);
             }
         }
@@ -507,6 +516,34 @@ public static partial class VMExecutor
                     {
                         // TODO: check builtin self var
                         var array = Self.Self.SelfVariables[variableName].Conv<IList>();
+                        Call.Stack.Push(array[index], VMType.v);
+                        return (ExecutionResult.Success, null);
+                    }
+                    else if (instanceId < 0)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        var inst = InstanceManager.Find(instanceId);
+
+                        if (inst == null)
+                        {
+                            DebugLog.LogError($"Tried to push variable {variableName} from {instanceId}, which doesn't exist!!");
+
+                            DebugLog.LogError($"--Stacktrace--");
+                            foreach (var item in CallStack)
+                            {
+                                DebugLog.LogError($" - {item.CodeName}");
+                            }
+
+                            DebugLog.LogError(Environment.StackTrace);
+
+                            Call.Stack.Push(null, VMType.v);
+                            return (ExecutionResult.Failed, null);
+                        }
+
+                        var array = inst.SelfVariables[variableName].Conv<IList>();
                         Call.Stack.Push(array[index], VMType.v);
                         return (ExecutionResult.Success, null);
                     }

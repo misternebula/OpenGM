@@ -12,7 +12,8 @@ public static class SurfaceManager
     private static int _nextId = 1;
 
     private static Dictionary<int, int> _framebuffers = new();
-    public static Stack<int> SurfaceStack = new();
+    private static int _currentSurfaceId = -1;
+    public static Stack<(int PrevSurfaceId, Vector4i PrevViewPort, Vector4 PrevViewArea)> SurfaceStack = new();
 
     public static bool surface_exists(int surface) => _framebuffers.ContainsKey(surface);
 
@@ -24,69 +25,40 @@ public static class SurfaceManager
             return false;
         }
 
-        SurfaceStack.Push(surface);
+        SurfaceStack.Push((_currentSurfaceId, GraphicsManager.ViewPort,  GraphicsManager.ViewArea));
+        _currentSurfaceId = surface;
+
         var buffer = _framebuffers[surface];
         // future draws will draw to this fbo
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        // draw to entire surface framebuffer
         var width = GetSurfaceWidth(surface);
         var height = GetSurfaceHeight(surface);
-        GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
-        /*
-        var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
-        */
-        GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
+        GraphicsManager.SetViewPort(0, 0, width, height);
+        GraphicsManager.SetViewArea(0, 0, width, height);
         
-        // application surface does view stuff
-        if (surface == application_surface)
-        {
-            CustomWindow.Instance.UpdatePositionResolution();
-        }
+        // even if drawing to a view surface or app surface, itll use the whole area
+
+        GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
 
         return true;
     }
 
+    public static int surface_get_target() => _currentSurfaceId;
+
     public static bool surface_reset_target()
     {
-        SurfaceStack.Pop();
-        if (SurfaceStack.TryPeek(out var surface))
-        {
-            var buffer = _framebuffers[surface]; // what happens if this buffer is deleted by the time we switch back to it?
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-            var width = GetSurfaceWidth(surface);
-            var height = GetSurfaceHeight(surface);
-            GL.Viewport(0, 0, width, height); // draw to the entire framebuffer
-            /*
-            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix); // map 1 unit to 1 surface pixel
-            */
-            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
-            
-            // application surface does view stuff
-            if (surface == application_surface)
-            {
-                CustomWindow.Instance.UpdatePositionResolution();
-            }
-        }
-        else
-        {
-            // draw to display
-            
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            // just revert back to viewport and matrix set in CustomWindow
-            // html5 just uses window size it seems so we do that here
-            var width = CustomWindow.Instance.FramebufferSize.X;
-            var height = CustomWindow.Instance.FramebufferSize.Y;
-            GL.Viewport(0, 0, width, height);
-            /*
-            var matrix = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref matrix);
-            */
-            GL.Uniform4(VertexManager.u_view, new Vector4(0, 0, width, height));
-        }
+        var (prevSurfaceId, prevViewPort, prevViewArea) = SurfaceStack.Pop();
+        _currentSurfaceId = prevSurfaceId;
+        
+        // -1 means draw to display. prev port/area will be framebuffer size set by OnFramebufferResize
+        var buffer = prevSurfaceId == -1 ? 0 : _framebuffers[prevSurfaceId];
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GraphicsManager.SetViewPort(prevViewPort);
+        GraphicsManager.SetViewArea(prevViewArea);
+
+        GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
+
         return true;
     }
 
@@ -140,14 +112,6 @@ public static class SurfaceManager
 
             GL.DeleteFramebuffer(buffer);
             _framebuffers.Remove(id);
-
-#if DEBUG 
-            // sanity check
-            if (SurfaceStack.Contains(id))
-            {
-                System.Diagnostics.Debugger.Break();
-            }
-#endif
         }
     }
 
@@ -285,7 +249,7 @@ public static class SurfaceManager
     {
         // draw rectangle with that texture
         BindSurfaceTexture(id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
         // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
@@ -300,14 +264,14 @@ public static class SurfaceManager
         GL.Vertex2(x, y + h);
         GL.End();
         */
-        VertexManager.Draw(PrimitiveType.TriangleFan, [
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(new(x, y), Color4.White, new(0, 0)),
             new(new(x + w, y), Color4.White, new(1, 0)),
             new(new(x + w, y + h), Color4.White, new(1, 1)),
             new(new(x, y + h), Color4.White, new(0, 1)),
         ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
@@ -316,7 +280,7 @@ public static class SurfaceManager
         var h = GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
-        GL.Uniform1(VertexManager.u_doTex, 1);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var scaledWidth = w * xscale;
         var scaledHeight = h * yscale;
@@ -328,16 +292,50 @@ public static class SurfaceManager
         var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
         var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
 
-        VertexManager.Draw(PrimitiveType.TriangleFan, new VertexManager.Vertex[]
-        {
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(vertexOne, drawColor, new(0, 0)),
             new(vertexTwo, drawColor, new(1, 0)),
             new(vertexThree, drawColor, new(1, 1)),
             new(vertexFour, drawColor, new(0, 1))
-        });
+        ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(VertexManager.u_doTex, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
+    }
+
+    public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
+    {
+        // todo: im writing this at 3am, this doesn't work. idk why it doesnt work. probably a dumb reason. i eep
+        var surfWidth = GetSurfaceWidth(id);
+        var surfHeight = GetSurfaceHeight(id);
+
+        BindSurfaceTexture(id);
+        GL.Uniform1(GraphicsManager.u_doTex, 1);
+
+        var vertexOne = new Vector2d(x, y);
+        var vertexTwo = new Vector2d(x + w, y);
+        var vertexThree = new Vector2d(x + w, y + h);
+        var vertexFour = new Vector2d(x, y + h);
+
+        var uvLeft = left / surfWidth;
+        var uvRight = (left + w) / surfWidth;
+        var uvTop = top / surfHeight;
+        var uvBottom = (top + h) / surfHeight;
+
+        var uvOne = new Vector2d(uvLeft, uvTop);
+        var uvTwo = new Vector2d(uvRight, uvTop);
+        var uvThree = new Vector2d(uvRight, uvBottom);
+        var uvFour = new Vector2d(uvLeft, uvBottom);
+
+        GraphicsManager.Draw(PrimitiveType.TriangleFan, [
+            new(vertexOne, Color4.White, uvOne),
+            new(vertexTwo, Color4.White, uvTwo),
+            new(vertexThree, Color4.White, uvThree),
+            new(vertexFour, Color4.White, uvFour)
+        ]);
+
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void BindSurfaceTexture(int surfaceId)
@@ -370,5 +368,16 @@ public static class SurfaceManager
             x, y, x + ws, y + hs,
             ClearBufferMask.ColorBufferBit,
             BlitFramebufferFilter.Nearest);
+    }
+
+    public static byte[] ReadPixels(int surfaceId, int x, int y, int w, int h)
+    {
+        BindSurfaceTexture(surfaceId);
+
+        var pixels = new byte[w * h * 4];
+        GL.ReadPixels(x, y, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+
+        GL.BindTexture(TextureTarget.Texture2D, 0);
+        return pixels;
     }
 }

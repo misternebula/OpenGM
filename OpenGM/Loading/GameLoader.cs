@@ -4,9 +4,11 @@ using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 using StbVorbisSharp;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
@@ -24,6 +26,7 @@ public static class GameLoader
     public static Dictionary<int, Background> Backgrounds = new();
     public static Dictionary<int, Shader> Shaders = new();
     public static UndertaleGeneralInfo GeneralInfo => _data.GeneralInfo;
+    public static bool IsYYC => _data.IsYYC();
 
 	private static List<VMCode> _replacementVMCodes = new();
     private static UndertaleData _data = new();
@@ -68,6 +71,7 @@ public static class GameLoader
         Sounds(data);
         LoadPaths(data);
         LoadShaders(data);
+        LoadAnimCurves(data);
 
         _data = data;
     }
@@ -159,6 +163,53 @@ public static class GameLoader
             allUsedFunctions2 = allUsedFunctions2.Select(x => builtInfunctions.Contains(x) ? $"[IMPLEMENTED] {x}" : x);
             File.WriteAllText("used functions.txt", string.Join('\n', allUsedFunctions2));
         }
+    }
+
+    private static void LoadExtensions(UndertaleData data)
+    {
+        Console.Write($"Loading extensions...");
+
+        ExtensionManager.Extensions.Clear();
+
+        foreach (var extension in data.Extensions)
+        {
+            if (extension is null)
+            {
+                continue;
+            }
+
+            var asset = new Extension();
+            asset.Name = extension.Name.Content;
+
+            foreach (var file in extension.Files)
+            {
+                var fileAsset = new ExtensionFile();
+                fileAsset.Name = file.Filename.Content;
+                fileAsset.Kind = (ExtensionKind)file.Kind;
+
+                foreach (var function in file.Functions)
+                {
+                    var funcAsset = new ExtensionFunction();
+                    funcAsset.Id = function.ID;
+                    funcAsset.Name = function.Name.Content;
+                    funcAsset.ExternalName = function.ExtName.Content;
+                    funcAsset.ReturnType = (ExtensionVarType)function.RetType;
+
+                    foreach (var arg in function.Arguments)
+                    {
+                        funcAsset.Arguments.Add((ExtensionVarType)arg.Type);
+                    }
+
+                    fileAsset.Functions.Add(funcAsset);
+                }
+
+                asset.Files.Add(fileAsset);
+            }
+
+            ExtensionManager.Extensions.Add(asset);
+        }
+
+        Console.WriteLine($" Done!");
     }
 
     public static VMCode ConvertAssembly(string asmFile)
@@ -945,10 +996,31 @@ public static class GameLoader
                 CreationCodeId = codes.IndexOf(room.CreationCodeId),
                 GravityX = room.GravityX,
                 GravityY = room.GravityY,
-                CameraWidth = room.Views[0].ViewWidth,
-                CameraHeight = room.Views[0].ViewHeight,
-                FollowsObject = data.GameObjects.IndexOf(room.Views[0].ObjectId)
+                EnableViews = room.Flags.HasFlag(UndertaleRoom.RoomEntryFlags.EnableViews)
             };
+
+            for (var i = 0; i < 8; i++)
+            {
+                var view = room.Views[i];
+
+                asset.Views[i] = new View()
+                {
+                    Enabled = view.Enabled,
+                    PositionX = view.ViewX,
+                    PositionY = view.ViewY,
+                    SizeX = view.ViewWidth,
+                    SizeY = view.ViewHeight,
+                    PortPositionX = view.PortX,
+                    PortPositionY = view.PortY,
+                    PortSizeX = view.PortWidth,
+                    PortSizeY = view.PortHeight,
+                    BorderX = (int)view.BorderX,
+                    BorderY = (int)view.BorderY,
+                    SpeedX = view.SpeedX,
+                    SpeedY = view.SpeedY,
+                    FollowsObject = data.GameObjects.IndexOf(view.ObjectId)
+                };
+            }
 
             var encounteredGameobjects = new List<UndertaleRoom.GameObject>();
 
@@ -1214,13 +1286,7 @@ public static class GameLoader
                             {
                                 var blobData = uintData[col][row];
 
-                                var blob = new TileBlob
-                                {
-                                    TileIndex = (int)blobData & 0x7FFFF, // bits 0-18
-                                    Mirror = (blobData & 0x8000000) != 0, // bit 28
-                                    Flip = (blobData & 0x10000000) != 0, // bit 29
-                                    Rotate = (blobData & 0x20000000) != 0 // bit 30
-                                };
+                                var blob = new TileBlob(blobData);
 
                                 tilemap.TilesData[col, row] = blob;
                             }
@@ -1612,5 +1678,85 @@ public static class GameLoader
 		}
 
         Console.WriteLine(" Done!");
+    }
+
+    public static Dictionary<int, RuntimeAnimCurve> AnimCurves = new();
+
+    private static void LoadAnimCurves(UndertaleData data)
+    {
+        Console.Write($"Loading animation curves...");
+        AnimCurves.Clear();
+
+        foreach (var utCurve in data.AnimationCurves)
+        {
+            if (utCurve is null)
+            {
+                continue;
+            }
+
+            var asset = new AnimCurve();
+            asset.AssetIndex = data.AnimationCurves.IndexOf(utCurve);
+            asset.Name = utCurve.Name.Content;
+
+            foreach (var utChannel in utCurve.Channels)
+            {
+                var channelAsset = new AnimCurveChannel
+                {
+                    Name = utChannel.Name.Content,
+                    CurveType = (CurveType)utChannel.Curve,
+                    Iterations = (int)utChannel.Iterations
+                };
+
+                foreach (var point in utChannel.Points)
+                {
+                    var pointAsset = new AnimCurvePoint
+                    {
+                        X = point.X,
+                        Y = point.Value,
+                        BezierX0 = point.BezierX0,
+                        BezierY0 = point.BezierY0,
+                        BezierX1 = point.BezierX1,
+                        BezierY1 = point.BezierY1
+                    };
+
+                    channelAsset.Points.Add(pointAsset);
+                }
+
+                asset.Channels.Add(channelAsset);
+            }
+
+            var curve = new RuntimeAnimCurve();
+            curve.name = asset.Name;
+
+            var channelArray = new RuntimeAnimCurveChannel[asset.Channels.Count];
+            for (var j = 0; j < asset.Channels.Count; j++)
+            {
+                var channel = asset.Channels[j];
+                channelArray[j] = new RuntimeAnimCurveChannel();
+                channelArray[j].name = channel.Name;
+                channelArray[j].type = channel.CurveType;
+                channelArray[j].iterations = channel.Iterations;
+
+                var pointsArray = new RuntimeAnimCurvePoint[channel.Points.Count];
+                for (var k = 0; k < channel.Points.Count; k++)
+                {
+                    var point = channel.Points[k];
+                    pointsArray[k] = new RuntimeAnimCurvePoint();
+                    pointsArray[k].posx = point.X;
+                    pointsArray[k].value = point.Y;
+                    pointsArray[k].BezierX0 = point.BezierX0;
+                    pointsArray[k].BezierY0 = point.BezierY0;
+                    pointsArray[k].BezierX1 = point.BezierX1;
+                    pointsArray[k].BezierY1 = point.BezierY1;
+                }
+
+                channelArray[j].points = pointsArray;
+            }
+
+            curve.channels = channelArray;
+            AnimCurves.Add(asset.AssetIndex, curve);
+        }
+
+        Console.WriteLine($" Done!");
     }
 }

@@ -31,27 +31,35 @@ public class GMBackground : DrawWithDepth
 
         var c = Element.Color.ABGRToCol4(Element.Alpha);
 
-        var camWidth = CustomWindow.Instance.Width;
-        var camHeight = CustomWindow.Instance.Height;
-        var camX = CustomWindow.Instance.X;
-        var camY = CustomWindow.Instance.Y;
+        var camWidth = ViewportManager.CurrentRenderingView!.ViewSize.X;
+        var camHeight = ViewportManager.CurrentRenderingView!.ViewSize.Y;
+        var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
+        var camY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
 
         var offsetX = 0;
         var offsetY = 0;
         var layerX = Element.Layer.X;
         var layerY = Element.Layer.Y;
 
-        float TotalX() => offsetX + layerX;
-        float TotalY() => offsetY + layerY;
+        float TotalX() => offsetX + layerX + origin.X;
+        float TotalY() => offsetY + layerY + origin.Y;
 
-        while (TotalX() > camX)
+        if (Element.HTiled)
         {
-            layerX -= camWidth;
+            layerX %= sprite.BoundingWidth;
+            if (layerX > 0)
+            {
+                layerX -= sprite.BoundingWidth;
+            }
         }
 
-        while (TotalY() > camY)
+        if (Element.VTiled)
         {
-            layerY -= camHeight;
+            layerY %= sprite.BoundingHeight;
+            if (layerY > 0)
+            {
+                layerY -= sprite.BoundingHeight;
+            }
         }
         
         do

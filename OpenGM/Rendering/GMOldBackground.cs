@@ -43,7 +43,7 @@ public class GMOldBackground
             Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
             angle = 0,
             origin = Vector2.Zero,
-            scale = Vector2d.Zero
+            scale = Vector2d.One
         });
     }
 }

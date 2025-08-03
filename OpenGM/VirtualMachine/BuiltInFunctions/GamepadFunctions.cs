@@ -2,7 +2,12 @@
 {
     public static class GamepadFunctions
     {
-        // gamepad_is_supported
+        [GMLFunction("gamepad_is_supported", GMLFunctionFlags.Stub)]
+        public static object gamepad_is_supported(object?[] args)
+        {
+            // TODO : implement
+            return true;
+        }
 
         [GMLFunction("gamepad_get_device_count", GMLFunctionFlags.Stub)]
         public static object gamepad_get_device_count(object?[] args)
@@ -45,7 +50,13 @@
             return false;
         }
 
-        // gamepad_button_check_released
+        [GMLFunction("gamepad_button_check_released", GMLFunctionFlags.Stub)]
+        public static object gamepad_button_check_released(object?[] args)
+        {
+            // TODO : implement
+            return false;
+        }
+
         // gamepad_button_value
         // gamepad_axis_count
 
@@ -62,7 +73,14 @@
         // gamepad_test_mapping
         // gamepad_get_mapping
         // gamepad_get_guid
-        // gamepad_set_vibration
+
+        [GMLFunction("gamepad_set_vibration", GMLFunctionFlags.Stub)]
+        public static object? gamepad_set_vibration(object?[] args)
+        {
+            // TODO : implement?
+            return null;
+        }
+
         // gamepad_add_hardware_mapping_from_string
         // gamepad_add_hardware_mapping_from_file
         // gamepad_get_hardware_mappings

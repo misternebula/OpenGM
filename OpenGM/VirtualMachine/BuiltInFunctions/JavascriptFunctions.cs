@@ -1,22 +1,33 @@
-﻿namespace OpenGM.VirtualMachine.BuiltInFunctions
+﻿using OpenGM.Loading;
+
+namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class JavascriptFunctions
     {
         [GMLFunction("@@NewGMLObject@@")]
         public static object? NewGMLObject(object?[] args)
         {
-            var ctor = args[0];
+            var ctor = VMExecutor.FetchMethod(args[0]);
             var values = args[1..];
             var obj = new GMLObject();
 
-            if (ctor is Method m)
+            var script = ctor!.func;
+            var code = script.GetCode()!;
+            VMExecutor.ExecuteCode(code, obj, args: values);
+
+            // TODO: this is definitely NOT how static variables are supposed to work
+            if (code.ParentAssetId != -1)
             {
-                VMExecutor.ExecuteCode(m.func.GetCode(), obj, args: values);
-            }
-            else
-            {
-                var constructorIndex = ctor.Conv<int>();
-                VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[constructorIndex].GetCode(), obj, args: values);
+                var parent = GameLoader.Codes[code.ParentAssetId];
+                var def = parent.Functions.FirstOrDefault(x => x.FunctionName == code.Name);
+
+                if (def is not null)
+                {
+                    foreach (var kv in def.StaticVariables)
+                    {
+                        obj.SelfVariables[kv.Key] = kv.Value;
+                    }
+                }
             }
 
             return obj;
@@ -29,7 +40,15 @@
         }
 
         [GMLFunction("@@This@@")]
-        public static object This(object?[] args) => VMExecutor.Self.GMSelf.instanceId;
+        public static object This(object?[] args)
+        {
+            if (VMExecutor.Self.Self is GamemakerObject)
+            {
+                return VMExecutor.Self.GMSelf.instanceId;
+            }
+
+            return VMExecutor.Self.Self;
+        }
 
         // @@Global@@
 
@@ -68,8 +87,31 @@
         }
 
         [GMLFunction("@@Other@@")]
-        public static object Other(object?[] args) => VMExecutor.Other.GMSelf.instanceId;
-        // @@GetInstance@@
+        public static object Other(object?[] args)
+        {
+            if (VMExecutor.Other.Self is GamemakerObject)
+            {
+                return VMExecutor.Other.GMSelf.instanceId;
+            }
+
+            return VMExecutor.Other.Self;
+        }
+
+        [GMLFunction("@@GetInstance@@")]
+        public static object? GetInstance(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            if (id < GMConstants.FIRST_INSTANCE_ID)
+            {
+                return InstanceManager.FindByAssetId(id).First().instanceId;
+            }
+            else
+            {
+                return InstanceManager.FindByInstanceId(id)?.instanceId;
+            }
+        }
+
         // @@GlobalScope@@
         // @@NewObject@@
         // @@NewProperty@@

@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine.BuiltInFunctions;
+﻿using OpenGM.IO;
+
+namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
 public static class GameFunctions
 {
@@ -91,7 +93,7 @@ public static class GameFunctions
     {
         var obj = args[0].Conv<int>();
 
-        GamemakerObject objToCheck = null!;
+        GamemakerObject? objToCheck = null;
 
         if (obj == GMConstants.other)
         {
@@ -100,12 +102,17 @@ public static class GameFunctions
         else if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             // object index
-            objToCheck = InstanceManager.FindByAssetId(obj).First();
+            objToCheck = InstanceManager.FindByAssetId(obj).FirstOrDefault();
         }
         else
         {
             // instance id
-            objToCheck = InstanceManager.FindByInstanceId(obj)!;
+            objToCheck = InstanceManager.FindByInstanceId(obj);
+        }
+
+        if (objToCheck is null)
+        {
+            return 1e10;
         }
 
         // compute bounding boxes if needed
@@ -429,7 +436,26 @@ public static class GameFunctions
         return CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
     }
 
-    // instance_place_list
+    [GMLFunction("instance_place_list")]
+    public static object instance_place_list(object?[] args)
+    {
+        var x = args[0].Conv<double>();
+        var y = args[1].Conv<double>();
+        var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+        var list = args[3].Conv<int>();
+        var ordered = args[4].Conv<bool>();
+
+        List<GamemakerObject> collisionList = [];
+        CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj, collisionList);
+
+        foreach (var instance in collisionList)
+        {
+            // TODO: this sucks but too lazy to do it a better way LOL
+            DataStructuresFunctions.ds_list_add([list, instance.instanceId]);
+        }
+
+        return collisionList.Count;
+    }
 
     [GMLFunction("instance_create_depth")]
     public static object instance_create_depth(object?[] args)
@@ -439,10 +465,39 @@ public static class GameFunctions
         var depth = args[2].Conv<int>();
         var obj = args[3].Conv<int>();
 
-        return InstanceManager.instance_create_depth(x, y, depth, obj);
+        GMLObject? var_struct = null;
+        if (args.Length == 5)
+        {
+            var_struct = args[4].Conv<GMLObject>();
+        }
+
+        return InstanceManager.instance_create_depth(x, y, depth, obj, var_struct);
     }
 
-    // instance_create_layer
+    [GMLFunction("instance_create_layer")]
+    public static object? instance_create_layer(object?[] args)
+    {
+        var x = args[0].Conv<double>();
+        var y = args[1].Conv<double>();
+        var layer_id = args[2];
+        var obj = args[3].Conv<int>();
+
+        GMLObject? var_struct = null;
+        if (args.Length == 5)
+        {
+            var_struct = args[4].Conv<GMLObject>();
+        }
+
+        var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+        if (layer == null)
+        {
+            throw new Exception($"instance_create_layer - Layer {layer_id} not found!");
+        }
+
+        return InstanceManager.instance_create_layer(x, y, layer, obj, var_struct);
+    }
+
     // instance_copy
 
     [GMLFunction("instance_change")]
@@ -559,16 +614,14 @@ public static class GameFunctions
             notme = args[0].Conv<bool>();
         }
 
-        InstanceManager.LastDeactivatedIDs.Clear();
-        foreach (var (id, instance) in InstanceManager.instances)
+        foreach (var instance in InstanceManager.allInstances)
         {
-            InstanceManager.LastDeactivatedIDs.Add(id);
-            instance.Active = false;
+            instance.NextActive = false;
         }
 
         if (notme)
         {
-            VMExecutor.Self.GMSelf.Active = true;
+            VMExecutor.Self.GMSelf.NextActive = true;
         }
 
         return null;
@@ -582,17 +635,17 @@ public static class GameFunctions
         if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             // asset id
-            var instances = InstanceManager.FindByAssetId(obj);
+            var instances = InstanceManager.FindByAssetId(obj, all: true);
             foreach (var instance in instances)
             {
-                instance.Active = false;
+                instance.NextActive = false;
             }
         }
         else
         {
             // instance id
-            var instance = InstanceManager.FindByInstanceId(obj)!;
-            instance.Active = false;
+            var instance = InstanceManager.FindByInstanceId(obj, all: true)!;
+            instance.NextActive = false;
         }
 
         return null;
@@ -603,15 +656,10 @@ public static class GameFunctions
     [GMLFunction("instance_activate_all")]
     public static object? instance_activate_all(object?[] args)
     {
-        foreach (var id in InstanceManager.LastDeactivatedIDs)
+        foreach (var obj in InstanceManager.allInstances)
         {
-            if (InstanceManager.instances.TryGetValue(id, out var instance))
-            {
-                instance.Active = true;
-            }
+            obj.NextActive = true;
         }
-
-        InstanceManager.LastDeactivatedIDs.Clear();
 
         return null;
     }
@@ -624,17 +672,17 @@ public static class GameFunctions
         if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             // asset id
-            var instances = InstanceManager.FindByAssetId(obj);
+            var instances = InstanceManager.FindByAssetId(obj, all: true);
             foreach (var instance in instances)
             {
-                instance.Active = true;
+                instance.NextActive = true;
             }
         }
         else
         {
             // instance id
-            var instance = InstanceManager.FindByInstanceId(obj)!;
-            instance.Active = true;
+            var instance = InstanceManager.FindByInstanceId(obj, all: true)!;
+            instance.NextActive = true;
         }
 
         return null;
@@ -685,7 +733,24 @@ public static class GameFunctions
         return null;
     }
 
-    // game_end
+    public static int GameEndReturnCode;
+
+    [GMLFunction("game_end")]
+    public static object? game_end(object?[] args)
+    {
+        GameEndReturnCode = 0;
+        if (args.Length > 0)
+        {
+            GameEndReturnCode = args[0].Conv<int>();
+        }
+
+        DebugLog.LogInfo($"-- GAME END (Code: {GameEndReturnCode}) --");
+
+        // TODO: run GameEnd events
+
+        RoomManager.New_Room = GMConstants.ROOM_ENDOFGAME;
+        return null;
+    }
 
     [GMLFunction("game_restart")]
     public static object? game_restart(object?[] args)

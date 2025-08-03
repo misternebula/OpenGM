@@ -5,6 +5,8 @@ using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.IO.Compression;
 using UndertaleModLib;
 
 namespace OpenGM;
@@ -20,7 +22,7 @@ internal class Entry
 
     public static string? PathOverride = null;
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         var passedArgs = ProcessArgs(args);
 
@@ -39,12 +41,14 @@ internal class Entry
             if (!Path.Exists(PathOverride))
             {
                 DebugLog.LogError($"ERROR - Path {PathOverride} not found.");
-                return;
+                return -1;
             }
         }
 
         var dataWin = File.Exists(path) ? path : Path.Combine(path, "data.win");
         LoadGame(dataWin, passedArgs);
+
+        return GameFunctions.GameEndReturnCode;
     }
 
     static string[] ProcessArgs(string[] args)
@@ -71,30 +75,96 @@ internal class Entry
 
                     PathOverride = args[++i];
                     break;
+
                 case "--warnings-only":
                     DebugLog.Verbosity = DebugLog.LogType.Warning;
                     break;
+
                 case "--errors-only":
                     DebugLog.Verbosity = DebugLog.LogType.Error;
                     break;
+
                 case "--verbose":
                 case "-v":
                     DebugLog.Verbosity = DebugLog.LogType.Verbose;
                     break;
+
                 case "--log-all-stubs":
                     ScriptResolver.AlwaysLogStubs = true;
                     break;
+
                 case "--compat-collision":
                     CollisionManager.CompatMode = true;
                     CollisionManager.CompatModeOverridden = true;
                     break;
+
                 case "--no-compat-collision":
                     CollisionManager.CompatMode = false;
                     CollisionManager.CompatModeOverridden = true;
                     break;
+
+                case "--record-legacy":
+                {
+                    KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
+
+                    var path = args[++i];
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+
+                    KeyboardHandler.IOStream = File.OpenWrite(path);
+                    break;
+                }
+
+                case "--record":
+                {
+                    KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
+
+                    var path = args[++i];
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+
+                    var source = File.OpenWrite(path);
+                    source.Write(KeyboardHandler.ReplayHeader);
+
+                    var compressed = new GZipStream(source, CompressionMode.Compress, leaveOpen: false);
+                    KeyboardHandler.IOStream = compressed;
+                    break;
+                }
+
+                case "--playback":
+                    KeyboardHandler.HandlerState = KeyboardHandler.State.PLAYBACK;
+
+                    var stream = File.OpenRead(args[++i]);
+                    var buf = new byte[KeyboardHandler.ReplayHeader.Length];
+                    stream.ReadExactly(buf);
+
+                    if (buf.SequenceEqual(KeyboardHandler.ReplayHeader))
+                    {
+                        // compressed OpenGM replay
+                        KeyboardHandler.IOStream = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: false);
+                    }
+                    else
+                    {
+                        // legacy GameMaker replay
+                        stream.Seek(0, SeekOrigin.Begin);
+                        KeyboardHandler.IOStream = stream;
+                    }
+
+                    break;
+
+                case "--stack-logs":
+                    VMExecutor.VerboseStackLogs = true;
+                    VMExecutor.ForceVerboseStackLogs = true;
+                    break;
+
                 case "--":
                     endOfOptions = true;
                     break;
+
                 default:
                     passedArgs.Add(arg);
                     break;
@@ -121,6 +191,7 @@ internal class Entry
         GameLoader.LoadGame(dataWinPath);
         VersionManager.Init();
         ScriptResolver.InitGMLFunctions(); // needs version stuff
+        ExtensionManager.Init();
 
         VMExecutor.EnvStack.Clear();
         VMExecutor.CallStack.Clear();
@@ -142,13 +213,20 @@ internal class Entry
             nativeSettings.ClientSize = new((int)GameLoader.GeneralInfo.DefaultWindowWidth, (int)GameLoader.GeneralInfo.DefaultWindowHeight);
             // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
             nativeSettings.Flags = ContextFlags.Default;
+            GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
+            GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
 
-            window = new CustomWindow(gameSettings, nativeSettings, GameLoader.GeneralInfo.DefaultWindowWidth, GameLoader.GeneralInfo.DefaultWindowHeight);
+            window = new CustomWindow(gameSettings, nativeSettings);
         }
         else
         {
             window.ClientSize = new((int)GameLoader.GeneralInfo.DefaultWindowWidth, (int)GameLoader.GeneralInfo.DefaultWindowHeight);
 		}
+
+        if (CollisionManager.CompatMode)
+        {
+            DebugLog.LogInfo("Collision compatibility mode is enabled.");
+        }
 
         DebugLog.LogInfo($"Binding page textures...");
         PageManager.BindTextures();
@@ -163,13 +241,15 @@ internal class Entry
         DebugLog.LogInfo($"Changing to first room...");
 
         RoomManager.FirstRoom = true;
-        RoomManager.New_Room = 0;
+        var firstRoom = GameLoader.GeneralInfo.RoomOrder[0];
+        RoomManager.New_Room = GameLoader.GeneralInfo.RoomOrder[0].CachedId;
         RoomManager.ChangeToWaitingRoom();
 
         DebugLog.LogInfo($"Starting main loop...");
         window.Run();
 
         AudioManager.Dispose();
+        KeyboardHandler.IOStream?.Close();
     }
 
     public static void SetGameSpeed(int fps)

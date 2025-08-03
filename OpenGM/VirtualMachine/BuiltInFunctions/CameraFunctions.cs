@@ -6,7 +6,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     {
         // CCameraManager::SetupGMLFunctions
 
-        // camera_create
+        [GMLFunction("camera_create")]
+        public static object? camera_create(object?[] args)
+        {
+            var cam = CameraManager.CreateCamera();
+            return cam.ID;
+        }
+
         // camera_create_view
         // camera_destroy
         // camera_apply
@@ -24,21 +30,27 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var camera_id = args[0].Conv<int>();
 
-            if (camera_id > 0)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
+                return null;
             }
 
-            var x = args[1].Conv<double>();
-            var y = args[2].Conv<double>();
+            var x = args[1].Conv<float>();
+            var y = args[2].Conv<float>();
 
-            CustomWindow.Instance.SetPosition(x, y);
+            camera.ViewX = x;
+            camera.ViewY = y;
 
             return null;
         }
 
-        // camera_set_view_size
+        [GMLFunction("camera_set_view_size", GMLFunctionFlags.Stub)]
+        public static object? camera_set_view_size(object?[] args)
+        {
+            return null;
+        }
+
         // camera_set_view_speed
         // camera_set_view_border
         // camera_set_view_angle
@@ -47,31 +59,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? camera_set_view_target(object?[] args)
         {
             var camera_id = args[0].Conv<int>();
-
-            if (camera_id > 0)
-            {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
-            }
-
             var id = args[1].Conv<int>();
 
-            GamemakerObject? instance = null;
-
-            if (id == GMConstants.noone)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // set view target to no one i guess
-            }
-            else if (id < GMConstants.FIRST_INSTANCE_ID)
-            {
-                instance = InstanceManager.FindByAssetId(id).FirstOrDefault();
-            }
-            else
-            {
-                instance = InstanceManager.FindByInstanceId(id);
+                return null;
             }
 
-            CustomWindow.Instance.FollowInstance = instance;
+            camera.TargetInstance = id;
 
             return null;
         }
@@ -87,13 +83,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var camera_id = args[0].Conv<int>();
 
-            if (camera_id > 0)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
+                return -1;
             }
 
-            return CustomWindow.Instance.X;
+            return camera.ViewX;
         }
 
         [GMLFunction("camera_get_view_y")]
@@ -101,13 +97,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var camera_id = args[0].Conv<int>();
 
-            if (camera_id > 0)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
+                return -1;
             }
 
-            return CustomWindow.Instance.Y;
+            return camera.ViewY;
         }
 
         [GMLFunction("camera_get_view_width")]
@@ -115,13 +111,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var camera_id = args[0].Conv<int>();
 
-            if (camera_id > 0)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
+                return -1;
             }
 
-            return RoomManager.CurrentRoom.CameraWidth;
+            return camera.ViewWidth;
         }
 
         [GMLFunction("camera_get_view_height")]
@@ -129,13 +125,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var camera_id = args[0].Conv<int>();
 
-            if (camera_id > 0)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
+                return -1;
             }
 
-            return RoomManager.CurrentRoom.CameraHeight;
+            return camera.ViewHeight;
         }
 
         // camera_get_speed_x
@@ -149,21 +145,35 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var camera_id = args[0].Conv<int>();
 
-            if (camera_id > 0)
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
             {
-                // TODO : ughhh implement multiple cameras
-                throw new NotImplementedException();
+                return null;
             }
 
-            // TODO : this can apparently return either an instance id or object index????
-            return CustomWindow.Instance.FollowInstance == null ? -1 : CustomWindow.Instance.FollowInstance.instanceId;
+            return camera.TargetInstance;
         }
 
         [GMLFunction("view_get_camera")]
         public static object view_get_camera(object?[] args)
         {
-            // TODO : ughhh implement multiple cameras
-            return 0;
+            var view_port = args[0].Conv<int>();
+
+            // TODO : this quirk exists in 2022.500 C++, but is undocumented. does it still happen in latest?
+            // also, HTML doesn't do this and just indexes out of bounds
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            var camera = RoomManager.CurrentRoom.Views[view_port].Camera;
+
+            if (camera == null)
+            {
+                return -1;
+            }
+
+            return camera.ID;
         }
 
         // view_get_visible

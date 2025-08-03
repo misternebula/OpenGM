@@ -13,8 +13,8 @@ namespace OpenGM
     {
         public string FunctionName { get; private set; } = functionName;
         public GMLFunctionFlags FunctionFlags { get; private set; } = functionFlags;
-        public GMVersion? AddedVersion { get; private set; } = (since != null) ? new(since) : null;
-        public GMVersion? RemovedVersion { get; private set; } = (before != null) ? new(before) : null;
+        public Version? AddedVersion { get; private set; } = (since != null) ? new(since) : null;
+        public Version? RemovedVersion { get; private set; } = (before != null) ? new(before) : null;
         public DebugLog.LogType StubLogType { get; private set; } = stubLogType;
     }
 

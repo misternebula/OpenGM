@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenTK.Audio.OpenAL;
+using OpenTK.Mathematics;
 using StbVorbisSharp;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -7,13 +8,55 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
     public static class SoundFunctions
     {
         // MCI_command
-        // audio_listener_position
+
+        [GMLFunction("audio_listener_position")]
+        public static object? audio_listener_position(object?[] args)
+        {
+            var x = args[0].Conv<float>();
+            var y = args[1].Conv<float>();
+            var z = args[2].Conv<float>();
+
+            AudioManager.Listener.Position = new Vector3(x, y, z);
+            return null;
+        }
+
         // audio_listener_velocity
         // audio_listener_orientation
-        // audio_emitter_position
-        // audio_emitter_velocity
+
+        [GMLFunction("audio_emitter_position")]
+        public static object? audio_emitter_position(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var x = args[1].Conv<float>();
+            var y = args[2].Conv<float>();
+            var z = args[3].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.Position = new(x, y, z);
+            return null;
+        }
+
+        [GMLFunction("audio_emitter_velocity")]
+        public static object? audio_emitter_velocity(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var vx = args[1].Conv<float>();
+            var vy = args[2].Conv<float>();
+            var vz = args[3].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.Velocity = new(vx, vy, vz);
+            return null;
+        }
+
         // audio_system
-        // audio_emitter_create
+
+        [GMLFunction("audio_emitter_create")]
+        public static object? audio_emitter_create(object?[] args)
+        {
+            return AudioManager.AudioEmitterCreate();
+        }
+
         // audio_emitter_free
 
         [GMLFunction("audio_play_sound")]
@@ -23,6 +66,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var priority = args[1].Conv<double>();
             var loop = args[2].Conv<bool>();
             var asset = AudioManager.GetAudioAsset(index);
+
+            if (asset is null)
+            {
+                DebugLog.LogWarning($"Tried to play nonexistent sound {index}");
+                return -1;
+            }
+
             var gain = asset.Gain;
             var offset = asset.Offset;
             var pitch = asset.Pitch;
@@ -51,9 +101,67 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return ret;
         }
 
-        // audio_play_sound_on
+        [GMLFunction("audio_play_sound_on")]
+        public static object? audio_play_sound_on(object?[] args)
+        {
+            var emitter = args[0].Conv<int>();
+            var sound = args[1].Conv<int>();
+            var loop = args[2].Conv<bool>();
+            var priority = args[3].Conv<double>();
+
+            var gain = 1f;
+            var offset = 0f;
+            var pitch = 1f;
+            var listener_mask = 1;
+
+            if (args.Length > 4)
+            {
+                gain = args[4].Conv<float>();
+            }
+
+            if (args.Length > 5)
+            {
+                offset = args[5].Conv<float>();
+            }
+
+            if (args.Length > 6)
+            {
+                pitch = args[6].Conv<float>();
+            }
+
+            if (args.Length > 7)
+            {
+                listener_mask = args[7].Conv<int>();
+            }
+
+            return AudioManager.PlaySoundOnEmitter(AudioManager.GetAudioEmitter(emitter), sound, priority, loop, gain, offset, pitch, listener_mask);
+        }
+
         // audio_play_sound_at
-        // audio_falloff_set_model
+
+        [GMLFunction("audio_falloff_set_model")]
+        public static object? audio_falloff_set_model(object?[] args)
+        {
+            var model = (FalloffModel)args[0].Conv<int>();
+
+            var alModel = model switch
+            {
+                FalloffModel.NONE => ALDistanceModel.None,
+                FalloffModel.INVERSE_DISTANCE => ALDistanceModel.InverseDistance,
+                FalloffModel.INVERSE_DISTANCE_CLAMPED => ALDistanceModel.InverseDistanceClamped,
+                FalloffModel.LINEAR_DISTANCE => ALDistanceModel.LinearDistance,
+                FalloffModel.LINEAR_DISTANCE_CLAMPED => ALDistanceModel.LinearDistanceClamped,
+                FalloffModel.EXPONENT_DISTANCE => ALDistanceModel.ExponentDistance,
+                FalloffModel.EXPONENT_DISTANCE_CLAMPED => ALDistanceModel.ExponentDistanceClamped,
+                FalloffModel.INVERSE_DISTANCE_SCALED => throw new NotImplementedException(),
+                FalloffModel.EXPONENT_DISTANCE_SCALED => throw new NotImplementedException(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            AL.DistanceModel(alModel);
+            AudioManager.CheckALError();
+            return null;
+        }
 
         [GMLFunction("audio_stop_sound")]
         public static object? audio_stop_sound(object?[] args)
@@ -193,7 +301,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return !(bool?)audio_is_playing(args);
         }
 
-        // audio_exists
+        [GMLFunction("audio_exists")]
+        public static object? audio_exists(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            if (index < GMConstants.FIRST_INSTANCE_ID)
+            {
+                return AudioManager.GetAudioInstances(index).Any();
+            }
+            else
+            {
+                return AudioManager.GetAudioInstance(index) != null;
+            }
+        }
+
         // audio_system_is_available
         // audio_sound_is_playable
         // audio_master_gain
@@ -201,7 +323,32 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_get_type
         // audio_emitter_gain
         // audio_emitter_pitch
-        // audio_emitter_falloff
+
+        [GMLFunction("audio_emitter_falloff")]
+        public static object? audio_emitter_falloff(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var falloff_ref = args[1].Conv<float>();
+            var falloff_max = args[2].Conv<float>();
+            var falloff_factor = args[3].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.FalloffRef = falloff_ref;
+            emitter.FalloffMax = falloff_max;
+            emitter.FalloffFac = falloff_factor;
+
+            foreach (var sound in emitter.AttachedSounds)
+            {
+                AL.Source(sound.Source, ALSourcef.ReferenceDistance, falloff_ref);
+                AudioManager.CheckALError();
+                AL.Source(sound.Source, ALSourcef.MaxDistance, falloff_max);
+                AudioManager.CheckALError();
+                AL.Source(sound.Source, ALSourcef.RolloffFactor, falloff_factor);
+                AudioManager.CheckALError();
+            }
+
+            return null;
+        }
 
         [GMLFunction("audio_channel_num")]
         public static object? audio_channel_num(object?[] args)
@@ -307,7 +454,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (index < GMConstants.FIRST_INSTANCE_ID)
             {
                 var asset = AudioManager.GetAudioAsset(index);
-                return AudioManager.GetClipLength(asset);
+                if (asset != null)
+                {
+                    return AudioManager.GetClipLength(asset);
+                }
+                return -1;
             }
             else
             {
@@ -351,13 +502,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     return 0;
                 }
 
-                AL.GetSource(instance.SoundInstanceId, ALSourcef.Gain, out var gain);
+                AL.GetSource(instance.Source, ALSourcef.Gain, out var gain);
+                AudioManager.CheckALError();
                 return gain;
             }
             else
             {
                 var asset = AudioManager.GetAudioAsset(index);
-                return asset.Gain;
+                return asset?.Gain ?? 0;
             }
         }
 
@@ -375,7 +527,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     return null;
                 }
 
-                return (double)AL.GetSource(soundAsset.Source, ALSourcef.Pitch);
+                var pitch = (double)AL.GetSource(soundAsset.Source, ALSourcef.Pitch);
+                AudioManager.CheckALError();
+                return pitch;
             }
             else
             {
@@ -451,7 +605,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return true;
         }
 
-        // audio_group_load_progress
+        [GMLFunction("audio_group_load_progress", GMLFunctionFlags.Stub)]
+        public static object audio_group_load_progress(object?[] args)
+        {
+            return 100;
+        }
+
         // audio_group_name
         // audio_group_stop_all
 
@@ -470,6 +629,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_start_recording
         // audio_stop_recording
         // audio_get_recorder_count
+
+        [GMLFunction("audio_get_recorder_count")]
+        public static object? audio_get_recorder_count(object?[] args)
+        {
+            return AudioManager.GetRecordingDeviceNames().Count();
+        }
+
         // audio_get_recorder_info
         // audio_sound_get_listener_mask
         // audio_sound_set_listener_mask
@@ -478,7 +644,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_get_listener_mask
         // audio_set_listener_mask
         // audio_get_listener_info
-        // audio_get_listener_count
+
+        [GMLFunction("audio_get_listener_count", GMLFunctionFlags.Stub)]
+        public static object? audio_get_listener_count(object?[] args)
+        {
+            return 0;
+        }
+        
         // audio_create_sync_group
         // audio_destroy_sync_group
         // audio_play_in_sync_group

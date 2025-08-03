@@ -1,4 +1,6 @@
-﻿using MotionTK;
+using System.Globalization;
+using OpenGM.Loading;
+using MotionTK;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 
@@ -15,24 +17,44 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // os_get_config
+
         // os_get_info
 
         [GMLFunction("os_get_language", GMLFunctionFlags.Stub)]
         public static object os_get_language(object?[] args)
         {
-            return "en"; // TODO : actually implement
+            var lang = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+            return (lang == "iv") ? "en" : lang; //just in case it returns iv
         }
 
         [GMLFunction("os_get_region", GMLFunctionFlags.Stub)]
         public static object os_get_region(object?[] args)
         {
-            // TODO : implement
-            return "GB";
+            bool invariant = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "iv"); //just in case it returns iv
+            return ((invariant) ? "GB" : (new RegionInfo(CultureInfo.CurrentCulture.Name).TwoLetterISORegionName));
         }
 
         // os_request_permission
         // os_check_permision
-        // code_is_compiled
+
+        [GMLFunction("os_is_paused", GMLFunctionFlags.Stub)]
+        public static object os_is_paused(object?[] args)
+        {
+            return false;
+        }
+
+        [GMLFunction("code_is_compiled")]
+        public static object code_is_compiled(object?[] args)
+        {
+            return GameLoader.GeneralInfo.IsYYC;
+        }
+
+        // used by PT
+        [GMLFunction("switch_get_operation_mode", GMLFunctionFlags.Stub)]
+        public static object? switch_get_operation_mode(object?[] args)
+        {
+            return null;
+        }
 
         // ...
 
@@ -80,8 +102,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 if (VideoBuffer >= 0)
                 {
                     // buffer_delete
-                    var buffer = BufferManager.Buffers[VideoBuffer];
-                    buffer.Data = null!; // why
                     BufferManager.Buffers.Remove(VideoBuffer);
                 }
 
@@ -104,8 +124,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 if (VideoBuffer >= 0)
                 {
                     // buffer_delete
-                    var buffer = BufferManager.Buffers[VideoBuffer];
-                    buffer.Data = null!; // why
                     BufferManager.Buffers.Remove(VideoBuffer);
                 }
 
@@ -131,8 +149,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 if (VideoBuffer >= 0)
                 {
                     // buffer_delete
-                    var buffer = BufferManager.Buffers[VideoBuffer];
-                    buffer.Data = null!; // why
                     BufferManager.Buffers.Remove(VideoBuffer);
                 }
 

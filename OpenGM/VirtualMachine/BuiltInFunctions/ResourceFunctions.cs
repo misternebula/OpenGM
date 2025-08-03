@@ -1,6 +1,7 @@
 ﻿using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
+using System.Collections;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -17,8 +18,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? sprite_get_name(object?[] args)
         {
             var index = args[0].Conv<int>();
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return "";
+            }
 
-            return SpriteManager._spriteDict[index].Name;
+            return sprite.Name;
         }
 
         [GMLFunction("sprite_get_number")]
@@ -32,7 +37,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_width(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.Width;
         }
 
@@ -40,7 +49,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_height(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.Height;
         }
 
@@ -48,7 +61,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_xoffset(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.OriginX;
         }
 
@@ -56,7 +73,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_yoffset(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[index];
+            if (!SpriteManager._spriteDict.TryGetValue(index, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.OriginY;
         }
 
@@ -66,7 +87,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_left(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.MarginLeft;
         }
 
@@ -74,7 +99,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_right(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.MarginRight;
         }
 
@@ -82,7 +111,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_top(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+
             return sprite.MarginTop;
         }
 
@@ -90,7 +123,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_get_bbox_bottom(object?[] args)
         {
             var ind = args[0].Conv<int>();
-            var sprite = SpriteManager._spriteDict[ind];
+            if (!SpriteManager._spriteDict.TryGetValue(ind, out var sprite))
+            {
+                return 0;
+            }
+            
             return sprite.MarginBottom;
         }
 
@@ -216,8 +253,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // font_get_italic
         // font_get_first
         // font_get_last
-        // font_add_enable_aa
-        // font_add_get_enable_aa
+
+        [GMLFunction("font_add_enable_aa", GMLFunctionFlags.Stub)]
+        public static object? font_add_enable_aa(object?[] args)
+        {
+            // html runner also stubs these out so lol lmao
+            return null;
+        }
+
+        [GMLFunction("font_add_get_enable_aa", GMLFunctionFlags.Stub)]
+        public static object? font_add_get_enable_aa(object?[] args)
+        {
+            // html runner also stubs these out so lol lmao
+            return false;
+        }
+
         // font_add
         // font_add_sprite
 
@@ -263,7 +313,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 };
 
                 newFont.entries.Add(fontAssetEntry);
-                newFont.entriesDict.Add(fontAssetEntry.characterIndex, fontAssetEntry);
+                newFont.entriesDict[fontAssetEntry.characterIndex] = fontAssetEntry;
             }
 
             TextManager.FontAssets.Add(newFont);
@@ -302,9 +352,63 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // path_get_closed
         // path_get_precision
         // path_get_number
-        // path_get_point_x
-        // path_get_point_y
-        // path_get_point_speed
+
+        [GMLFunction("path_get_point_x")]
+        public static object? path_get_point_x(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var n = args[0].Conv<int>();
+
+            if (!PathManager.Paths.TryGetValue(index, out var path))
+            {
+                return -1; // this isn't documented anywhere, smh gamemaker
+            }
+
+            if (n >= path.points.Count)
+            {
+                return 0;
+            }
+
+            return path.points[n].x;
+        }
+
+        [GMLFunction("path_get_point_y")]
+        public static object? path_get_point_y(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var n = args[0].Conv<int>();
+
+            if (!PathManager.Paths.TryGetValue(index, out var path))
+            {
+                return -1; // this isn't documented anywhere, smh gamemaker
+            }
+
+            if (n >= path.points.Count)
+            {
+                return 0;
+            }
+
+            return path.points[n].y;
+        }
+
+        [GMLFunction("path_get_point_speed")]
+        public static object? path_get_point_speed(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var n = args[0].Conv<int>();
+
+            if (!PathManager.Paths.TryGetValue(index, out var path))
+            {
+                return -1; // this isn't documented anywhere, smh gamemaker
+            }
+
+            if (n >= path.points.Count)
+            {
+                return 0;
+            }
+
+            return path.points[n].speed;
+        }
 
         [GMLFunction("path_get_x")]
         public static object? path_get_x(object?[] args)
@@ -548,5 +652,55 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // asset_get_type
+
+        // ... sequence stuff
+
+        // animcurve_get
+
+        [GMLFunction("animcurve_get_channel")]
+        public static object? animcurve_get_channel(object?[] args)
+        {
+            var curve_struct_or_id = args[0];
+            var channel_name_or_index = args[1];
+
+            RuntimeAnimCurve curveStruct;
+            if (curve_struct_or_id is RuntimeAnimCurve _struct)
+            {
+                curveStruct = _struct;
+            }
+            else
+            {
+                curveStruct = GameLoader.AnimCurves[curve_struct_or_id.Conv<int>()];
+            }
+
+            if (channel_name_or_index is string str)
+            {
+                foreach (var channel in curveStruct.channels)
+                {
+                    if (channel.name == str)
+                    {
+                        return channel;
+                    }
+                }
+
+                throw new($"Channel with name {str} not found.");
+            }
+            else
+            {
+                return curveStruct.channels[channel_name_or_index.Conv<int>()];
+            }
+        }
+
+        // animcurve_get_channel_index
+
+        [GMLFunction("animcurve_channel_evaluate")]
+        public static object? animcurve_channel_evaluate(object?[] args)
+        {
+            var channel_struct = args[0].Conv<RuntimeAnimCurveChannel>();
+            var posx = args[1].Conv<float>();
+            return channel_struct.Evaluate(posx);
+        }
+
+        // ...
     }
 }

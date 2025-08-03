@@ -21,4 +21,11 @@ public static class GMConstants
     public const int ROOM_RESTARTGAME = -200;
     public const int ROOM_LOADGAME = -300;
     public const int ROOM_ABORTGAME = -400;
+
+    // These are used in HTML, but not C++ ...
+    public const int BUFFER_GENERALERROR = -1;
+    public const int BUFFER_OUTOFSPACE = -2;
+    public const int BUFFER_OUTOFBOUNDS = -3;
+    public const int BUFFER_INVALIDTYPE = -4;
+    public const int BUFFER_UNKNOWNBUFFER = -5;
 }

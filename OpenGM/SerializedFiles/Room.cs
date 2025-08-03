@@ -14,14 +14,37 @@ public class Room
     public float GravityX;
     public float GravityY;
 
-    public int CameraWidth;
-    public int CameraHeight;
-    public int FollowsObject;
+    public View[] Views = new View[8];
 
     public List<Layer> Layers = new();
     public List<GameObject> LooseObjects = new();
     public List<Tile> Tiles = new();
     public List<OldBackground> OldBackgrounds = new();
+    
+    public bool EnableViews;
+
+    // show color
+    // view clear screen? what is this?
+    // clear display buffer
+}
+
+[MemoryPackable]
+public partial class View
+{
+    public bool Enabled = false;
+    public int PositionX = 0;
+    public int PositionY = 0;
+    public int SizeX;
+    public int SizeY;
+    public int PortPositionX = 0;
+    public int PortPositionY = 0;
+    public int PortSizeX;
+    public int PortSizeY;
+    public int BorderX = 32;
+    public int BorderY = 32;
+    public int SpeedX = -1;
+    public int SpeedY = -1;
+    public int FollowsObject = -1;
 }
 
 public class Layer
@@ -165,5 +188,23 @@ public class TileBlob
     public int TileIndex; // bits 0-18
     public bool Mirror; // bit 28
     public bool Flip; // bit 29
-    public bool Rotate; // bit 30
+    public bool Rotate; // bit 30 (clockwise)
+
+    public TileBlob(uint blobData)
+    {
+        TileIndex = (int)blobData & 0x7FFFF;
+        Mirror = (blobData & (1 << 28)) != 0;
+        Flip = (blobData & (1 << 29)) != 0;
+        Rotate = (blobData & (1 << 30)) != 0;
+    }
+
+    public int ToNumber() 
+    {
+        var result = 0;
+        result |= TileIndex;
+        result |= (Mirror ? 1 : 0) << 28;
+        result |= (Flip ? 1 : 0) << 29;
+        result |= (Rotate ? 1 : 0) << 30;
+        return result;
+    }
 }

@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Collections;
@@ -238,7 +239,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // draw_texture_flush
-        // draw_flush
+
+        [GMLFunction("draw_flush", GMLFunctionFlags.Stub)]
+        public static object? draw_flush(object?[] args)
+        {
+            return null;
+        }
+
         // matrix_stack_push
         // matrix_stack_pop
         // matrix_stack_set
@@ -277,13 +284,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var start = args[2].Conv<double>();
             var end = args[3].Conv<double>();
 
-            if ((start != 0 && start != 1) || (end != 0 && end != 1))
-            {
-                throw new NotImplementedException("actual fog");
-            }
-
-            SpriteManager.FogEnabled = enable;
-            SpriteManager.FogColor = colour;
+            GraphicsManager.SetFog(enable, colour, start, end);
 
             return null;
         }
@@ -438,7 +439,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? gpu_set_alphatestenable(object?[] args)
         {
             var enabled = args[0].Conv<bool>();
-            GL.Uniform1(VertexManager.alphaTestEnabled, enabled ? 1 : 0);
+            GL.Uniform1(GraphicsManager.alphaTestEnabled, enabled ? 1 : 0);
             return null;
         }
 
@@ -446,11 +447,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? gpu_set_alphatestref(object?[] args)
         {
             var alphaRef = args[0].Conv<int>();
-            GL.Uniform1(VertexManager.alphaRefValue, alphaRef / 255f);
+            GL.Uniform1(GraphicsManager.alphaRefValue, alphaRef / 255f);
             return null;
         }
 
-        // gpu_set_texfilter
+        [GMLFunction("gpu_set_texfilter", GMLFunctionFlags.Stub)]
+        public static object? gpu_set_texfilter(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("gpu_set_texfilter_ext", GMLFunctionFlags.Stub)]
         public static object? gpu_set_texfilter_ext(object?[] args)

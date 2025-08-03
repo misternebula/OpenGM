@@ -1,11 +1,24 @@
 ﻿using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace OpenGM.IO;
 
 public class KeyboardHandler
 {
+    public enum State
+    {
+        NORMAL,
+        PLAYBACK,
+        RECORD
+    }
+
+    public static readonly byte[] ReplayHeader = "OGMR"u8.ToArray();
+
+    public static State HandlerState = State.NORMAL;
+    public static Stream? IOStream;
+
     public static bool[] KeyDown = new bool[256];
     public static bool[] KeyPressed = new bool[256];
     public static bool[] KeyReleased = new bool[256];
@@ -13,6 +26,8 @@ public class KeyboardHandler
     public static bool[] MouseDown = new bool[5];
     public static bool[] MousePressed = new bool[5];
     public static bool[] MouseReleased = new bool[5];
+
+    public static Vector2 MousePos = new();
 
     public static void UpdateMouseState(MouseState state)
     {
@@ -27,6 +42,9 @@ public class KeyboardHandler
             MouseReleased[i] = !isDown && wasDown;
             MouseDown[i] = isDown;
         }
+
+        MousePos.X = state.X;
+        MousePos.Y = state.Y;
     }
 
     /// <summary>
@@ -43,10 +61,16 @@ public class KeyboardHandler
             0x12 => [Keys.LeftAlt, Keys.RightAlt],
             0x1B => [Keys.Escape],
 
+            0x21 => [Keys.PageUp],
+            0x22 => [Keys.PageDown],
+            0x23 => [Keys.End],
+            0x24 => [Keys.Home],
             0x25 => [Keys.Left],
             0x26 => [Keys.Up],
             0x27 => [Keys.Right],
             0x28 => [Keys.Down],
+            0x2D => [Keys.Insert],
+            0x2E => [Keys.Delete],
 
             0x70 => [Keys.F1],
             0x71 => [Keys.F2],
@@ -68,8 +92,110 @@ public class KeyboardHandler
         };
     }
 
+    private static void RecordIOState()
+    {
+        if (IOStream == null)
+        {
+            throw new NullReferenceException("IOStream is null.");
+        }
+
+        IOStream.Write(new byte[4]); // IO_LastChar
+        IOStream.Write(new byte[4100]); // IO_InputString
+        IOStream.Write(new byte[4]); // IO_LastKey
+        IOStream.Write(new byte[4]); // IO_CurrentKey
+
+        for (var i = 0; i < 256; i++)
+        {
+            IOStream.WriteByte(KeyDown[i] ? (byte)1 : (byte)0);
+        }
+
+        for (var i = 0; i < 256; i++)
+        {
+            IOStream.WriteByte(KeyReleased[i] ? (byte)1 : (byte)0);
+        }
+
+        for (var i = 0; i < 256; i++)
+        {
+            IOStream.WriteByte(KeyPressed[i] ? (byte)1 : (byte)0);
+        }
+
+        IOStream.Write(new byte[40]); // IO_LastButton
+        IOStream.Write(new byte[40]); // IO_CurrentButton
+
+        IOStream.Write(new byte[50]); // IO_ButtonDown
+        IOStream.Write(new byte[50]); // IO_ButtonReleased
+        IOStream.Write(new byte[50]); // IO_ButtonPressed
+
+        IOStream.Write(new byte[10]); // IO_WheelUp
+        IOStream.Write(new byte[10]); // IO_WheelDown
+
+        IOStream.Write(new byte[8]); // IO_MousePos
+        IOStream.Write(new byte[4]); // IO_MouseX
+        IOStream.Write(new byte[4]); // IO_MouseY
+    }
+
+    private static void PlaybackIOState()
+    {
+        if (IOStream == null)
+        {
+            throw new NullReferenceException("IOStream is null.");
+        }
+
+        CustomWindow.Instance.UpdateFrequency = 0.0;
+
+        try
+        {
+            IOStream.ReadExactly(new byte[4]); // IO_LastChar
+            IOStream.ReadExactly(new byte[4100]); // IO_InputString
+            IOStream.ReadExactly(new byte[4]); // IO_LastKey
+            IOStream.ReadExactly(new byte[4]); // IO_CurrentKey
+
+            for (var i = 0; i < 256; i++)
+            {
+                KeyDown[i] = IOStream.ReadByte() == 1;
+            }
+
+            for (var i = 0; i < 256; i++)
+            {
+                KeyReleased[i] = IOStream.ReadByte() == 1;
+            }
+
+            for (var i = 0; i < 256; i++)
+            {
+                KeyPressed[i] = IOStream.ReadByte() == 1;
+            }
+
+            IOStream.ReadExactly(new byte[40]); // IO_LastButton
+            IOStream.ReadExactly(new byte[40]); // IO_CurrentButton
+
+            IOStream.ReadExactly(new byte[50]); // IO_ButtonDown
+            IOStream.ReadExactly(new byte[50]); // IO_ButtonReleased
+            IOStream.ReadExactly(new byte[50]); // IO_ButtonPressed
+
+            IOStream.ReadExactly(new byte[10]); // IO_WheelUp
+            IOStream.ReadExactly(new byte[10]); // IO_WheelDown
+
+            IOStream.ReadExactly(new byte[8]); // IO_MousePos
+            IOStream.ReadExactly(new byte[4]); // IO_MouseX
+            IOStream.ReadExactly(new byte[4]); // IO_MouseY
+        }
+        catch (EndOfStreamException)
+        {
+            DebugLog.LogInfo("Hit EOF, ending replay.");
+            CustomWindow.Instance.UpdateFrequency = Entry.GameSpeed;
+            IOStream.Close();
+            HandlerState = State.NORMAL;
+        }
+    }
+
     public static void UpdateKeyboardState(KeyboardState state)
     {
+        if (HandlerState == State.PLAYBACK)
+        {
+            PlaybackIOState();
+            return;
+        }
+
         void CalculateKey(int vk, bool isDown)
         {
             var wasDown = KeyDown[vk];
@@ -88,7 +214,7 @@ public class KeyboardHandler
         }
 
         // debug
-        VMExecutor.VerboseStackLogs = state.IsKeyDown(Keys.F1);
+        VMExecutor.VerboseStackLogs = VMExecutor.ForceVerboseStackLogs || state.IsKeyDown(Keys.F1);
 
         if (state.IsKeyDown(Keys.F2))
         {
@@ -123,11 +249,11 @@ public class KeyboardHandler
             {
                 if (item is GamemakerObject gm)
                 {
-                    DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
+                    DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Depth:{item.depth} Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
                 }
                 else
                 {
-                    DebugLog.Log($" - ??? InstanceID:{item.instanceId} Depth:{item.depth}");
+                    DebugLog.Log($" - {item.GetType().Name} InstanceID:{item.instanceId} Depth:{item.depth}");
                 }
             }
         }
@@ -159,6 +285,27 @@ public class KeyboardHandler
         if (state.IsKeyPressed(Keys.KeyPad2))
         {
             DrawManager.DebugBBoxes = !DrawManager.DebugBBoxes;
+            DebugLog.LogInfo($"Draw bounding boxes: {DrawManager.DebugBBoxes}");
+        }
+
+        if (state.IsKeyPressed(Keys.KeyPad3))
+        {
+            if (HandlerState == State.RECORD)
+            {
+                DebugLog.LogInfo("Finished recording.");
+                HandlerState = State.NORMAL;
+            }
+        }
+
+        if (state.IsKeyPressed(Keys.KeyPad4))
+        {
+            DrawManager.ShouldDrawGui = !DrawManager.ShouldDrawGui;
+            DebugLog.LogInfo($"GUI rendering {(DrawManager.ShouldDrawGui ? "enabled" : "disabled")}.");
+        }
+
+        if (HandlerState == State.RECORD)
+        {
+            RecordIOState();
         }
     }
 

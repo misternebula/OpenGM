@@ -6,7 +6,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
 public static class MathFunctions
 {
-    // is_bool
+    [GMLFunction("is_bool")]
+    public static object is_bool(object?[] args) => args[0] is bool;
 
     [GMLFunction("is_real")]
     public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
@@ -16,7 +17,8 @@ public static class MathFunctions
     [GMLFunction("is_string")]
     public static object is_string(object?[] args) => args[0] is string;
 
-    // is_array
+    [GMLFunction("is_array")]
+    public static object is_array(object?[] args) => args[0] is IList;
 
     [GMLFunction("is_undefined")]
     public static object is_undefined(object?[] args) => args[0] is null;
@@ -27,7 +29,10 @@ public static class MathFunctions
     // is_vec3
     // is_vec4
     // is_matrix
-    // is_struct
+
+    [GMLFunction("is_struct")]
+    public static object is_struct(object?[] args) => args[0] is GMLObject;
+
     // yyAsm
 
     [GMLFunction("method")]
@@ -36,11 +41,14 @@ public static class MathFunctions
         // seems to always be self, static, or null.
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyVariable.js#L279
         var struct_ref_or_instance_id = args[0];
-        var func = args[1].Conv<int>();
-
-        var method = new Method
-        {
-            func = ScriptResolver.ScriptsByIndex[func]
+        
+        var method = args[1] switch {
+            // pass by id
+            int value => new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]),
+            // pass method directly
+            Method value => value,
+            // idk
+            _ => throw new NotImplementedException($"Don't know what to do with type {args[1]?.GetType().ToString() ?? "null"}")
         };
 
         if (struct_ref_or_instance_id is null)
@@ -61,11 +69,11 @@ public static class MathFunctions
                  * just dummy implementing this so it'll run the initialize part of the constructor
                  */
                 method.inst = null;
-                DebugLog.LogWarning("Method() called with -16 (static) struct ref - not implemented.");
+                DebugLog.LogWarning($"Method() called with -16 (static) struct ref - not implemented. ({VMExecutor.Call.CodeName})");
             }
             else
             {
-                throw new NotImplementedException();
+                method.inst = InstanceManager.Find(num);
             }
         }
         else if (struct_ref_or_instance_id is GMLObject gmlo)
@@ -89,36 +97,63 @@ public static class MathFunctions
     // instanceof
 
     [GMLFunction("array_length")]
-    public static object array_length(object?[] args)
-    {
-        var array = args[0].Conv<IList>();
-        return array.Count;
-    }
-
     [GMLFunction("array_length_1d")]
-    public static object array_length_1d(object?[] args)
+    public static object? array_length(object?[] args)
     {
+        if (args[0] is not IList)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         return array.Count;
     }
 
     [GMLFunction("array_length_2d")]
-    public static object array_length_2d(object?[] args)
+    public static object? array_length_2d(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         var index0 = array[0];
         return (index0 as IList)!.Count;
     }
 
     [GMLFunction("array_height_2d")]
-    public static object array_height_2d(object?[] args)
+    public static object? array_height_2d(object?[] args)
     {
+        if (args[0] is null)
+        {
+            return null;
+        }
+
         var array = args[0].Conv<IList>();
         return array.Count;
     }
 
-    // array_get
-    // array_set
+    [GMLFunction("array_get")]
+    public static object? array_get(object?[] args)
+    {
+        var array = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+        return array[index];
+    }
+
+    [GMLFunction("array_set")]
+    public static object? array_set(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+        var value = args[2];
+
+        variable[index] = value;
+
+        return null;
+    }
+
     // array_set_pre
     // array_set_post
     // array_get_2D
@@ -126,8 +161,41 @@ public static class MathFunctions
     // array_set_2D_pre
     // array_set_2D_post
     // array_equals
-    // array_create
-    // array_copy
+
+    [GMLFunction("array_create")]
+    public static object? array_create(object?[] args)
+    {
+        var size = args[0].Conv<int>();
+        var value = args.ElementAtOrDefault(1) ?? 0;
+
+        var newArray = Enumerable.Repeat(value, size).ToList();
+
+        return newArray;
+    }
+
+    [GMLFunction("array_copy")]
+    public static object? array_copy(object?[] args)
+    {
+        // TODO: account for negative values, check if the result is as expected
+        var dest = args[0].Conv<IList>();
+        var destIndex = args[1].Conv<int>();
+        var src = args[2].Conv<IList>();
+        var srcIndex = args[3].Conv<int>();
+        var length = args[4].Conv<int>();
+
+        var targetLength = destIndex + length;
+        while (dest.Count < targetLength)
+        {
+            dest.Add(null);
+        }
+
+        for (var i = 0; i < length; i++)
+        {
+            dest[destIndex + i] = src[srcIndex + i];
+        }
+
+        return null;
+    }
 
     [GMLFunction("array_resize")]
     public static object? array_resize(object?[] args)
@@ -167,7 +235,21 @@ public static class MathFunctions
         return null;
     }
 
-    // array_pop
+    [GMLFunction("array_pop")]
+    public static object? array_pop(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        if (variable.Count == 0)
+        {
+            return null;
+        }
+
+        var end = variable.Count - 1;
+        var value = variable[end];
+        variable.RemoveAt(end);
+        return value;
+    }
+
     // array_insert
 
     [GMLFunction("array_delete")]
@@ -310,8 +392,19 @@ public static class MathFunctions
         return (anded % (doubleSign * (difference + 1)) * doubleSign) + lower;
     }
 
-    // random_set_seed
-    // random_get_seed
+    [GMLFunction("random_set_seed")]
+    public static object? random_set_seed(object?[] args)
+    {
+        var val = args[0].Conv<uint>();
+        GMRandom.Seed = val;
+        return null;
+    }
+
+    [GMLFunction("random_get_seed")]
+    public static object? random_get_seed(object?[] args)
+    {
+        return GMRandom.Seed;
+    }
 
     [GMLFunction("randomise", GMLFunctionFlags.Stub)]
     [GMLFunction("randomize", GMLFunctionFlags.Stub)]
@@ -385,8 +478,20 @@ public static class MathFunctions
 
     // exp
     // ln
-    // log2
-    // log10
+
+    [GMLFunction("log2")]
+    public static object log2(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        return Math.Log2(n);
+    }
+
+    [GMLFunction("log10")]
+    public static object log10(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        return Math.Log10(n);
+    }
 
     [GMLFunction("sin")]
     public static object sin(object?[] args)
@@ -402,7 +507,12 @@ public static class MathFunctions
         return Math.Cos(val);
     }
 
-    // tan
+    [GMLFunction("tan")]
+    public static object tan(object?[] args)
+    {
+        var val = args[0].Conv<double>();
+        return Math.Tan(val);
+    }
 
     [GMLFunction("arcsin")]
     public static object arcsin(object?[] args)
@@ -476,7 +586,14 @@ public static class MathFunctions
         return Math.Pow(x, n);
     }
 
-    // logn
+    [GMLFunction("logn")]
+    public static object logn(object?[] args)
+    {
+        var n = args[0].Conv<double>();
+        var val = args[1].Conv<double>();
+
+        return Math.Log(val, n);
+    }
 
     [GMLFunction("min")]
     public static object min(object?[] args)
@@ -573,6 +690,33 @@ public static class MathFunctions
     [GMLFunction("string")]
     public static object @string(params object?[] args)
     {
+        static string StringifyDict(Dictionary<string, object?> dict)
+        {
+            var result = "{ ";
+
+            var i = 0;
+            foreach (var kv in dict)
+            {
+                result += $"\"{kv.Key}\": ";
+
+                result += kv.Value switch
+                {
+                    Dictionary<string, object?> otherDict => StringifyDict(otherDict),
+                    _ => @string([kv.Value])
+                };
+
+                if (i < dict.Count - 1)
+                {
+                    result += ", ";
+                }
+
+                i++;
+            }
+
+            result += " }";
+            return result;
+        }
+
         var valueOrFormat = args[0];
 
         var values = new object?[] { };
@@ -663,7 +807,7 @@ public static class MathFunctions
             {
                 return s;
             }
-            else
+            else if (valueOrFormat is int or short or long or double or float)
             {
                 // real
                 var num = valueOrFormat.Conv<double>();
@@ -674,10 +818,27 @@ public static class MathFunctions
                     ? truncated.ToString()
                     : Math.Round(truncated, 2).ToString();
             }
+            else if (valueOrFormat is GMLObject obj)
+            {
+                return StringifyDict(obj.SelfVariables);
+            }
+            else if (valueOrFormat is Dictionary<string, object?> dict)
+            {
+                return StringifyDict(dict);
+            }
+            else
+            {
+                return valueOrFormat.ToString() ?? "[unknown]";
+            }
         }
     }
 
-    // int64
+    [GMLFunction("int64")]
+    public static object int64(object?[] args)
+    {
+        return args[0].Conv<long>();
+    }
+
     // ptr
 
     [GMLFunction("string_format")]
@@ -805,7 +966,25 @@ public static class MathFunctions
         return str[index - 1].ToString();
     }
 
-    // string_ord_at
+    [GMLFunction("string_ord_at")]
+    public static object string_ord_at(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+        var index = args[1].Conv<int>();
+
+        if (string.IsNullOrEmpty(str) || index > str.Length)
+        {
+            return -1;
+        }
+
+        if (index <= 0)
+        {
+            return (int)str[0];
+        }
+
+        return (int)str[index - 1];
+    }
+
     // string_byte_length
     // string_byte_at
     // string_set_byte_at
@@ -827,7 +1006,7 @@ public static class MathFunctions
         var str = args[1].Conv<string>();
         var index = args[2].Conv<int>();
 
-        return str.Insert(index - 1, substr);
+        return str.Insert(Math.Min(index - 1, str.Length), substr);
     }
 
     [GMLFunction("string_lower")]
@@ -897,8 +1076,39 @@ public static class MathFunctions
         return result;
     }
 
-    // string_lettersdigits
-    // string_replace
+    [GMLFunction("string_lettersdigits")]
+    public static object string_lettersdigits(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+
+        var result = "";
+
+        foreach (var c in str)
+        {
+            if (char.IsAsciiLetterOrDigit(c))
+            {
+                result += c;
+            }
+        }
+
+        return result;
+    }
+
+    [GMLFunction("string_replace")]
+    public static object string_replace(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+        var substr = args[1].Conv<string>();
+        var newstr = args[2].Conv<string>();
+
+        var pos = str.IndexOf(substr);
+        if (pos == -1)
+        {
+            return str;
+        }
+
+        return string.Concat(str.AsSpan(0, pos), newstr, str.AsSpan(pos + substr.Length));
+    }
 
     [GMLFunction("string_replace_all")]
     public static object string_replace_all(object?[] args)
@@ -910,7 +1120,23 @@ public static class MathFunctions
         return str.Replace(substr, newstr);
     }
 
-    // string_count
+    [GMLFunction("string_count")]
+    public static object string_count(object?[] args)
+    {
+        var substr = args[0].Conv<string>();
+        var str = args[1].Conv<string>();
+
+        var count = 0;
+        var index = 0;
+
+        while ((index = str.IndexOf(substr, index, StringComparison.Ordinal)) != -1)
+        {
+            count++;
+            index += substr.Length;
+        }
+
+        return count;
+    }
 
     [GMLFunction("string_hash_to_newline")]
     public static object string_hash_to_newline(object?[] args)

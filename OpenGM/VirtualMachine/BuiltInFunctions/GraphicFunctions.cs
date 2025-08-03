@@ -6,6 +6,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
+using System.Diagnostics;
 using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -35,6 +36,30 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return Monitors.GetPrimaryMonitor().VerticalResolution;
         }
 
+        [GMLFunction("display_get_gui_width", GMLFunctionFlags.Stub)]
+        public static object display_get_gui_width(object?[] args)
+        {
+            return window_get_width(args);
+        }
+
+        [GMLFunction("display_get_gui_height", GMLFunctionFlags.Stub)]
+        public static object display_get_gui_height(object?[] args)
+        {
+            return window_get_height(args);
+        }
+    
+        [GMLFunction("display_get_dpi_x", GMLFunctionFlags.Stub)]
+        public static object display_get_dpi_x(object?[] args)
+        {
+            return 1;
+        }
+    
+        [GMLFunction("display_get_dpi_y", GMLFunctionFlags.Stub)]
+        public static object display_get_dpi_y(object?[] args)
+        {
+            return 1;
+        }
+
         // display_get_frequency
         // display_get_orientation
         // diplay_reset
@@ -51,6 +76,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         [GMLFunction("display_set_gui_size", GMLFunctionFlags.Stub)]
         public static object? display_set_gui_size(object?[] args)
+        {
+            var width = args[0].Conv<int>();
+            var height = args[1].Conv<int>();
+
+            DrawManager.GuiSize = new(width, height);
+
+            return null;
+        }
+
+        [GMLFunction("display_set_gui_maximise", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_set_gui_maximize", GMLFunctionFlags.Stub)]
+        public static object? display_set_gui_maximise(object?[] args)
         {
             return null;
         }
@@ -97,8 +134,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return CustomWindow.Instance.Title;
         }
 
-        // window_set_cursor
-        // window_get_cursor
+        [GMLFunction("window_set_cursor", GMLFunctionFlags.Stub)]
+        public static object? window_set_cursor(object?[] args)
+        {
+            return null;
+        }
+
+        [GMLFunction("window_get_cursor", GMLFunctionFlags.Stub)]
+        public static object? window_get_cursor(object?[] args)
+        {
+            return 0;
+        }
 
         [GMLFunction("window_set_color", GMLFunctionFlags.Stub)]
         [GMLFunction("window_set_colour", GMLFunctionFlags.Stub)]
@@ -144,8 +190,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // window_default
-        // window_get_x
-        // window_get_y
+
+        [GMLFunction("window_get_x")]
+        public static object? window_get_x(object?[] args)
+        {
+            return CustomWindow.Instance.ClientLocation.X;
+        }
+
+        [GMLFunction("window_get_y")]
+        public static object? window_get_y(object?[] args)
+        { 
+            return CustomWindow.Instance.ClientLocation.Y;
+        }
 
         [GMLFunction("window_get_width")]
         public static object window_get_width(object?[] args)
@@ -157,6 +213,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object window_get_height(object?[] args)
         {
             return CustomWindow.Instance.ClientSize.Y;
+        }
+
+        [GMLFunction("window_has_focus", GMLFunctionFlags.Stub)]
+        public static object? window_has_focus(object?[] args)
+        {
+            return true;
+        }
+
+        // TODO: check if these are right
+        [GMLFunction("window_mouse_get_x")]
+        public static object? window_mouse_get_x(object?[] args)
+        {
+            return KeyboardHandler.MousePos.X;
+        }
+
+        [GMLFunction("window_mouse_get_y")]
+        public static object? window_mouse_get_y(object?[] args)
+        { 
+            return KeyboardHandler.MousePos.Y;
         }
 
         // window_get_visible_rects
@@ -865,7 +940,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
             else
             {
-                var verts = new VertexManager.Vertex[DrawManager.CirclePrecision * 3];
+                Span<GraphicsManager.Vertex> verts = stackalloc GraphicsManager.Vertex[DrawManager.CirclePrecision * 3];
 
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
@@ -877,12 +952,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                         xm + (rx * CircleCos[i + 1]),
                         ym + (ry * CircleSin[i + 1]));
 
-                    verts[i * 3] = new VertexManager.Vertex(p1, col1, Vector2d.Zero);
-                    verts[(i * 3) + 1] = new VertexManager.Vertex(p2, col2, Vector2d.Zero);
-                    verts[(i * 3) + 2] = new VertexManager.Vertex(p3, col2, Vector2d.Zero);
+                    verts[i * 3] = new GraphicsManager.Vertex(p1, col1, Vector2d.Zero);
+                    verts[(i * 3) + 1] = new GraphicsManager.Vertex(p2, col2, Vector2d.Zero);
+                    verts[(i * 3) + 2] = new GraphicsManager.Vertex(p3, col2, Vector2d.Zero);
                 }
 
-                VertexManager.Draw(PrimitiveType.Triangles, verts);
+                GraphicsManager.Draw(PrimitiveType.Triangles, verts);
             }
         }
 
@@ -924,7 +999,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         public static PrimitiveType PrimType;
-        public static List<VertexManager.Vertex> Vertices = new();
+        public static List<GraphicsManager.Vertex> Vertices = new();
 
         [GMLFunction("draw_primitive_begin")]
         public static object? draw_primitive_begin(object?[] args)
@@ -958,7 +1033,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("draw_primitive_end")]
         public static object? draw_primitive_end(object?[] args)
         {
-            VertexManager.Draw(PrimType, Vertices.ToArray());
+            GraphicsManager.Draw(PrimType, Vertices.ToArray());
             return null;
         }
 
@@ -1024,7 +1099,56 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // font_get_uvs
-        // font_get_info
+
+        [GMLFunction("font_get_info")]
+        public static object? font_get_info(object?[] args)
+        {
+            var fontIndex = args[0].Conv<int>();
+            var font = TextManager.FontAssets.ElementAtOrDefault(fontIndex);
+
+            if (font is null)
+            {
+                return null;
+            }
+
+            // TODO: make these properties actually correct
+            var result = new GMLObject
+            {
+                ["ascender"] = 0,
+                ["ascenderOffset"] = 0,
+                ["size"] = font.Size,
+                ["spriteIndex"] = font.spriteIndex,
+                ["texture"] = font.texture,
+                ["name"] = font.name,
+                ["bold"] = false,
+                ["italic"] = false
+            };
+
+            var glyphs = new GMLObject();
+
+            foreach (var (glyph, info) in font.entriesDict)
+            {
+                var gmlGlyph = new GMLObject
+                {
+                    ["char"] = info.characterIndex,
+                    ["x"] = info.x,
+                    ["y"] = info.y,
+                    ["w"] = info.w,
+                    ["h"] = info.h,
+                    ["shift"] = info.shift,
+                    ["offset"] = info.xOffset,
+                    ["kerning"] = new List<object?>()
+                };
+
+                var character = ((char)glyph).ToString();
+                glyphs[character] = gmlGlyph;
+            }
+
+            result["glyphs"] = glyphs;
+
+            return result;
+        }
+        
         // font_cache_glyph
 
         [GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
@@ -1062,7 +1186,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var font = args[0].Conv<int>();
 
             var library = TextManager.FontAssets;
-            var fontAsset = library.First(x => x.AssetIndex == font);
+            var fontAsset = library.FirstOrDefault(x => x.AssetIndex == font);
+
+            if (fontAsset == null)
+            {
+                DebugLog.LogError($"draw_set_font: Unknown font index {font}! Listing available fonts:");
+                foreach (var item in library)
+                {
+                    DebugLog.LogError($"- {item.name} (ID: {item.AssetIndex})");
+                }
+                return null;
+            }
+
             TextManager.fontAsset = fontAsset;
             return null;
         }
@@ -1275,7 +1410,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var colour = args[7].Conv<int>();
             var alpha = args[8].Conv<double>();
 
-            if (subimg == -1)
+            if (subimg == -1 && VMExecutor.Self.Self is GamemakerObject)
             {
                 subimg = (int)VMExecutor.Self.GMSelf.image_index;
             }
@@ -1487,14 +1622,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
 
-            var sizeWidth = spriteTex.TargetWidth;
-            var sizeHeight = spriteTex.TargetHeight;
+            var sizeWidth = spriteTex.BoundingWidth * xscale;
+            var sizeHeight = spriteTex.BoundingHeight * yscale;
 
             var tempX = x;
             var tempY = y;
 
-            var viewTopLeftX = CustomWindow.Instance.X;
-            var viewTopLeftY = CustomWindow.Instance.Y;
+            var viewTopLeftX = ViewportManager.CurrentRenderingView?.ViewPosition.X ?? 0;
+            var viewTopLeftY = ViewportManager.CurrentRenderingView?.ViewPosition.Y ?? 0;
+
+            var viewSizeX = ViewportManager.CurrentRenderingView?.ViewSize.X ?? RoomManager.CurrentRoom.SizeX;
+            var viewSizeY = ViewportManager.CurrentRenderingView?.ViewSize.Y ?? RoomManager.CurrentRoom.SizeY;
 
             while (tempX > viewTopLeftX)
             {
@@ -1511,8 +1649,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var xOffscreenValue = viewTopLeftX - tempX;
             var yOffscreenValue = viewTopLeftY - tempY;
 
-            var countToDrawHoriz = CustomMath.CeilToInt((RoomManager.CurrentRoom.CameraWidth + (float)xOffscreenValue) / sizeWidth);
-            var countToDrawVert = CustomMath.CeilToInt((RoomManager.CurrentRoom.CameraHeight + (float)yOffscreenValue) / sizeHeight);
+            var countToDrawHoriz = CustomMath.CeilToInt((viewSizeX + (float)xOffscreenValue) / sizeWidth);
+            var countToDrawVert = CustomMath.CeilToInt((viewSizeY + (float)yOffscreenValue) / sizeHeight);
 
             for (var i = 0; i < countToDrawVert; i++)
             {
@@ -1580,6 +1718,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("surface_exists")]
         public static object surface_exists(object?[] args)
         {
+            if (args[0] == null)
+            {
+                return false;
+            }
+
             var surface = args[0].Conv<int>();
             return SurfaceManager.surface_exists(surface);
         }
@@ -1587,6 +1730,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("surface_get_width")]
         public static object surface_get_width(object?[] args)
         {
+            if (args[0] == null)
+            {
+                return 0;
+            }
+
             var surface_id = args[0].Conv<int>();
             return SurfaceManager.GetSurfaceWidth(surface_id);
         }
@@ -1594,6 +1742,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("surface_get_height")]
         public static object surface_get_height(object?[] args)
         {
+            if (args[0] == null)
+            {
+                return 0;
+            }
+
             var surface_id = args[0].Conv<int>();
             return SurfaceManager.GetSurfaceHeight(surface_id);
         }
@@ -1604,7 +1757,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return -1;
         }
 
-        // surface_get_target
+        [GMLFunction("surface_get_target")]
+        public static object surface_get_target(object?[] args)
+        {
+            return SurfaceManager.surface_get_target();
+        }
 
         [GMLFunction("surface_set_target")]
         public static object surface_set_target(object?[] args)
@@ -1674,7 +1831,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // draw_surface_stretched_ext
-        // draw_surface_part
+
+        [GMLFunction("draw_surface_part")]
+        public static object? draw_surface_part(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var left = args[1].Conv<int>();
+            var top = args[2].Conv<int>();
+            var w = args[3].Conv<int>();
+            var h = args[4].Conv<int>();
+            var x = args[5].Conv<double>();
+            var y = args[6].Conv<double>();
+
+            SurfaceManager.draw_surface_part(id, left, top, w, h, x, y);
+            return null;
+        }
+
         // draw_surface_part_ext
         // draw_surface_general
 
@@ -1684,7 +1856,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_surface_tiled_ext
+        [GMLFunction("draw_surface_tiled_ext", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        public static object? draw_surface_tiled_ext(object?[] args)
+        {
+            return null;
+        }
+
         // surface_save
         // surface_save_part
         // surface_getpixel

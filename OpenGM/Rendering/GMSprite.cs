@@ -10,7 +10,8 @@ public class GMSprite : DrawWithDepth
     public int Y;
     public double XScale;
     public double YScale;
-    public uint Color;
+    public int Blend;
+    public double Alpha;
     public double AnimationSpeed;
     public AnimationSpeedType AnimationSpeedType;
     public double FrameIndex;
@@ -68,10 +69,9 @@ public class GMSprite : DrawWithDepth
             FrameIndex -= _spriteFrames;
         }
 
-        var col = (int)(Color & 0x00FFFFFF);
-        var alpha = ((Color & 0xFF000000) >> 6) / 255.0;
+        var layer = Element.Layer;
 
-        SpriteManager.DrawSpriteExt(Definition, FrameIndex, X, Y, XScale, YScale, Rotation, col, alpha);
+        SpriteManager.DrawSpriteExt(Definition, FrameIndex, layer.X + X, layer.Y + Y, XScale, YScale, Rotation, Blend, Alpha);
     }
 
     public void SetSprite(int definition)

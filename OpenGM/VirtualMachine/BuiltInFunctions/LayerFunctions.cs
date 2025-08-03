@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 
@@ -48,7 +49,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
-                throw new Exception();
+                DebugLog.LogWarning($"layer_get_depth - Couldn't find layer {layer_id}.");
+                return -1;
             }
 
             return layer.Depth;
@@ -93,7 +95,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
                 if (layer == null)
                 {
-                    DebugLog.Log($"layer_set_visible() - could not find specified layer in current room");
+                    DebugLog.Log($"layer_set_visible() - could not find specified layer \"{s}\" in current room");
                     return null;
                 }
             }
@@ -373,9 +375,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("layer_background_get_id")]
         public static object? layer_background_get_id(object?[] args)
         {
-            var layer_id = args[0].Conv<int>();
+            var layer_id = args[0];
 
-            if (!RoomManager.CurrentRoom.Layers.TryGetValue(layer_id, out var layer))
+            LayerContainer? layer = null;
+            switch (layer_id)
+            {
+                case int:
+                    RoomManager.CurrentRoom.Layers.TryGetValue((int)layer_id, out layer);
+                    break;
+                case string:
+                    layer = RoomManager.CurrentRoom.Layers
+                        .Select(p => p.Value)
+                        .FirstOrDefault(l => l.Name == (string)layer_id);
+                    break;
+                default:
+                    throw new ArgumentException($"Layer ID must be either int or string, got {(layer_id == null ? "null" : layer_id.GetType().AssemblyQualifiedName)}");
+            }
+
+            if (layer == null)
             {
                 return -1;
             }
@@ -631,8 +648,28 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // layer_background_speed
-        // layer_background_sprite
-        // layer_background_change
+
+        [GMLFunction("layer_background_sprite")]
+        [GMLFunction("layer_background_change")]
+        public static object? layer_background_sprite(object?[] args)
+        {
+            var background_element_id = args[0].Conv<int>();
+            var sprite_index = args[1].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMBackground back && back.Element.Id == background_element_id)
+                    {
+                        back.Element.Index = sprite_index;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         // layer_background_get_visible
 
         [GMLFunction("layer_background_get_sprite")]
@@ -919,9 +956,62 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
 
-        // layer_sprite_get_angle
-        // layer_sprite_get_blend
-        // layer_sprite_get_alpha
+        [GMLFunction("layer_sprite_get_angle")]
+        public static object? layer_sprite_get_angle(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        return sprite.Rotation;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("layer_sprite_get_blend")]
+        public static object? layer_sprite_get_blend(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        return sprite.Blend;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("layer_sprite_get_alpha")]
+        public static object? layer_sprite_get_alpha(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        return sprite.Alpha;
+                    }
+                }
+            }
+
+            return 0;
+        }
 
         [GMLFunction("layer_sprite_get_x")]
         public static object? layer_sprite_get_x(object?[] args)
@@ -1034,12 +1124,79 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // tilemap_set
-        // tilemap_set_at_pixel
+        [GMLFunction("tilemap_set")]
+        public static object tilemap_set(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+            var tiledata = args[1].Conv<int>();
+            var x = args[2].Conv<int>();
+            var y = args[3].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        tilemap.Element.TilesData[y, x] = new TileBlob((uint)tiledata);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        [GMLFunction("tilemap_set_at_pixel")]
+        public static object tilemap_set_at_pixel(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+            var tiledata = args[1].Conv<int>();
+            var x = args[2].Conv<int>();
+            var y = args[3].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        var tileset = GameLoader.TileSets[tilemap.Element.BackgroundIndex];
+                        var sizeX = tileset.TileWidth;
+                        var sizeY = tileset.TileHeight;
+
+                        tilemap.Element.TilesData[y / sizeY, x / sizeX] = new TileBlob((uint)tiledata);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        
         // tilemap_get_texture
         // tilemap_get_uvs
         // tilemap_get_name
-        // tilemap_get_tileset
+        
+        [GMLFunction("tilemap_get_tileset")]
+        public static object tilemap_get_tileset(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        return tilemap.Element.BackgroundIndex;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         // tilemap_get_tile_width
         // tilemap_get_tile_height
         // tilemap_get_width
@@ -1085,8 +1242,52 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return 0;
         }
 
-        // tilemap_get
-        // tilemap_get_at_pixel
+        [GMLFunction("tilemap_get")]
+        public static object tilemap_get(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+            var x = args[1].Conv<int>();
+            var y = args[2].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        return tilemap.Element.TilesData[y, x].ToNumber();
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        [GMLFunction("tilemap_get_at_pixel")]
+        public static object tilemap_get_at_pixel(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+            var x = args[1].Conv<int>();
+            var y = args[2].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        var tileset = GameLoader.TileSets[tilemap.Element.BackgroundIndex];
+                        var sizeX = tileset.TileWidth;
+                        var sizeY = tileset.TileHeight;
+
+                        return tilemap.Element.TilesData[y / sizeY, x / sizeX].ToNumber();
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         // tilemap_get_cell_x_at_pixel
         // tilemap_get_cell_y_at_pixel
         // tilemap_clear
@@ -1096,7 +1297,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var element_id = args[0].Conv<int>();
             var x = args[1].Conv<double>();
-            var y = args[1].Conv<double>();
+            var y = args[2].Conv<double>();
 
             foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
             {
@@ -1134,16 +1335,111 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // tilemap_set_mask
         // tilemap_get_mask
         // tilemap_get_frame
-        // tile_set_empty
-        // tile_set_index
-        // tile_set_flip
-        // tile_set_mirror
-        // tile_set_rotate
-        // tile_get_empty
-        // tile_get_index
-        // tile_get_flip
-        // tile_get_mirror
-        // tile_get_rotate
+
+        [GMLFunction("tile_set_empty")]
+        public static object? tile_set_empty(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            tile.TileIndex = 0;
+
+            return tile.ToNumber();
+        }
+
+        [GMLFunction("tile_set_index")]
+        public static object? tile_set_index(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+            var index = args[1].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            tile.TileIndex = index;
+
+            return tile.ToNumber();
+        }
+
+        [GMLFunction("tile_set_flip")]
+        public static object? tile_set_flip(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+            var flip = args[1].Conv<bool>();
+
+            var tile = new TileBlob((uint)tiledata);
+            tile.Flip = flip;
+
+            return tile.ToNumber();
+        }
+
+        [GMLFunction("tile_set_mirror")]
+        public static object? tile_set_mirror(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+            var mirror = args[1].Conv<bool>();
+
+            var tile = new TileBlob((uint)tiledata);
+            tile.Mirror = mirror;
+
+            return tile.ToNumber();
+        }
+
+        [GMLFunction("tile_set_rotate")]
+        public static object? tile_set_rotate(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+            var rotate = args[1].Conv<bool>();
+
+            var tile = new TileBlob((uint)tiledata);
+            tile.Rotate = rotate;
+
+            return tile.ToNumber();
+        }
+
+        [GMLFunction("tile_get_empty")]
+        public static object? tile_get_empty(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            return tile.TileIndex == 0;
+        }
+
+        [GMLFunction("tile_get_index")]
+        public static object? tile_get_index(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            return tile.TileIndex;
+        }
+
+        [GMLFunction("tile_get_flip")]
+        public static object? tile_get_flip(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            return tile.Flip;
+        }
+
+        [GMLFunction("tile_get_mirror")]
+        public static object? tile_get_mirror(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            return tile.Mirror;
+        }
+
+        [GMLFunction("tile_get_rotate")]
+        public static object? tile_get_rotate(object?[] args)
+        {
+            var tiledata = args[0].Conv<int>();
+
+            var tile = new TileBlob((uint)tiledata);
+            return tile.Rotate;
+        }
+
         // layer_tile_exists
         // layer_tile_create
         // layer_tile_destroy

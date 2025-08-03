@@ -95,7 +95,7 @@
 
             if (Action_Relative)
             {
-                var curValue = VMExecutor.Self.GMSelf.alarm[index].Conv<int>();
+                var curValue = VMExecutor.Self.GMSelf.alarm[index];
                 if (curValue > -1)
                 {
                     VMExecutor.Self.GMSelf.alarm[index] = curValue + value;

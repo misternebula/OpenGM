@@ -51,7 +51,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // part_type_scale
+        [GMLFunction("part_type_scale", GMLFunctionFlags.Stub)]
+        public static object? part_type_scale(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("part_type_life")]
         public static object? part_type_life(object?[] args)
@@ -68,7 +72,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // part_type_step
-        // part_type_death
+
+        [GMLFunction("part_type_death")]
+        public static object? part_type_death(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var death_number = args[1].Conv<int>();
+            var death_type = args[2].Conv<int>();
+
+            var type = ParticleManager.PartTypes[ind];
+            type.DeathNumber = death_number;
+            type.DeathType = death_type;
+
+            return null;
+        }
 
         [GMLFunction("part_type_speed")]
         public static object? part_type_speed(object?[] args)
@@ -106,7 +123,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // part_type_orientation
-        // part_type_gravity
+
+        [GMLFunction("part_type_gravity")]
+        public static object? part_type_gravity(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var grav_amount = args[1].Conv<double>();
+            var grav_direction = args[2].Conv<double>();
+
+            var type = ParticleManager.PartTypes[ind];
+            type.Gravity = grav_amount;
+            type.GravityDirection = grav_direction;
+            return null;
+        }
+
         // part_type_color_mix
         // part_type_color_rgb
         // part_type_color_hsv
@@ -167,7 +197,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // part_system_exists
         // part_system_clear
         // part_system_draw_order
-        // part_system_depth
+
+        [GMLFunction("part_system_depth", GMLFunctionFlags.Stub)]
+        public static object? part_system_depth(object?[] args)
+        {
+            return null;
+        }
+
         // part_system_position
         // part_system_automatic_update
 
@@ -256,7 +292,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // part_emitter_burst
+        [GMLFunction("part_emitter_burst", GMLFunctionFlags.Stub)]
+        public static object? part_emitter_burst(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("part_emitter_stream")]
         public static object? part_emitter_stream(object?[] args)

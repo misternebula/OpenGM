@@ -233,7 +233,7 @@ public static class CollisionManager
         return GMConstants.noone;
     }
 
-    public static int Command_InstancePlace(GamemakerObject self, float x, float y, int obj)
+    public static int Command_InstancePlace(GamemakerObject self, float x, float y, int obj, List<GamemakerObject>? list = null)
     {
         var prevX = self.x;
         var prevY = self.y;
@@ -268,6 +268,7 @@ public static class CollisionManager
             {
                 if (IsValid(instance))
                 {
+                    list?.Add(instance);
                     returnValue = instance.instanceId;
                 }
             }
@@ -279,6 +280,7 @@ public static class CollisionManager
             {
                 if (IsValid(instance))
                 {
+                    list?.Add(instance);
                     returnValue = instance.instanceId;
                 }
             }
@@ -290,6 +292,7 @@ public static class CollisionManager
 
             if (IsValid(instance))
             {
+                list?.Add(instance!);
                 returnValue = instance!.instanceId;
             }
         }
@@ -587,7 +590,7 @@ public static class CollisionManager
         return true;
     }
 
-    public static bool Collision_Line(GamemakerObject self, double x1, double x2, double y1, double y2, bool precise)
+    public static bool Collision_Line(GamemakerObject self, double x1, double y1, double x2, double y2, bool precise)
     {
         if (self.Marked)
         {
@@ -741,7 +744,7 @@ public static class CollisionManager
         return GMConstants.noone;
     }
 
-    public static bool Collision_Ellipse(GamemakerObject self, double x1, double x2, double y1, double y2, bool precise)
+    public static bool Collision_Ellipse(GamemakerObject self, double x1, double y1, double x2, double y2, bool precise)
     {
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/7e96ef96d44629fc28618d81626f0cf1eaf61ede/scripts/yyInstance.js#L1940
 

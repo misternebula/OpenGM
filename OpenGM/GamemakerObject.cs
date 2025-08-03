@@ -26,7 +26,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public ObjectDefinition Definition;
 
     public int object_index => Definition.AssetId;
-    public object?[] alarm = Enumerable.Repeat((object?)-1, 12).ToArray(); // doubles will be ArraySet here
+    public int[] alarm = Enumerable.Repeat(-1, 12).ToArray();
 
     public bool persistent = false;
 
@@ -185,14 +185,22 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
                 return;
             }
 
-            _sprite_index = value;
-
-            if (value == -1)
+            if (value < 0)
             {
+                DebugLog.LogWarning($"Tried to set sprite_index of {Definition.Name} to {value}!");
                 return;
             }
 
+            _sprite_index = value;
+
             var sprite = SpriteManager.GetSpriteAsset(_sprite_index);
+
+            if (sprite == null)
+            {
+                DebugLog.LogWarning($"Couldn't find sprite for index {_sprite_index}!");
+                return;
+            }
+
             _cachedSpriteWidth = sprite!.Textures[0].TargetWidth;
             _cachedSpriteHeight = sprite.Textures[0].TargetHeight;
             _cached_sprite_xoffset = sprite.Origin.X;
@@ -401,8 +409,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public double path_orientation;
 
     public bool Active = true;
+    public bool NextActive = true; // Whether the object should be active or not next frame
     public bool Marked = false; // Marked for deletion at the end of the frame
     public bool IsOutsideRoom = false; // Store state so event isn't called multiple times
+
+    public int Layer = -1;
 
     public GamemakerObject(ObjectDefinition obj, float x, float y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
     {
@@ -419,7 +430,21 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         xstart = x;
         ystart = y;
 
-        InstanceManager.RegisterInstance(this);
+        Register();
+    }
+
+    public override void Destroy()
+    {
+        Destroyed = true;
+        Unregister();
+    }
+
+    /// <summary>
+    /// Adds this instance to the instance pool and registers it with DrawManager.
+    /// </summary>
+    public void Register()
+    {
+        InstanceManager.AddInstance(this);
         DrawManager.Register(this);
 
         /*if (margins != Vector4.Zero)
@@ -429,9 +454,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         bbox_dirty = true;
     }
 
-    public override void Destroy()
+    /// <summary>
+    /// Removes this instance from the instance pool and unregisters it from DrawManager.
+    /// </summary>
+    public void Unregister()
     {
-        Destroyed = true;
+        InstanceManager.RemoveInstance(this);
         DrawManager.Unregister(this);
         //CollisionManager.UnregisterCollider(this);
     }
@@ -579,15 +607,15 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     {
         for (var i = 0; i < alarm.Length; i++)
         {
-            if (alarm[i].Conv<int>() != -1)
+            if (alarm[i] != -1)
             {
-                alarm[i] = alarm[i].Conv<int>() - 1;
+                alarm[i]--;
 
-                if (alarm[i].Conv<int>() == 0)
+                if (alarm[i] == 0)
                 {
                     ExecuteEvent(this, Definition, EventType.Alarm, i);
 
-                    if (alarm[i].Conv<int>() == 0)
+                    if (alarm[i] == 0)
                     {
                         alarm[i] = -1;
                     }
