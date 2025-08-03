@@ -369,7 +369,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return 0;
             }
 
-            return path.points[n].x;
+            return path.points[n].X;
         }
 
         [GMLFunction("path_get_point_y")]
@@ -388,7 +388,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return 0;
             }
 
-            return path.points[n].y;
+            return path.points[n].Y;
         }
 
         [GMLFunction("path_get_point_speed")]
@@ -407,14 +407,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return 0;
             }
 
-            return path.points[n].speed;
+            return path.points[n].Speed;
         }
 
         [GMLFunction("path_get_x")]
         public static object? path_get_x(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var pos = args[0].Conv<double>();
+            var pos = args[0].Conv<float>();
 
             if (!PathManager.Paths.TryGetValue(index, out var path))
             {
@@ -428,7 +428,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? path_get_y(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var pos = args[0].Conv<double>();
+            var pos = args[0].Conv<float>();
 
             if (!PathManager.Paths.TryGetValue(index, out var path))
             {

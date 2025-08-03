@@ -126,8 +126,8 @@ public static class ScriptResolver
     [GMLFunction("instance_create", before: "2.0.0.0")]
     public static object? instance_create(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var obj = args[2].Conv<int>();
 
         return InstanceManager.instance_create(x, y, obj);

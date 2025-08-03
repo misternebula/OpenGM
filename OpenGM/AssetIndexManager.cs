@@ -25,14 +25,14 @@ public static class AssetIndexManager
     private static Dictionary<AssetType, Dictionary<string, int>> _assetList = new();
     private static Dictionary<string, int> _nameToIndex = new();
 
-    public static void LoadAssetIndexes(BinaryReader reader)
+    public static void LoadAssetIndexes(string str)
     {
         Console.Write($"Loading asset order...");
 
         _assetList.Clear();
         _nameToIndex.Clear();
 
-        var lines = reader.ReadString().SplitLines();
+        var lines = str.SplitLines();
         var headerLineNumber = 0;
         AssetType currentAssetType = 0;
         for (var i = 0; i < lines.Length; i++)

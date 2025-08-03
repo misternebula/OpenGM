@@ -26,11 +26,4 @@
         INVERSE_DISTANCE_SCALED,
         EXPONENT_DISTANCE_SCALED
     }
-
-    public enum CurveType // eAnimCurveChannelType
-    {
-        LINEAR,
-        CATMULLROM_CENTRIPETAL,
-        BEZIER_2D
-    }
 }

@@ -184,25 +184,11 @@ internal class Entry
 
         DataWinFolder = new FileInfo(dataWinPath).DirectoryName!;
 
-        if (!File.Exists(Path.Combine(DataWinFolder, "data_OpenGM.win")))
-        {
-            if (!File.Exists(dataWinPath))
-            {
-                DebugLog.LogError($"ERROR - data.win not found. Make sure all game files are copied to {DataWinFolder}");
-                return;
-            }
-
-            Console.WriteLine($"Extracting game assets...");
-            using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
-            using var data = UndertaleIO.Read(stream);
-            GameConverter.ConvertGame(data);
-        }
-
         //CollisionManager.colliders.Clear();
 
         AudioManager.Dispose();
         AudioManager.Init();
-        GameLoader.LoadGame();
+        GameLoader.LoadGame(dataWinPath);
         VersionManager.Init();
         ScriptResolver.InitGMLFunctions(); // needs version stuff
         ExtensionManager.Init();
@@ -212,8 +198,8 @@ internal class Entry
         InstanceManager.instances.Clear();
         DrawManager._drawObjects.Clear();
 
-        GameSpeed = GameLoader.GeneralInfo.FPS;
-        InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
+        GameSpeed = GameLoader.GeneralInfo.GMS2FPS;
+        InstanceManager.NextInstanceID = (int)(GameLoader.GeneralInfo.LastObj + 1);
 
         // TODO : is RNG re-initialized after game_change?
         GMRandom.InitialiseRNG(0);
@@ -224,7 +210,7 @@ internal class Entry
             gameSettings.UpdateFrequency = 30;
             var nativeSettings = NativeWindowSettings.Default;
             nativeSettings.WindowBorder = WindowBorder.Fixed;
-            nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
+            nativeSettings.ClientSize = new((int)GameLoader.GeneralInfo.DefaultWindowWidth, (int)GameLoader.GeneralInfo.DefaultWindowHeight);
             // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
             nativeSettings.Flags = ContextFlags.Default;
             GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
@@ -234,8 +220,8 @@ internal class Entry
         }
         else
         {
-            window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-        }
+            window.ClientSize = new((int)GameLoader.GeneralInfo.DefaultWindowWidth, (int)GameLoader.GeneralInfo.DefaultWindowHeight);
+		}
 
         if (CollisionManager.CompatMode)
         {
@@ -255,7 +241,8 @@ internal class Entry
         DebugLog.LogInfo($"Changing to first room...");
 
         RoomManager.FirstRoom = true;
-        RoomManager.New_Room = GameLoader.GeneralInfo.RoomOrder[0];
+        var firstRoom = GameLoader.GeneralInfo.RoomOrder[0];
+        RoomManager.New_Room = GameLoader.GeneralInfo.RoomOrder[0].CachedId;
         RoomManager.ChangeToWaitingRoom();
 
         DebugLog.LogInfo($"Starting main loop...");

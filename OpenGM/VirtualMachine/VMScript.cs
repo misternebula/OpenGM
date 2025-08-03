@@ -1,5 +1,4 @@
-﻿using MemoryPack;
-using OpenGM.Loading;
+﻿using OpenGM.Loading;
 
 namespace OpenGM.VirtualMachine;
 
@@ -8,8 +7,7 @@ namespace OpenGM.VirtualMachine;
 /// gml can only reference scripts, not code.
 /// code is only directly used in object, room, and global init. everything else is script.
 /// </summary>
-[MemoryPackable]
-public partial class VMScript
+public class VMScript
 {
     public int AssetIndex;
     public string Name = null!;

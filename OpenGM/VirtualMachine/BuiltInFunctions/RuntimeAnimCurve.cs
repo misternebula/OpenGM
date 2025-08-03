@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions;
 public class RuntimeAnimCurve : GMLObject
@@ -24,9 +25,9 @@ public class RuntimeAnimCurveChannel : GMLObject
         set => SelfVariables["name"] = value.Conv<string>();
     }
 
-    public CurveType type
+    public UndertaleAnimationCurve.Channel.CurveType type
     {
-        get => (CurveType)SelfVariables["type"].Conv<int>();
+        get => (UndertaleAnimationCurve.Channel.CurveType)SelfVariables["type"].Conv<int>();
         set
         {
             SelfVariables["type"] = value.Conv<int>();
@@ -126,11 +127,11 @@ public class RuntimeAnimCurveChannel : GMLObject
     {
         CachedPoints = new();
 
-        if (type == CurveType.CATMULLROM_CENTRIPETAL)
+        if (type == UndertaleAnimationCurve.Channel.CurveType.Smooth)
         {
             ComputeCatmullRom(closed, clampX, normalizeY);
         }
-        else if (type == CurveType.BEZIER_2D)
+        else if ((int)type == 2) // bezier TODO: change this when neb's PR makes it into a release
         {
             ComputeBezier();
         }

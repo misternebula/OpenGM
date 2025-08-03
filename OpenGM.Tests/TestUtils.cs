@@ -8,7 +8,7 @@ public static class TestUtils
 {
     public static object? ExecuteScript(string name, string asmFile)
     {
-        var code = GameConverter.ConvertAssembly(asmFile);
+        var code = GameLoader.ConvertAssembly(asmFile);
         code.Name = name;
 
         // TODO: add functions properly

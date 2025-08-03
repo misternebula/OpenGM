@@ -1,5 +1,4 @@
-﻿using MemoryPack;
-using OpenGM.VirtualMachine;
+﻿using OpenGM.VirtualMachine;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
@@ -8,8 +7,7 @@ namespace OpenGM.SerializedFiles;
 /// "template" for an object. analagous to a class.
 /// since GM objects have parent-child hierarchy we need this separation between the class and the instance (the class has the functions, the instance has the variables)
 /// </summary>
-[MemoryPackable]
-public partial class ObjectDefinition
+public class ObjectDefinition
 {
     public int AssetId;
 
@@ -29,41 +27,27 @@ public partial class ObjectDefinition
     /// <summary>
     /// analogous to a superclass
     /// </summary>
-    [MemoryPackIgnore]
     public ObjectDefinition? parent;
 
-    [MemoryPackIgnore]
     public VMCode? CreateCode;
-    [MemoryPackIgnore]
     public VMCode? DestroyScript;
 
-    [MemoryPackIgnore]
     public Dictionary<int, VMCode> AlarmScript = new();
-    [MemoryPackIgnore]
     public Dictionary<EventSubtypeStep, VMCode> StepScript = new();
-    [MemoryPackIgnore]
     public Dictionary<int, VMCode> CollisionScript = new();
-    [MemoryPackIgnore]
     public Dictionary<EventSubtypeKey, VMCode> KeyboardScripts = new();
     //mouse
-    [MemoryPackIgnore]
     public Dictionary<EventSubtypeOther, VMCode> OtherScript = new();
-    [MemoryPackIgnore]
     public Dictionary<EventSubtypeDraw, VMCode> DrawScript = new();
-    [MemoryPackIgnore]
     public Dictionary<EventSubtypeKey, VMCode> KeyPressScripts = new();
-    [MemoryPackIgnore]
     public Dictionary<EventSubtypeKey, VMCode> KeyReleaseScripts = new();
     //trigger
-    [MemoryPackIgnore]
     public VMCode? CleanUpScript;
     //gesture
-    [MemoryPackIgnore]
     public VMCode? PreCreateScript;
 }
 
-[MemoryPackable]
-public partial class ObjectDefinitionStorage
+public class ObjectDefinitionStorage
 {
     public int ParentID;
     public int CreateCodeID;

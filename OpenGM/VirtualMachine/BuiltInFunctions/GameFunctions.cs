@@ -11,8 +11,8 @@ public static class GameFunctions
     [GMLFunction("place_meeting")]
     public static object place_meeting(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
         var result = CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
@@ -26,11 +26,11 @@ public static class GameFunctions
     [GMLFunction("move_towards_point")]
     public static object? move_towards_point(object?[] args)
     {
-        var targetx = args[0].Conv<double>();
-        var targety = args[1].Conv<double>();
-        var sp = args[2].Conv<double>();
+        var targetx = args[0].Conv<float>();
+        var targety = args[1].Conv<float>();
+        var sp = args[2].Conv<float>();
 
-        VMExecutor.Self.GMSelf.direction = MathFunctions.point_direction(VMExecutor.Self.GMSelf.x, VMExecutor.Self.GMSelf.y, targetx, targety).Conv<double>();
+        VMExecutor.Self.GMSelf.direction = MathFunctions.point_direction(VMExecutor.Self.GMSelf.x, VMExecutor.Self.GMSelf.y, targetx, targety).Conv<float>();
         VMExecutor.Self.GMSelf.speed = sp;
 
         return null;
@@ -48,18 +48,13 @@ public static class GameFunctions
     [GMLFunction("motion_add")]
     public static object? motion_add(object?[] args)
     {
-        double ClampFloat(double value)
-        {
-            return Math.Floor(value * 1000000) / 1000000.0;
-        }
-
-        var dir = args[0].Conv<double>();
-        var speed = args[1].Conv<double>();
+        var dir = args[0].Conv<float>();
+        var speed = args[1].Conv<float>();
 
         var self = VMExecutor.Self.GMSelf;
 
-        self.hspeed += speed * ClampFloat(Math.Cos(dir * CustomMath.Deg2Rad));
-        self.vspeed -= speed * ClampFloat(Math.Sin(dir * CustomMath.Deg2Rad));
+        self.hspeed += speed * CustomMath.ClampFloat((float)Math.Cos(dir * CustomMath.Deg2Rad));
+        self.vspeed -= speed * CustomMath.ClampFloat((float)Math.Sin(dir * CustomMath.Deg2Rad));
 
         return null;
     }
@@ -154,7 +149,7 @@ public static class GameFunctions
     public static object? path_start(object?[] args)
     {
         var path = args[0].Conv<int>();
-        var speed = args[1].Conv<double>();
+        var speed = args[1].Conv<float>();
         var endaction = (PathEndAction)args[2].Conv<int>();
         var absolute = args[3].Conv<bool>();
 
@@ -434,8 +429,8 @@ public static class GameFunctions
     [GMLFunction("instance_place")]
     public static object instance_place(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
         return CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
@@ -444,8 +439,8 @@ public static class GameFunctions
     [GMLFunction("instance_place_list")]
     public static object instance_place_list(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
         var list = args[3].Conv<int>();
         var ordered = args[4].Conv<bool>();
@@ -465,8 +460,8 @@ public static class GameFunctions
     [GMLFunction("instance_create_depth")]
     public static object instance_create_depth(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var depth = args[2].Conv<int>();
         var obj = args[3].Conv<int>();
 
@@ -482,8 +477,8 @@ public static class GameFunctions
     [GMLFunction("instance_create_layer")]
     public static object? instance_create_layer(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var layer_id = args[2];
         var obj = args[3].Conv<int>();
 

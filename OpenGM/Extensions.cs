@@ -1,5 +1,4 @@
-﻿using MemoryPack;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace OpenGM;
 
@@ -58,20 +57,6 @@ public static class Extensions
     // sometimes things use \r\n, sometimes they use \n
     public static string[] SplitLines(this string @this) => @this.Replace("\r\n", "\n").Split('\n');
 
-    public static T ReadMemoryPack<T>(this BinaryReader @this)
-    {
-        var length = @this.ReadInt32();
-        var bytes = @this.ReadBytes(length);
-        return MemoryPackSerializer.Deserialize<T>(bytes)!;
-    }
-
-    public static void WriteMemoryPack<T>(this BinaryWriter @this, T value)
-    {
-        var bytes = MemoryPackSerializer.Serialize(value);
-        @this.Write(bytes.Length);
-        @this.Write(bytes);
-    }
-
     // https://stackoverflow.com/a/1262619/17543401
     private static Random rng = new();  
     public static void Shuffle<T>(this IList<T> list)
@@ -83,5 +68,21 @@ public static class Extensions
             var k = rng.Next(n + 1); // TODO : bad! use GMRandom or get rid of this func entirely
             (list[k], list[n]) = (list[n], list[k]);
         }
+    }
+
+    public static int IndexOf<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        var index = 0;
+        foreach (var item in source)
+        {
+            if (predicate.Invoke(item))
+            {
+                return index;
+            }
+
+            index++;
+        }
+
+        return -1;
     }
 }

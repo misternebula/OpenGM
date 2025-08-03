@@ -46,7 +46,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("code_is_compiled")]
         public static object code_is_compiled(object?[] args)
         {
-            return GameLoader.GeneralInfo.IsYYC;
+            return GameLoader.IsYYC;
         }
 
         // used by PT

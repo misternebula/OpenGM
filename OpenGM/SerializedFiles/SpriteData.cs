@@ -1,11 +1,9 @@
-﻿using MemoryPack;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 
 namespace OpenGM.SerializedFiles;
 
-[MemoryPackable]
-public partial class SpriteData
+public class SpriteData
 {
     public int AssetIndex;
     public string Name = null!;
@@ -24,13 +22,12 @@ public partial class SpriteData
     public float PlaybackSpeed;
     public AnimSpeedType PlaybackSpeedType;
 
-    [MemoryPackIgnore] public Vector2i Origin => new(OriginX, OriginY);
+    public Vector2i Origin => new(OriginX, OriginY);
 
-    [MemoryPackIgnore] public Vector4i Margins => new(MarginLeft, MarginRight, MarginBottom, MarginTop);
+    public Vector4i Margins => new(MarginLeft, MarginRight, MarginBottom, MarginTop);
 }
 
-[MemoryPackable]
-public partial class SpritePageItem
+public class SpritePageItem
 {
     /// <summary>
     /// YYTPageEntry.x

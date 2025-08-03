@@ -602,11 +602,11 @@ public static class RoomManager
     public static void room_goto_next()
     {
         var order = GameLoader.GeneralInfo.RoomOrder;
-        var idx = Array.IndexOf(order, CurrentRoom.AssetId);
+        var idx = order.IndexOf(x => x.CachedId == CurrentRoom.AssetId);
 
-        if (order.Length > idx + 1)
+        if (order.Count > idx + 1)
         {
-            New_Room = order[idx + 1];
+            New_Room = order[idx + 1].CachedId;
         }
 
     }
@@ -614,22 +614,22 @@ public static class RoomManager
     public static void room_goto_previous()
     {
         var order = GameLoader.GeneralInfo.RoomOrder;
-        var idx = Array.IndexOf(order, CurrentRoom.AssetId);
+        var idx = order.IndexOf(x => x.CachedId == CurrentRoom.AssetId);
 
         if (idx > 0)
         {
-            New_Room = order[idx - 1];
+            New_Room = order[idx - 1].CachedId;
         }
     }
 
     public static int room_next(int numb)
     {
         var order = GameLoader.GeneralInfo.RoomOrder;
-        var idx = Array.IndexOf(order, numb);
+        var idx = order.IndexOf(x => x.CachedId == CurrentRoom.AssetId);
 
-        if (order.Length > idx + 1)
+        if (order.Count > idx + 1)
         {
-            return order[idx + 1];
+            return order[idx + 1].CachedId;
         }
 
         return -1;
@@ -638,13 +638,13 @@ public static class RoomManager
     public static int room_previous(int numb)
     {
         var order = GameLoader.GeneralInfo.RoomOrder;
-        var idx = Array.IndexOf(order, numb);
+        var idx = order.IndexOf(x => x.CachedId == CurrentRoom.AssetId);
 
         if (idx <= 0)
         {
             return -1;
         }
 
-        return order[idx - 1];
+        return order[idx - 1].CachedId;
     }
 }

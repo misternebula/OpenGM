@@ -45,7 +45,8 @@ public static class AudioManager
     public static int AudioChannelNum = 128;
 
     private static List<AudioInstance> _audioSources = new();
-    private static Dictionary<int, AudioAsset> _audioClips = new();
+
+    public static Dictionary<int, AudioAsset> _audioClips = new();
     private static List<AudioEmitter> _audioEmitters = new();
 
     public static AudioListener Listener = new();
@@ -75,95 +76,6 @@ public static class AudioManager
 
         _inited = true;
 
-    }
-
-    /// <summary>
-    /// load all the audio data into buffers
-    /// has to happen after init since context is set up there
-    /// </summary>
-    public static void LoadSounds(BinaryReader reader)
-    {
-        Console.Write($"Loading sounds...");
-
-        var length = reader.ReadInt32();
-        for (var i = 0; i < length; i++)
-        {
-            var asset = reader.ReadMemoryPack<SoundAsset>();
-
-            var bytesLength = reader.ReadInt32();
-            var bytes = reader.ReadBytes(bytesLength);
-            
-            float[] data;
-            bool stereo;
-            int freq;
-            if (Path.GetExtension(asset.File) == ".wav")
-            {
-                // write to the same file to get slightly more perf. need the extension so the reader knows what it is
-                // file sucks but is needed to have read that lets us use floats
-                File.WriteAllBytes("temp.wav", bytes);
-                
-                try
-                {
-                    using var audioFileReader = new AudioFileReader("temp.wav");
-                    data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
-                    var realLength = audioFileReader.Read(data, 0, data.Length);
-                    if (realLength != data.Length)
-                    {
-                        DebugLog.LogWarning($"{asset.File} length {realLength} != {data.Length}");
-                    }
-                    stereo = audioFileReader.WaveFormat.Channels == 2;
-                    freq = audioFileReader.WaveFormat.SampleRate;
-                }
-                catch (Exception e) // i think this is caused by ch1. not sure why
-                {
-                    DebugLog.LogWarning($"couldnt read wave file {asset.File}: {e}");
-                    data = new float[] { };
-                    freq = 1;
-                    stereo = false;
-                }
-            }
-            else if (Path.GetExtension(asset.File) == ".ogg")
-            {
-                using var vorbis = Vorbis.FromMemory(bytes);
-                data = new float[vorbis.StbVorbis.total_samples * vorbis.Channels];
-                unsafe
-                {
-                    fixed (float* ptr = data)
-                    {
-                        var realLength = StbVorbis.stb_vorbis_get_samples_float_interleaved(vorbis.StbVorbis, vorbis.Channels, ptr, data.Length);
-                        realLength *= vorbis.Channels;
-                        if (realLength != data.Length)
-                        {
-                            DebugLog.LogWarning($"{asset.File} length {realLength} != {data.Length}");
-                        }
-                    }
-                }
-                stereo = vorbis.Channels == 2;
-                freq = vorbis.SampleRate;
-            }
-            else
-            {
-                throw new NotImplementedException($"unknown audio file format {asset.File}");
-            }
-
-            var buffer = AL.GenBuffer();
-            CheckALError();
-            AL.BufferData(buffer, stereo ? ALFormat.StereoFloat32Ext : ALFormat.MonoFloat32Ext, data, freq);
-            CheckALError();
-
-            _audioClips[asset.AssetID] = new()
-            {
-                AssetIndex = asset.AssetID,
-                Name = asset.Name,
-                Clip = buffer,
-                Gain = asset.Volume,
-                Pitch = asset.Pitch,
-                Offset = 0,
-            };
-        }
-        File.Delete("temp.wav");
-
-        Console.WriteLine($" Done!");
     }
 
     public static void Dispose()
