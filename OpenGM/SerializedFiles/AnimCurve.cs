@@ -1,9 +1,6 @@
-﻿using MemoryPack;
+﻿namespace OpenGM.SerializedFiles;
 
-namespace OpenGM.SerializedFiles;
-
-[MemoryPackable]
-public partial class AnimCurve
+public class AnimCurve
 {
     public int AssetIndex;
 
@@ -12,8 +9,7 @@ public partial class AnimCurve
     public List<AnimCurveChannel> Channels = new();
 }
 
-[MemoryPackable]
-public partial class AnimCurveChannel
+public class AnimCurveChannel
 {
     public string Name = "";
     public CurveType CurveType;
@@ -21,8 +17,7 @@ public partial class AnimCurveChannel
     public List<AnimCurvePoint> Points = new();
 }
 
-[MemoryPackable]
-public partial class AnimCurvePoint
+public class AnimCurvePoint
 {
     public float X; // aka "h"
     public float Y; // aka "Value" or "v"

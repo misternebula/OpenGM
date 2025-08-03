@@ -28,8 +28,7 @@ public class Room
     // clear display buffer
 }
 
-[MemoryPackable]
-public partial class View
+public class View
 {
     public bool Enabled = false;
     public int PositionX = 0;

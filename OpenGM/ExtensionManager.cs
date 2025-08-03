@@ -1,4 +1,3 @@
-using MemoryPack;
 using OpenGM.IO;
 using OpenGM.VirtualMachine;
 using System.Diagnostics;
@@ -255,16 +254,14 @@ public static class ExtensionManager
     static extern bool WinFreeLibrary(IntPtr hModule);
 }
 
-[MemoryPackable]
-public partial class Extension
+public class Extension
 {
     public string Name = null!;
     public string Version = null!;
     public List<ExtensionFile> Files = new();
 }
 
-[MemoryPackable]
-public partial class ExtensionFile
+public class ExtensionFile
 {
     public string Name = null!;
     public int CleanupScript = -1;
@@ -273,8 +270,7 @@ public partial class ExtensionFile
     public List<ExtensionFunction> Functions = new();
 }
 
-[MemoryPackable]
-public partial class ExtensionFunction
+public class ExtensionFunction
 {
     public uint Id;
     public string Name = null!;

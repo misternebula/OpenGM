@@ -439,8 +439,8 @@ public static class GameFunctions
     [GMLFunction("instance_place_list")]
     public static object instance_place_list(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
         var list = args[3].Conv<int>();
         var ordered = args[4].Conv<bool>();
@@ -477,8 +477,8 @@ public static class GameFunctions
     [GMLFunction("instance_create_layer")]
     public static object? instance_create_layer(object?[] args)
     {
-        var x = args[0].Conv<double>();
-        var y = args[1].Conv<double>();
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
         var layer_id = args[2];
         var obj = args[3].Conv<int>();
 
