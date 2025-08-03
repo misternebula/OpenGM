@@ -696,7 +696,7 @@ public static partial class VMExecutor
             }
             case VMOpcode.CALLV:
             {
-                var method = Call.Stack.Pop(VMType.v) as Method;
+                var method = FetchMethod(Call.Stack.Pop(VMType.v));
                 var self = Call.Stack.Pop(VMType.v);
 
                 var args = new object?[instruction.IntData];
@@ -797,6 +797,24 @@ public static partial class VMExecutor
         }
 
         throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
+    }
+
+    internal static Method? FetchMethod(object? value)
+    {
+        if (value is null)
+        {
+            throw new ArgumentException($"Trying to fetch method for undefined! Current script:{CallStack.First().CodeName}");
+        }
+        else if (value is Method method)
+        {
+            return method;
+        }
+        else if (value is int or long or short)
+        {
+            return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]);
+        }
+
+        throw new ArgumentException($"Don't know how to fetch method for {value} ({value.GetType().FullName})");
     }
 
     public static int VMTypeToSize(VMType type) => type switch
