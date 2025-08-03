@@ -28,7 +28,7 @@ public static class GameLoader
     public static UndertaleGeneralInfo GeneralInfo => _data.GeneralInfo;
     public static bool IsYYC => _data.IsYYC();
 
-	private static List<VMCode> _replacementVMCodes = new();
+    private static List<VMCode> _replacementVMCodes = new();
     private static UndertaleData _data = new();
 
     public static void LoadGame(string dataWinPath)
@@ -101,7 +101,7 @@ public static class GameLoader
     public static void Code(UndertaleData data, IList<UndertaleCode> codes)
     {
         Console.WriteLine("Code");
-		var allUsedFunctions = new HashSet<string>();
+        var allUsedFunctions = new HashSet<string>();
         Codes.Clear();
 
         foreach (var code in codes)
@@ -309,42 +309,20 @@ public static class GameLoader
                 switch (enumOperation)
                 {
                     case VMOpcode.CHKINDEX:
-                        // no data
-                        break;
                     case VMOpcode.CHKNULLISH:
-                        // no data
-                        break;
                     case VMOpcode.CONV:
-                        // no data
-                        break;
                     case VMOpcode.MUL:
-                        // no data
-                        break;
                     case VMOpcode.DIV:
-                        // no data
-                        break;
                     case VMOpcode.REM:
-                        break;
                     case VMOpcode.MOD:
-                        break;
                     case VMOpcode.ADD:
-                        // no data
-                        break;
                     case VMOpcode.SUB:
-                        // no data
-                        break;
                     case VMOpcode.AND:
-                        break;
                     case VMOpcode.OR:
-                        break;
                     case VMOpcode.XOR:
-                        break;
                     case VMOpcode.NEG:
-                        break;
                     case VMOpcode.NOT:
-                        break;
                     case VMOpcode.SHL:
-                        break;
                     case VMOpcode.SHR:
                         break;
                     case VMOpcode.CMP:
@@ -377,16 +355,10 @@ public static class GameLoader
                             instruction.SecondIntData = int.Parse(splitBySpace[1]);
                         }
 
-
                         break;
                     case VMOpcode.RET:
-                        // ???
-                        break;
                     case VMOpcode.EXIT:
-                        // ???
-                        break;
                     case VMOpcode.POPZ:
-                        // no data
                         break;
                     case VMOpcode.B:
                     case VMOpcode.BT:
@@ -483,22 +455,13 @@ public static class GameLoader
                         instruction.IntData = int.Parse(line.Substring(opcode.Length + 1));
                         break;
                     case VMOpcode.BREAK:
-                        // ???
-                        break;
                     case VMOpcode.SETOWNER:
-                        break;
                     case VMOpcode.PUSHAF:
-                        break;
                     case VMOpcode.POPAF:
-                        break;
                     case VMOpcode.SAVEAREF:
-                        break;
                     case VMOpcode.RESTOREAREF:
-                        break;
                     case VMOpcode.SETSTATIC:
-                        break;
                     case VMOpcode.ISSTATICOK:
-                        break;
                     case VMOpcode.PUSHAC:
                         break;
                     case VMOpcode.PUSHREF:
@@ -542,29 +505,22 @@ public static class GameLoader
         instruction.StringData = null!; // stuff moved to above, save space here
         prefix = VariablePrefix.None;
 
-        var indexingArray = variableName.StartsWith("[array]");
-        if (indexingArray)
+        if (variableName.StartsWith("[array]"))
         {
             prefix = VariablePrefix.Array;
             variableName = variableName[7..]; // skip [array]
         }
-
-        var stackTop = variableName.StartsWith("[stacktop]");
-        if (stackTop)
+        else if (variableName.StartsWith("[stacktop]"))
         {
             prefix = VariablePrefix.Stacktop;
             variableName = variableName[10..]; // skip [stacktop]
         }
-
-        var arraypopaf = variableName.StartsWith("[arraypopaf]");
-        if (arraypopaf)
+        else if (variableName.StartsWith("[arraypopaf]"))
         {
             prefix = VariablePrefix.ArrayPopAF;
             variableName = variableName[12..]; // skip [arraypopaf]
         }
-
-        var arraypushaf = variableName.StartsWith("[arraypushaf]");
-        if (arraypushaf)
+        else if (variableName.StartsWith("[arraypushaf]"))
         {
             prefix = VariablePrefix.ArrayPushAF;
             variableName = variableName[13..]; // skip [arraypushaf]
@@ -573,7 +529,7 @@ public static class GameLoader
         variableType = VariableType.None;
 
         assetIndex = -1;
-        var split = variableName.Split('.');
+        var split = variableName.Split('.', 3);
 
         if (split.Length == 3)
         {
@@ -600,53 +556,53 @@ public static class GameLoader
         var context = split[0];
         variableName = split[1];
 
-        if (context == "global")
+        switch (context)
         {
-            variableType = VariableType.Global;
-        }
-        else if (context == "local")
-        {
-            variableType = VariableType.Local;
-        }
-        else if (context == "self")
-        {
-            variableType = VariableType.Self;
-        }
-        else if (context == "other")
-        {
-            variableType = VariableType.Other;
-        }
-        else if (context == "builtin")
-        {
-            variableType = VariableType.BuiltIn;
-        }
-        else if (context == "arg")
-        {
-            variableType = VariableType.Argument;
-        }
-        else if (context == "stacktop")
-        {
-            variableType = VariableType.Stacktop;
-        }
-        else if (context == "static")
-        {
-            variableType = VariableType.Static;
-        }
-        else if (int.TryParse(context, out var index))
-        {
-            variableType = VariableType.Index;
-            assetIndex = index;
-        }
-        else
-        {
-            throw new NotImplementedException($"Unknown variable type : {context} - {instruction.Raw}");
+            case "global":
+                variableType = VariableType.Global;
+                break;
+            case "local":
+                variableType = VariableType.Local;
+                break;
+            case "self":
+                variableType = VariableType.Self;
+                break;
+            case "other":
+                variableType = VariableType.Other;
+                break;
+            case "builtin":
+                variableType = VariableType.BuiltIn;
+                break;
+            case "arg":
+                variableType = VariableType.Argument;
+                break;
+            case "stacktop":
+                variableType = VariableType.Stacktop;
+                break;
+            case "static":
+                variableType = VariableType.Static;
+                break;
+            default:
+                {
+                    if (int.TryParse(context, out var index))
+                    {
+                        variableType = VariableType.Index;
+                        assetIndex = index;
+                    }
+                    else
+                    {
+                        throw new NotImplementedException($"Unknown variable type : {context} - {instruction.Raw}");
+                    }
+
+                    break;
+                }
         }
     }
 
     public static void GlobalInitCode(UndertaleData data)
     {
         Console.WriteLine("GlobalInit");
-		ScriptResolver.GlobalInit.Clear();
+        ScriptResolver.GlobalInit.Clear();
         foreach (var item in data.GlobalInitScripts)
         {
             var index = data.Code.IndexOf(item.Code);
@@ -657,7 +613,7 @@ public static class GameLoader
     public static void Pages(UndertaleData data)
     {
         Console.WriteLine("Pages");
-		PageManager.TexturePages.Clear();
+        PageManager.TexturePages.Clear();
 
         foreach (var page in data.EmbeddedTextures)
         {
@@ -668,7 +624,7 @@ public static class GameLoader
     public static void Sprites(UndertaleData data, IList<UndertaleSprite> sprites)
     {
         Console.WriteLine("Sprites");
-		SpriteManager._spriteDict.Clear();
+        SpriteManager._spriteDict.Clear();
 
         for (var i = 0; i < sprites.Count; i++)
         {
@@ -730,9 +686,9 @@ public static class GameLoader
     public static void AssetOrder(UndertaleData data)
     {
         Console.WriteLine("AssetOrder");
-		// jank, but it works and its fast to load
+        // jank, but it works and its fast to load
 
-		void WriteAssetNames<T>(StringBuilder writer, IList<T> assets) where T : UndertaleNamedResource
+        void WriteAssetNames<T>(StringBuilder writer, IList<T> assets) where T : UndertaleNamedResource
         {
             if (assets.Count == 0)
                 return;
@@ -798,7 +754,7 @@ public static class GameLoader
     public static void ObjectDefinitions(UndertaleData data)
     {
         Console.WriteLine("ObjectDefinitions");
-		InstanceManager.ObjectDefinitions.Clear();
+        InstanceManager.ObjectDefinitions.Clear();
 
         VMCode? GetCodeFromCodeIndex(int codeIndex)
         {
@@ -981,7 +937,7 @@ public static class GameLoader
     public static void Rooms(UndertaleData data)
     {
         Console.WriteLine("Rooms");
-		var codes = data.Code.ToList();
+        var codes = data.Code.ToList();
         RoomManager.RoomList.Clear();
 
         foreach (var room in data.Rooms)
@@ -1302,7 +1258,7 @@ public static class GameLoader
     public static void Fonts(UndertaleData data)
     {
         Console.WriteLine("Fonts");
-		TextManager.FontAssets.Clear();
+        TextManager.FontAssets.Clear();
 
         foreach (var item in data.Fonts)
         {
@@ -1356,7 +1312,7 @@ public static class GameLoader
     public static void Sounds(UndertaleData data)
     {
         Console.WriteLine("Sounds");
-		foreach (var item in data.Sounds)
+        foreach (var item in data.Sounds)
         {
             var asset = new SoundAsset();
             asset.AssetID = data.Sounds.IndexOf(item);
@@ -1492,9 +1448,9 @@ public static class GameLoader
     public static void TextureGroups(UndertaleData data)
     {
         Console.WriteLine("TextureGroups");
-		TexGroups.Clear();
+        TexGroups.Clear();
 
-		if (data.TextureGroupInfo == null)
+        if (data.TextureGroupInfo == null)
         {
             //writer.Write(0);
             return;
@@ -1510,7 +1466,7 @@ public static class GameLoader
             asset.Fonts = group.Fonts.Select(x => data.Fonts.IndexOf(x.Resource)).ToArray();
 
             TexGroups.Add(asset.GroupName, asset);
-		}
+        }
 
         Console.WriteLine(" Done!");
     }
@@ -1518,9 +1474,9 @@ public static class GameLoader
     public static void LoadTileSets(UndertaleData data)
     {
         Console.WriteLine("Tilesets");
-		TileSets.Clear();
+        TileSets.Clear();
 
-		if (data.Backgrounds == null)
+        if (data.Backgrounds == null)
         {
             //writer.Write(0);
             return;
@@ -1561,15 +1517,15 @@ public static class GameLoader
             }
 
             TileSets.Add(asset.AssetIndex, asset);
-		}
+        }
     }
 
     public static void LoadPaths(UndertaleData data)
     {
         Console.WriteLine("Paths");
-		PathManager.Paths.Clear();
+        PathManager.Paths.Clear();
 
-		foreach (var path in data.Paths)
+        foreach (var path in data.Paths)
         {
             var p = new CPath(path.Name.Content);
             p.closed = path.IsClosed;
@@ -1584,15 +1540,15 @@ public static class GameLoader
             PathManager.ComputeInternal(p);
 
             PathManager.Paths.Add(PathManager.HighestPathIndex++, p);
-		}
+        }
     }
 
     public static void LoadBackgrounds(UndertaleData data)
     {
         Console.WriteLine("Backgrounds");
-		Backgrounds.Clear();
+        Backgrounds.Clear();
 
-		foreach (var background in data.Backgrounds)
+        foreach (var background in data.Backgrounds)
         {
             SpritePageItem? pageItem;
 
@@ -1628,16 +1584,16 @@ public static class GameLoader
                 Texture = pageItem
             };
 
-			Backgrounds.Add(asset.AssetIndex, asset);
-		}
+            Backgrounds.Add(asset.AssetIndex, asset);
+        }
     }
 
     public static void LoadShaders(UndertaleData data)
     {
         Console.WriteLine("Shaders");
-		Shaders.Clear();
+        Shaders.Clear();
 
-		foreach (var shader in data.Shaders)
+        foreach (var shader in data.Shaders)
         {
             if (shader == null)
             {
@@ -1674,8 +1630,8 @@ public static class GameLoader
                 asset.ShaderAttributes[i] = shader.VertexShaderAttributes[i].Name.Content;
             }
 
-			Shaders.Add(asset.AssetIndex, asset);
-		}
+            Shaders.Add(asset.AssetIndex, asset);
+        }
 
         Console.WriteLine(" Done!");
     }
