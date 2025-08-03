@@ -1694,48 +1694,17 @@ public static class GameLoader
                 continue;
             }
 
-            var asset = new AnimCurve();
-            asset.AssetIndex = data.AnimationCurves.IndexOf(utCurve);
-            asset.Name = utCurve.Name.Content;
-
-            foreach (var utChannel in utCurve.Channels)
-            {
-                var channelAsset = new AnimCurveChannel
-                {
-                    Name = utChannel.Name.Content,
-                    CurveType = (CurveType)utChannel.Curve,
-                    Iterations = (int)utChannel.Iterations
-                };
-
-                foreach (var point in utChannel.Points)
-                {
-                    var pointAsset = new AnimCurvePoint
-                    {
-                        X = point.X,
-                        Y = point.Value,
-                        BezierX0 = point.BezierX0,
-                        BezierY0 = point.BezierY0,
-                        BezierX1 = point.BezierX1,
-                        BezierY1 = point.BezierY1
-                    };
-
-                    channelAsset.Points.Add(pointAsset);
-                }
-
-                asset.Channels.Add(channelAsset);
-            }
-
             var curve = new RuntimeAnimCurve();
-            curve.name = asset.Name;
+            curve.name = utCurve.Name.Content;
 
-            var channelArray = new RuntimeAnimCurveChannel[asset.Channels.Count];
-            for (var j = 0; j < asset.Channels.Count; j++)
+            var channelArray = new RuntimeAnimCurveChannel[utCurve.Channels.Count];
+            for (var j = 0; j < utCurve.Channels.Count; j++)
             {
-                var channel = asset.Channels[j];
+                var channel = utCurve.Channels[j];
                 channelArray[j] = new RuntimeAnimCurveChannel();
-                channelArray[j].name = channel.Name;
-                channelArray[j].type = channel.CurveType;
-                channelArray[j].iterations = channel.Iterations;
+                channelArray[j].name = channel.Name.Content;
+                channelArray[j].type = channel.Curve;
+                channelArray[j].iterations = (int)channel.Iterations;
 
                 var pointsArray = new RuntimeAnimCurvePoint[channel.Points.Count];
                 for (var k = 0; k < channel.Points.Count; k++)
@@ -1743,7 +1712,7 @@ public static class GameLoader
                     var point = channel.Points[k];
                     pointsArray[k] = new RuntimeAnimCurvePoint();
                     pointsArray[k].posx = point.X;
-                    pointsArray[k].value = point.Y;
+                    pointsArray[k].value = point.Value;
                     pointsArray[k].BezierX0 = point.BezierX0;
                     pointsArray[k].BezierY0 = point.BezierY0;
                     pointsArray[k].BezierX1 = point.BezierX1;
@@ -1754,7 +1723,7 @@ public static class GameLoader
             }
 
             curve.channels = channelArray;
-            AnimCurves.Add(asset.AssetIndex, curve);
+            AnimCurves.Add(data.AnimationCurves.IndexOf(utCurve), curve);
         }
 
         Console.WriteLine($" Done!");
