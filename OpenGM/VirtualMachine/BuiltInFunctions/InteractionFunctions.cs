@@ -148,7 +148,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return KeyboardHandler.MousePressed[numb];
         }
 
-        // mouse_check_button_released
+        [GMLFunction("mouse_check_button_released")]
+        public static object mouse_check_button_released(object?[] args)
+        {
+            var numb = args[0].Conv<int>();
+            return KeyboardHandler.MouseReleased[numb];
+        }
+
         // mouse_wheel_up
         // mouse_wheel_down
         // keyboard_virtual_show
