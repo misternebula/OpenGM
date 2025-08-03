@@ -1852,7 +1852,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_surface_tiled_ext
+        [GMLFunction("draw_surface_tiled_ext", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        public static object? draw_surface_tiled_ext(object?[] args)
+        {
+            return null;
+        }
+
         // surface_save
         // surface_save_part
         // surface_getpixel
