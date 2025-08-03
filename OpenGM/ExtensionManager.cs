@@ -154,7 +154,7 @@ public static class ExtensionManager
             {
                 for (var i = 0; i < types.Count - 1; i++)
                 {
-                    if (args.Length < i)
+                    if (args.Length <= i)
                     {
                         if (types[i] == typeof(double))
                         {
