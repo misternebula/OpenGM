@@ -15,13 +15,7 @@ public static class BufferManager
 
     public static int CreateBuffer(int size, BufferType type, int alignment, byte[]? srcBuffer = null)
     {
-        var buffer = new Buffer
-        {
-            Data = new byte[size],
-            Alignment = alignment,
-            Type = type,
-            Size = size
-        };
+        var buffer = new Buffer(size, type, alignment);
 
         if (srcBuffer != null && srcBuffer.Length > 0)
         {

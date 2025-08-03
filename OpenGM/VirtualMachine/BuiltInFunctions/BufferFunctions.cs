@@ -17,11 +17,7 @@
         {
             var bufferIndex = args[0].Conv<int>();
 
-            var buffer = BufferManager.Buffers[bufferIndex];
-            buffer.Data = null!; // why
-
             BufferManager.Buffers.Remove(bufferIndex);
-
             return null;
         }
 
@@ -219,8 +215,14 @@
         // buffer_base64_decode_ext
         // buffer_sizeof
 
-        // buffer_get_address is staying unimplemented and unstubbed until
-        // someone can add it in a GC-friendly way
+        [GMLFunction("buffer_get_address")]
+        public static object? buffer_get_address(object?[] args)
+        {
+            var bufferId = args[0].Conv<int>();
+
+            var buffer = BufferManager.Buffers[bufferId];
+            return buffer.MakeFixedPointer();
+        }
 
         [GMLFunction("buffer_get_surface")]
         public static object? buffer_get_surface(object?[] args)

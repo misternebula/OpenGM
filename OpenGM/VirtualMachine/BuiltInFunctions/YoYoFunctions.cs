@@ -102,8 +102,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 if (VideoBuffer >= 0)
                 {
                     // buffer_delete
-                    var buffer = BufferManager.Buffers[VideoBuffer];
-                    buffer.Data = null!; // why
                     BufferManager.Buffers.Remove(VideoBuffer);
                 }
 
@@ -126,8 +124,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 if (VideoBuffer >= 0)
                 {
                     // buffer_delete
-                    var buffer = BufferManager.Buffers[VideoBuffer];
-                    buffer.Data = null!; // why
                     BufferManager.Buffers.Remove(VideoBuffer);
                 }
 
@@ -153,8 +149,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 if (VideoBuffer >= 0)
                 {
                     // buffer_delete
-                    var buffer = BufferManager.Buffers[VideoBuffer];
-                    buffer.Data = null!; // why
                     BufferManager.Buffers.Remove(VideoBuffer);
                 }
 
