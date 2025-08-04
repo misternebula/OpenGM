@@ -73,14 +73,18 @@ public static class GraphicsManager
     public static Vector4 ViewArea { get; private set; }
     public static void SetViewArea(Vector4 viewArea) => SetViewArea(viewArea.X, viewArea.Y, viewArea.Z, viewArea.W, 0);
     public static void SetViewArea(float x, float y, float w, float h, float angle)
-    {   
+    {
         ViewArea = new(x, y, w, h);
-        
+
         // literally just copy from camera building and applying matrices
-        
+
+        x = x + (w / 2);
+        y = y + (h / 2);
+
         var pos = new Vector3(x, y, -16000);
         var at = new Vector3(x, y, 0);
-        var up = new Vector3((float)Math.Sin(-angle * CustomMath.Deg2Rad), (float)Math.Cos(-angle * CustomMath.Deg2Rad), 0);
+        var up = new Vector3((float)Math.Sin(-angle * CustomMath.Deg2Rad), (float)Math.Cos(-angle * CustomMath.Deg2Rad),
+            0);
 
         var view = Matrix4.LookAt(at, pos, up);
         var proj = Matrix4.CreateOrthographic(w, h, 0, 32000);
@@ -97,19 +101,12 @@ public static class GraphicsManager
 
             proj = proj * flipMat; // TODO right way round?
         }
-        
+
         var world = Matrix4.Identity;
         var worldView = world * view;
         var worldviewProjection = worldView * proj;
 
-        var matrices = new Matrix4[]
-        {
-            view, 
-            proj,
-            world,
-            worldView,
-            worldviewProjection
-        };
+        var matrices = new Matrix4[] { view, proj, world, worldView, worldviewProjection };
 
         unsafe
         {
