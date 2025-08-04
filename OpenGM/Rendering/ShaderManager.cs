@@ -104,16 +104,16 @@ public static class ShaderManager
         CurrentShaderIndex = index;
         var shader = Shaders[index];
         GL.UseProgram(shader.ProgramID);
-        GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
         AttachUniforms(shader.ProgramID);
+        GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
     }
 
     public static void ShaderReset()
     {
         CurrentShaderIndex = -1;
         GL.UseProgram(DefaultProgram);
-        GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
         AttachUniforms(DefaultProgram);
+        GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
     }
 
     private static void AttachUniforms(int program)
