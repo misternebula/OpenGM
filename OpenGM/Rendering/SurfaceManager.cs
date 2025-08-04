@@ -304,7 +304,6 @@ public static class SurfaceManager
         var surfHeight = GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var vertexOne = new Vector2d(x, y);
         var vertexTwo = new Vector2d(x + w, y);
@@ -329,7 +328,6 @@ public static class SurfaceManager
         ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void BindSurfaceTexture(int surfaceId)
