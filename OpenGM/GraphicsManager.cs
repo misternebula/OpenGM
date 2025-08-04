@@ -75,6 +75,7 @@ public static class GraphicsManager
     public static void SetViewArea(float x, float y, float w, float h, float angle)
     {
         ViewArea = new(x, y, w, h);
+        // we dont preserve angle. oh well
 
         // literally just copy from camera building and applying matrices
 

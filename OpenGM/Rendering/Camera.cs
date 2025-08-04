@@ -3,6 +3,8 @@ using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 
 namespace OpenGM.Rendering;
+
+// for now the matrices are basically unused. we're just using view xywh directly
 public class Camera
 {
     public int ID = -1;
@@ -102,8 +104,6 @@ public class Camera
         ).Normalized();
     }
     
-    // for now the matrices are basically unused. we're just using view xywh directly
-
     /// <summary>
     /// update matrices from view fields (x and y are usually also view fields)
     /// </summary>
