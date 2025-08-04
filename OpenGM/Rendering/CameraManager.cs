@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OpenGM.Rendering;
-// TODO: multiple cameras but goodly
+// TODO: actually handle cameras. currently we create one per view and leak
 public static class CameraManager
 
 {
@@ -27,9 +27,4 @@ public static class CameraManager
         RegisterCamera(cam);
         return cam;
     }
-
-    public static Camera? ActiveCamera;
-    
-    
-    public static readonly Camera DefaultCamera = CreateCamera(); // idk when this is created 
 }

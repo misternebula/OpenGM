@@ -441,7 +441,7 @@ public static class DrawManager
          */
         var fbsize = CustomWindow.Instance.FramebufferSize;
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
-        UpdateDefaultCamera(0, 0, fbsize.X, fbsize.Y, 0);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         
         if (CustomWindow.Instance != null) // only null in tests
         {
@@ -506,16 +506,13 @@ public static class DrawManager
                     */
                 }
 
-                UpdateDefaultCamera(
+                GraphicsManager.SetViewArea(
                     ViewportManager.CurrentRenderingView.ViewPosition.X,
                     ViewportManager.CurrentRenderingView.ViewPosition.Y,
                     ViewportManager.CurrentRenderingView.ViewSize.X,
                     ViewportManager.CurrentRenderingView.ViewSize.Y,
                     0
                 );
-
-                CameraManager.ActiveCamera?.Begin();
-                CameraManager.ActiveCamera?.ApplyMatrices(); // apply in case it changes in event i think
 
                 // ROOM BACKGROUNDS
                 // this is for undertale, this is definitely in the wrong place. just putting it here to get it drawing.
@@ -551,18 +548,12 @@ public static class DrawManager
                 {
                     SurfaceManager.surface_reset_target();
                 }
-                
-                CameraManager.ActiveCamera?.End();
-                CameraManager.ActiveCamera = null; // no active camera
             }
         }
         else // views not enabled
         {
             GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
-            UpdateDefaultCamera(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, 0);
-
-            CameraManager.ActiveCamera?.Begin();
-            CameraManager.ActiveCamera?.ApplyMatrices(); // apply in case it changes in event i think
+            GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, 0);
 
             // dummy view for full room rendering
             ViewportManager.CurrentRenderingView = new()
@@ -589,9 +580,6 @@ public static class DrawManager
             {
                 return;
             }
-            
-            CameraManager.ActiveCamera?.End();
-            CameraManager.ActiveCamera = null;
         }
 
         if (SurfaceManager.UsingAppSurface)
@@ -617,7 +605,7 @@ public static class DrawManager
          * PostDraw
          */
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
-        UpdateDefaultCamera(0, 0, fbsize.X, fbsize.Y, 0);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
@@ -644,7 +632,7 @@ public static class DrawManager
 
         if (GuiSize is Vector2i vec)
         {
-            GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y);
+            GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y, 0);
         }
 
         if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
@@ -662,7 +650,7 @@ public static class DrawManager
             return;
         }
 
-        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
 
         if (RoomManager.CurrentRoom != null)
         {
@@ -671,27 +659,6 @@ public static class DrawManager
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();
-    }
-
-    private static void UpdateDefaultCamera(float x, float y, float w, float h, float angle)
-    {
-        UpdateCamera(x, y, w, h, angle, CameraManager.DefaultCamera);
-    }
-
-    private static void UpdateCamera(float x, float y, float w, float h, float angle, Camera? cam)
-    {
-        if (cam == null) return;
-
-        cam.ViewX = x;
-        cam.ViewY = y;
-        cam.ViewWidth = w;
-        cam.ViewHeight = h;
-        cam.ViewAngle = angle;
-
-        cam.Build2DView(x + (w / 2), y + (h / 2));
-        cam.ApplyMatrices();
-        
-        // TODO: 3d eventually (sets view extents)
     }
 
     public static void UpdateViews()

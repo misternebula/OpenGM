@@ -28,6 +28,8 @@ public static class GraphicsManager
 
     /// <summary>
     /// True when drawing to the front buffer.
+    ///
+    /// TODO: set in surface stuff
     /// </summary>
     public static bool RenderTargetActive;
 
@@ -67,19 +69,50 @@ public static class GraphicsManager
     }
 
     public static Vector4i ViewPort { get; private set; }
-    public static void SetViewPort(Vector4i viewport)
+    public static void SetViewPort(Vector4i viewPort) => SetViewPort(viewPort.X, viewPort.Y, viewPort.Z, viewPort.W);
+    public static void SetViewPort(int x, int y, int w, int h)
     {
-        ViewPort = viewport;
-        GL.Viewport(viewport.X, viewport.Y, viewport.Z, viewport.W);
+        ViewPort = new(x, y, w, h);
+        GL.Viewport(x, y, w, h);
     }
-    public static void SetViewPort(int x, int y, int w, int h) => SetViewPort(new(x, y, w, h));
 
-    // TODO: i have no idea when this is actually used over UpdateCamera. also, this is supposed to set and apply matrices
-    /*
+    // rn we're just replicating g_isZeus = false, where instead of doing camera stuff we just have view area globals
     public static Vector4 ViewArea { get; private set; }
-    public static void SetViewArea(Vector4 viewArea) => ViewArea = viewArea;
-    public static void SetViewArea(float x, float y, float w, float h) => SetViewArea(new(x, y, w, h));
-    */
+    public static void SetViewArea(Vector4 viewArea) => SetViewArea(viewArea.X, viewArea.Y, viewArea.Z, viewArea.W, 0);
+    public static void SetViewArea(float x, float y, float w, float h, float angle)
+    {   
+        ViewArea = new(x, y, w, h);
+        
+        // literally just copy from camera building and applying matrices
+        
+        var pos = new Vector3(x, y, -16000);
+        var at = new Vector3(x, y, 0);
+        var up = new Vector3((float)Math.Sin(-angle * CustomMath.Deg2Rad), (float)Math.Cos(-angle * CustomMath.Deg2Rad), 0);
+
+        var view = Matrix4.LookAt(at, pos, up);
+        var proj = Matrix4.CreateOrthographic(w, h, 0, 32000);
+        
+        var world = Matrix4.Identity;
+        var worldView = world * view;
+        var worldviewProjection = worldView * proj;
+
+        var matrices = new Matrix4[]
+        {
+            view, 
+            proj,
+            world,
+            worldView,
+            worldviewProjection
+        };
+
+        unsafe
+        {
+            fixed (Matrix4* ptr = &matrices[0])
+            {
+                GL.UniformMatrix4(ShaderManager.gm_Matrices, matrices.Length, false, (float*)ptr);
+            }
+        }
+    }
 
     public static void SetFog(bool enable, int color, double start, double end)
     {

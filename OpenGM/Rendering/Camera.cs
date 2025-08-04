@@ -100,6 +100,8 @@ public class Camera
             _viewMatrix[2, 0]
         ).Normalized();
     }
+    
+    // for now the matrices are basically unused. we're just using view xywh directly
 
     /// <summary>
     /// update matrices from view fields (x and y are usually also view fields)
@@ -122,9 +124,9 @@ public class Camera
     /// </summary>
     public void ApplyMatrices()
     {
-        // TODO: global view extent stuff, used for culling and for tiled stuff
+        // TODO: global view/room extent stuff, used for culling and for tiled stuff
         
-        // sets view area. do we even need view area??? i just removed it for now
+        // rn this stuff is used cuz we set view area. this also sets view area. idk if its needed tho
         
         ShaderManager.LoadMatrices(this);
     }
