@@ -32,7 +32,7 @@ public class Camera
         {
             if (!SurfaceManager.DrawingToBackbuffer())
             {
-                // no flip when drawing to non backbuffer
+                // no flip when drawing to non-backbuffer
                 return _projectionMatrix;
             }
 

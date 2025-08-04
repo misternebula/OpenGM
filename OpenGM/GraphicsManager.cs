@@ -84,6 +84,19 @@ public static class GraphicsManager
 
         var view = Matrix4.LookAt(at, pos, up);
         var proj = Matrix4.CreateOrthographic(w, h, 0, 32000);
+
+        if (!SurfaceManager.DrawingToBackbuffer())
+        {
+            // no flip when drawing to non-backbuffer
+        }
+        else
+        {
+            // flip when drawing to backbuffer
+            var flipMat = Matrix4.Identity;
+            flipMat[1, 1] = -1;
+
+            proj = proj * flipMat; // TODO right way round?
+        }
         
         var world = Matrix4.Identity;
         var worldView = world * view;
