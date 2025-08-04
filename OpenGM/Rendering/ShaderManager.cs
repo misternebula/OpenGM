@@ -21,6 +21,7 @@ public static class ShaderManager
             var program = CompileShader(shader.VertexSource, shader.FragmentSource);
 
             var runtimeShader = new RuntimeShader();
+            runtimeShader.Name = shader.Name;
             runtimeShader.ShaderIndex = shaderIndex;
             runtimeShader.ProgramID = program;
             FindUniforms(runtimeShader);
@@ -103,6 +104,7 @@ public static class ShaderManager
         CurrentShaderIndex = index;
         var shader = Shaders[index];
         GL.UseProgram(shader.ProgramID);
+        GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
         AttachUniforms(shader.ProgramID);
     }
 
@@ -110,6 +112,7 @@ public static class ShaderManager
     {
         CurrentShaderIndex = -1;
         GL.UseProgram(DefaultProgram);
+        GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
         AttachUniforms(DefaultProgram);
     }
 

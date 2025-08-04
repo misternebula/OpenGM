@@ -4,7 +4,7 @@ in vec4 fcolor;
 in vec2 texc;
 in float fogFactor;
 
-uniform sampler2D u_tex;
+uniform sampler2D gm_BaseTexture;
 uniform bool gm_PS_FogEnabled;
 uniform vec4 gm_FogColour;
 uniform bool gm_AlphaTestEnabled;
@@ -30,7 +30,7 @@ void DoFog(inout vec4 SrcColour, float fogval)
 }
 
 void main() {
-    vec4 color = texture2D(u_tex, texc).rgba * fcolor.rgba;
+    vec4 color = texture2D(gm_BaseTexture, texc).rgba * fcolor.rgba;
     DoAlphaTest(color);
     DoFog(color, fogFactor);
     gl_FragColor = color;

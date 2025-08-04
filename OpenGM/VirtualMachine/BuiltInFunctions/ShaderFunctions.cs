@@ -74,9 +74,30 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // shader_set_uniform_i_array
 
-        [GMLFunction("shader_set_uniform_f", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_set_uniform_f")]
         public static object? shader_set_uniform_f(object?[] args)
         {
+            var handle = args[0].Conv<int>();
+
+            var valueCount = args.Length - 1;
+            switch (valueCount)
+            {
+                case 1:
+                    GL.Uniform1(handle, args[1].Conv<float>());
+                    break;
+                case 2:
+                    GL.Uniform2(handle, args[1].Conv<float>(), args[2].Conv<float>());
+                    break;
+                case 3:
+                    GL.Uniform3(handle, args[1].Conv<float>(), args[2].Conv<float>(), args[3].Conv<float>());
+                    break;
+                case 4:
+                    GL.Uniform4(handle, args[1].Conv<float>(), args[2].Conv<float>(), args[3].Conv<float>(), args[4].Conv<float>());
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
             return null;
         }
 
