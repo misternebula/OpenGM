@@ -453,7 +453,6 @@ public static class DrawManager
             return;
         }
 
-        GraphicsManager.RenderTargetActive = true;
         SurfaceManager.SetApplicationSurface();
 
         if (SurfaceManager.UsingAppSurface)
@@ -556,6 +555,7 @@ public static class DrawManager
             GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, 0);
 
             // dummy view for full room rendering
+            // i think this is mostly for tiled rendering, which should switch to using room extents
             ViewportManager.CurrentRenderingView = new()
             {
                 ViewPosition = Vector2.Zero,
@@ -599,7 +599,6 @@ public static class DrawManager
         }
 
         ViewportManager.CurrentRenderingView = null;
-        GraphicsManager.RenderTargetActive = false;
 
         /*
          * PostDraw

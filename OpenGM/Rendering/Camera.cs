@@ -30,12 +30,13 @@ public class Camera
     {
         get
         {
-            if (GraphicsManager.RenderTargetActive)
+            if (!SurfaceManager.DrawingToBackbuffer())
             {
+                // no flip when drawing to non backbuffer
                 return _projectionMatrix;
             }
 
-            // flip for backbuffer drawing
+            // flip when drawing to backbuffer
             var flipMat = Matrix4.Identity;
             flipMat[1, 1] = -1;
 

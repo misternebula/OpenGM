@@ -4,6 +4,7 @@ using StbImageSharp;
 namespace OpenGM.Rendering;
 public static class PageManager
 {
+    // we probably shouldnt be storing image result here, we literally only use it for width/height and you can get that from opengl
     public static Dictionary<string, (ImageResult image, int id)> TexturePages = new();
 
     public static void UnbindTextures()

@@ -27,13 +27,6 @@ public static class GraphicsManager
     public static int DefaultTexture;
 
     /// <summary>
-    /// True when drawing to the front buffer.
-    ///
-    /// TODO: set in surface stuff
-    /// </summary>
-    public static bool RenderTargetActive;
-
-    /// <summary>
     /// setup shader and buffer
     /// </summary>
     public static void Init()

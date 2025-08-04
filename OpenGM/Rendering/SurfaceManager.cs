@@ -35,11 +35,9 @@ public static class SurfaceManager
         var width = GetSurfaceWidth(surface);
         var height = GetSurfaceHeight(surface);
         GraphicsManager.SetViewPort(0, 0, width, height);
-        GraphicsManager.SetViewArea(0, 0, width, height);
+        GraphicsManager.SetViewArea(0, 0, width, height, 0);
         
         // even if drawing to a view surface or app surface, itll use the whole area
-
-        //GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
 
         return true;
     }
@@ -57,10 +55,10 @@ public static class SurfaceManager
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
 
-        //GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
-
         return true;
     }
+
+    public static bool DrawingToBackbuffer() => GL.GetInteger(GetPName.FramebufferBinding) == 0;
 
     public static int CreateSurface(int width, int height, int format) // TODO: format
     {
