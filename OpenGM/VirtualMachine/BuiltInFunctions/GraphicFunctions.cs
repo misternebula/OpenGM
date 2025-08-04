@@ -1112,35 +1112,39 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             // TODO: make these properties actually correct
-            var result = new GMLObject();
-            result.SelfVariables["ascender"] = 0;
-            result.SelfVariables["ascenderOffset"] = 0;
-            result.SelfVariables["size"] = font.Size;
-            result.SelfVariables["spriteIndex"] = font.spriteIndex;
-            result.SelfVariables["texture"] = font.texture;
-            result.SelfVariables["name"] = font.name;
-            result.SelfVariables["bold"] = false;
-            result.SelfVariables["italic"] = false;
+            var result = new GMLObject
+            {
+                ["ascender"] = 0,
+                ["ascenderOffset"] = 0,
+                ["size"] = font.Size,
+                ["spriteIndex"] = font.spriteIndex,
+                ["texture"] = font.texture,
+                ["name"] = font.name,
+                ["bold"] = false,
+                ["italic"] = false
+            };
 
             var glyphs = new GMLObject();
 
             foreach (var (glyph, info) in font.entriesDict)
             {
-                var gmlGlyph = new GMLObject();
-                gmlGlyph.SelfVariables["char"] = info.characterIndex;
-                gmlGlyph.SelfVariables["x"] = info.x;
-                gmlGlyph.SelfVariables["y"] = info.y;
-                gmlGlyph.SelfVariables["w"] = info.w;
-                gmlGlyph.SelfVariables["h"] = info.h;
-                gmlGlyph.SelfVariables["shift"] = info.shift;
-                gmlGlyph.SelfVariables["offset"] = info.xOffset;
-                gmlGlyph.SelfVariables["kerning"] = new List<object?>();
+                var gmlGlyph = new GMLObject
+                {
+                    ["char"] = info.characterIndex,
+                    ["x"] = info.x,
+                    ["y"] = info.y,
+                    ["w"] = info.w,
+                    ["h"] = info.h,
+                    ["shift"] = info.shift,
+                    ["offset"] = info.xOffset,
+                    ["kerning"] = new List<object?>()
+                };
 
                 var character = ((char)glyph).ToString();
-                glyphs.SelfVariables[character] = gmlGlyph;
+                glyphs[character] = gmlGlyph;
             }
 
-            result.SelfVariables["glyphs"] = glyphs;
+            result["glyphs"] = glyphs;
 
             return result;
         }
@@ -1827,7 +1831,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // draw_surface_stretched_ext
-        // draw_surface_part
+
+        [GMLFunction("draw_surface_part")]
+        public static object? draw_surface_part(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var left = args[1].Conv<int>();
+            var top = args[2].Conv<int>();
+            var w = args[3].Conv<int>();
+            var h = args[4].Conv<int>();
+            var x = args[5].Conv<double>();
+            var y = args[6].Conv<double>();
+
+            SurfaceManager.draw_surface_part(id, left, top, w, h, x, y);
+            return null;
+        }
+
         // draw_surface_part_ext
         // draw_surface_general
 
@@ -1837,7 +1856,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_surface_tiled_ext
+        [GMLFunction("draw_surface_tiled_ext", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        public static object? draw_surface_tiled_ext(object?[] args)
+        {
+            return null;
+        }
+
         // surface_save
         // surface_save_part
         // surface_getpixel

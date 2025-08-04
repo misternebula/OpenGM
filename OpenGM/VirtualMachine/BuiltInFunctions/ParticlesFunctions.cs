@@ -72,7 +72,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // part_type_step
-        // part_type_death
+
+        [GMLFunction("part_type_death")]
+        public static object? part_type_death(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var death_number = args[1].Conv<int>();
+            var death_type = args[2].Conv<int>();
+
+            var type = ParticleManager.PartTypes[ind];
+            type.DeathNumber = death_number;
+            type.DeathType = death_type;
+
+            return null;
+        }
 
         [GMLFunction("part_type_speed")]
         public static object? part_type_speed(object?[] args)
@@ -110,7 +123,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // part_type_orientation
-        // part_type_gravity
+
+        [GMLFunction("part_type_gravity")]
+        public static object? part_type_gravity(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var grav_amount = args[1].Conv<double>();
+            var grav_direction = args[2].Conv<double>();
+
+            var type = ParticleManager.PartTypes[ind];
+            type.Gravity = grav_amount;
+            type.GravityDirection = grav_direction;
+            return null;
+        }
+
         // part_type_color_mix
         // part_type_color_rgb
         // part_type_color_hsv

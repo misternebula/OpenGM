@@ -95,7 +95,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
                 if (layer == null)
                 {
-                    DebugLog.Log($"layer_set_visible() - could not find specified layer in current room");
+                    DebugLog.Log($"layer_set_visible() - could not find specified layer \"{s}\" in current room");
                     return null;
                 }
             }
@@ -1177,7 +1177,26 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // tilemap_get_texture
         // tilemap_get_uvs
         // tilemap_get_name
-        // tilemap_get_tileset
+        
+        [GMLFunction("tilemap_get_tileset")]
+        public static object tilemap_get_tileset(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        return tilemap.Element.BackgroundIndex;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         // tilemap_get_tile_width
         // tilemap_get_tile_height
         // tilemap_get_width

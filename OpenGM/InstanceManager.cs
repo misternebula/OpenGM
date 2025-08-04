@@ -97,12 +97,12 @@ public static class InstanceManager
     {
         if (!instances.ContainsKey(obj.instanceId))
         {
-            DebugLog.LogWarning($"Tried to unregister a non-registered object with instanceId:{obj.instanceId}\nObject:{obj.Definition.Name}");
+            DebugLog.LogVerbose($"Tried to unregister a non-registered object with instanceId:{obj.instanceId}\nObject:{obj.Definition.Name}");
 
-            DebugLog.LogError($"--Stacktrace--");
+            DebugLog.LogVerbose($"--Stacktrace--");
             foreach (var item in VMExecutor.CallStack)
             {
-                DebugLog.LogError($" - {item.CodeName}");
+                DebugLog.LogVerbose($" - {item.CodeName}");
             }
 
             return;
@@ -138,13 +138,45 @@ public static class InstanceManager
         return newGM.instanceId;
     }
 
-    public static int instance_create_depth(double x, double y, int depth, int obj)
+    public static int instance_create_depth(double x, double y, int depth, int obj, GMLObject? var_struct)
     {
         var definition = ObjectDefinitions[obj];
 
         var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+
+        if (var_struct != null)
+        {
+            foreach (var var in var_struct.SelfVariables)
+            {
+                VMExecutor.PopToSelf(newGM, var.Key, var.Value);
+            }
+        }
+
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        newGM._createRan = true;
+        return newGM.instanceId;
+    }
+
+    public static int instance_create_layer(double x, double y, LayerContainer layer, int obj, GMLObject? var_struct)
+    {
+        var definition = ObjectDefinitions[obj];
+
+        var newGM = new GamemakerObject(definition, x, y, layer.Depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+        layer.ElementsToDraw.Add(newGM);
+        newGM.Layer = layer.ID;
+
+        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+
+        if (var_struct != null)
+        {
+            foreach (var var in var_struct.SelfVariables)
+            {
+                VMExecutor.PopToSelf(newGM, var.Key, var.Value);
+            }
+        }
+
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
         newGM._createRan = true;
         return newGM.instanceId;

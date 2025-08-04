@@ -69,7 +69,7 @@ public static class MathFunctions
                  * just dummy implementing this so it'll run the initialize part of the constructor
                  */
                 method.inst = null;
-                DebugLog.LogWarning("Method() called with -16 (static) struct ref - not implemented.");
+                DebugLog.LogWarning($"Method() called with -16 (static) struct ref - not implemented. ({VMExecutor.Call.CodeName})");
             }
             else
             {
@@ -507,7 +507,12 @@ public static class MathFunctions
         return Math.Cos(val);
     }
 
-    // tan
+    [GMLFunction("tan")]
+    public static object tan(object?[] args)
+    {
+        var val = args[0].Conv<double>();
+        return Math.Tan(val);
+    }
 
     [GMLFunction("arcsin")]
     public static object arcsin(object?[] args)

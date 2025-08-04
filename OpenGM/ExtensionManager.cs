@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace OpenGM;
 
@@ -26,37 +27,6 @@ public static class ExtensionManager
 
     public static void Init()
     {
-        ScriptResolver.GMLFunctionType MakeStubFunction(string functionName) 
-        {
-            return (object?[] args) => {
-                var alwaysLog = ScriptResolver.AlwaysLogStubs;
-                var logged = ScriptResolver.LoggedStubs;
-                
-                if (alwaysLog || !logged.Contains(functionName)) {
-                    if (!alwaysLog)
-                    {
-                        logged.Add(functionName);
-                    }
-
-                    DebugLog.LogWarning($"Extension function {functionName} stubbed out.");
-                }
-                
-                return null;
-            };
-        }
-
-        void StubAllFuncs(ExtensionFile file)
-        {
-            foreach (var func in file.Functions)
-            {
-                var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, MakeStubFunction(func.Name));
-                if (!success)
-                {
-                    DebugLog.LogError($"Could not add stub for extension function {func.Name}");
-                }
-            }
-        }
-
         foreach (var extension in Extensions)
         {
             foreach (var file in extension.Files)
@@ -117,7 +87,7 @@ public static class ExtensionManager
                     {
                         types.Add(arg switch
                         {
-                            ExtensionVarType.String => typeof(string),
+                            ExtensionVarType.String => typeof(char*),
                             ExtensionVarType.Double => typeof(double),
                             _ => throw new UnreachableException()
                         });
@@ -126,7 +96,7 @@ public static class ExtensionManager
                     // add return type as last element
                     types.Add(func.ReturnType switch
                     {
-                        ExtensionVarType.String => typeof(string),
+                        ExtensionVarType.String => typeof(char*),
                         ExtensionVarType.Double => typeof(double),
                         _ => throw new UnreachableException()
                     });
@@ -139,7 +109,7 @@ public static class ExtensionManager
                         throw new Exception($"Failed to load extension function {func.ExternalName} (error code {err})");
                     }
 
-                    DebugLog.LogVerbose($"{func.ExternalName}({func.Arguments.Count} args): {funcPtr}");
+                    DebugLog.LogVerbose($"{func.ExternalName}({func.Arguments.Count} args): 0x{funcPtr:X16}");
 
                     // create delegate type
                     var deleType = MakeNewCustomDelegate([.. types]);
@@ -147,9 +117,8 @@ public static class ExtensionManager
                     // convert the address of our external function to said delegate type
                     var dele = Marshal.GetDelegateForFunctionPointer(funcPtr, deleType);
 
-                    // try and shove the delegate's DynamicInvoke into BuiltInFunctions
-                    // (which conveniently has the same type semantics as GMLFunctionType)
-                    var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, dele.DynamicInvoke);
+                    // wrap the delegate in another function and throw it into BuiltInFunctions
+                    var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, ConvertExtensionFunc(dele, types));
                     if (!success)
                     {
                         DebugLog.LogError($"Could not add extension function {func.Name} to functions list");
@@ -159,7 +128,86 @@ public static class ExtensionManager
         }
     }
 
-    public static bool? Is64BitPe(string path)
+    static ScriptResolver.GMLFunctionType MakeStubFunction(string functionName) =>
+        (object?[] args) => {
+            var alwaysLog = ScriptResolver.AlwaysLogStubs;
+            var logged = ScriptResolver.LoggedStubs;
+            
+            if (alwaysLog || !logged.Contains(functionName)) {
+                if (!alwaysLog)
+                {
+                    logged.Add(functionName);
+                }
+
+                DebugLog.LogWarning($"Extension function {functionName} stubbed out.");
+            }
+            
+            return null;
+        };
+    
+    static ScriptResolver.GMLFunctionType ConvertExtensionFunc(Delegate dele, List<Type> types) =>
+        (object?[] args) => 
+        {
+            var pins = new GCHandle?[args.Length];
+            var newArgs = new List<object?>();
+            try 
+            {
+                for (var i = 0; i < types.Count - 1; i++)
+                {
+                    if (args.Length <= i)
+                    {
+                        if (types[i] == typeof(double))
+                        {
+                            newArgs.Add((double)0);
+                        }
+                        else
+                        {
+                            // TODO: are strings just null pointers?
+                            newArgs.Add((nint)0);
+                        }
+
+                        continue;
+                    }
+
+                    if (args[i] is string str)
+                    {
+                        var bytes = Encoding.ASCII.GetBytes(str + char.MinValue);
+
+                        var pin = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+                        pins[i] = pin;
+                        newArgs.Add(pin.AddrOfPinnedObject());
+                        continue;
+                    }
+
+                    newArgs.Add(args[i]);
+                }
+
+                var result = dele.DynamicInvoke([.. newArgs]);
+
+                return result;
+            }
+            finally
+            {
+                foreach (var pin in pins)
+                {
+                    pin?.Free();
+                }
+            }
+        };
+
+    static void StubAllFuncs(ExtensionFile file)
+    {
+        foreach (var func in file.Functions)
+        {
+            var success = ScriptResolver.BuiltInFunctions.TryAdd(func.Name, MakeStubFunction(func.Name));
+            if (!success)
+            {
+                DebugLog.LogError($"Could not add stub for extension function {func.Name}");
+            }
+        }
+    }
+
+    static bool? Is64BitPe(string path)
     {
         var stream = File.OpenRead(path);
 

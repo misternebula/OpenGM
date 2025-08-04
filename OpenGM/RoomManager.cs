@@ -349,6 +349,7 @@ public static class RoomManager
 
                     var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
                     var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+                    newGM.Layer = layer.LayerID;
 
                     //newGM._createRan = true;
                     newGM.depth = layer.LayerDepth;

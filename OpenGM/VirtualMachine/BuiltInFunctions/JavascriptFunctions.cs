@@ -7,21 +7,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("@@NewGMLObject@@")]
         public static object? NewGMLObject(object?[] args)
         {
-            var ctor = args[0];
+            var ctor = VMExecutor.FetchMethod(args[0]);
             var values = args[1..];
             var obj = new GMLObject();
 
-            VMScript script;
-            if (ctor is Method m)
-            {
-                script = m.func;
-            }
-            else
-            {
-                var constructorIndex = ctor.Conv<int>();
-                script = ScriptResolver.ScriptsByIndex[constructorIndex];
-            }
-
+            var script = ctor!.func;
             var code = script.GetCode()!;
             VMExecutor.ExecuteCode(code, obj, args: values);
 

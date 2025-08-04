@@ -1,15 +1,44 @@
 ﻿using OpenGM.IO;
+using System.Runtime.InteropServices;
 
 namespace OpenGM;
 public class Buffer
 {
-    public byte[] Data = null!;
+    public byte[] Data { get; private set; }
+    public GCHandle? DataPin;
     public BufferType Type;
     public int Alignment;
     public int AlignmentOffset;
     public int BufferIndex;
     public int UsedSize;
     public int Size;
+
+    public Buffer(int size, BufferType type, int alignment)
+    {
+        Data = new byte[size];
+        Type = type;
+        Alignment = alignment;
+        Size = size;
+    }
+
+    ~Buffer()
+    {
+        if (DataPin is GCHandle handle)
+        {
+            handle.Free();
+        }
+    }
+
+    public nint MakeFixedPointer()
+    {
+        if (DataPin is null)
+        {
+            DataPin = GCHandle.Alloc(Data, GCHandleType.Pinned);
+            DebugLog.LogVerbose($"Pinning buffer to 0x{((GCHandle)DataPin).AddrOfPinnedObject():X16}");
+        }
+
+        return ((GCHandle)DataPin).AddrOfPinnedObject();
+    }
 
     public void CalculateNextAlignmentOffset()
     {

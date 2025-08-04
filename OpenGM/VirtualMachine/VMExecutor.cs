@@ -392,9 +392,30 @@ public static partial class VMExecutor
                 // first ??= 0;
                 // second ??= 0;
                 
-                // TODO: array and undefined cmp
+                // TODO: array cmp
 
-                if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
+                if (first == null || second == null)
+                {
+                    switch (instruction.Comparison)
+                    {
+                        case VMComparison.LT:
+                        case VMComparison.GT:
+                            Call.Stack.Push(false, VMType.b);
+                            break;
+                        case VMComparison.LTE:
+                        case VMComparison.GTE:
+                        case VMComparison.EQ:
+                            Call.Stack.Push((first == null) && (second == null), VMType.b);
+                            break;
+                        case VMComparison.NEQ:
+                            Call.Stack.Push((first == null) != (second == null), VMType.b);
+                            break;
+                        case VMComparison.None:
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                else if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
                 {
                     var firstNumber = first.Conv<double>();
                     var secondNumber = second.Conv<double>();
@@ -430,61 +451,100 @@ public static partial class VMExecutor
                 {
                     // this should handle strings and whatever else
 
-                    if (instruction.Comparison == VMComparison.EQ)
+                    double firstDouble;
+                    double secondDouble;
+                    bool firstIsNumerical;
+                    bool secondIsNumerical;
+
+                    if (first is bool or int or short or long or double or float)
                     {
-                        if (first is null && second is null)
-                        {
-                            Call.Stack.Push(true, VMType.b);
-                        }
-                        else if (first is null || second is null)
-                        {
-                            Call.Stack.Push(false, VMType.b);
-                        }
-                        else
-                        {
-                            Call.Stack.Push(first?.Equals(second), VMType.b);
-                        }
-                    }
-                    else if (instruction.Comparison == VMComparison.NEQ)
-                    {
-                        if (first is null && second is null)
-                        {
-                            Call.Stack.Push(false, VMType.b);
-                        }
-                        else if (first is null || second is null)
-                        {
-                            Call.Stack.Push(true, VMType.b);
-                        }
-                        else
-                        {
-                            Call.Stack.Push(!first?.Equals(second), VMType.b);
-                        }
+                        firstDouble = first.Conv<double>();
+                        firstIsNumerical = true;
                     }
                     else
                     {
-                        var firstValue = first is string s1 ? double.Parse(s1) : first.Conv<double>();
-                        var secondValue = second is string s2 ? double.Parse(s2) : second.Conv<double>();
+                        firstIsNumerical = double.TryParse(first as string, out firstDouble);
+                    }
+
+                    if (second is bool or int or short or long or double or float)
+                    {
+                        secondDouble = second.Conv<double>();
+                        secondIsNumerical = true;
+                    }
+                    else
+                    {
+                        secondIsNumerical = double.TryParse(second as string, out secondDouble);
+                    }
+
+                    if (firstIsNumerical && secondIsNumerical)
+                    {
+                        // both represent numbers - easy comparison
+
+                        var equal = CustomMath.ApproxEqual(firstDouble, secondDouble);
 
                         switch (instruction.Comparison)
                         {
                             case VMComparison.LT:
-                                Call.Stack.Push(CustomMath.ApproxLessThan(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxLessThan(firstDouble, secondDouble), VMType.b);
                                 break;
                             case VMComparison.LTE:
-                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstDouble, secondDouble), VMType.b);
+                                break;
+                            case VMComparison.EQ:
+                                Call.Stack.Push(equal, VMType.b);
+                                break;
+                            case VMComparison.NEQ:
+                                Call.Stack.Push(!equal, VMType.b);
                                 break;
                             case VMComparison.GTE:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstDouble, secondDouble), VMType.b);
                                 break;
                             case VMComparison.GT:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstValue, secondValue), VMType.b);
+                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstDouble, secondDouble), VMType.b);
                                 break;
                             case VMComparison.None:
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
+                    }
+                    else if (firstIsNumerical != secondIsNumerical)
+                    {
+                        // only one represents a number - only EQ and NEQ is valid here
 
-                        //return (ExecutionResult.Failed, $"cant cmp {instruction.Comparison} on {first?.GetType()} {first} and {second?.GetType()} {second}");
+                        // TODO: can these ever be anything other than these hardcoded values?
+                        if (instruction.Comparison == VMComparison.EQ)
+                        {
+                            Call.Stack.Push(false, VMType.b);
+                        }
+                        else if (instruction.Comparison == VMComparison.NEQ)
+                        {
+                            Call.Stack.Push(true, VMType.b);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException("Only EQ and NEQ is valid between a numerical value and a non-numerical value.");
+                        }
+                    }
+                    else
+                    {
+                        // neither represent a number - pure string comparison
+
+                        var s1 = first as string;
+                        var s2 = second as string;
+
+                        if (instruction.Comparison == VMComparison.EQ)
+                        {
+                            Call.Stack.Push(s1 == s2, VMType.b);
+                        }
+                        else if (instruction.Comparison == VMComparison.NEQ)
+                        {
+                            Call.Stack.Push(s1 != s2, VMType.b);
+                        }
+                        else
+                        {
+                            // TODO: implement
+                            throw new NotImplementedException();
+                        }
                     }
                 }
                 break;
@@ -642,7 +702,7 @@ public static partial class VMExecutor
             }
             case VMOpcode.CALLV:
             {
-                var method = Call.Stack.Pop(VMType.v) as Method;
+                var method = FetchMethod(Call.Stack.Pop(VMType.v));
                 var self = Call.Stack.Pop(VMType.v);
 
                 var args = new object?[instruction.IntData];
@@ -745,6 +805,24 @@ public static partial class VMExecutor
         throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
     }
 
+    internal static Method? FetchMethod(object? value)
+    {
+        if (value is null)
+        {
+            throw new ArgumentException($"Trying to fetch method for undefined! Current script:{CallStack.First().CodeName}");
+        }
+        else if (value is Method method)
+        {
+            return method;
+        }
+        else if (value is int or long or short)
+        {
+            return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]);
+        }
+
+        throw new ArgumentException($"Don't know how to fetch method for {value} ({value.GetType().FullName})");
+    }
+
     public static int VMTypeToSize(VMType type) => type switch
     {
         VMType.v => 16,
@@ -825,7 +903,7 @@ public static partial class VMExecutor
                 }
             }
         }
-        else if (@this is int or long or short)
+        else if (@this is int or long or short or Enum)
         {
             var l = Convert.ToInt64(@this);
 

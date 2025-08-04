@@ -285,6 +285,7 @@ public class KeyboardHandler
         if (state.IsKeyPressed(Keys.KeyPad2))
         {
             DrawManager.DebugBBoxes = !DrawManager.DebugBBoxes;
+            DebugLog.LogInfo($"Draw bounding boxes: {DrawManager.DebugBBoxes}");
         }
 
         if (state.IsKeyPressed(Keys.KeyPad3))
@@ -294,6 +295,12 @@ public class KeyboardHandler
                 DebugLog.LogInfo("Finished recording.");
                 HandlerState = State.NORMAL;
             }
+        }
+
+        if (state.IsKeyPressed(Keys.KeyPad4))
+        {
+            DrawManager.ShouldDrawGui = !DrawManager.ShouldDrawGui;
+            DebugLog.LogInfo($"GUI rendering {(DrawManager.ShouldDrawGui ? "enabled" : "disabled")}.");
         }
 
         if (HandlerState == State.RECORD)

@@ -22,24 +22,34 @@ public static class GameConverter
         using var stream = File.OpenWrite(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
         using var writer = new BinaryWriter(stream);
 
-        // must match order of gameloader
-        ExportGeneralInfo(writer, data);
-        ExportAssetOrder(writer, data);
-        ConvertScripts(writer, data);
-        ConvertCode(writer, data, data.Code);
-        ExportExtensions(writer, data);
-        ExportGlobalInitCode(writer, data);
-        ExportObjectDefinitions(writer, data);
-        ExportBackgrounds(writer, data);
-        ExportRooms(writer, data);
-        ConvertSprites(writer, data, data.Sprites);
-        ExportFonts(writer, data);
-        ExportPages(writer, data);
-        ExportTextureGroups(writer, data);
-        ExportTileSets(writer, data);
-        ExportSounds(writer, data);
-        ExportPaths(writer, data);
-        ExportShaders(writer, data);
+        try
+        {
+            // must match order of gameloader
+            ExportGeneralInfo(writer, data);
+            ExportAssetOrder(writer, data);
+            ConvertScripts(writer, data);
+            ConvertCode(writer, data, data.Code);
+            ExportExtensions(writer, data);
+            ExportGlobalInitCode(writer, data);
+            ExportObjectDefinitions(writer, data);
+            ExportBackgrounds(writer, data);
+            ExportRooms(writer, data);
+            ConvertSprites(writer, data, data.Sprites);
+            ExportFonts(writer, data);
+            ExportPages(writer, data);
+            ExportTextureGroups(writer, data);
+            ExportTileSets(writer, data);
+            ExportSounds(writer, data);
+            ExportPaths(writer, data);
+            ExportShaders(writer, data);
+            ExportAnimCurves(writer, data);
+        }
+        catch
+        {
+            writer.Close();
+            File.Delete(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
+            throw;
+        }
 
         GC.Collect(); // gc after doing a buncha loading
     }
@@ -1507,5 +1517,52 @@ public static class GameConverter
         }
 
         Console.WriteLine(" Done!");
+    }
+
+    public static void ExportAnimCurves(BinaryWriter writer, UndertaleData data)
+    {
+        if (data.AnimationCurves is null)
+        {
+            writer.Write(0);
+            return;
+        }
+
+        Console.Write($"Exporting animation curves...");
+        
+        writer.Write(data.AnimationCurves.Count);
+        foreach (var animcurve in data.AnimationCurves)
+        {
+            var asset = new AnimCurve();
+            asset.AssetIndex = data.AnimationCurves.IndexOf(animcurve);
+            asset.Name = animcurve.Name.Content;
+
+            foreach (var channel in animcurve.Channels)
+            {
+                var channelAsset = new AnimCurveChannel
+                {
+                    Name = channel.Name.Content,
+                    CurveType = (CurveType)channel.Curve,
+                    Iterations = (int)channel.Iterations
+                };
+
+                foreach (var point in channel.Points)
+                {
+                    var pointAsset = new AnimCurvePoint { 
+                        X = point.X, 
+                        Y = point.Value, 
+                        BezierX0 = point.BezierX0, 
+                        BezierY0 = point.BezierY0,
+                        BezierX1 = point.BezierX1,
+                        BezierY1 = point.BezierY1
+                    };
+
+                    channelAsset.Points.Add(pointAsset);
+                }
+
+                asset.Channels.Add(channelAsset);
+            }
+
+            writer.WriteMemoryPack(asset);
+        }
     }
 }

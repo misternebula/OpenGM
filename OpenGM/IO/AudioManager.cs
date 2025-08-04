@@ -46,6 +46,9 @@ public static class AudioManager
 
     private static List<AudioInstance> _audioSources = new();
     private static Dictionary<int, AudioAsset> _audioClips = new();
+    private static List<AudioEmitter> _audioEmitters = new();
+
+    public static AudioListener Listener = new();
 
     private static bool _inited;
 
@@ -201,6 +204,8 @@ public static class AudioManager
 
     public static void Update()
     {
+        UpdateListener(Listener);
+
         /*
          * we should have a pool of clips
          * when playing, add to the pool. and when its done, remove it and deletesource
@@ -344,46 +349,34 @@ public static class AudioManager
 
     private static int _highestSoundInstanceId = GMConstants.FIRST_INSTANCE_ID;
 
-    public static int audio_play_sound(int index, double priority, bool loop, double gain, double offset, double pitch)
+    private static AudioInstance GetNewAudioInstance()
     {
-        //var name = AssetIndexManager.Instance.GetName(AssetType.sounds, index);
-
         if (_audioSources.Count == AudioChannelNum)
         {
-            var oldSourceInstance = _audioSources.MinBy(x => x.Priority)!;
-            var oldSource = oldSourceInstance.Source;
-
-            DebugLog.LogWarning($"Went over audio source limit - re-using source playing {oldSourceInstance.Asset.Name}");
-
-            AL.SourceStop(oldSource);
-            CheckALError();
-            AL.Source(oldSource, ALSourcei.Buffer, _audioClips[index].Clip);
-            CheckALError();
-            AL.Source(oldSource, ALSourceb.Looping, loop);
-            CheckALError();
-            AL.Source(oldSource, ALSourcef.Gain, (float)gain);
-            CheckALError();
-            AL.Source(oldSource, ALSourcef.SecOffset, (float)offset);
-            CheckALError();
-            AL.Source(oldSource, ALSourcef.Pitch, (float)pitch);
-            CheckALError();
-            AL.SourcePlay(oldSource);
-            CheckALError();
-
-            oldSourceInstance.SoundInstanceId = ++_highestSoundInstanceId;
-            oldSourceInstance.Priority = priority;
-
-            return oldSourceInstance.SoundInstanceId;
-        }
-
-        if (index == -1 || !_audioClips.ContainsKey(index))
-        {
-            DebugLog.LogError($"AudioDatabase doesn't contain {index}!");
-            // Debug.Break();
+            return _audioSources.MinBy(x => x.Priority)!;
         }
 
         var source = AL.GenSource();
-        CheckALError();
+        var instance = new AudioInstance
+        {
+            SoundInstanceId = ++_highestSoundInstanceId,
+            Source = source
+        };
+
+        _audioSources.Add(instance);
+        return instance;
+    }
+
+    public static int audio_play_sound(int index, double priority, bool loop, double gain, double offset, double pitch)
+    {
+        if (index == -1 || !_audioClips.ContainsKey(index))
+        {
+            DebugLog.LogError($"AudioDatabase doesn't contain {index}!");
+        }
+
+        var instance = GetNewAudioInstance();
+        var source = instance.Source;
+
         AL.Source(source, ALSourcei.Buffer, _audioClips[index].Clip);
         CheckALError();
         AL.Source(source, ALSourceb.Looping, loop);
@@ -397,15 +390,51 @@ public static class AudioManager
         AL.SourcePlay(source);
         CheckALError();
 
-        var instance = new AudioInstance
-        {
-            Asset = _audioClips[index],
-            SoundInstanceId = ++_highestSoundInstanceId,
-            Source = source,
-            Priority = priority,
-        };
+        instance.Asset = _audioClips[index];
+        instance.Priority = priority;
 
-        _audioSources.Add(instance);
+        return instance.SoundInstanceId;
+    }
+
+    public static int PlaySoundOnEmitter(AudioEmitter emitter, int index, double priority, bool loop, double gain, double offset, double pitch, int listener_mask)
+    {
+        if (index == -1 || !_audioClips.ContainsKey(index))
+        {
+            DebugLog.LogError($"AudioDatabase doesn't contain {index}!");
+        }
+
+        var instance = GetNewAudioInstance();
+        var source = instance.Source;
+
+        AL.Source(source, ALSourcei.Buffer, _audioClips[index].Clip);
+        CheckALError();
+        AL.Source(source, ALSourceb.Looping, loop);
+        CheckALError();
+        AL.Source(source, ALSourcef.Gain, (float)gain);
+        CheckALError();
+        AL.Source(source, ALSourcef.SecOffset, (float)offset);
+        CheckALError();
+        AL.Source(source, ALSourcef.Pitch, (float)pitch);
+        CheckALError();
+
+        AL.Source(source, ALSourcef.MaxDistance, emitter.FalloffMax);
+        CheckALError();
+        AL.Source(source, ALSourcef.ReferenceDistance, emitter.FalloffRef);
+        CheckALError();
+        AL.Source(source, ALSourcef.RolloffFactor, emitter.FalloffFac);
+        CheckALError();
+        AL.Source(source, ALSource3f.Position, emitter.Position.X, emitter.Position.Y, emitter.Position.Z);
+        CheckALError();
+        AL.Source(source, ALSource3f.Velocity, emitter.Velocity.X, emitter.Velocity.Y, emitter.Velocity.Z);
+        CheckALError();
+
+        AL.SourcePlay(source);
+        CheckALError();
+
+        instance.Asset = _audioClips[index];
+        instance.Priority = priority;
+
+        emitter.AttachedSounds.Add(instance);
 
         return instance.SoundInstanceId;
     }
@@ -443,5 +472,33 @@ public static class AudioManager
         var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
         CheckALCError();
         return list;
+    }
+
+    public static int AudioEmitterCreate()
+    {
+        var inactiveIndex = _audioEmitters.FindIndex(x => x.Active == false);
+
+        if (inactiveIndex != -1)
+        {
+            _audioEmitters[inactiveIndex].Reset();
+            return inactiveIndex;
+        }
+
+        var index = _audioEmitters.Count;
+        var emitter = new AudioEmitter { ID = index };
+        _audioEmitters.Add(emitter);
+        return index;
+    }
+
+    public static AudioEmitter GetAudioEmitter(int index)
+    {
+        return _audioEmitters[index];
+    }
+
+    public static void UpdateListener(AudioListener listener)
+    {
+        AL.Listener(ALListener3f.Position, listener.Position.X, listener.Position.Y, listener.Position.Z);
+        AL.Listener(ALListener3f.Velocity, listener.Velocity.X, listener.Velocity.Y, listener.Velocity.Z);
+        AL.Listener(ALListenerfv.Orientation, ref listener.At, ref listener.Up);
     }
 }

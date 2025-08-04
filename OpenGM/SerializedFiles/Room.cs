@@ -212,18 +212,18 @@ public class TileBlob
     public TileBlob(uint blobData)
     {
         TileIndex = (int)blobData & 0x7FFFF;
-        Mirror = (blobData & 0x8000000) != 0;
-        Flip = (blobData & 0x10000000) != 0;
-        Rotate = (blobData & 0x20000000) != 0;
+        Mirror = (blobData & (1 << 28)) != 0;
+        Flip = (blobData & (1 << 29)) != 0;
+        Rotate = (blobData & (1 << 30)) != 0;
     }
 
     public int ToNumber() 
     {
         var result = 0;
         result |= TileIndex;
-        result |= (Mirror ? 1 : 0) << 27;
-        result |= (Flip ? 1 : 0) << 28;
-        result |= (Rotate ? 1 : 0) << 29;
+        result |= (Mirror ? 1 : 0) << 28;
+        result |= (Flip ? 1 : 0) << 29;
+        result |= (Rotate ? 1 : 0) << 30;
         return result;
     }
 }
