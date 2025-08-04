@@ -435,12 +435,14 @@ public class CustomWindow : GameWindow
 
         GL.End();
         */
+        GL.BindTexture(TextureTarget.Texture2D, GraphicsManager.DefaultTexture);
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(new(lineJob.x1 - height, lineJob.y1 + width), lineJob.col1, Vector2.Zero),
             new(new(lineJob.x2 - height, lineJob.y2 + width), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x2 + height, lineJob.y2 - width), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x1 + height, lineJob.y1 - width), lineJob.col1, Vector2.Zero),
-        ]);
+        ]); 
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMLinesJob linesJob)
@@ -451,7 +453,9 @@ public class CustomWindow : GameWindow
             v[i] = new(linesJob.Vertices[i], linesJob.Colors[i], Vector2d.Zero);
         }
 
+        GL.BindTexture(TextureTarget.Texture2D, GraphicsManager.DefaultTexture);
         GraphicsManager.Draw(PrimitiveType.LineStrip, v);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMPolygonJob polyJob)
@@ -462,8 +466,10 @@ public class CustomWindow : GameWindow
             v[i] = new(polyJob.Vertices[i], polyJob.Colors[i], Vector2d.Zero);
         }
 
+        GL.BindTexture(TextureTarget.Texture2D, GraphicsManager.DefaultTexture);
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         GraphicsManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMTexturedPolygonJob texPolyJob)
@@ -477,7 +483,7 @@ public class CustomWindow : GameWindow
             vArr[i] = new GraphicsManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
         }
         GraphicsManager.Draw(PrimitiveType.TriangleFan, vArr);
-
+        
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 }
