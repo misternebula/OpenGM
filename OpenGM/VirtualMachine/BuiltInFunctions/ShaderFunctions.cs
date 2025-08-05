@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -36,10 +37,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var runtimeShader = ShaderManager.Shaders[shader];
 
-            return runtimeShader.Uniforms[uniform].Location;
+            if (!runtimeShader.Uniforms.TryGetValue(uniform, out var shaderUniform))
+            {
+                return -1;
+            }
+
+            return shaderUniform.Location;
         }
 
-        [GMLFunction("shader_get_sampler_index", GMLFunctionFlags.Stub)]
+        [GMLFunction("shader_get_sampler_index", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
         public static object? shader_get_sampler_index(object?[] args)
         {
             return -1;
@@ -49,6 +55,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? shader_set_uniform_i(object?[] args)
         {
             var handle = args[0].Conv<int>();
+
+            if (handle == -1)
+            {
+                return null;
+            }
 
             var valueCount = args.Length - 1;
             switch (valueCount)
@@ -107,19 +118,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // shader_is_compiled
         // shaders_are_supported
 
-        [GMLFunction("texture_set_stage", GMLFunctionFlags.Stub)]
+        [GMLFunction("texture_set_stage", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
         public static object? texture_set_stage(object?[] args)
         {
             return null;
         }
 
-        [GMLFunction("texture_get_texel_width", GMLFunctionFlags.Stub)]
+        [GMLFunction("texture_get_texel_width", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
         public static object? texture_get_texel_width(object?[] args)
         {
             return 0;
         }
 
-        [GMLFunction("texture_get_texel_height", GMLFunctionFlags.Stub)]
+        [GMLFunction("texture_get_texel_height", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
         public static object? texture_get_texel_height(object?[] args)
         {
             return 0;
