@@ -296,6 +296,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 throw new Exception();
             }
 
+            // make it an untyped array because non-ints may be set here
+            // builtins are not real arrays so they can remain typed
             return layer.ElementsToDraw.Select(x => x.instanceId).Cast<object>().ToList();
         }
 

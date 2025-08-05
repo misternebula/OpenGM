@@ -30,7 +30,7 @@ public static class VariableResolver
             }
             else
             {
-                throw new Exception("setter and getter are null?!");
+                throw new Exception("getter returned null, and there's no setter. what?");
             }
         }
 
