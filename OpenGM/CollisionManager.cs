@@ -671,7 +671,9 @@ public static class CollisionManager
 
         if (precise && spriteData.SepMasks == UndertaleSprite.SepMaskType.Precise)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException("precise collision line");
+            DebugLog.LogError("Precise collision_line not implemented!");
+            return true;
         }
 
         return true;
