@@ -61,7 +61,14 @@ public static class DrawManager
     {
         foreach (var item in items)
         {
-            GraphicsManager.GR_Depth = item.depth;
+            if (GraphicsManager.ForceDepth)
+            {
+                GraphicsManager.GR_Depth = CustomMath.Min(16000, CustomMath.Max(-16000, GraphicsManager.ForcedDepth));
+            }
+            else
+            {
+                GraphicsManager.GR_Depth = CustomMath.Min(16000, CustomMath.Max(-16000, item.depth));
+            }
 
             if (item is GamemakerObject gm)
             {

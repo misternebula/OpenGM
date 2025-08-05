@@ -358,13 +358,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // layer_element_move
 
-        [GMLFunction("layer_force_draw_depth", GMLFunctionFlags.Stub)]
+        [GMLFunction("layer_force_draw_depth")]
         public static object? layer_force_draw_depth(object?[] args)
         {
             var force = args[0].Conv<bool>();
-            var depth = args[1].Conv<int>();
+            var depth = args[1].Conv<double>();
 
-            // not implementing yet because uhhhhhhhhhhhhhhhhhhh
+            GraphicsManager.ForceDepth = force;
+            GraphicsManager.ForcedDepth = depth;
 
             return null;
         }

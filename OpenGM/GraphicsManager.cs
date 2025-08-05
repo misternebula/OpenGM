@@ -16,8 +16,8 @@ public static class GraphicsManager
     public struct Vertex(Vector3d pos, Color4 color, Vector2d uv)
     {
         [FieldOffset(0 * sizeof(float))] public Vector3 pos = (Vector3)pos;
-        [FieldOffset(2 * sizeof(float))] public Vector4 color = (Vector4)color;
-        [FieldOffset((2 + 4) * sizeof(float))] public Vector2 uv = (Vector2)uv;
+        [FieldOffset(3 * sizeof(float))] public Vector4 color = (Vector4)color;
+        [FieldOffset((3 + 4) * sizeof(float))] public Vector2 uv = (Vector2)uv;
         // TODO: match format with gamemaker for when we do shaders
     }
 
@@ -27,6 +27,8 @@ public static class GraphicsManager
     public static int DefaultTexture;
 
     public static double GR_Depth;
+    public static bool ForceDepth;
+    public static double ForcedDepth;
 
     /// <summary>
     /// setup shader and buffer
@@ -46,11 +48,11 @@ public static class GraphicsManager
         GL.BindVertexArray(vao);
         GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
 
-        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 0 * sizeof(float));
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 0 * sizeof(float));
         GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 2 * sizeof(float));
+        GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 3 * sizeof(float));
         GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), (2 + 4) * sizeof(float));
+        GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), (3 + 4) * sizeof(float));
         GL.EnableVertexAttribArray(2);
     }
 

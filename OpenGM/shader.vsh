@@ -9,7 +9,7 @@
 #define FOG_SETTINGS 0
 #define FOG_COLOUR 1
 
-layout (location = 0) in vec2 a_pos;
+layout (location = 0) in vec3 a_pos;
 layout (location = 1) in vec4 a_color;
 layout (location = 2) in vec2 a_uv;
 
@@ -39,7 +39,8 @@ float CalcFogFactor(vec4 pos)
 void main() {
     fcolor = a_color;
     texc = a_uv;
-    vec4 pos = vec4(a_pos.xy, 0, 1); // changed from html source
+    vec4 pos = vec4(a_pos.xyz, 1);
     fogFactor = CalcFogFactor(pos);
     gl_Position = gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION] * pos;
+    gl_PointSize = 1.0;
 }
