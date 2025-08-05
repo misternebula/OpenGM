@@ -281,10 +281,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var enable = args[0].Conv<bool>();
             var colour = args[1].Conv<int>();
-            var start = args[2].Conv<double>();
-            var end = args[3].Conv<double>();
+            var start = args[2].Conv<float>();
+            var end = args[3].Conv<float>();
 
-            GraphicsManager.SetFog(enable, colour, start, end);
+            GraphicsManager.SetFog(enable, colour.ABGRToCol4(), start, end);
 
             return null;
         }
