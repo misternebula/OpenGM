@@ -1,13 +1,9 @@
-﻿using NAudio.Codecs;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System;
-using System.Diagnostics;
-using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -1371,10 +1367,37 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        [GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
-        [GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("draw_text_transformed_color")]
+        [GMLFunction("draw_text_transformed_colour")]
         public static object? draw_text_transformed_colour(object?[] args)
         {
+            var x = args[0].Conv<double>();
+            var y = args[1].Conv<double>();
+            var str = args[2].Conv<string>();
+            var xscale = args[3].Conv<double>();
+            var yscale = args[4].Conv<double>();
+            var angle = args[5].Conv<double>();
+            var c1 = args[6].Conv<int>();
+            var c2 = args[7].Conv<int>();
+            var c3 = args[8].Conv<int>();
+            var c4 = args[9].Conv<int>();
+            var alpha = args[10].Conv<double>();
+
+            CustomWindow.Draw(new GMTextJob()
+            {
+                text = str,
+                screenPos = new(x, y),
+                Colors = [c1.ABGRToCol4(alpha), c2.ABGRToCol4(alpha), c3.ABGRToCol4(alpha), c4.ABGRToCol4(alpha)],
+                halign = TextManager.halign,
+                valign = TextManager.valign,
+                scale = new(xscale, yscale),
+                angle = angle,
+                asset = TextManager.fontAsset,
+                // gamemaker is weird
+                // "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
+                lineSep = TextManager.FontHeight()
+            });
+
             return null;
         }
 
