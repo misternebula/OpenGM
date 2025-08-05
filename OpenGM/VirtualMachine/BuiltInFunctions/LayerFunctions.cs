@@ -296,7 +296,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 throw new Exception();
             }
 
-            return layer.ElementsToDraw.Select(x => x.instanceId).ToList();
+            return layer.ElementsToDraw.Select(x => x.instanceId).Cast<object>().ToList();
         }
 
         [GMLFunction("layer_get_name")]
@@ -816,7 +816,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? layer_sprite_speed(object?[] args)
         {
             var element_id = args[0].Conv<int>();
-            var speed = args[0].Conv<double>();
+            var speed = args[1].Conv<double>();
 
             foreach (var layer in RoomManager.CurrentRoom.Layers)
             {
@@ -835,10 +835,86 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // layer_sprite_xscale
         // layer_sprite_yscale
         // layer_sprite_angle
-        // layer_sprite_blend
-        // layer_sprite_alpha
-        // layer_sprite_x
-        // layer_sprite_y
+
+        [GMLFunction("layer_sprite_blend")]
+        public static object? layer_sprite_blend(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+            var blend = args[1].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        sprite.Blend = blend;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        [GMLFunction("layer_sprite_alpha")]
+        public static object? layer_sprite_alpha(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+            var alpha = args[1].Conv<double>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        sprite.Alpha = alpha;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        [GMLFunction("layer_sprite_x")]
+        public static object? layer_sprite_x(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+            var x = args[1].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        sprite.X = x;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        [GMLFunction("layer_sprite_y")]
+        public static object? layer_sprite_y(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+            var y = args[1].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        sprite.Y = y;
+                    }
+                }
+            }
+
+            return null;
+        }
 
         [GMLFunction("layer_sprite_get_sprite")]
         public static object? layer_sprite_get_sprite(object?[] args)
