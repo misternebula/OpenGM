@@ -32,15 +32,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return Monitors.GetPrimaryMonitor().VerticalResolution;
         }
 
-        [GMLFunction("display_get_gui_width", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_get_gui_width")]
         public static object display_get_gui_width(object?[] args)
         {
+            if (DrawManager.GuiSize.HasValue)
+            {
+                return DrawManager.GuiSize.Value.X;
+            }
+            
             return window_get_width(args);
         }
 
-        [GMLFunction("display_get_gui_height", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_get_gui_height")]
         public static object display_get_gui_height(object?[] args)
         {
+            if (DrawManager.GuiSize.HasValue)
+            {
+                return DrawManager.GuiSize.Value.Y;
+            }
+            
             return window_get_height(args);
         }
     
@@ -70,7 +80,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // display_set_sleep_margin
         // display_get_sleep_margin
 
-        [GMLFunction("display_set_gui_size", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_set_gui_size")]
         public static object? display_set_gui_size(object?[] args)
         {
             var width = args[0].Conv<int>();

@@ -13,6 +13,9 @@ public static class DrawManager
 
     public static List<DrawWithDepth> _drawObjects = new();
 
+    /// <summary>
+    /// this sets view area during gui events. im told this is not how gamemaker does it, but it seems to work
+    /// </summary>
     public static Vector2i? GuiSize = null;
 
     public static bool DebugBBoxes = false;
