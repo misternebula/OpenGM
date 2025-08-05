@@ -221,6 +221,12 @@ public static partial class VMExecutor
             ExecutionResult executionResult;
             object? data;
 
+            if (CallStack == null || CallStack.Count == 0)
+            {
+                DebugLog.LogWarning("CallStack is null or empty! Returning...");
+                return null;
+            }
+
             try
             {
                 (executionResult, data) = ExecuteInstruction(code.Instructions[instructionIndex]);

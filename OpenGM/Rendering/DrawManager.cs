@@ -61,6 +61,15 @@ public static class DrawManager
     {
         foreach (var item in items)
         {
+            if (GraphicsManager.ForceDepth)
+            {
+                GraphicsManager.GR_Depth = CustomMath.Min(16000, CustomMath.Max(-16000, GraphicsManager.ForcedDepth));
+            }
+            else
+            {
+                GraphicsManager.GR_Depth = CustomMath.Min(16000, CustomMath.Max(-16000, item.depth));
+            }
+
             if (item is GamemakerObject gm)
             {
                 if (!gm._createRan || !RoomManager.RoomLoaded || !gm.visible || !gm.Active)
@@ -406,7 +415,7 @@ public static class DrawManager
          */
         var fbsize = CustomWindow.Instance.FramebufferSize;
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
-        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         
         if (CustomWindow.Instance != null) // only null in tests
         {
@@ -417,7 +426,7 @@ public static class DrawManager
         {
             return;
         }
-        
+
         SurfaceManager.SetApplicationSurface();
 
         if (SurfaceManager.UsingAppSurface)
@@ -474,7 +483,8 @@ public static class DrawManager
                     ViewportManager.CurrentRenderingView.ViewPosition.X,
                     ViewportManager.CurrentRenderingView.ViewPosition.Y,
                     ViewportManager.CurrentRenderingView.ViewSize.X,
-                    ViewportManager.CurrentRenderingView.ViewSize.Y
+                    ViewportManager.CurrentRenderingView.ViewSize.Y,
+                    0
                 );
 
                 // ROOM BACKGROUNDS
@@ -516,11 +526,11 @@ public static class DrawManager
                             var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
                             var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
 
-                            var vertices = new OpenTK.Mathematics.Vector2d[] {
-                                new(gm.bbox.left, gm.bbox.top),
-                                new(gm.bbox.right, gm.bbox.top),
-                                new(gm.bbox.right, gm.bbox.bottom),
-                                new(gm.bbox.left, gm.bbox.bottom)
+                            var vertices = new OpenTK.Mathematics.Vector3d[] {
+                                new(gm.bbox.left, gm.bbox.top, GraphicsManager.GR_Depth),
+                                new(gm.bbox.right, gm.bbox.top, GraphicsManager.GR_Depth),
+                                new(gm.bbox.right, gm.bbox.bottom, GraphicsManager.GR_Depth),
+                                new(gm.bbox.left, gm.bbox.bottom, GraphicsManager.GR_Depth)
                             };
 
                             CustomWindow.Draw(new GMPolygonJob()
@@ -546,12 +556,13 @@ public static class DrawManager
                 }
             }
         }
-        else
+        else // views not enabled
         {
             GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
-            GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY);
+            GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, 0);
 
             // dummy view for full room rendering
+            // i think this is mostly for tiled rendering, which should switch to using room extents
             ViewportManager.CurrentRenderingView = new()
             {
                 ViewPosition = Vector2.Zero,
@@ -600,7 +611,7 @@ public static class DrawManager
          * PostDraw
          */
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
-        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+        GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         
         if (RunDrawScript(drawList, EventSubtypeDraw.PostDraw))
         {
@@ -617,6 +628,9 @@ public static class DrawManager
             SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 0, 0, fbsize.X, fbsize.Y);
             GL.Enable(EnableCap.Blend);
         }
+        
+        // TODO: calc gui transform? and port stuff?? idk what this is lol
+        // and update room extents to that i guess
 
         /*
          * DrawGUI
@@ -625,7 +639,7 @@ public static class DrawManager
         {
             if (GuiSize is Vector2i vec)
             {
-                GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y);
+                GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y, 0);
             }
 
             if (RunDrawScript(drawList, EventSubtypeDraw.DrawGUIBegin))
@@ -643,7 +657,7 @@ public static class DrawManager
                 return;
             }
 
-            GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y);
+            GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         }
 
         if (RoomManager.CurrentRoom != null)

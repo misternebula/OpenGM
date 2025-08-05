@@ -200,7 +200,7 @@ public static class PathManager
             return;
         }
 
-        var verts = new Vector2d[maxSteps + 1];
+        var verts = new Vector3d[maxSteps + 1];
         var colors = new Color4[maxSteps + 1];
 
         var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
@@ -208,7 +208,7 @@ public static class PathManager
         for (var i = 0; i <= maxSteps; i++)
         {
             pPos = PathManager.GetPosition(path, (float)i / maxSteps);
-            verts[i] = new Vector2d(pPos.x + xoff, pPos.y + yoff);
+            verts[i] = new Vector3d(pPos.x + xoff, pPos.y + yoff, GraphicsManager.GR_Depth);
             colors[i] = c;
         }
 

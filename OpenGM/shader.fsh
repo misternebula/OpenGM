@@ -1,22 +1,20 @@
 #version 330 core
 
-uniform bool alphaTestEnabled;
-uniform float alphaRefValue;
-
 in vec4 fcolor;
 in vec2 texc;
 in float fogFactor;
 
-uniform sampler2D u_tex;
-uniform bool u_doTex; // maybe i could set the tex uniform to -1 too but idc
+uniform sampler2D gm_BaseTexture;
 uniform bool gm_PS_FogEnabled;
 uniform vec4 gm_FogColour;
+uniform bool gm_AlphaTestEnabled;
+uniform float gm_AlphaRefValue;
 
 void DoAlphaTest(vec4 SrcColour)
 {
-    if (alphaTestEnabled)
+    if (gm_AlphaTestEnabled)
     {
-        if (SrcColour.a <= alphaRefValue)
+        if (SrcColour.a <= gm_AlphaRefValue)
         {
             discard;
         }
@@ -31,9 +29,8 @@ void DoFog(inout vec4 SrcColour, float fogval)
 	}
 }
 
-
 void main() {
-    vec4 color = fcolor * (u_doTex ? texture2D(u_tex, texc) : vec4(1));
+    vec4 color = texture2D(gm_BaseTexture, texc).rgba * fcolor.rgba;
     DoAlphaTest(color);
     DoFog(color, fogFactor);
     gl_FragColor = color;

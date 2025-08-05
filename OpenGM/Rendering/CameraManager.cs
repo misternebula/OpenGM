@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OpenGM.Rendering;
+// TODO: actually handle cameras. currently we create one per view and leak
 public static class CameraManager
 
 {

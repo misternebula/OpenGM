@@ -1,13 +1,9 @@
-﻿using NAudio.Codecs;
-using OpenGM.IO;
+﻿using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System;
-using System.Diagnostics;
-using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -482,10 +478,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Colors = [c, c, c, c],
                 Vertices =
                 [
-                    new(x1, y1),
-                    new(x2, y1),
-                    new(x2, y2),
-                    new(x1, y2)
+                    new(x1, y1, GraphicsManager.GR_Depth),
+                    new(x2, y1, GraphicsManager.GR_Depth),
+                    new(x2, y2, GraphicsManager.GR_Depth),
+                    new(x1, y2, GraphicsManager.GR_Depth)
                 ],
                 Outline = outline
             });
@@ -513,9 +509,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Colors = [c, c, c],
                 Vertices =
                 [
-                    new(x1, y1),
-                    new(x2, y2),
-                    new(x3, y3)
+                    new(x1, y1, GraphicsManager.GR_Depth),
+                    new(x2, y2, GraphicsManager.GR_Depth),
+                    new(x3, y3, GraphicsManager.GR_Depth)
                 ],
                 Outline = outline
             });
@@ -534,11 +530,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var angle = 360 / DrawManager.CirclePrecision;
             var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
-            var points = new Vector2d[DrawManager.CirclePrecision];
+            var points = new Vector3d[DrawManager.CirclePrecision];
             var colors = new Color4[DrawManager.CirclePrecision];
             for (var i = 0; i < DrawManager.CirclePrecision; i++)
             {
-                points[i] = new Vector2d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+                points[i] = new Vector3d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)), GraphicsManager.GR_Depth);
                 colors[i] = c;
             }
 
@@ -570,13 +566,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var angle = 360 / DrawManager.CirclePrecision;
             var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
-            var points = new Vector2d[DrawManager.CirclePrecision];
+            var points = new Vector3d[DrawManager.CirclePrecision];
             var colors = new Color4[DrawManager.CirclePrecision];
             for (var i = 0; i < DrawManager.CirclePrecision; i++)
             {
-                points[i] = new Vector2d(
+                points[i] = new Vector3d(
                     midpointX + (xRadius * Math.Sin(angle * i * CustomMath.Deg2Rad)),
-                    midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+                    midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)),
+                    GraphicsManager.GR_Depth);
                 colors[i] = c;
             }
 
@@ -643,7 +640,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 CustomWindow.Draw(new GMPolygonJob()
                 {
                     Colors = [col, col, col],
-                    Vertices = [new(x2, y2), new(a, b), new(c, d)],
+                    Vertices = [new(x2, y2, GraphicsManager.GR_Depth), new(a, b, GraphicsManager.GR_Depth), new(c, d, GraphicsManager.GR_Depth)],
                     Outline = false
                 });
             }
@@ -834,10 +831,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Outline = outline,
                 Vertices = new[]
                 {
-                    new Vector2d(x1, y1),
-                    new Vector2d(x2, y1),
-                    new Vector2d(x2, y2),
-                    new Vector2d(x1, y2)
+                    new Vector3d(x1, y1, GraphicsManager.GR_Depth),
+                    new Vector3d(x2, y1, GraphicsManager.GR_Depth),
+                    new Vector3d(x2, y2, GraphicsManager.GR_Depth),
+                    new Vector3d(x1, y2, GraphicsManager.GR_Depth)
                 },
                 Colors = new[]
                 {
@@ -876,9 +873,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Outline = outline,
                 Vertices = new[]
                 {
-                    new Vector2d(x1, y1),
-                    new Vector2d(x2, y2),
-                    new Vector2d(x3, y3)
+                    new Vector3d(x1, y1, GraphicsManager.GR_Depth),
+                    new Vector3d(x2, y2, GraphicsManager.GR_Depth),
+                    new Vector3d(x3, y3, GraphicsManager.GR_Depth)
                 },
                 Colors = new[] {
                     col1.ABGRToCol4(SpriteManager.DrawAlpha),
@@ -921,13 +918,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (outline)
             {
                 // only need to draw a normal ellipse outline, no color gradient needed
-                var points = new Vector2d[DrawManager.CirclePrecision];
+                var points = new Vector3d[DrawManager.CirclePrecision];
                 var colors = new Color4[DrawManager.CirclePrecision];
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
-                    points[i] = new Vector2d(
+                    points[i] = new Vector3d(
                         xm + (rx * CircleCos[i]),
-                        ym + (ry * CircleSin[i]));
+                        ym + (ry * CircleSin[i]), 
+                        GraphicsManager.GR_Depth);
                     colors[i] = col2;
                 }
 
@@ -944,13 +942,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
-                    var p1 = new Vector2d(xm, ym);
-                    var p2 = new Vector2d(
+                    var p1 = new Vector3d(xm, ym, GraphicsManager.GR_Depth);
+                    var p2 = new Vector3d(
                         xm + (rx * CircleCos[i]),
-                        ym + (ry * CircleSin[i]));
-                    var p3 = new Vector2d(
+                        ym + (ry * CircleSin[i]),
+                        GraphicsManager.GR_Depth);
+                    var p3 = new Vector3d(
                         xm + (rx * CircleCos[i + 1]),
-                        ym + (ry * CircleSin[i + 1]));
+                        ym + (ry * CircleSin[i + 1]),
+                        GraphicsManager.GR_Depth);
 
                     verts[i * 3] = new GraphicsManager.Vertex(p1, col1, Vector2d.Zero);
                     verts[(i * 3) + 1] = new GraphicsManager.Vertex(p2, col2, Vector2d.Zero);
@@ -1045,7 +1045,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             // TODO : C++ imposes a limit of 1001 vertices, should we do the same?
 
-            Vertices.Add(new(new(x, y), SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha), new(0, 0)));
+            Vertices.Add(new(new(x, y, GraphicsManager.GR_Depth), SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha), new(0, 0)));
             return null;
         }
 
@@ -1060,7 +1060,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             // TODO : C++ imposes a limit of 1001 vertices, should we do the same?
 
-            Vertices.Add(new(new(x, y), col.ABGRToCol4(alpha), new(0, 0)));
+            Vertices.Add(new(new(x, y, GraphicsManager.GR_Depth), col.ABGRToCol4(alpha), new(0, 0)));
             return null;
         }
 
@@ -1151,13 +1151,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         
         // font_cache_glyph
 
-        [GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("sprite_get_texture")]
         public static object? sprite_get_texture(object?[] args)
         {
             var spr = args[0].Conv<int>();
             var subimg = args[0].Conv<int>();
 
-            return 0;
+            if (!SpriteManager.SpriteExists(spr))
+            {
+                return null;
+            }
+
+            var sprite = SpriteManager.GetSpriteAsset(spr);
+            return SpriteManager.GetSpritePageItem(spr, subimg);
         }
 
         // sprite_get_info
@@ -1361,10 +1367,37 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        [GMLFunction("draw_text_transformed_color", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
-        [GMLFunction("draw_text_transformed_colour", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("draw_text_transformed_color")]
+        [GMLFunction("draw_text_transformed_colour")]
         public static object? draw_text_transformed_colour(object?[] args)
         {
+            var x = args[0].Conv<double>();
+            var y = args[1].Conv<double>();
+            var str = args[2].Conv<string>();
+            var xscale = args[3].Conv<double>();
+            var yscale = args[4].Conv<double>();
+            var angle = args[5].Conv<double>();
+            var c1 = args[6].Conv<int>();
+            var c2 = args[7].Conv<int>();
+            var c3 = args[8].Conv<int>();
+            var c4 = args[9].Conv<int>();
+            var alpha = args[10].Conv<double>();
+
+            CustomWindow.Draw(new GMTextJob()
+            {
+                text = str,
+                screenPos = new(x, y),
+                Colors = [c1.ABGRToCol4(alpha), c2.ABGRToCol4(alpha), c3.ABGRToCol4(alpha), c4.ABGRToCol4(alpha)],
+                halign = TextManager.halign,
+                valign = TextManager.valign,
+                scale = new(xscale, yscale),
+                angle = angle,
+                asset = TextManager.fontAsset,
+                // gamemaker is weird
+                // "A value of -1 for the line separation argument will default to a separation based on the height of the "M" character in the chosen font."
+                lineSep = TextManager.FontHeight()
+            });
+
             return null;
         }
 
@@ -1452,7 +1485,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 Texture = pageItem,
                 Colors = [col, col, col],
-                Vertices = [new(x1, y1), new(x2, y2), new(x3, y3)],
+                Vertices = [new(x1, y1, GraphicsManager.GR_Depth), new(x2, y2, GraphicsManager.GR_Depth), new(x3, y3, GraphicsManager.GR_Depth)],
                 UVs = [new(x, y), new(x + w, y), new(x + w, y + h)]
             });
 
@@ -1460,7 +1493,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 Texture = pageItem,
                 Colors = [col, col, col],
-                Vertices = [new(x3, y3), new(x4, y4), new(x1, y1)],
+                Vertices = [new(x3, y3, GraphicsManager.GR_Depth), new(x4, y4, GraphicsManager.GR_Depth), new(x1, y1, GraphicsManager.GR_Depth)],
                 UVs = [new(x + w, y + h), new(x, y + h), new(x, y)]
             });
 

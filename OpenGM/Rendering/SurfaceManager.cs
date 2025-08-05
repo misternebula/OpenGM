@@ -35,11 +35,9 @@ public static class SurfaceManager
         var width = GetSurfaceWidth(surface);
         var height = GetSurfaceHeight(surface);
         GraphicsManager.SetViewPort(0, 0, width, height);
-        GraphicsManager.SetViewArea(0, 0, width, height);
+        GraphicsManager.SetViewArea(0, 0, width, height, 0);
         
         // even if drawing to a view surface or app surface, itll use the whole area
-
-        GL.Uniform1(GraphicsManager.u_flipY, 0); // no flip when drawing to non-backbuffer
 
         return true;
     }
@@ -57,10 +55,10 @@ public static class SurfaceManager
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
 
-        GL.Uniform1(GraphicsManager.u_flipY, buffer == 0 ? 1 : 0); // flip when drawing to backbuffer
-
         return true;
     }
+
+    public static bool DrawingToBackbuffer() => GL.GetInteger(GetPName.FramebufferBinding) == 0;
 
     public static int CreateSurface(int width, int height, int format) // TODO: format
     {
@@ -249,7 +247,6 @@ public static class SurfaceManager
     {
         // draw rectangle with that texture
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
         // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
@@ -265,13 +262,12 @@ public static class SurfaceManager
         GL.End();
         */
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
-            new(new(x, y), Color4.White, new(0, 0)),
-            new(new(x + w, y), Color4.White, new(1, 0)),
-            new(new(x + w, y + h), Color4.White, new(1, 1)),
-            new(new(x, y + h), Color4.White, new(0, 1)),
+            new(new(x, y, GraphicsManager.GR_Depth), Color4.White, new(0, 0)),
+            new(new(x + w, y, GraphicsManager.GR_Depth), Color4.White, new(1, 0)),
+            new(new(x + w, y + h, GraphicsManager.GR_Depth), Color4.White, new(1, 1)),
+            new(new(x, y + h, GraphicsManager.GR_Depth), Color4.White, new(0, 1)),
         ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
@@ -280,17 +276,16 @@ public static class SurfaceManager
         var h = GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
         var scaledWidth = w * xscale;
         var scaledHeight = h * yscale;
         var drawColor = col.ABGRToCol4(alpha);
 
         var pivot = new Vector2d(x, y);
-        var vertexOne = new Vector2d(x, y).RotateAroundPoint(pivot, rot);
-        var vertexTwo = new Vector2d(x + scaledWidth, y).RotateAroundPoint(pivot, rot);
-        var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
-        var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
+        var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
+        var vertexTwo = new Vector3d(x + scaledWidth, y, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
+        var vertexThree = new Vector3d(x + scaledWidth, y + scaledHeight, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
+        var vertexFour = new Vector3d(x, y + scaledHeight, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
 
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(vertexOne, drawColor, new(0, 0)),
@@ -300,7 +295,6 @@ public static class SurfaceManager
         ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
@@ -310,12 +304,11 @@ public static class SurfaceManager
         var surfHeight = GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
-        GL.Uniform1(GraphicsManager.u_doTex, 1);
 
-        var vertexOne = new Vector2d(x, y);
-        var vertexTwo = new Vector2d(x + w, y);
-        var vertexThree = new Vector2d(x + w, y + h);
-        var vertexFour = new Vector2d(x, y + h);
+        var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth);
+        var vertexTwo = new Vector3d(x + w, y, GraphicsManager.GR_Depth);
+        var vertexThree = new Vector3d(x + w, y + h, GraphicsManager.GR_Depth);
+        var vertexFour = new Vector3d(x, y + h, GraphicsManager.GR_Depth);
 
         var uvLeft = left / surfWidth;
         var uvRight = (left + w) / surfWidth;
@@ -335,7 +328,6 @@ public static class SurfaceManager
         ]);
 
         GL.BindTexture(TextureTarget.Texture2D, 0);
-        GL.Uniform1(GraphicsManager.u_doTex, 0);
     }
 
     public static void BindSurfaceTexture(int surfaceId)
