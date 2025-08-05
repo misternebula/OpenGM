@@ -262,10 +262,10 @@ public static class SurfaceManager
         GL.End();
         */
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
-            new(new(x, y), Color4.White, new(0, 0)),
-            new(new(x + w, y), Color4.White, new(1, 0)),
-            new(new(x + w, y + h), Color4.White, new(1, 1)),
-            new(new(x, y + h), Color4.White, new(0, 1)),
+            new(new(x, y, GraphicsManager.GR_Depth), Color4.White, new(0, 0)),
+            new(new(x + w, y, GraphicsManager.GR_Depth), Color4.White, new(1, 0)),
+            new(new(x + w, y + h, GraphicsManager.GR_Depth), Color4.White, new(1, 1)),
+            new(new(x, y + h, GraphicsManager.GR_Depth), Color4.White, new(0, 1)),
         ]);
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
@@ -282,10 +282,10 @@ public static class SurfaceManager
         var drawColor = col.ABGRToCol4(alpha);
 
         var pivot = new Vector2d(x, y);
-        var vertexOne = new Vector2d(x, y).RotateAroundPoint(pivot, rot);
-        var vertexTwo = new Vector2d(x + scaledWidth, y).RotateAroundPoint(pivot, rot);
-        var vertexThree = new Vector2d(x + scaledWidth, y + scaledHeight).RotateAroundPoint(pivot, rot);
-        var vertexFour = new Vector2d(x, y + scaledHeight).RotateAroundPoint(pivot, rot);
+        var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
+        var vertexTwo = new Vector3d(x + scaledWidth, y, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
+        var vertexThree = new Vector3d(x + scaledWidth, y + scaledHeight, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
+        var vertexFour = new Vector3d(x, y + scaledHeight, GraphicsManager.GR_Depth).RotateAroundPoint(pivot, rot);
 
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(vertexOne, drawColor, new(0, 0)),
@@ -305,10 +305,10 @@ public static class SurfaceManager
 
         BindSurfaceTexture(id);
 
-        var vertexOne = new Vector2d(x, y);
-        var vertexTwo = new Vector2d(x + w, y);
-        var vertexThree = new Vector2d(x + w, y + h);
-        var vertexFour = new Vector2d(x, y + h);
+        var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth);
+        var vertexTwo = new Vector3d(x + w, y, GraphicsManager.GR_Depth);
+        var vertexThree = new Vector3d(x + w, y + h, GraphicsManager.GR_Depth);
+        var vertexFour = new Vector3d(x, y + h, GraphicsManager.GR_Depth);
 
         var uvLeft = left / surfWidth;
         var uvRight = (left + w) / surfWidth;

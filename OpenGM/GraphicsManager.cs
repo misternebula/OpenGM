@@ -13,9 +13,9 @@ namespace OpenGM;
 public static class GraphicsManager
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct Vertex(Vector2d pos, Color4 color, Vector2d uv)
+    public struct Vertex(Vector3d pos, Color4 color, Vector2d uv)
     {
-        [FieldOffset(0 * sizeof(float))] public Vector2 pos = (Vector2)pos;
+        [FieldOffset(0 * sizeof(float))] public Vector3 pos = (Vector3)pos;
         [FieldOffset(2 * sizeof(float))] public Vector4 color = (Vector4)color;
         [FieldOffset((2 + 4) * sizeof(float))] public Vector2 uv = (Vector2)uv;
         // TODO: match format with gamemaker for when we do shaders
@@ -25,6 +25,8 @@ public static class GraphicsManager
     /// 1x1 white image is used when for things that dont need textures
     /// </summary>
     public static int DefaultTexture;
+
+    public static double GR_Depth;
 
     /// <summary>
     /// setup shader and buffer

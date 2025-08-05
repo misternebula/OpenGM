@@ -61,6 +61,8 @@ public static class DrawManager
     {
         foreach (var item in items)
         {
+            GraphicsManager.GR_Depth = item.depth;
+
             if (item is GamemakerObject gm)
             {
                 if (!gm._createRan || !RoomManager.RoomLoaded || !gm.visible || !gm.Active)
@@ -517,11 +519,11 @@ public static class DrawManager
                             var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
                             var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
 
-                            var vertices = new OpenTK.Mathematics.Vector2d[] {
-                                new(gm.bbox.left, gm.bbox.top),
-                                new(gm.bbox.right, gm.bbox.top),
-                                new(gm.bbox.right, gm.bbox.bottom),
-                                new(gm.bbox.left, gm.bbox.bottom)
+                            var vertices = new OpenTK.Mathematics.Vector3d[] {
+                                new(gm.bbox.left, gm.bbox.top, GraphicsManager.GR_Depth),
+                                new(gm.bbox.right, gm.bbox.top, GraphicsManager.GR_Depth),
+                                new(gm.bbox.right, gm.bbox.bottom, GraphicsManager.GR_Depth),
+                                new(gm.bbox.left, gm.bbox.bottom, GraphicsManager.GR_Depth)
                             };
 
                             CustomWindow.Draw(new GMPolygonJob()

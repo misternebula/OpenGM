@@ -84,6 +84,18 @@ public static class CustomMath
         return ((a % b) + b) % b;
     }
 
+    public static Vector3d RotateAroundPoint(this Vector3d p, Vector2d pivot, double angleAntiClockwise)
+    {
+        var sin = Math.Sin(Deg2Rad * -angleAntiClockwise);
+        var cos = Math.Cos(Deg2Rad * -angleAntiClockwise);
+
+        (p.X, p.Y) = (p.X - pivot.X, p.Y - pivot.Y); // translate matrix
+        (p.X, p.Y) = (p.X * cos - p.Y * sin, p.X * sin + p.Y * cos); // rotate matrix
+        (p.X, p.Y) = (p.X + pivot.X, p.Y + pivot.Y); // translate matrix
+
+        return p;
+    }
+
     public static Vector2d RotateAroundPoint(this Vector2d p, Vector2d pivot, double angleAntiClockwise)
     {
         var sin = Math.Sin(Deg2Rad * -angleAntiClockwise);
@@ -95,6 +107,8 @@ public static class CustomMath
 
         return p;
     }
+
+    public static Color4 BlendBetweenPoints(Vector3d val, Vector2d[] points, Color4[] colors) => BlendBetweenPoints(val.Xy, points, colors);
 
     public static Color4 BlendBetweenPoints(Vector2d val, Vector2d[] points, Color4[] colors)
     {

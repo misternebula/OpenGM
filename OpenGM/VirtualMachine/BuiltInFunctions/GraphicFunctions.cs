@@ -482,10 +482,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Colors = [c, c, c, c],
                 Vertices =
                 [
-                    new(x1, y1),
-                    new(x2, y1),
-                    new(x2, y2),
-                    new(x1, y2)
+                    new(x1, y1, GraphicsManager.GR_Depth),
+                    new(x2, y1, GraphicsManager.GR_Depth),
+                    new(x2, y2, GraphicsManager.GR_Depth),
+                    new(x1, y2, GraphicsManager.GR_Depth)
                 ],
                 Outline = outline
             });
@@ -513,9 +513,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Colors = [c, c, c],
                 Vertices =
                 [
-                    new(x1, y1),
-                    new(x2, y2),
-                    new(x3, y3)
+                    new(x1, y1, GraphicsManager.GR_Depth),
+                    new(x2, y2, GraphicsManager.GR_Depth),
+                    new(x3, y3, GraphicsManager.GR_Depth)
                 ],
                 Outline = outline
             });
@@ -534,11 +534,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var angle = 360 / DrawManager.CirclePrecision;
             var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
-            var points = new Vector2d[DrawManager.CirclePrecision];
+            var points = new Vector3d[DrawManager.CirclePrecision];
             var colors = new Color4[DrawManager.CirclePrecision];
             for (var i = 0; i < DrawManager.CirclePrecision; i++)
             {
-                points[i] = new Vector2d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+                points[i] = new Vector3d(x + (r * Math.Sin(angle * i * CustomMath.Deg2Rad)), y + (r * Math.Cos(angle * i * CustomMath.Deg2Rad)), GraphicsManager.GR_Depth);
                 colors[i] = c;
             }
 
@@ -570,13 +570,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var angle = 360 / DrawManager.CirclePrecision;
             var c = SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha);
 
-            var points = new Vector2d[DrawManager.CirclePrecision];
+            var points = new Vector3d[DrawManager.CirclePrecision];
             var colors = new Color4[DrawManager.CirclePrecision];
             for (var i = 0; i < DrawManager.CirclePrecision; i++)
             {
-                points[i] = new Vector2d(
+                points[i] = new Vector3d(
                     midpointX + (xRadius * Math.Sin(angle * i * CustomMath.Deg2Rad)),
-                    midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)));
+                    midpointY + (yRadius * Math.Cos(angle * i * CustomMath.Deg2Rad)),
+                    GraphicsManager.GR_Depth);
                 colors[i] = c;
             }
 
@@ -643,7 +644,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 CustomWindow.Draw(new GMPolygonJob()
                 {
                     Colors = [col, col, col],
-                    Vertices = [new(x2, y2), new(a, b), new(c, d)],
+                    Vertices = [new(x2, y2, GraphicsManager.GR_Depth), new(a, b, GraphicsManager.GR_Depth), new(c, d, GraphicsManager.GR_Depth)],
                     Outline = false
                 });
             }
@@ -834,10 +835,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Outline = outline,
                 Vertices = new[]
                 {
-                    new Vector2d(x1, y1),
-                    new Vector2d(x2, y1),
-                    new Vector2d(x2, y2),
-                    new Vector2d(x1, y2)
+                    new Vector3d(x1, y1, GraphicsManager.GR_Depth),
+                    new Vector3d(x2, y1, GraphicsManager.GR_Depth),
+                    new Vector3d(x2, y2, GraphicsManager.GR_Depth),
+                    new Vector3d(x1, y2, GraphicsManager.GR_Depth)
                 },
                 Colors = new[]
                 {
@@ -876,9 +877,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 Outline = outline,
                 Vertices = new[]
                 {
-                    new Vector2d(x1, y1),
-                    new Vector2d(x2, y2),
-                    new Vector2d(x3, y3)
+                    new Vector3d(x1, y1, GraphicsManager.GR_Depth),
+                    new Vector3d(x2, y2, GraphicsManager.GR_Depth),
+                    new Vector3d(x3, y3, GraphicsManager.GR_Depth)
                 },
                 Colors = new[] {
                     col1.ABGRToCol4(SpriteManager.DrawAlpha),
@@ -921,13 +922,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (outline)
             {
                 // only need to draw a normal ellipse outline, no color gradient needed
-                var points = new Vector2d[DrawManager.CirclePrecision];
+                var points = new Vector3d[DrawManager.CirclePrecision];
                 var colors = new Color4[DrawManager.CirclePrecision];
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
-                    points[i] = new Vector2d(
+                    points[i] = new Vector3d(
                         xm + (rx * CircleCos[i]),
-                        ym + (ry * CircleSin[i]));
+                        ym + (ry * CircleSin[i]), 
+                        GraphicsManager.GR_Depth);
                     colors[i] = col2;
                 }
 
@@ -944,13 +946,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
                 for (var i = 0; i < DrawManager.CirclePrecision; i++)
                 {
-                    var p1 = new Vector2d(xm, ym);
-                    var p2 = new Vector2d(
+                    var p1 = new Vector3d(xm, ym, GraphicsManager.GR_Depth);
+                    var p2 = new Vector3d(
                         xm + (rx * CircleCos[i]),
-                        ym + (ry * CircleSin[i]));
-                    var p3 = new Vector2d(
+                        ym + (ry * CircleSin[i]),
+                        GraphicsManager.GR_Depth);
+                    var p3 = new Vector3d(
                         xm + (rx * CircleCos[i + 1]),
-                        ym + (ry * CircleSin[i + 1]));
+                        ym + (ry * CircleSin[i + 1]),
+                        GraphicsManager.GR_Depth);
 
                     verts[i * 3] = new GraphicsManager.Vertex(p1, col1, Vector2d.Zero);
                     verts[(i * 3) + 1] = new GraphicsManager.Vertex(p2, col2, Vector2d.Zero);
@@ -1045,7 +1049,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             // TODO : C++ imposes a limit of 1001 vertices, should we do the same?
 
-            Vertices.Add(new(new(x, y), SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha), new(0, 0)));
+            Vertices.Add(new(new(x, y, GraphicsManager.GR_Depth), SpriteManager.DrawColor.ABGRToCol4(SpriteManager.DrawAlpha), new(0, 0)));
             return null;
         }
 
@@ -1060,7 +1064,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             // TODO : C++ imposes a limit of 1001 vertices, should we do the same?
 
-            Vertices.Add(new(new(x, y), col.ABGRToCol4(alpha), new(0, 0)));
+            Vertices.Add(new(new(x, y, GraphicsManager.GR_Depth), col.ABGRToCol4(alpha), new(0, 0)));
             return null;
         }
 
@@ -1452,7 +1456,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 Texture = pageItem,
                 Colors = [col, col, col],
-                Vertices = [new(x1, y1), new(x2, y2), new(x3, y3)],
+                Vertices = [new(x1, y1, GraphicsManager.GR_Depth), new(x2, y2, GraphicsManager.GR_Depth), new(x3, y3, GraphicsManager.GR_Depth)],
                 UVs = [new(x, y), new(x + w, y), new(x + w, y + h)]
             });
 
@@ -1460,7 +1464,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 Texture = pageItem,
                 Colors = [col, col, col],
-                Vertices = [new(x3, y3), new(x4, y4), new(x1, y1)],
+                Vertices = [new(x3, y3, GraphicsManager.GR_Depth), new(x4, y4, GraphicsManager.GR_Depth), new(x1, y1, GraphicsManager.GR_Depth)],
                 UVs = [new(x + w, y + h), new(x, y + h), new(x, y)]
             });
 
