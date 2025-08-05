@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -118,22 +119,53 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // shader_is_compiled
         // shaders_are_supported
 
-        [GMLFunction("texture_set_stage", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("texture_set_stage")]
         public static object? texture_set_stage(object?[] args)
         {
+            var stage = args[0].Conv<int>();
+            var tex = args[1] as SpritePageItem;
+
+            if (tex == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            var (image, id) = PageManager.TexturePages[tex.Page];
+
+            GL.ActiveTexture(TextureUnit.Texture0 + stage);
+            GL.BindTexture(TextureTarget.Texture2D, id);
+            GL.ActiveTexture(TextureUnit.Texture0);
             return null;
         }
 
-        [GMLFunction("texture_get_texel_width", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("texture_get_texel_width")]
         public static object? texture_get_texel_width(object?[] args)
         {
-            return 0;
+            var tex = args[0] as SpritePageItem;
+
+            if (tex == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            var (image, id) = PageManager.TexturePages[tex.Page];
+
+            return 1.0 / image.Width;
         }
 
-        [GMLFunction("texture_get_texel_height", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("texture_get_texel_height")]
         public static object? texture_get_texel_height(object?[] args)
         {
-            return 0;
+            var tex = args[0] as SpritePageItem;
+
+            if (tex == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            var (image, id) = PageManager.TexturePages[tex.Page];
+
+            return 1.0 / image.Height;
         }
     }
 }

@@ -1155,13 +1155,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         
         // font_cache_glyph
 
-        [GMLFunction("sprite_get_texture", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("sprite_get_texture")]
         public static object? sprite_get_texture(object?[] args)
         {
             var spr = args[0].Conv<int>();
             var subimg = args[0].Conv<int>();
 
-            return 0;
+            if (!SpriteManager.SpriteExists(spr))
+            {
+                return null;
+            }
+
+            var sprite = SpriteManager.GetSpriteAsset(spr);
+            return SpriteManager.GetSpritePageItem(spr, subimg);
         }
 
         // sprite_get_info
