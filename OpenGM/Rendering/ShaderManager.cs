@@ -34,6 +34,20 @@ public static class ShaderManager
 
     public static void FindUniforms(RuntimeShader shader)
     {
+        var stage = 0;
+        void PushTextureStage(string name)
+        {
+            shader.TextureStages.Insert(stage, name);
+
+            var location = GL.GetUniformLocation(shader.ProgramID, name);
+            GL.Uniform1(location, stage);
+            stage++;
+        }
+
+        GL.UseProgram(shader.ProgramID);
+
+        PushTextureStage("gm_BaseTexture");
+
         GL.GetProgram(shader.ProgramID, GetProgramParameterName.ActiveUniforms, out var count);
 
         GL.GetProgram(shader.ProgramID, GetProgramParameterName.ActiveUniformMaxLength, out var maxLength);
@@ -41,9 +55,15 @@ public static class ShaderManager
         for (var i = 0; i < count; i++)
         {
             GL.GetActiveUniform(shader.ProgramID, i, maxLength, out _, out var size, out var type, out var name);
+
+            if (!shader.TextureStages.Contains(name) && type is ActiveUniformType.Sampler2D or ActiveUniformType.SamplerCube)
+            {
+                PushTextureStage(name);
+            }
+
             shader.Uniforms.Add(name, new()
             {
-                Location = i,
+                Location = GL.GetUniformLocation(shader.ProgramID, name),
                 Name = name,
                 Size = size,
                 Type = type

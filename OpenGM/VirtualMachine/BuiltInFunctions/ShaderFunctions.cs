@@ -46,10 +46,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return shaderUniform.Location;
         }
 
-        [GMLFunction("shader_get_sampler_index", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("shader_get_sampler_index")]
         public static object? shader_get_sampler_index(object?[] args)
         {
-            return -1;
+            var shader = args[0].Conv<int>();
+            var sampler = args[1].Conv<string>();
+
+            var runtimeShader = ShaderManager.Shaders[shader];
+
+            var index = runtimeShader.TextureStages.IndexOf(sampler);
+            return CustomMath.Max(index, 0);
         }
 
         [GMLFunction("shader_set_uniform_i")]

@@ -6,6 +6,7 @@ public class RuntimeShader
     public string Name = "";
     public int ShaderIndex;
     public int ProgramID;
+    public List<string> TextureStages = new();
     public Dictionary<string, Uniform> Uniforms = new();
 }
 
