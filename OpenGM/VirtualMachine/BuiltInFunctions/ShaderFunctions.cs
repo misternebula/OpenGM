@@ -99,6 +99,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var handle = args[0].Conv<int>();
 
+            if (handle == -1)
+            {
+                return null;
+            }
+
             var valueCount = args.Length - 1;
             switch (valueCount)
             {
