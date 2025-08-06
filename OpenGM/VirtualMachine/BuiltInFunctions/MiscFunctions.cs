@@ -106,6 +106,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // variable_global_set
 
         [GMLFunction("variable_instance_exists")]
+        [GMLFunction("variable_struct_exists")]
         public static object variable_instance_exists(object?[] args)
         {
             var instance_id = args[0].Conv<int>();
@@ -141,6 +142,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         [GMLFunction("variable_instance_get")]
+        [GMLFunction("variable_struct_get")]
         public static object? variable_instance_get(object?[] args)
         {
             var instanceId = args[0].Conv<int>();
@@ -177,6 +179,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         [GMLFunction("variable_instance_set")]
+        [GMLFunction("variable_struct_set")]
         public static object? variable_instance_set(object?[] args)
         {
             var instanceId = args[0].Conv<int>();
