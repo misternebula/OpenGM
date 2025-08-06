@@ -70,7 +70,7 @@ public static class GraphicsManager
             return;
         }
 
-        DebugLog.LogError($"[GL Error] - {error} : {memberName} line {lineNumber} ({filePath})");
+        DebugLog.LogError($"[GL Error] - {error} : {memberName} line {lineNumber} ({Path.GetFileName(filePath)})");
     }
 
     /// <summary>
