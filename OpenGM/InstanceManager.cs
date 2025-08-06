@@ -416,7 +416,7 @@ public static class InstanceManager
         ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
     }
 
-    public static void RoomChange()
+    public static void RoomChange() // does this need to exist? ChangeToWaitingRoom already does this i think
     {
         foreach (var (instanceId, instance) in instances)
         {
