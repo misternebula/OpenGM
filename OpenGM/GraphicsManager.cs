@@ -122,7 +122,6 @@ public static class GraphicsManager
         }
     }
 
-    public static void SetFog(bool enable, int color, double start, double end)
     public static void SetFog(bool enable, Color4 color, float start, float end)
     {
         GL.Uniform1(ShaderManager.gm_FogStart, start);
@@ -132,7 +131,6 @@ public static class GraphicsManager
         GL.Uniform1(ShaderManager.gm_RcpFogRange, rcpRange);
 
         GL.Uniform1(ShaderManager.gm_PS_FogEnabled, enable ? 1 : 0);
-        GL.Uniform1(ShaderManager.gm_FogColour, color);
         GL.Uniform4(ShaderManager.gm_FogColour, color);
         GL.Uniform1(ShaderManager.gm_VS_FogEnabled, enable ? 1 : 0);
     }
