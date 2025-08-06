@@ -331,6 +331,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     break;
             }
 
+            GraphicsManager.CheckError();
+
             return null;
         }
 
@@ -357,6 +359,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             };
 
             GL.BlendFunc(GetBlend(src), GetBlend(dst));
+            GraphicsManager.CheckError();
             return null;
         }
 
@@ -403,6 +406,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             };
 
             GL.BlendFuncSeparate(GetBlendSrc(src), GetBlendDest(src), GetBlendSrc(src), GetBlendDest(src));
+            GraphicsManager.CheckError();
             return null;
         }
 
@@ -432,6 +436,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             GL.ColorMask(r, g, b, a);
+            GraphicsManager.CheckError();
             return null;
         }
 
@@ -440,6 +445,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var enabled = args[0].Conv<bool>();
             GL.Uniform1(ShaderManager.gm_AlphaTestEnabled, enabled ? 1 : 0);
+            GraphicsManager.CheckError();
             return null;
         }
 
@@ -448,6 +454,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var alphaRef = args[0].Conv<int>();
             GL.Uniform1(ShaderManager.gm_AlphaRefValue, alphaRef / 255f);
+            GraphicsManager.CheckError();
             return null;
         }
 
@@ -507,6 +514,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var bools = new bool[4];
             GL.GetBoolean(GetPName.ColorWritemask, bools); // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glColorMask.xhtml
+            GraphicsManager.CheckError();
             return bools;
         }
 

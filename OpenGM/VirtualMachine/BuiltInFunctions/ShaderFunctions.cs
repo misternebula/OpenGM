@@ -87,6 +87,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     throw new NotImplementedException();
             }
 
+            GraphicsManager.CheckError();
+
             return null;
         }
 
@@ -116,6 +118,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     throw new NotImplementedException();
             }
 
+            GraphicsManager.CheckError();
+
             return null;
         }
 
@@ -141,6 +145,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             GL.ActiveTexture(TextureUnit.Texture0 + stage);
             GL.BindTexture(TextureTarget.Texture2D, id);
             GL.ActiveTexture(TextureUnit.Texture0);
+            GraphicsManager.CheckError();
             return null;
         }
 

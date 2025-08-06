@@ -461,6 +461,7 @@ public static class BufferManager
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GraphicsManager.CheckError();
     }
 
     public static void BufferGetSurface(int bufferId, int surfaceId, int offset)

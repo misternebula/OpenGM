@@ -90,6 +90,8 @@ public static class ShaderManager
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
 
+        GraphicsManager.CheckError();
+
         return program;
     }
 
@@ -104,6 +106,8 @@ public static class ShaderManager
             var infoLog = GL.GetShaderInfoLog(shader);
             throw new Exception($"Error while compiling {type}\n\n{infoLog}");
         }
+
+        GraphicsManager.CheckError();
 
         return shader;
     }
@@ -124,6 +128,7 @@ public static class ShaderManager
         CurrentShaderIndex = index;
         var shader = Shaders[index];
         GL.UseProgram(shader.ProgramID);
+        GraphicsManager.CheckError();
         AttachUniforms(shader.ProgramID);
         GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
     }
@@ -132,6 +137,7 @@ public static class ShaderManager
     {
         CurrentShaderIndex = -1;
         GL.UseProgram(DefaultProgram);
+        GraphicsManager.CheckError();
         AttachUniforms(DefaultProgram);
         GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
     }
@@ -146,6 +152,7 @@ public static class ShaderManager
         gm_PS_FogEnabled = GL.GetUniformLocation(program, "gm_PS_FogEnabled");
         gm_FogColour = GL.GetUniformLocation(program, "gm_FogColour");
         gm_VS_FogEnabled = GL.GetUniformLocation(program, "gm_VS_FogEnabled");
+        GraphicsManager.CheckError();
     }
 
     public static void LoadMatrices(Camera camera)
@@ -168,6 +175,7 @@ public static class ShaderManager
             fixed (Matrix4* ptr = &matrices[0])
             {
                 GL.UniformMatrix4(gm_Matrices, matrices.Length, false, (float*)ptr);
+                GraphicsManager.CheckError();
             }
         }
     }
