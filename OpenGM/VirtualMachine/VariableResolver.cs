@@ -8,20 +8,18 @@ namespace OpenGM.VirtualMachine;
 public static class VariableResolver
 {
     /// <summary>
-    /// general form of the array index setting logic.
-    /// 
-    /// `getter` should do trygetvalue and "as" cast to return null instead of throwing.
-    /// `getter` SHOULD NOT COPY, since the reference is used to modify the list.
-    /// 
-    /// NOTE: this may try to grow fixed size lists (arrays). it will throw here
+    /// general form of gamemaker array index setting logic 
     /// </summary>
+    /// <param name="index">the index to set</param>
+    /// <param name="value">the value to set</param>
+    /// <param name="getter">gets the variable that might exist and might contain the array</param>
+    /// <param name="setter">sets the variable to the array, if it's not already</param>
+    /// <param name="onlyGrow">instead of setting index to value, just grow the array using the default value</param>
     public static void ArraySet(int index, object? value,
-        Func<IList?> getter,
-        Action<IList>? setter = null,
+        Func<object?> getter, Action<IList>? setter = null,
         bool onlyGrow = false)
     {
-        var array = getter();
-        if (array == null)
+        if (getter() is not IList array)
         {
             array = new List<object?>();
             if (setter != null)
@@ -30,12 +28,17 @@ public static class VariableResolver
             }
             else
             {
-                throw new Exception("getter returned null, and there's no setter. what?");
+                throw new ArgumentException("getter returned non-array or null, and there's no setter. what?");
             }
         }
 
         if (index >= array.Count)
         {
+            if (array.IsFixedSize)
+            {
+                throw new ArgumentException("tried to grow fixed size array. use List<T> instead of T[]");
+            }
+            
             var numToAdd = index - array.Count + 1;
             for (var i = 0; i < numToAdd; i++)
             {
@@ -54,6 +57,9 @@ public static class VariableResolver
                 });
             }
         }
+        
+        // this used to call setter after to trigger side-effects (with builtins mainly)
+        // that broke PT, so it was removed
 
         if (onlyGrow) return; // TODO: should we call the setter here too just in case?
 

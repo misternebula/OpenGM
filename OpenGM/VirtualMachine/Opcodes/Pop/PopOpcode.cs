@@ -21,7 +21,7 @@ public static partial class VMExecutor
         VariableResolver.ArraySet(
             index,
             value,
-            () => VariableResolver.GlobalVariables.TryGetValue(varName, out var array) ? array as IList : null,
+            () => VariableResolver.GlobalVariables.GetValueOrDefault(varName),
             array => VariableResolver.GlobalVariables[varName] = array);
     }
 
@@ -30,7 +30,7 @@ public static partial class VMExecutor
         VariableResolver.ArraySet(
             index,
             value,
-            () => Call.Locals.TryGetValue(varName, out var array) ? array as IList : null,
+            () => Call.Locals.GetValueOrDefault(varName),
             array => Call.Locals[varName] = array);
     }
 
@@ -60,7 +60,7 @@ public static partial class VMExecutor
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => gs.getter() as IList, // already did TryGetValue above
+                () => gs.getter(),
                 array => gs.setter!(array));
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gsSelf) && self is GamemakerObject gm)
@@ -68,7 +68,7 @@ public static partial class VMExecutor
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => gsSelf.getter(gm) as IList, // already did TryGetValue above
+                () => gsSelf.getter(gm),
                 array => gsSelf.setter!(gm, array));
         }
         else
@@ -76,7 +76,7 @@ public static partial class VMExecutor
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => self.SelfVariables.TryGetValue(varName, out var array) ? array as IList : null,
+                () => self.SelfVariables.GetValueOrDefault(varName),
                 array => self.SelfVariables[varName] = array);
         }
     }
@@ -152,7 +152,7 @@ public static partial class VMExecutor
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => gettersetter.getter() as IList, // already did TryGetValue above
+                () => gettersetter.getter() ,
                 array => gettersetter.setter!(array));
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfgettersetter))
@@ -160,7 +160,7 @@ public static partial class VMExecutor
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => selfgettersetter.getter(Self.GMSelf) as IList, // already did TryGetValue above
+                () => selfgettersetter.getter(Self.GMSelf),
                 array => selfgettersetter.setter!(Self.GMSelf, array));
         }
         else

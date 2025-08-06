@@ -460,7 +460,7 @@ public static partial class VMExecutor
                     if (instanceId == GMConstants.global)
                     {
                         VariableResolver.ArraySet(index, new List<object?>(),
-                            () => VariableResolver.GlobalVariables.TryGetValue(variableName, out var array) ? array as IList : null,
+                            () => VariableResolver.GlobalVariables.GetValueOrDefault(variableName),
                             array => VariableResolver.GlobalVariables[variableName] = array,
                             onlyGrow: true);
 
@@ -471,7 +471,7 @@ public static partial class VMExecutor
                     else if (instanceId == GMConstants.local)
                     {
                         VariableResolver.ArraySet(index, new List<object?>(),
-                            () => Call.Locals.TryGetValue(variableName, out var array) ? array as IList : null,
+                            () => Call.Locals.GetValueOrDefault(variableName),
                             array => Call.Locals[variableName] = array,
                             onlyGrow: true);
 
@@ -483,7 +483,7 @@ public static partial class VMExecutor
                     {
                         // TODO: check builtin self var
                         VariableResolver.ArraySet(index, new List<object?>(),
-                            () => Self.Self.SelfVariables.TryGetValue(variableName, out var array) ? array as IList : null,
+                            () => Self.Self.SelfVariables.GetValueOrDefault(variableName),
                             array => Self.Self.SelfVariables[variableName] = array,
                             onlyGrow: true);
 
