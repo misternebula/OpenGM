@@ -10,6 +10,10 @@ namespace OpenGM;
 
 /// <summary>
 /// instance of an ObjectDefinition
+///
+/// CInstance in cpp
+///
+/// TODO: make this derive from YYObjectBase, remove interface
 /// </summary>
 public class GamemakerObject : DrawWithDepth, IStackContextSelf
 {

@@ -4,7 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace OpenGM.VirtualMachine;
 
 /// <summary>
-/// a struct
+/// a struct. stores variables
+///
+/// YYObjectBase in cpp
 /// </summary>
 public class GMLObject : IStackContextSelf, IDictionary<string, object?>
 {
