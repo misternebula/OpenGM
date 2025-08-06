@@ -24,6 +24,8 @@ public static class CompatFlags
 
     // --------------------------------------
 
+    public static Dictionary<string, bool> ForcedValues = [];
+
     public static void Init()
     {
         var fields = typeof(CompatFlags).GetFields()
@@ -50,6 +52,11 @@ public static class CompatFlags
                 }
 
                 fieldInfo.SetValue(null, attribute.NewValue);
+            }
+
+            if (ForcedValues.TryGetValue(fieldInfo.Name, out var value))
+            {
+                fieldInfo.SetValue(null, value);
             }
 
             DebugLog.LogVerbose($"Compat flag \"{fieldInfo.Name}\": {fieldInfo.GetValue(null)}");

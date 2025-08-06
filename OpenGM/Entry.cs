@@ -154,6 +154,14 @@ internal class Entry
                 case "--script-name-filter":
                     VMExecutor.ScriptFilter = new(args[++i]);
                     break;
+                
+                case "--enable-flag":
+                    CompatFlags.ForcedValues[args[++i]] = true;
+                    break;
+                
+                case "--disable-flag":
+                    CompatFlags.ForcedValues[args[++i]] = false;
+                    break;
 
                 case "--":
                     endOfOptions = true;
