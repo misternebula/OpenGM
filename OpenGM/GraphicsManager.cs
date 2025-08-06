@@ -40,13 +40,14 @@ public static class GraphicsManager
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        CheckError();
 
         // use one buffer for everything
         var vao = GL.GenVertexArray();
         var vbo = GL.GenBuffer();
-
         GL.BindVertexArray(vao);
         GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        CheckError();
 
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 0 * sizeof(float));
         GL.EnableVertexAttribArray(0);
@@ -54,6 +55,22 @@ public static class GraphicsManager
         GL.EnableVertexAttribArray(1);
         GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), (3 + 4) * sizeof(float));
         GL.EnableVertexAttribArray(2);
+        CheckError();
+    }
+
+    public static void CheckError(
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = -1)
+    {
+        var error = GL.GetError();
+
+        if (error == ErrorCode.NoError)
+        {
+            return;
+        }
+
+        DebugLog.LogError($"[GL Error] - {error} : {memberName} line {lineNumber} ({filePath})");
     }
 
     /// <summary>
@@ -62,7 +79,9 @@ public static class GraphicsManager
     public static void Draw(PrimitiveType primitiveType, Span<Vertex> vertices)
     {
         GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * Unsafe.SizeOf<Vertex>(), ref vertices.GetPinnableReference(), BufferUsageHint.StreamDraw);
+        CheckError();
         GL.DrawArrays(primitiveType, 0, vertices.Length);
+        CheckError();
     }
 
     public static Vector4i ViewPort { get; private set; }
@@ -71,6 +90,7 @@ public static class GraphicsManager
     {
         ViewPort = new(x, y, w, h);
         GL.Viewport(x, y, w, h);
+        CheckError();
     }
 
     // rn we're just replicating g_isZeus = false, where instead of doing camera stuff we just have view area globals
@@ -118,6 +138,7 @@ public static class GraphicsManager
             fixed (Matrix4* ptr = &matrices[0])
             {
                 GL.UniformMatrix4(ShaderManager.gm_Matrices, matrices.Length, false, (float*)ptr);
+                CheckError();
             }
         }
     }
@@ -133,5 +154,6 @@ public static class GraphicsManager
         GL.Uniform1(ShaderManager.gm_PS_FogEnabled, enable ? 1 : 0);
         GL.Uniform4(ShaderManager.gm_FogColour, color);
         GL.Uniform1(ShaderManager.gm_VS_FogEnabled, enable ? 1 : 0);
+        CheckError();
     }
 }
