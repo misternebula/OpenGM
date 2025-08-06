@@ -206,6 +206,8 @@ public static class InstanceManager
 
     public static GamemakerObject? Find(int id, int index = 0, bool all = false)
     {
+        // accidentally similar to cpp WithObjIterator. this pattern is also copy pasted throughout the codebase
+        
         if (id == GMConstants.global)
         {
             throw new NotImplementedException("Tried to find global instance.");
