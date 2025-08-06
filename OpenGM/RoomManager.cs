@@ -23,7 +23,7 @@ public static class RoomManager
     public static bool RoomLoaded = false;
     public static bool FirstRoom = false;
 
-    public static void EndGame()
+    public static void EndGame() // this doesnt clear all the lists, but thats okay. we're closing the game or starting a new one, which clears stuff
     {
         foreach (var (instanceId, instance) in InstanceManager.instances)
         {
