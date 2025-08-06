@@ -840,6 +840,8 @@ public static partial class VMExecutor
 
     public static object? DictHash(object? key)
     {
+        // GenHash in cpp
+        
         var result = key;
 
         switch (key)
@@ -860,6 +862,39 @@ public static partial class VMExecutor
     
     public static object Conv(this object? @this, Type type)
     {
+        /*
+         * FOR REFERENCE
+         * 
+         * rvalue kinds via KindName:
+         * 0: number
+         * 1: string
+         * 2: array
+         * 3: ptr
+         * 4: vec3
+         * 5: undefined
+         * 6: struct (or method if its callable i.e. YYObjectBase is CScriptRef)
+         * 7: int32
+         * 8: vec4
+         * 9: vec44 (matrix44)
+         * 10: int64
+         * 11: accessor
+         * 12: null
+         * 13: bool
+         * 14: iterator
+         *
+         * actual converters:
+         * YYGetBool / BOOL_RValue
+         * YYGetInt32 / INT32_RValue
+         * YYGetInt64 / INT64_RValue
+         * YYGetReal / REAL_RValue
+         * YYGetFloat
+         * YYGetString
+         * YYGetStruct
+         * YYGetUint32
+         * YYGetPtr / PTR_RValue
+         * YYGetPtrOrInt
+         */
+        
         // TODO: check all numeric primitives
 
         if (@this is null)
