@@ -280,3 +280,6 @@ end_of_line = crlf
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+
+[OpenGM/VirtualMachine/BuiltInFunctions/*.cs]
+dotnet_diagnostic.IDE1006.severity = none # These words must begin with upper case characters
