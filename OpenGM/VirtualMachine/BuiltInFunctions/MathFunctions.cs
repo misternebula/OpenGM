@@ -860,9 +860,15 @@ public static class MathFunctions
         }
 
         var fractional = val - integral;
-        var fractionalString = fractional.ToString().PadRight(dec, '0');
+        var fractionalString = "";
+        if (dec > 0)
+        {
+            var start = 2;
+            var end = start + dec;
+            fractionalString = "." + fractional.ToString().PadRight(end, '0')[start..end];
+        }
 
-        return integralString + '.' + fractionalString;
+        return integralString + fractionalString;
     }
 
     [GMLFunction("chr")]
