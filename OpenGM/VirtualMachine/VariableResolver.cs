@@ -42,14 +42,15 @@ public static class VariableResolver
             var numToAdd = index - array.Count + 1;
             for (var i = 0; i < numToAdd; i++)
             {
-                // we want new list for every element here so its in the for loop
-                // TODO: check this is the correct implementation at some point
+                // html uses undefined
+                // cpp seems to use real value 0
+                // TODO: check gamemaker itself...
                 array.Add(value switch
                 {
                     int or short or long or float or double => 0,
                     bool => false,
                     string => "",
-                    IList => new List<object?>(),
+                    IList => new List<object?>(), // new list per element so this switch is in for loop
                     GMLObject => null, // for storing structs
                     Method => null,
                     null => null,

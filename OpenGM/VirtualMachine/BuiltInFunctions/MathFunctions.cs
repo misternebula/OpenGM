@@ -100,37 +100,40 @@ public static class MathFunctions
     [GMLFunction("array_length_1d")]
     public static object? array_length(object?[] args)
     {
-        if (args[0] is not IList)
+        if (args[0] is not IList array)
         {
             return null;
         }
 
-        var array = args[0].Conv<IList>();
         return array.Count;
     }
 
     [GMLFunction("array_length_2d")]
     public static object? array_length_2d(object?[] args)
     {
-        if (args[0] is null)
+        // this actually has a second argument for getting the nth element. but its also deprecated so whatever
+        
+        if (args[0] is not IList array)
         {
             return null;
         }
 
-        var array = args[0].Conv<IList>();
-        var index0 = array[0];
-        return (index0 as IList)!.Count;
+        if (array[0] is not IList innerArray)
+        {
+            return null;
+        }
+
+        return innerArray.Count;
     }
 
     [GMLFunction("array_height_2d")]
     public static object? array_height_2d(object?[] args)
     {
-        if (args[0] is null)
+        if (args[0] is not IList array)
         {
             return null;
         }
 
-        var array = args[0].Conv<IList>();
         return array.Count;
     }
 
@@ -149,7 +152,9 @@ public static class MathFunctions
         var index = args[1].Conv<int>();
         var value = args[2];
 
-        variable[index] = value;
+        VariableResolver.ArraySet(index, value,
+            () => variable);
+        // cpp errors if not an array. html just makes it an array. we do former
 
         return null;
     }
@@ -209,7 +214,7 @@ public static class MathFunctions
             var amountToAdd = new_size - oldSize;
             for (var i = 0; i < amountToAdd; i++)
             {
-                array_index.Add(0);
+                array_index.Add(0); // cpp uses undefined. html uses 0
             }
         }
         else
