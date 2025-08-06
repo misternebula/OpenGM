@@ -43,7 +43,7 @@ public static class VariableResolver
             for (var i = 0; i < numToAdd; i++)
             {
                 // html uses undefined
-                // cpp seems to use real value 0
+                // cpp seems to set length, so 0 rvalue = real value 0
                 // TODO: make gamemaker test program...
                 array.Add(value switch
                 {
