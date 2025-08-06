@@ -17,15 +17,8 @@ namespace OpenGM
                 (int)GameLoader.GeneralInfo.Release,
                 (int)GameLoader.GeneralInfo.Build
             );
-
-            // TODO: the conditions for compat mode are for sure more nuanced than this
-            if (
-                !CollisionManager.CompatModeOverridden &&
-                EngineVersion < new Version(2022,1,0,0)
-            )
-            {
-                CollisionManager.CompatMode = true;
-            }
+            
+            CompatFlags.Init();
         }
     }
 }

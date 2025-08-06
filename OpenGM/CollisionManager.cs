@@ -32,11 +32,8 @@ public class BBox
 
 public static class CollisionManager
 {
-    public static bool CompatMode = false;
-    public static bool CompatModeOverridden = false;
-
-    static double CompatFloor(double num) => CompatMode ? Math.Floor(num) : num;
-    static double CompatRound(double num) => CompatMode ? Math.Round(num) : num;
+    static double CompatFloor(double num) => CompatFlags.LegacyCollision ? Math.Floor(num) : num;
+    static double CompatRound(double num) => CompatFlags.LegacyCollision ? Math.Round(num) : num;
     
     public static BBox CalculateBoundingBox(GamemakerObject gm)
     {
@@ -57,7 +54,7 @@ public static class CollisionManager
             return new BBox() { left = gm.x, top = gm.y, right = gm.x, bottom = gm.y };
         }
 
-        var offset = CompatMode ? -1 : 0;
+        var offset = CompatFlags.LegacyCollision ? -1 : 0;
 
         var origin = SpriteManager.GetSpriteOrigin(index);
 
@@ -372,7 +369,7 @@ public static class CollisionManager
             self.bbox = CalculateBoundingBox(self);
         }
 
-        var addition = CompatMode ? 1d : 0d;
+        var addition = CompatFlags.LegacyCollision ? 1d : 0d;
 
         var bl = CustomMath.Min(x1, x2);
         var br = CustomMath.Max(x1, x2);
@@ -429,7 +426,7 @@ public static class CollisionManager
             });
         }
 
-        if (!CompatMode)
+        if (!CompatFlags.LegacyCollision)
         {
             var l = CustomMath.Max(bl, self.bbox_left);
             var t = CustomMath.Max(bt, self.bbox_top);
@@ -457,7 +454,7 @@ public static class CollisionManager
             self.bbox = CalculateBoundingBox(self);
         }
 
-        var addition = CompatMode ? 1d : -1e-05;
+        var addition = CompatFlags.LegacyCollision ? 1d : -1e-05;
 
         if (x >= self.bbox_right + addition
             || x < self.bbox_left
@@ -512,7 +509,7 @@ public static class CollisionManager
             other.bbox = CalculateBoundingBox(self);
         }
 
-        var addition = CompatMode ? 1f : 0f;
+        var addition = CompatFlags.LegacyCollision ? 1f : 0f;
 
         if (self.bbox_left >= (other.bbox_right + addition)
             || (self.bbox_right + addition) <= other.bbox_left
@@ -556,7 +553,7 @@ public static class CollisionManager
 
         if (precise && (selfSprite.SepMasks == UndertaleSprite.SepMaskType.Precise || otherSprite.SepMasks == UndertaleSprite.SepMaskType.Precise))
         {
-            if (CompatMode)
+            if (CompatFlags.LegacyCollision)
             {
                 return OrigPreciseCollision(
                     selfSprite, CustomMath.FloorToInt(self.image_index), self.bbox, self.x, self.y, self.image_xscale, self.image_yscale, self.image_angle,
@@ -568,7 +565,7 @@ public static class CollisionManager
                 otherSprite, CustomMath.FloorToInt(other.image_index), other.bbox, other.x, other.y, other.image_xscale, other.image_yscale, other.image_angle);
         }
 
-        if (!CompatMode)
+        if (!CompatFlags.LegacyCollision)
         {
             var l = CustomMath.Max(self.bbox_left, other.bbox_left);
             var t = CustomMath.Max(self.bbox_top, other.bbox_top);

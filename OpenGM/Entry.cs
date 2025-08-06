@@ -93,16 +93,6 @@ internal class Entry
                     ScriptResolver.AlwaysLogStubs = true;
                     break;
 
-                case "--compat-collision":
-                    CollisionManager.CompatMode = true;
-                    CollisionManager.CompatModeOverridden = true;
-                    break;
-
-                case "--no-compat-collision":
-                    CollisionManager.CompatMode = false;
-                    CollisionManager.CompatModeOverridden = true;
-                    break;
-
                 case "--record-legacy":
                 {
                     KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
@@ -235,11 +225,6 @@ internal class Entry
         else
         {
             window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-        }
-
-        if (CollisionManager.CompatMode)
-        {
-            DebugLog.LogInfo("Collision compatibility mode is enabled.");
         }
 
         DebugLog.LogInfo($"Binding page textures...");
