@@ -55,11 +55,13 @@ public static class ScriptResolver
 
             foreach (var attribute in attributes)
             {
-                if (attribute.AddedVersion != null && VersionManager.EngineVersion < attribute.AddedVersion) {
+                if (attribute.AddedVersion != null && VersionManager.EngineVersion < attribute.AddedVersion)
+                {
                     continue;
                 }
 
-                if (attribute.RemovedVersion != null && VersionManager.EngineVersion >= attribute.RemovedVersion) {
+                if (attribute.RemovedVersion != null && VersionManager.EngineVersion >= attribute.RemovedVersion)
+                {
                     continue;
                 }
 

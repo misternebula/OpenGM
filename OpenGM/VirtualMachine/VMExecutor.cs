@@ -3,6 +3,7 @@ using OpenGM.Loading;
 using OpenGM.SerializedFiles;
 using System.Collections;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace OpenGM.VirtualMachine;
 
@@ -124,22 +125,24 @@ public static partial class VMExecutor
     public static bool VerboseStackLogs;
     public static bool ForceVerboseStackLogs = false;
     public static bool DebugMode;
+    public static Regex? ScriptFilter;
     public static VMCodeInstruction? CurrentInstruction;
     
     // private static IList? _temporaryArrayStorage = null;
 
     public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
     {
-        object? defaultReturnValue = VersionManager.EngineVersion.Major == 1 ? 0 : null;
-        // TODO: this actually changed to being undefined in probably 2.3? don't know how to check that rn, so just going with 2.0
-        if (VersionManager.EngineVersion.Major == 1)
-        {
-            defaultReturnValue = 0;
-        }
+        object? defaultReturnValue = CompatFlags.ZeroReturnValue ? 0 : null;
 
         if (code == null)
         {
             DebugLog.LogError($"Tried to run null code!");
+            return defaultReturnValue;
+        }
+
+        if (ScriptFilter?.IsMatch(code.Name) ?? false)
+        {
+            DebugLog.LogVerbose($"Script name \"{code.Name}\" matches filter, returning.");
             return defaultReturnValue;
         }
 

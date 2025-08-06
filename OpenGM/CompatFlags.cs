@@ -10,6 +10,18 @@ public static class CompatFlags
     [GMCompatFlag(before: "2022.1")]
     public static bool LegacyCollision = false;
 
+    /// <summary>
+    /// Whether # should be treated as a newline or not in text rendering.
+    /// </summary>
+    [GMCompatFlag(before: "2.0")]
+    public static bool HashNewlines = false;
+
+    /// <summary>
+    /// If true, script_execute will return 0 by default instead of null.
+    /// </summary>
+    [GMCompatFlag(before: "2.3")]
+    public static bool ZeroReturnValue = false;
+
     // --------------------------------------
 
     public static void Init()
@@ -26,18 +38,18 @@ public static class CompatFlags
                 {
                     continue;
                 }
+
+                if (attribute.SinceVersion is not null && VersionManager.EngineVersion < attribute.SinceVersion)
+                {
+                    continue;
+                }
                 
                 if (attribute.BeforeVersion is not null && VersionManager.EngineVersion >= attribute.BeforeVersion)
                 {
                     continue;
                 }
 
-                if (attribute.SinceVersion is not null && VersionManager.EngineVersion < attribute.SinceVersion)
-                {
-                    continue;
-                }
-
-                fieldInfo.SetValue(null, true);
+                fieldInfo.SetValue(null, attribute.NewValue);
             }
 
             DebugLog.LogVerbose($"Compat flag \"{fieldInfo.Name}\": {fieldInfo.GetValue(null)}");
@@ -48,9 +60,11 @@ public static class CompatFlags
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
 public class GMCompatFlagAttribute(
     string? since = null,
-    string? before = null
+    string? before = null,
+    bool value = true
 ) : Attribute
 {
     public Version? SinceVersion { get; private set; } = (since != null) ? new(since) : null;
     public Version? BeforeVersion { get; private set; } = (before != null) ? new(before) : null;
+    public bool NewValue { get; private set; } = value;
 }

@@ -150,6 +150,10 @@ internal class Entry
                     VMExecutor.VerboseStackLogs = true;
                     VMExecutor.ForceVerboseStackLogs = true;
                     break;
+                
+                case "--script-name-filter":
+                    VMExecutor.ScriptFilter = new(args[++i]);
+                    break;
 
                 case "--":
                     endOfOptions = true;
