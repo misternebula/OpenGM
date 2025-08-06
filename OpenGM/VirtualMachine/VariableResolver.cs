@@ -44,7 +44,7 @@ public static class VariableResolver
             {
                 // html uses undefined
                 // cpp seems to use real value 0
-                // TODO: check gamemaker itself...
+                // TODO: make gamemaker test program...
                 array.Add(value switch
                 {
                     int or short or long or float or double => 0,
