@@ -34,26 +34,35 @@ public static class GameLoader
         using var stream = File.OpenRead(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
         using var reader = new BinaryReader(stream);
 
-        // must match order of gameconverter
-        GeneralInfo = reader.ReadMemoryPack<GameData>();
-        AssetIndexManager.LoadAssetIndexes(reader);
-        LoadScripts(reader);
-        LoadCode(reader);
-        LoadExtensions(reader);
-        LoadGlobalInitCode(reader);
-        LoadObjects(reader);
-        LoadBackgrounds(reader);
-        LoadRooms(reader);
-        LoadSprites(reader);
-        LoadFonts(reader);
-        LoadTexturePages(reader);
-        LoadTextureGroups(reader);
-        LoadTileSets(reader);
-        AudioManager.LoadSounds(reader);
-        LoadPaths(reader);
-        LoadShaders(reader);
-        LoadAnimCurves(reader);
-        
+        try
+        {
+            // must match order of gameconverter
+            GeneralInfo = reader.ReadMemoryPack<GameData>();
+            AssetIndexManager.LoadAssetIndexes(reader);
+            LoadScripts(reader);
+            LoadCode(reader);
+            LoadExtensions(reader);
+            LoadGlobalInitCode(reader);
+            LoadObjects(reader);
+            LoadBackgrounds(reader);
+            LoadRooms(reader);
+            LoadSprites(reader);
+            LoadFonts(reader);
+            LoadTexturePages(reader);
+            LoadTextureGroups(reader);
+            LoadTileSets(reader);
+            AudioManager.LoadSounds(reader);
+            LoadPaths(reader);
+            LoadShaders(reader);
+            LoadAnimCurves(reader);
+        }
+        catch
+        {
+            reader.Close();
+            File.Delete(Path.Combine(Entry.DataWinFolder, "data_OpenGM.win"));
+            throw;
+        }
+
         GC.Collect(); // gc after doing a buncha loading
     }
 
