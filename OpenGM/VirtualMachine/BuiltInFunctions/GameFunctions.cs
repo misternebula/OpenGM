@@ -359,7 +359,7 @@ public static class GameFunctions
         else
         {
             // is an object index
-            var instances = InstanceManager.instances.Values.Where(x => x.object_index == obj).ToArray();
+            var instances = InstanceManager.instances.Values.Where(x => InstanceManager.HasAssetInParents(x.Definition, obj)).ToArray();
 
             if (n >= instances.Length)
             {
