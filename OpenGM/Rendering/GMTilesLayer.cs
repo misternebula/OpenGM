@@ -89,8 +89,6 @@ internal class GMTilesLayer : DrawWithDepth
                     offset += new Vector2(0, _tileSet.TileHeight);
                 }
 
-                // TODO: adjust screenpos / origin to account for rotation / flipping / mirroring
-
                 CustomWindow.Draw(new GMSpritePartJob()
                 {
                     texture = _tileSet.Texture,

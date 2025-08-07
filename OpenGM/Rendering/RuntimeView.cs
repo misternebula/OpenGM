@@ -9,8 +9,7 @@ namespace OpenGM.Rendering;
 public class RuntimeView
 {
     public bool Visible = false;
-    // TODO: camera area stuff instead of view here
-    //       view.view seems to be old version stuff. view_xview etc doesnt even exist in docs now
+
     public Vector2 ViewPosition
     {
         get => new(Camera.ViewX, Camera.ViewY);
