@@ -495,6 +495,11 @@ public static class AudioManager
         return _audioEmitters[index];
     }
 
+    public static bool AudioEmitterExists(int index)
+    {
+        return _audioEmitters.Count > index;
+    }
+
     public static void UpdateListener(AudioListener listener)
     {
         AL.Listener(ALListener3f.Position, listener.Position.X, listener.Position.Y, listener.Position.Z);

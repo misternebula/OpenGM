@@ -319,10 +319,53 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_system_is_available
         // audio_sound_is_playable
         // audio_master_gain
-        // audio_emitter_exists
+
+        [GMLFunction("audio_emitter_exists")]
+        public static object? audio_emitter_exists(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            return AudioManager.AudioEmitterExists(id);
+        }
+
         // audio_get_type
-        // audio_emitter_gain
-        // audio_emitter_pitch
+
+        [GMLFunction("audio_emitter_gain")]
+        public static object? audio_emitter_gain(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var gain = args[1].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.Gain = gain;
+
+            foreach (var sound in emitter.AttachedSounds)
+            {
+                AL.Source(sound.Source, ALSourcef.Gain, gain);
+                AudioManager.CheckALError();
+            }
+
+            return null;
+        }
+
+        [GMLFunction("audio_emitter_pitch")]
+        public static object? audio_emitter_pitch(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var pitch = args[1].Conv<float>();
+
+            var emitter = AudioManager.GetAudioEmitter(id);
+            emitter.Pitch = pitch;
+
+            foreach (var sound in emitter.AttachedSounds)
+            {
+                // TODO : is this wrong? see how pitch is calculated
+                AL.Source(sound.Source, ALSourcef.Pitch, pitch);
+                AudioManager.CheckALError();
+            }
+
+            return null;
+        }
 
         [GMLFunction("audio_emitter_falloff")]
         public static object? audio_emitter_falloff(object?[] args)
