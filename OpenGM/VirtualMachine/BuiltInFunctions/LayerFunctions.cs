@@ -650,7 +650,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // layer_background_speed
+        [GMLFunction("layer_background_speed")]
+        public static object? layer_background_speed(object?[] args)
+        {
+            var background_element_id = args[0].Conv<int>();
+            var speed = args[1].Conv<double>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMBackground back && back.Element.Id == background_element_id)
+                    {
+                        back.Element.AnimationSpeed = speed;
+                    }
+                }
+            }
+
+            return null;
+        }
 
         [GMLFunction("layer_background_sprite")]
         [GMLFunction("layer_background_change")]
