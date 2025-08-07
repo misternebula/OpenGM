@@ -592,7 +592,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // object_set_sprite
         // object_set_solid
         // object_set_visible
-        // object_set_persistent
+
+        [GMLFunction("object_set_persistent")]
+        public static object? object_set_persistent(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var pers = args[1].Conv<bool>();
+
+            if (InstanceManager.ObjectDefinitions.TryGetValue(index, out var definition))
+            {
+                definition.persistent = pers;
+            }
+
+            return null;
+        }
+
         // object_set_mask
         // object_set_parent
         // object_add
