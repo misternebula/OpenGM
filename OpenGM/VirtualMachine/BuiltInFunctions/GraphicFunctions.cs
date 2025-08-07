@@ -359,12 +359,33 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return (bByte << 16) + (gByte << 8) + rByte;
         }
 
-        // color_get_red
-        // colour_get_red
-        // color_get_green
-        // colour_get_green
-        // color_get_blue
-        // colour_get_blue
+        [GMLFunction("color_get_red")]
+        [GMLFunction("colour_get_red")]
+        public static object? color_get_red(object?[] args)
+        {
+            var col = args[0].Conv<int>();
+
+            return col & 0xFF;
+        }
+
+        [GMLFunction("color_get_green")]
+        [GMLFunction("colour_get_green")]
+        public static object? color_get_green(object?[] args)
+        {
+            var col = args[0].Conv<int>();
+
+            return (col >> 8) & 0xFF;
+        }
+
+        [GMLFunction("color_get_blue")]
+        [GMLFunction("colour_get_blue")]
+        public static object? color_get_blue(object?[] args)
+        {
+            var col = args[0].Conv<int>();
+
+            return (col >> 16) & 0xFF;
+        }
+
         // color_get_hue
         // colour_get_hue
         // color_get_saturation
