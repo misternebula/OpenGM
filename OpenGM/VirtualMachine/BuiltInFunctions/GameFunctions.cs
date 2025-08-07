@@ -686,7 +686,19 @@ public static class GameFunctions
         else
         {
             // instance id
-            var instance = InstanceManager.FindByInstanceId(obj, all: true)!;
+            var instance = InstanceManager.FindByInstanceId(obj, all: true);
+            if (instance is null)
+            {
+                DebugLog.LogVerbose($"Tried to activate non-existent instance {obj}");
+                DebugLog.LogVerbose($"--Stacktrace--");
+                foreach (var item in VMExecutor.CallStack)
+                {
+                    DebugLog.LogVerbose($" - {item.CodeName}");
+                }
+
+                return null;
+            }
+
             instance.NextActive = true;
         }
 
