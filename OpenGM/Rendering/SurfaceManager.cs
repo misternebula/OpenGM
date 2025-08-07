@@ -299,9 +299,8 @@ public static class SurfaceManager
 
     public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
     {
-        // todo: im writing this at 3am, this doesn't work. idk why it doesnt work. probably a dumb reason. i eep
-        var surfWidth = GetSurfaceWidth(id);
-        var surfHeight = GetSurfaceHeight(id);
+        var surfWidth = (double)GetSurfaceWidth(id);
+        var surfHeight = (double)GetSurfaceHeight(id);
 
         BindSurfaceTexture(id);
 
