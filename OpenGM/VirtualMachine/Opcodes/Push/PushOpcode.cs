@@ -519,6 +519,12 @@ public static partial class VMExecutor
                         Call.Stack.Push(array[index], VMType.v);
                         return (ExecutionResult.Success, null);
                     }
+                    else if (instanceId == GMConstants.stacktop)
+                    {
+                        var array = FetchSelf(Call.Stack.Pop(VMType.v))!.SelfVariables[variableName].Conv<IList>();
+                        Call.Stack.Push(array[index], VMType.v);
+                        return (ExecutionResult.Success, null);
+                    }
                     else if (instanceId < 0)
                     {
                         throw new NotImplementedException();
