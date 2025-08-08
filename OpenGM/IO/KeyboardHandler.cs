@@ -303,6 +303,12 @@ public class KeyboardHandler
             DebugLog.LogInfo($"GUI rendering {(DrawManager.ShouldDrawGui ? "enabled" : "disabled")}.");
         }
 
+        if (state.IsKeyPressed(Keys.KeyPad5))
+        {
+            GraphicsManager.EnableCulling = !GraphicsManager.EnableCulling;
+            DebugLog.LogInfo($"Frustum culling {(GraphicsManager.EnableCulling ? "enabled" : "disabled")}.");
+        }
+
         if (HandlerState == State.RECORD)
         {
             RecordIOState();

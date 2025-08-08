@@ -291,6 +291,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // gpu_set_cullmode
 
+        [GMLFunction("gpu_set_sprite_cull")]
+        public static object? gpu_set_sprite_cull(object?[] args)
+        {
+            var enabled = args[0].Conv<bool>();
+
+            GraphicsManager.EnableCulling = enabled;
+
+            return null;
+        }
+
         [GMLFunction("gpu_set_blendmode")]
         public static object? gpu_set_blendmode(object?[] args)
         {

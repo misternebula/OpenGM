@@ -30,6 +30,8 @@ public static class GraphicsManager
     public static bool ForceDepth;
     public static double ForcedDepth;
 
+    public static bool EnableCulling = true;
+
     /// <summary>
     /// setup shader and buffer
     /// </summary>
@@ -78,6 +80,44 @@ public static class GraphicsManager
     /// </summary>
     public static void Draw(PrimitiveType primitiveType, Span<Vertex> vertices)
     {
+        if (EnableCulling)
+        {
+            var allPastLeft = true;
+            var allPastRight = true;
+            var allPastTop = true;
+            var allPastBottom = true;
+
+            var screenLeft = ViewArea.X;
+            var screenRight = ViewArea.X + ViewArea.Z;
+            var screenTop = ViewArea.Y;
+            var screenBottom = ViewArea.Y + ViewArea.W;
+
+            foreach (var vert in vertices)
+            {
+                if (vert.pos.X > screenLeft)
+                {
+                    allPastLeft = false;
+                }
+                if (vert.pos.X < screenRight)
+                {
+                    allPastRight = false;
+                }
+                if (vert.pos.Y > screenTop)
+                {
+                    allPastTop = false;
+                }
+                if (vert.pos.Y < screenBottom)
+                {
+                    allPastBottom = false;
+                }
+            }
+
+            if (allPastLeft || allPastRight || allPastTop || allPastBottom)
+            {
+                return;
+            }
+        }
+
         GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * Unsafe.SizeOf<Vertex>(), ref vertices.GetPinnableReference(), BufferUsageHint.StreamDraw);
         CheckError();
         GL.DrawArrays(primitiveType, 0, vertices.Length);
