@@ -850,7 +850,11 @@ public static class GameConverter
                 storage.KeyboardScriptIDs.Add(subtypeContainer.EventSubtypeKey, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
             }
 
-            // mouse
+            storage.MouseScriptIDs = new();
+            foreach (var subtypeContainer in obj.Events[(int)EventType.Mouse - 1])
+            {
+                storage.MouseScriptIDs.Add(subtypeContainer.EventSubtypeMouse, exportableCode.IndexOf(subtypeContainer.Actions[0].CodeId));
+            }
 
             storage.OtherScriptIDs = new();
             foreach (var subtypeContainer in obj.Events[(int)EventType.Other - 1])

@@ -412,6 +412,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
     public double path_ystart;
     public double path_orientation;
 
+    public bool mouse_over;
+
     public bool Active = true;
     public bool NextActive = true; // Whether the object should be active or not next frame
     public bool Marked = false; // Marked for deletion at the end of the frame
@@ -583,7 +585,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
                 return TryExecuteDict(definition.CollisionScript, eventNumber);
             case EventType.Keyboard:
                 return TryExecuteDict(definition.KeyboardScripts, (EventSubtypeKey)eventNumber);
-            // mouse
+            case EventType.Mouse:
+                return TryExecuteDict(definition.MouseScripts, (EventSubtypeMouse)eventNumber);
             case EventType.Other:
                 return TryExecuteDict(definition.OtherScript, (EventSubtypeOther)eventNumber);
             case EventType.Draw:
@@ -600,7 +603,6 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
                 return TryExecute(definition.PreCreateScript);
             case EventType.Trigger:
             case EventType.Gesture:
-            case EventType.Mouse:
             default:
                 DebugLog.LogError($"Event type {eventType} not implemented.");
                 return false;

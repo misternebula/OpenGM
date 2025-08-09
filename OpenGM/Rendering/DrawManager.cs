@@ -1,6 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
@@ -187,6 +188,7 @@ public static class DrawManager
         }
 
         HandleKeyboard();
+        HandleMouse(); // TODO: does this go here?
 
         // UpdateActiveLists();
         if (RoomManager.New_Room != -1)
@@ -773,6 +775,109 @@ public static class DrawManager
 
         // either 0 (no key) or 1 (any key)
         Handle(keyReleased, EventType.KeyRelease);
+    }
+
+    public static void HandleMouse()
+    {
+        var keys = InstanceManager.instances.Keys;
+        for (var i = 0; i < InstanceManager.instances.Count; i++)
+        {
+            var inst = InstanceManager.instances[keys.ElementAt(i)];
+
+            if (inst.Definition.MouseScripts.Count == 0)
+            {
+                continue;
+            }
+
+            var mouseX = GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
+            var mouseY = GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
+            if (CollisionManager.Collision_Point(inst, mouseX, mouseY, false))
+            {
+                MouseDown(inst);
+                MousePressed(inst);
+                MouseReleased(inst);
+
+                if (!inst.mouse_over)
+                {
+                    inst.mouse_over = true;
+                    GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.MouseEnter);
+                }
+            }
+            else
+            {
+                if (inst.mouse_over)
+                {
+                    inst.mouse_over = false;
+                    GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.MouseLeave);
+                }
+            }
+        }
+
+        MouseDown();
+        MousePressed();
+        MouseReleased();
+
+        // TODO: mouse wheel
+    }
+
+    public static void MouseDown(GamemakerObject? inst = null)
+    {
+        for (var i = 0; i < 3; i++)
+        {
+            if (!KeyboardHandler.MouseDown[i])
+            {
+                continue;
+            }
+
+            if (inst is not null)
+            {
+                GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftButton + i);
+            }
+            else
+            {
+                Handle((int)EventSubtypeMouse.GlobLeftButton + i, EventType.Mouse);
+            }
+        }
+    }
+
+    public static void MousePressed(GamemakerObject? inst = null)
+    {
+        for (var i = 0; i < 3; i++)
+        {
+            if (!KeyboardHandler.MousePressed[i])
+            {
+                continue;
+            }
+
+            if (inst is not null)
+            {
+                GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftPressed + i);
+            }
+            else
+            {
+                Handle((int)EventSubtypeMouse.GlobLeftPressed + i, EventType.Mouse);
+            }
+        }
+    }
+
+    public static void MouseReleased(GamemakerObject? inst = null)
+    {
+        for (var i = 0; i < 3; i++)
+        {
+            if (!KeyboardHandler.MouseReleased[i])
+            {
+                continue;
+            }
+
+            if (inst is not null)
+            {
+                GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftReleased + i);
+            }
+            else
+            {
+                Handle((int)EventSubtypeMouse.GlobLeftReleased + i, EventType.Mouse);
+            }
+        }
     }
 
     public static void Handle(int key, EventType type)

@@ -229,7 +229,15 @@ public static class GameLoader
                 asset.KeyboardScripts[subtype] = Codes[codeId];
             }
 
-            // Mouse
+            foreach (var (subtype, codeId) in storage.MouseScriptIDs)
+            {
+                if (codeId == -1)
+                {
+                    continue;
+                }
+
+                asset.MouseScripts[subtype] = Codes[codeId];
+            }
 
             foreach (var (subtype, codeId) in storage.OtherScriptIDs)
             {

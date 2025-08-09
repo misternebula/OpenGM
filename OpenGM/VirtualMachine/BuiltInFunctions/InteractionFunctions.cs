@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.Rendering;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -139,7 +140,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return KeyboardHandler.KeyboardCheckDirect(key);
         }
 
-        // mouse_check_button
+        [GMLFunction("mouse_check_button")]
+        public static object mouse_check_button(object?[] args)
+        {
+            var numb = args[0].Conv<int>();
+            return KeyboardHandler.MouseDown[numb];
+        }
 
         [GMLFunction("mouse_check_button_pressed")]
         public static object mouse_check_button_pressed(object?[] args)
@@ -179,16 +185,26 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        [GMLFunction("device_mouse_x_to_gui", GMLFunctionFlags.Stub)]
+        [GMLFunction("device_mouse_x_to_gui")]
         public static object? device_mouse_x_to_gui(object?[] args)
         {
-            return 0;
+            var dev = args[0].Conv<int>();
+
+            var mouseX = KeyboardHandler.MousePos.X;
+            var windowWidth = GraphicFunctions.window_get_width([]).Conv<int>();
+            var guiWidth = DrawManager.GuiSize?.X ?? windowWidth;
+            return CustomMath.DoubleTilde(mouseX * (guiWidth / windowWidth));
         }
 
-        [GMLFunction("device_mouse_y_to_gui", GMLFunctionFlags.Stub)]
+        [GMLFunction("device_mouse_y_to_gui")]
         public static object? device_mouse_y_to_gui(object?[] args)
         {
-            return 0;
+            var dev = args[0].Conv<int>();
+
+            var mouseY = KeyboardHandler.MousePos.Y;
+            var windowHeight = GraphicFunctions.window_get_height([]).Conv<int>();
+            var guiHeight = DrawManager.GuiSize?.Y ?? windowHeight;
+            return CustomMath.DoubleTilde(mouseY * (guiHeight / windowHeight));
         }
 
         // device_mouse_dbclick_enable

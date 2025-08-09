@@ -240,6 +240,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return KeyboardHandler.MousePos.Y;
         }
 
+        // TODO: account for view that the mouse is currently in
+        [GMLFunction("window_views_mouse_get_x")]
+        public static object? window_views_mouse_get_x(object?[] args)
+        {
+            var mouseX = KeyboardHandler.MousePos.X;
+            var windowWidth = window_get_width([]).Conv<int>();
+            var viewWidth = ViewportManager.CurrentRenderingView?.ViewSize.X ?? RoomManager.CurrentRoom.SizeX;
+            return CustomMath.FloorToInt(mouseX * (viewWidth / windowWidth));
+        }
+
+        [GMLFunction("window_views_mouse_get_y")]
+        public static object? window_views_mouse_get_y(object?[] args)
+        { 
+            var mouseY = KeyboardHandler.MousePos.Y;
+            var windowHeight = window_get_height([]).Conv<int>();
+            var viewHeight = ViewportManager.CurrentRenderingView?.ViewSize.Y ?? RoomManager.CurrentRoom.SizeY;
+            return CustomMath.FloorToInt(mouseY * (viewHeight / windowHeight));
+        }
+
         // window_get_visible_rects
 
         // ...

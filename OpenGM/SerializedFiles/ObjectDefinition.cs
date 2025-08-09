@@ -47,7 +47,8 @@ public partial class ObjectDefinition
     public Dictionary<int, VMCode> CollisionScript = new();
     [MemoryPackIgnore]
     public Dictionary<EventSubtypeKey, VMCode> KeyboardScripts = new();
-    //mouse
+    [MemoryPackIgnore]
+    public Dictionary<EventSubtypeMouse, VMCode> MouseScripts = new();
     [MemoryPackIgnore]
     public Dictionary<EventSubtypeOther, VMCode> OtherScript = new();
     [MemoryPackIgnore]
@@ -74,7 +75,7 @@ public partial class ObjectDefinitionStorage
     public Dictionary<EventSubtypeStep, int> StepScriptIDs = new();
     public Dictionary<int, int> CollisionScriptIDs = new();
     public Dictionary<EventSubtypeKey, int> KeyboardScriptIDs = new();
-    //mouse
+    public Dictionary<EventSubtypeMouse, int> MouseScriptIDs = new();
     public Dictionary<EventSubtypeOther, int> OtherScriptIDs = new();
     public Dictionary<EventSubtypeDraw, int> DrawScriptIDs = new();
     public Dictionary<EventSubtypeKey, int> KeyPressScriptIDs = new();

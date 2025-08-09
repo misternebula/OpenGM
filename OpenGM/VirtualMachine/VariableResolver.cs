@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using System.Collections;
 using System.Diagnostics;
 
@@ -501,10 +502,8 @@ public static class VariableResolver
         ViewportManager.UpdateFromArrays();
     }
 
-    // TODO: these should be room coordinates with respect to the view the mouse is over
-    public static object get_mouse_x() => KeyboardHandler.MousePos.X;
-
-    public static object get_mouse_y() => KeyboardHandler.MousePos.Y;
+    public static object get_mouse_x() => GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
+    public static object get_mouse_y() => GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
 
     public static object? get_pointer_null() => null;
 
