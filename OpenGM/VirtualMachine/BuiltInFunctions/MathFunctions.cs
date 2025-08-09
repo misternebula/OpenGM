@@ -1139,6 +1139,46 @@ public static class MathFunctions
         return str.Replace(substr, newstr);
     }
 
+    [GMLFunction("string_trim")]
+    public static object string_trim(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+
+        if (args.Length == 1)
+        {
+            return str.Trim();
+        }
+
+        // TODO: this probably sucks
+        var list = (IEnumerable<string>)args[1]!;
+        var sub = "";
+        for (;;)
+        {
+            sub = list.FirstOrDefault(s => str.StartsWith(s) || str.EndsWith(s));
+            if (sub is null)
+            {
+                break;
+            }
+
+            if (sub.Length == 0)
+            {
+                throw new ArgumentException("Empty substring");
+            }
+
+            while (str.StartsWith(sub))
+            {
+                str = str[sub.Length..];
+            }
+
+            while (str.EndsWith(sub))
+            {
+                str = str[..^sub.Length];
+            }
+        }
+
+        return str;
+    }
+
     [GMLFunction("string_count")]
     public static object string_count(object?[] args)
     {

@@ -221,10 +221,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return CustomWindow.Instance.ClientSize.Y;
         }
 
-        [GMLFunction("window_has_focus", GMLFunctionFlags.Stub)]
+        [GMLFunction("window_has_focus")]
         public static object? window_has_focus(object?[] args)
         {
-            return true;
+            return CustomWindow.Instance.IsFocused;
         }
 
         // TODO: check if these are right
@@ -246,8 +246,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var mouseX = KeyboardHandler.MousePos.X;
             var windowWidth = window_get_width([]).Conv<int>();
-            var viewWidth = ViewportManager.CurrentRenderingView?.ViewSize.X ?? RoomManager.CurrentRoom.SizeX;
-            return CustomMath.FloorToInt(mouseX * (viewWidth / windowWidth));
+            var viewX = RoomManager.CurrentRoom.Views[0].ViewPosition.X;
+            var viewWidth = RoomManager.CurrentRoom.Views[0].ViewSize.X;
+            return CustomMath.FloorToInt(viewX + (mouseX * (viewWidth / windowWidth)));
         }
 
         [GMLFunction("window_views_mouse_get_y")]
@@ -255,8 +256,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         { 
             var mouseY = KeyboardHandler.MousePos.Y;
             var windowHeight = window_get_height([]).Conv<int>();
-            var viewHeight = ViewportManager.CurrentRenderingView?.ViewSize.Y ?? RoomManager.CurrentRoom.SizeY;
-            return CustomMath.FloorToInt(mouseY * (viewHeight / windowHeight));
+            var viewY = RoomManager.CurrentRoom.Views[0].ViewPosition.Y;
+            var viewHeight = RoomManager.CurrentRoom.Views[0].ViewSize.Y;
+            return CustomMath.FloorToInt(viewY + (mouseY * (viewHeight / windowHeight)));
         }
 
         // window_get_visible_rects
