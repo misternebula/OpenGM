@@ -296,7 +296,7 @@ public static class FileFunctions
     public static object? parameter_string(object?[] args)
     {
         var n = args[0].Conv<int>();
-        return Entry.LaunchParameters[n - 1];
+        return Entry.LaunchParameters.ElementAtOrDefault(n - 1) ?? "";
     }
 
     [GMLFunction("environment_get_variable")]
