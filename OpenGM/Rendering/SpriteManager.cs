@@ -69,10 +69,16 @@ public static class SpriteManager
 
     public static void DrawSpriteExt(int name, double index, double x, double y, double xscale, double yscale, double rot, int blend, double alpha)
     {
-        if (index < 0 || name < 0) 
+        if (name < 0) 
         {
             DebugLog.LogWarning($"Tried to draw sprite {name} with index {index}.");
             return;
+        }
+
+        var asset = GetSpriteAsset(name);
+        if (asset is not null)
+        {
+            index = CustomMath.Mod(index, asset.Textures.Count);
         }
 
         var sprite = GetSpritePageItem(name, index);

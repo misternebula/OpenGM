@@ -1316,8 +1316,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
         }
 
-        // string_width_ext
-        // string_height_ext
+        [GMLFunction("string_width_ext", GMLFunctionFlags.Stub)]
+        public static object string_width_ext(object?[] args)
+        {
+            return string_width(args);
+        }
+
+        [GMLFunction("string_height_ext", GMLFunctionFlags.Stub)]
+        public static object string_height_ext(object?[] args)
+        {
+            return string_height(args);
+        }
 
         [GMLFunction("draw_text")]
         public static object? draw_text(object?[] args)
