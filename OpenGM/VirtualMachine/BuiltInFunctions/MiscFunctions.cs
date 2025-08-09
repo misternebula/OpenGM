@@ -417,7 +417,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // date_compare_time
         // date_date_of
         // date_time_of
-        // date_datetime_string
+        
+        [GMLFunction("date_datetime_string")]
+        public static object date_datetime_string(object?[] args)
+        {
+            // no idea if this is right lol
+            var time = args[0].Conv<double>();
+            var d = new Date();
+            d.SetTime(FromGMDateTime(time));
+
+            return d.ToString()!;
+        }
+
         // date_date_string
         // date_time_string
         // date_days_in_month

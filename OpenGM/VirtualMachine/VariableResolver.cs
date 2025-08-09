@@ -120,8 +120,8 @@ public static class VariableResolver
         // pointer_invalid
         { "pointer_null", (get_pointer_null, null)},
         { "undefined", (get_undefined, null) },
-        // NaN
-        // infinity
+        { "NaN", (get_nan, null) },
+        { "infinity", (get_infinity, null) },
         { "room", (get_room, set_room) },
         // room_first
         // room_last
@@ -444,6 +444,9 @@ public static class VariableResolver
     }
 
     public static object? get_undefined() => null;
+
+    public static object? get_nan() => double.NaN;
+    public static object? get_infinity() => double.PositiveInfinity;
 
     public static object get_view_wport() => ViewportManager.view_wport;
 

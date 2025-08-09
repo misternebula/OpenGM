@@ -165,7 +165,15 @@ public static class MathFunctions
     // array_set_2D
     // array_set_2D_pre
     // array_set_2D_post
-    // array_equals
+
+    [GMLFunction("array_equals")]
+    public static object? array_equals(object?[] args)
+    {
+        var first = args[0].Conv<IList>();
+        var second = args[1].Conv<IList>();
+
+        return Enumerable.SequenceEqual((IEnumerable<object?>)first, (IEnumerable<object?>)second);
+    }
 
     [GMLFunction("array_create")]
     public static object? array_create(object?[] args)
