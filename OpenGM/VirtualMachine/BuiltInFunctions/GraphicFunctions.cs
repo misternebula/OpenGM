@@ -1254,6 +1254,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var font = args[0].Conv<int>();
 
+            if (font == -1)
+            {
+                DebugLog.LogVerbose("Font is -1, we'll just use the first font.");
+                font = 0;
+            }
+
             var library = TextManager.FontAssets;
             var fontAsset = library.FirstOrDefault(x => x.AssetIndex == font);
 
