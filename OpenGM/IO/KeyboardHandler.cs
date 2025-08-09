@@ -29,6 +29,8 @@ public class KeyboardHandler
 
     public static Vector2 MousePos = new();
 
+    public static string KeyboardString = "";
+
     public static void UpdateMouseState(MouseState state)
     {
         var mouseButtons = new[] { MouseButton.Left, MouseButton.Middle, MouseButton.Right, MouseButton.Button1, MouseButton.Button2 };
@@ -55,6 +57,7 @@ public class KeyboardHandler
     {
         return keyid switch
         {
+            0x08 => [Keys.Backspace],
             0x0D => [Keys.Enter],
             0x10 => [Keys.LeftShift, Keys.RightShift],
             0x11 => [Keys.LeftControl, Keys.RightControl],
@@ -211,6 +214,28 @@ public class KeyboardHandler
         for (var i = 2; i < 256; i++)
         {
             CalculateKey(i, CustomWindow.Instance.IsFocused && Convert(i).Any(state.IsKeyDown));
+        }
+
+        // TODO: account for caps lock?
+        for (var i = 'A'; i <= 'Z'; i++)
+        {
+            if (KeyPressed[i])
+            {
+                var chr = i;
+
+                if (!KeyPressed[0x10])
+                {
+                    chr += (char)32;
+                }
+
+                KeyboardString += chr;
+            }
+        }
+
+        if (KeyPressed[8] && KeyboardString.Length > 0)
+        {
+            // backspace
+            KeyboardString = KeyboardString[..^1];
         }
 
         // debug

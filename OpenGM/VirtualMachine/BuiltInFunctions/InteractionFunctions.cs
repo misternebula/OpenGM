@@ -28,8 +28,34 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // get_save_filename_ext
         // keyboard_get_numlock
         // keyboard_set_numlock
-        // keyboard_key_press
-        // keyboard_key_release
+
+        [GMLFunction("keyboard_key_press")]
+        public static object? keyboard_key_press(object?[] args)
+        {
+            var key = args[0].Conv<int>();
+
+            if (KeyboardHandler.KeyDown[key])
+            {
+                return null;
+            }
+
+            KeyboardHandler.KeyDown[key] = true;
+            KeyboardHandler.KeyPressed[key] = true;
+
+            return null;
+        }
+
+        [GMLFunction("keyboard_key_release")]
+        public static object? keyboard_key_release(object?[] args)
+        {
+            var key = args[0].Conv<int>();
+
+            KeyboardHandler.KeyDown[key] = false;
+            // oddly doesn't change KeyPressed in the HTML runner
+
+            return null;
+        }
+
         // keyboard_set_map
         // keyboard_get_map
         // keyboard_unset_map

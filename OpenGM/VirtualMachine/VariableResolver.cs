@@ -189,7 +189,7 @@ public static class VariableResolver
         // keyboard_key
         // keyboard_lastkey
         // keyboard_lastchar
-        // keyboard_string
+        { "keyboard_string", (get_keyboard_string, set_keyboard_string)},
         // cursor_sprite
         // show_score
         // show_lives
@@ -507,6 +507,9 @@ public static class VariableResolver
 
     public static object get_mouse_x() => GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
     public static object get_mouse_y() => GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
+
+    public static object get_keyboard_string() => KeyboardHandler.KeyboardString;
+    public static void set_keyboard_string(object? value) => KeyboardHandler.KeyboardString = value.Conv<string>();
 
     public static object? get_pointer_null() => null;
 
