@@ -386,12 +386,6 @@ public static class RoomManager
                 {
                     var item = (element as CLayerBackgroundElement)!;
 
-                    if (item.Index == -1)
-                    {
-                        DebugLog.LogWarning($"Background {item.Name} with null index!");
-                        continue;
-                    }
-
                     var background = new GMBackground(item)
                     {
                         depth = layer.LayerDepth

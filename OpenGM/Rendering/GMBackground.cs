@@ -22,6 +22,30 @@ public class GMBackground : DrawWithDepth
             return;
         }
 
+        if (Element.Index < 0)
+        {
+            var color = Element.Color.ABGRToCol4(Element.Alpha);
+            var x1 = GraphicsManager.ViewArea.X;
+            var x2 = GraphicsManager.ViewArea.X + GraphicsManager.ViewArea.Z;
+            var y1 = GraphicsManager.ViewArea.Y;
+            var y2 = GraphicsManager.ViewArea.Y + GraphicsManager.ViewArea.W;
+            
+            CustomWindow.Draw(new GMPolygonJob()
+            {
+                Colors = [color, color, color, color],
+                Vertices =
+                [
+                    new(x1, y1, GraphicsManager.GR_Depth),
+                    new(x2, y1, GraphicsManager.GR_Depth),
+                    new(x2, y2, GraphicsManager.GR_Depth),
+                    new(x1, y2, GraphicsManager.GR_Depth)
+                ],
+                Outline = false
+            });
+
+            return;
+        }
+
         // TODO : account for stretch
         // TODO : work out what foreground does
         // TODO : account for animations
