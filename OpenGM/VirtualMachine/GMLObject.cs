@@ -66,6 +66,12 @@ public class GMLObject : IStackContextSelf, IDictionary<string, object?>
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out object? value) 
         => SelfVariables.TryGetValue(key, out value);
 
+    public object? GetValueOrDefault(string key) 
+        => SelfVariables.GetValueOrDefault(key);
+
+    public object? GetValueOrDefault(string key, object def) 
+        => SelfVariables.GetValueOrDefault(key, def);
+
     public void Add(KeyValuePair<string, object?> item) 
         => SelfVariables.Add(item.Key, item.Value);
 

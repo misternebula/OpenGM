@@ -50,7 +50,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return VMExecutor.Self.Self;
         }
 
-        // @@Global@@
+        [GMLFunction("@@Global@@")]
+        public static object Global(object?[] args)
+        {
+            return VariableResolver.GlobalVariables;
+        }
 
         // TODO : implement try/catches?
 

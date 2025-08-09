@@ -91,7 +91,7 @@ public static class VariableResolver
         }
     }
 
-    public static readonly Dictionary<string, object?> GlobalVariables = new();
+    public static readonly GMLObject GlobalVariables = new();
 
     public static Dictionary<string, object?> CustomBuiltInVariableValues = new();
     // InitGlobalVariables
