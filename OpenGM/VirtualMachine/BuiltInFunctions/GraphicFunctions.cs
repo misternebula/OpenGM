@@ -69,8 +69,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // display_get_frequency
         // display_get_orientation
         // diplay_reset
-        // display_mouse_get_x
-        // display_mouse_get_y
+
+        [GMLFunction("display_mouse_get_x", GMLFunctionFlags.Stub)]
+        public static object? display_mouse_get_x(object?[] args)
+        {
+            return window_mouse_get_x([]);
+        }
+
+        [GMLFunction("display_mouse_get_y", GMLFunctionFlags.Stub)]
+        public static object? display_mouse_get_y(object?[] args)
+        {
+            return window_mouse_get_y([]);
+        }
+
         // display_mouse_set
         // draw_enable_drawevent
         // display_set_windows_alternate_sync
