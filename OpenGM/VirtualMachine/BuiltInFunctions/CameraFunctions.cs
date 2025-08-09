@@ -192,18 +192,154 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return camera.ID;
         }
 
-        // view_get_visible
-        // view_get_xport
-        // view_get_yport
-        // view_get_wport
-        // view_get_hport
+        [GMLFunction("view_get_visible")]
+        public static object? view_get_visible(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            return RoomManager.CurrentRoom.Views[view_port].Visible;
+        }
+
+        [GMLFunction("view_get_xport")]
+        public static object? view_get_xport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            return RoomManager.CurrentRoom.Views[view_port].PortPosition.X;
+        }
+
+        [GMLFunction("view_get_yport")]
+        public static object? view_get_yport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            return RoomManager.CurrentRoom.Views[view_port].PortPosition.Y;
+        }
+
+        [GMLFunction("view_get_wport")]
+        public static object? view_get_wport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            return RoomManager.CurrentRoom.Views[view_port].PortSize.X;
+        }
+
+        [GMLFunction("view_get_hport")]
+        public static object? view_get_hport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            return RoomManager.CurrentRoom.Views[view_port].PortSize.Y;
+        }
+
         // view_get_surface_id
         // view_set_camera
-        // view_set_visible
-        // view_set_xport
-        // view_set_yport
-        // view_set_wport
-        // view_set_hport
+
+        [GMLFunction("view_set_visible")]
+        public static object? view_set_visible(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+            var visible = args[1].Conv<bool>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            RoomManager.CurrentRoom.Views[view_port].Visible = visible;
+
+            return null;
+        }
+
+        [GMLFunction("view_set_xport")]
+        public static object? view_set_xport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+            var pos = args[1].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            RoomManager.CurrentRoom.Views[view_port].PortPosition.X = pos;
+
+            return null;
+        }
+
+        [GMLFunction("view_set_yport")]
+        public static object? view_set_yport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+            var pos = args[1].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            RoomManager.CurrentRoom.Views[view_port].PortPosition.Y = pos;
+
+            return null;
+        }
+
+        [GMLFunction("view_set_wport")]
+        public static object? view_set_wport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+            var size = args[1].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            RoomManager.CurrentRoom.Views[view_port].PortSize.X = size;
+
+            return null;
+        }
+
+        [GMLFunction("view_set_hport")]
+        public static object? view_set_hport(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+            var size = args[1].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            RoomManager.CurrentRoom.Views[view_port].PortSize.Y = size;
+
+            return null;
+        }
+
         // view_set_surface_id
     }
 }
