@@ -229,7 +229,7 @@ public static class RoomManager
             {
                 foreach (var item in layer.Value.ElementsToDraw)
                 {
-                    if (item is GamemakerObject gm && gm.persistent)
+                    if (item is GamemakerObject)
                     {
                         continue;
                     }
