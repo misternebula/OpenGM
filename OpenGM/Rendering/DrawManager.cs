@@ -528,10 +528,17 @@ public static class DrawManager
                     {
                         if (item is GamemakerObject gm && gm.Active)
                         {
-                            var color = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 1.0f);
-                            var fill = new OpenTK.Mathematics.Color4(1.0f, 0.0f, 0.0f, 0.05f);
+                            var color = new Color4(1.0f, 0.0f, 0.0f, 1.0f);
+                            var fill = new Color4(1.0f, 0.0f, 0.0f, 0.05f);
 
-                            var vertices = new OpenTK.Mathematics.Vector3d[] {
+                            if (gm.mouse_over)
+                            {
+                                color.R = fill.R = 0.0f;
+                                color.G = fill.G = 1.0f;
+                                color.B = fill.B = 0.0f;
+                            }
+
+                            var vertices = new Vector3d[] {
                                 new(gm.bbox.left, gm.bbox.top, GraphicsManager.GR_Depth),
                                 new(gm.bbox.right, gm.bbox.top, GraphicsManager.GR_Depth),
                                 new(gm.bbox.right, gm.bbox.bottom, GraphicsManager.GR_Depth),
