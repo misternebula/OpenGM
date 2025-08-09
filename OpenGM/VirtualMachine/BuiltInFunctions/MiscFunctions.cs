@@ -65,7 +65,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("show_debug_message")]
         public static object? show_debug_message(object?[] args)
         {
-            DebugLog.Log(args[0]?.ToString() ?? "undefined");
+            if (args.Length == 0)
+            {
+                DebugLog.Log("undefined");
+                return null;
+            }
+
+            DebugLog.Log((string)MathFunctions.@string(args[0]));
             return null;
         }
 
