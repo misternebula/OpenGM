@@ -381,22 +381,6 @@ public static class InstanceManager
         inactiveInstances.Clear();
     }
 
-    public static void ClearNullInstances() // TODO: we dont need to null check instances??????
-    {
-        var toRemove = instances.Where(x => x.Value == null).Select(x => x.Key);
-
-        if (toRemove.Any())
-        {
-            DebugLog.LogError("Found null instances in instance list!");
-            foreach (var item in toRemove)
-            {
-                DebugLog.LogError($" - {item}");
-            }
-        }
-
-        ClearInstances(toRemove);
-    }
-
     public static void ClearInstances(IEnumerable<int> toRemove)
     {
         foreach (var id in toRemove)

@@ -215,7 +215,6 @@ public static class RoomManager
             }
 
             InstanceManager.ClearInactive();
-            InstanceManager.ClearNullInstances();
 
             foreach (var item in CurrentRoom.Tiles)
             {
