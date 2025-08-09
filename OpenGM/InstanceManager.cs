@@ -397,12 +397,6 @@ public static class InstanceManager
         ClearInstances(toRemove);
     }
 
-    public static void ClearNonPersistent()
-    {
-        var toRemove = instances.Where(x => !x.Value.persistent).Select(x => x.Key);
-        ClearInstances(toRemove);
-    }
-
     public static void ClearInstances(IEnumerable<int> toRemove)
     {
         foreach (var id in toRemove)
@@ -414,21 +408,6 @@ public static class InstanceManager
     public static void ClearInstances(IEnumerable<GamemakerObject?> toRemove) // this doesnt need to be nullable but i dont care enough to change and test it
     {
         ClearInstances(toRemove.Where(o => o != null).Select(o => o!.instanceId));
-    }
-
-    public static void RoomChange() // does this need to exist? ChangeToWaitingRoom already does this i think
-    {
-        foreach (var (instanceId, instance) in instances)
-        {
-            if (!instance.persistent)
-            {
-                instance.Destroy();
-            }
-        }
-
-        //instances = instances.Where(x => x.Value != null && x.Value.persistent).ToDictionary();
-        ClearNullInstances();
-        ClearNonPersistent();
     }
 
     public static void RememberOldPositions()

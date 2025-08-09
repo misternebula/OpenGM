@@ -212,13 +212,10 @@ public static class RoomManager
                 GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
                 instance.Destroy();
-                //Destroy(instance.gameObject);
             }
 
-            //InstanceManager.instances = InstanceManager.instances.Where(x => x.Value != null && !x.Value.Destroyed && x.Value.persistent).ToDictionary();
             InstanceManager.ClearInactive();
             InstanceManager.ClearNullInstances();
-            InstanceManager.ClearNonPersistent();
 
             foreach (var item in CurrentRoom.Tiles)
             {
@@ -310,8 +307,6 @@ public static class RoomManager
 
 
         var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
-
-        InstanceManager.RoomChange();
 
         void RunObjEvents(GamemakerObject obj, GameObject go)
         {
