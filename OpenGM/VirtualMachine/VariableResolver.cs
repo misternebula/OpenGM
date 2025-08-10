@@ -199,7 +199,6 @@ public static class VariableResolver
         // caption_health
         { "fps", (get_fps, null) },
         // fps_real
-        { "delta_time", (get_delta_time, null) },
         { "current_time", (get_current_time, null)},
         // current_year
         { "current_month", (get_current_month, null)},
@@ -218,8 +217,6 @@ public static class VariableResolver
         // gamemaker_pro
         { "application_surface", (get_application_surface, null) },
         // font_texture_page_size
-
-        { "async_load", (get_async_load, null) },
 
         // InitYoYoBuiltInVariables
         { "os_type", (get_os_type, null) },
@@ -280,8 +277,21 @@ public static class VariableResolver
         { "path_scale", (get_path_scale, set_path_scale)},
         // path_orientation
         // path_endaction
-        // ...
+        
+        // .. timeline stuff
+
+        { "async_load", (get_async_load, null) },
+        // event_data
+        // iap_data
+
+        // .. physics stuff
+
+        // display_aa
+        { "delta_time", (get_delta_time, null) },
+        // webgl_enabled
         { "layer", (get_layer, set_layer)}
+        // in_sequence
+        // sequence_instance
     };
 
     public static object get_working_directory()
@@ -294,8 +304,9 @@ public static class VariableResolver
         return Entry.GameSpeed; // TODO : this shouldnt be the desired fps, but the current fps (fluctuating)
     }
 
-    public static object get_delta_time()
+    public static object get_delta_time(GamemakerObject instance)
     {
+        // why is this a self variable? who knows!
         return CustomWindow.Instance.DeltaTime;
     }
 
@@ -405,7 +416,7 @@ public static class VariableResolver
     public static object get_room_speed() => Entry.GameSpeed;
     public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
 
-    public static object get_async_load() => AsyncManager.AsyncLoadDsIndex;
+    public static object get_async_load(GamemakerObject instance) => AsyncManager.AsyncLoadDsIndex;
 
     public static object get_os_type() => 0; // TODO : Check if this is actually os_windows
 
