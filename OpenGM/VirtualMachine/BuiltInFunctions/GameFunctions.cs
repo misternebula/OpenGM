@@ -271,7 +271,30 @@ public static class GameFunctions
         return CollisionManager.Command_CollisionRectangle(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
     }
 
-    // collision_rectangle_list
+    [GMLFunction("collision_rectangle_list")]
+    public static object collision_rectangle_list(object?[] args)
+    {
+        var x1 = args[0].Conv<double>();
+        var y1 = args[1].Conv<double>();
+        var x2 = args[2].Conv<double>();
+        var y2 = args[3].Conv<double>();
+        var obj = args[4].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+        var prec = args[5].Conv<bool>();
+        var notme = args[6].Conv<bool>();
+        var list = args[7].Conv<int>();
+        var ordered = args[8].Conv<bool>(); // TODO : implement
+
+        List<GamemakerObject> collisionList = [];
+        CollisionManager.Command_CollisionRectangle(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme, collisionList);
+
+        foreach (var instance in collisionList)
+        {
+            // TODO: this sucks but too lazy to do it a better way LOL
+            DataStructuresFunctions.ds_list_add([list, instance.instanceId]);
+        }
+
+        return collisionList.Count;
+    }
 
     [GMLFunction("collision_circle")]
     public static object? collision_circle(object?[] args)
@@ -448,7 +471,7 @@ public static class GameFunctions
         var y = args[1].Conv<double>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
         var list = args[3].Conv<int>();
-        var ordered = args[4].Conv<bool>();
+        var ordered = args[4].Conv<bool>(); // TODO : implement
 
         List<GamemakerObject> collisionList = [];
         CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj, collisionList);

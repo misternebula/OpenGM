@@ -106,7 +106,7 @@ public static class CollisionManager
         };
     }
 
-    public static int Command_CollisionRectangle(GamemakerObject self, double x1, double y1, double x2, double y2, int obj, bool precise, bool notme)
+    public static int Command_CollisionRectangle(GamemakerObject self, double x1, double y1, double x2, double y2, int obj, bool precise, bool notme, List<GamemakerObject>? list = null)
     {
         bool IsValid(GamemakerObject? instance)
         {
@@ -133,13 +133,16 @@ public static class CollisionManager
             return Collision_Rectangle(instance, x1, y1, x2, y2, precise);
         }
 
+        var returnValue = GMConstants.noone;
+
         if (obj == GMConstants.all)
         {
             foreach (var instance in InstanceManager.instances.Values)
             {
                 if (IsValid(instance))
                 {
-                    return instance.instanceId;
+                    list?.Add(instance);
+                    returnValue = instance!.instanceId;
                 }
             }
         }
@@ -150,7 +153,8 @@ public static class CollisionManager
             {
                 if (IsValid(instance))
                 {
-                    return instance.instanceId;
+                    list?.Add(instance);
+                    returnValue = instance!.instanceId;
                 }
             }
         }
@@ -161,11 +165,12 @@ public static class CollisionManager
 
             if (IsValid(instance))
             {
-                return instance!.instanceId;
+                list?.Add(instance!);
+                returnValue = instance!.instanceId;
             }
         }
 
-        return GMConstants.noone;
+        return returnValue;
     }
 
     public static int Command_CollisionPoint(GamemakerObject self, double x, double y, int obj, bool precise, bool notme)
