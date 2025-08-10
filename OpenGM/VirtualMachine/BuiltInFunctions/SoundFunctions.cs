@@ -673,7 +673,49 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // audio_create_play_queue
         // audio_free_play_queue
         // audio_queue_sound
-        // audio_start_recording
+
+        public static Dictionary<string, RecordingInfo> Recorders = new();
+
+        [GMLFunction("audio_start_recording")]
+        public static object? audio_start_recording(object?[] args)
+        {
+            var recorder_index = args[0].Conv<int>();
+            var name = AudioManager.GetRecordingDeviceNames().ElementAt(recorder_index);
+
+            ALCaptureDevice captureDevice;
+            if (Recorders.TryGetValue(name, out var info))
+            {
+                if (info.Recording)
+                {
+                    throw new NotImplementedException("Already recording");
+                }
+
+                captureDevice = info.Device;
+            }
+            else
+            {
+                captureDevice = ALC.CaptureOpenDevice(name, 16000, ALFormat.Mono16, 32000);
+                AudioManager.CheckALCError();
+
+                info = new()
+                {
+                    SampleRate = 1600,
+                    Format = ALFormat.Mono16,
+                    Name = name,
+                    Device = captureDevice
+                };
+
+                Recorders.Add(name, info);
+            }
+
+            ALC.CaptureStart(captureDevice);
+            AudioManager.CheckALCError();
+
+            info.Recording = true;
+
+            return Recorders.Values.ToList().IndexOf(info);
+        }
+
         // audio_stop_recording
         // audio_get_recorder_count
 
@@ -683,7 +725,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return AudioManager.GetRecordingDeviceNames().Count();
         }
 
-        // audio_get_recorder_info
+        [GMLFunction("audio_get_recorder_info")]
+        public static object? audio_get_recorder_info(object?[] args)
+        {
+            var recorder_index = args[0].Conv<int>();
+            var name = AudioManager.GetRecordingDeviceNames().ElementAt(recorder_index);
+
+            var dsmap = DataStructuresFunctions.ds_map_create();
+            DataStructuresFunctions.ds_map_add([dsmap, "name", name]);
+            DataStructuresFunctions.ds_map_add([dsmap, "index", recorder_index]);
+            DataStructuresFunctions.ds_map_add([dsmap, "data_format", BufferDataType.buffer_s16]);
+            DataStructuresFunctions.ds_map_add([dsmap, "sample_rate", 16000]);
+            DataStructuresFunctions.ds_map_add([dsmap, "channels", 0]); // TODO: not 1? or is audio_mono just an enum and that's the first value
+
+            return dsmap;
+        }
+
         // audio_sound_get_listener_mask
         // audio_sound_set_listener_mask
         // audio_emitter_get_listener_mask
@@ -767,5 +824,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // audio_debug
+    }
+
+    public class RecordingInfo
+    {
+        public int SampleRate;
+        public ALFormat Format;
+        public string Name = "";
+        public bool Recording;
+        public ALCaptureDevice Device;
     }
 }

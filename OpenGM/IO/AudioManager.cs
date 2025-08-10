@@ -471,7 +471,11 @@ public static class AudioManager
     {
         var list = ALC.GetStringList(GetEnumerationStringList.CaptureDeviceSpecifier);
         CheckALCError();
-        return list;
+
+        const string OPEN_AL_IS_DUMB_AND_SMELLY = "OpenAL Soft on ";
+        return list.Select(x => x.StartsWith(OPEN_AL_IS_DUMB_AND_SMELLY)
+            ? x[OPEN_AL_IS_DUMB_AND_SMELLY.Length..]
+            : x);
     }
 
     public static int AudioEmitterCreate()
