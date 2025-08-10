@@ -179,7 +179,15 @@ public static class FileFunctions
 
         if (val is not int and not double and not float and not long and not short)
         {
-            DebugLog.LogError($"file_text_write_real got {val} ({val!.GetType()}) instead of a real!");
+            if (val is null)
+            {
+                DebugLog.LogError($"file_text_write_real got null instead of a real!");
+            }
+            else
+            {
+                DebugLog.LogError($"file_text_write_real got {val} ({val!.GetType()}) instead of a real!");
+            }
+                
             // i have no fucking idea
             writer.Write(0);
             return null;
