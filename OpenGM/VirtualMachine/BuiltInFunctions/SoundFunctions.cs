@@ -57,7 +57,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return AudioManager.AudioEmitterCreate();
         }
 
-        // audio_emitter_free
+        [GMLFunction("audio_emitter_free", GMLFunctionFlags.Stub)]
+        public static object? audio_emitter_free(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("audio_play_sound")]
         public static object? audio_play_sound(object?[] args)
