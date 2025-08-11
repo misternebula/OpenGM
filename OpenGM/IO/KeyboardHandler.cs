@@ -33,7 +33,7 @@ public class KeyboardHandler
 
     public static void UpdateMouseState(MouseState state)
     {
-        var mouseButtons = new[] { MouseButton.Left, MouseButton.Middle, MouseButton.Right, MouseButton.Button1, MouseButton.Button2 };
+        var mouseButtons = new[] { MouseButton.Left, MouseButton.Right, MouseButton.Middle, MouseButton.Button1, MouseButton.Button2 };
 
         for (var i = 0; i < 5; i++)
         {

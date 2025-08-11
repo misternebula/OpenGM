@@ -170,21 +170,37 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object mouse_check_button(object?[] args)
         {
             var numb = args[0].Conv<int>();
-            return KeyboardHandler.MouseDown[numb];
+
+            return numb switch
+            {
+                -1 => KeyboardHandler.MouseDown.Any(x => x),
+                0 => KeyboardHandler.MouseDown.All(x => !x),
+                _ => KeyboardHandler.MouseDown[numb - 1]
+            };
         }
 
         [GMLFunction("mouse_check_button_pressed")]
         public static object mouse_check_button_pressed(object?[] args)
         {
             var numb = args[0].Conv<int>();
-            return KeyboardHandler.MousePressed[numb];
+            return numb switch
+            {
+                -1 => KeyboardHandler.MousePressed.Any(x => x),
+                0 => KeyboardHandler.MousePressed.All(x => !x),
+                _ => KeyboardHandler.MousePressed[numb - 1]
+            };
         }
 
         [GMLFunction("mouse_check_button_released")]
         public static object mouse_check_button_released(object?[] args)
         {
             var numb = args[0].Conv<int>();
-            return KeyboardHandler.MouseReleased[numb];
+            return numb switch
+            {
+                -1 => KeyboardHandler.MouseReleased.Any(x => x),
+                0 => KeyboardHandler.MouseReleased.All(x => !x),
+                _ => KeyboardHandler.MouseReleased[numb - 1]
+            };
         }
 
         // mouse_wheel_up
