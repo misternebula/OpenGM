@@ -1,14 +1,33 @@
-using System.Globalization;
-using OpenGM.Loading;
 using MotionTK;
+using OpenGM.IO;
+using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
+using System.Globalization;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class YoYoFunctions
     {
-        // ...
+        // ... YoYo_
+
+        // ... virtual_key_
+
+        // ... push_
+
+        // ... achievement_
+
+        // ... cloud_
+
+        // ... YoYo_OpenURL_
+
+        // ... url_
+
+        // ... clickable_
+
+        // shop_get_rating
+        
+        // ... YoYo_
 
         [GMLFunction("get_timer")]
         public static object get_timer(object?[] args)
@@ -17,7 +36,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // os_get_config
-
         // os_get_info
 
         [GMLFunction("os_get_language")]
@@ -37,24 +55,80 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // os_request_permission
         // os_check_permision
 
-        [GMLFunction("os_is_paused", GMLFunctionFlags.Stub)]
-        public static object os_is_paused(object?[] args)
-        {
-            return false;
-        }
-
         [GMLFunction("code_is_compiled")]
         public static object code_is_compiled(object?[] args)
         {
             return GameLoader.GeneralInfo.IsYYC;
         }
 
-        // used by PT
-        [GMLFunction("switch_get_operation_mode", GMLFunctionFlags.Stub)]
-        public static object? switch_get_operation_mode(object?[] args)
+        // .. display_
+
+        // achievement_login_status
+
+        // .. YoYo_
+
+        [GMLFunction("device_mouse_check_button")]
+        public static object? device_mouse_check_button(object?[] args)
         {
-            return null;
+            // TODO: implement multiple devices.
+
+            var device = args[0].Conv<int>();
+            var button = args[1].Conv<int>();
+
+            return InteractionFunctions.mouse_check_button([button]);
         }
+
+        [GMLFunction("device_mouse_check_button_pressed")]
+        public static object? device_mouse_check_button_pressed(object?[] args)
+        {
+            // TODO: implement multiple devices.
+
+            var device = args[0].Conv<int>();
+            var button = args[1].Conv<int>();
+
+            return InteractionFunctions.mouse_check_button_pressed([button]);
+        }
+
+        [GMLFunction("device_mouse_check_button_released")]
+        public static object? device_mouse_check_button_released(object?[] args)
+        {
+            // TODO: implement multiple devices.
+
+            var device = args[0].Conv<int>();
+            var button = args[1].Conv<int>();
+
+            return InteractionFunctions.mouse_check_button_released([button]);
+        }
+        // device_mouse_x
+        // device_mouse_y
+        // device_mouse_raw_x
+        // device_mouse_raw_y
+        // device_mouse_x_to_gui
+        // device_mouse_y_to_gui
+        // device_get_tilt_x
+        // device_get_tilt_y
+        // device_get_tilt_z
+        // device_is_keypad_open
+
+        [GMLFunction("os_is_paused", GMLFunctionFlags.Stub)]
+        public static object os_is_paused(object?[] args)
+        {
+            return false;
+        }
+
+        // window_has_focus
+        // base64_encode
+        // base64_decode
+
+        // ...
+
+        // gml_release_mode
+        // application_surface_draw_enable
+        // application_get_position
+        // application_surface_enable
+        // application_surface_is_enabled
+        // extension_stubfunc_real
+        // extension_stubfun_string
 
         // ...
 
@@ -209,6 +283,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // video_get_format
         // video_is_looping
         // video_get_volume
+
+        [GMLFunction("switch_get_operation_mode", GMLFunctionFlags.Stub)]
+        public static object? switch_get_operation_mode(object?[] args)
+        {
+            return null;
+        }
 
         // ...
     }
