@@ -43,7 +43,17 @@ public static class GameFunctions
     // move_bounce_solid
     // move_bounce_all
     // move_wrap
-    // motion_set
+
+    [GMLFunction("motion_set")]
+    public static object? motion_set(object?[] args)
+    {
+        var dir = args[0].Conv<double>();
+        var speed = args[1].Conv<double>();
+
+        VMExecutor.Self.GMSelf.direction = dir;
+        VMExecutor.Self.GMSelf.speed = speed;
+        return null;
+    }
 
     [GMLFunction("motion_add")]
     public static object? motion_add(object?[] args)
