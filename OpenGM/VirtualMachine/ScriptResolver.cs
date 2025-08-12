@@ -1,6 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.Rendering;
+using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
 using System.Reflection;
 

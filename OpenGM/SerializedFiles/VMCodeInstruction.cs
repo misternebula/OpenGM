@@ -1,6 +1,7 @@
 ﻿using MemoryPack;
+using OpenGM.VirtualMachine;
 
-namespace OpenGM.VirtualMachine;
+namespace OpenGM.SerializedFiles;
 
 [MemoryPackable]
 public partial class VMCodeInstruction

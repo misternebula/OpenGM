@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.SerializedFiles;
 using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine;

@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine;
+﻿using OpenGM.SerializedFiles;
+
+namespace OpenGM.VirtualMachine;
 
 public static partial class VMExecutor
 {

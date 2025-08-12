@@ -1,4 +1,6 @@
-﻿namespace OpenGM.VirtualMachine;
+﻿using OpenGM.SerializedFiles;
+
+namespace OpenGM.VirtualMachine;
 internal class Method
 {
     public IStackContextSelf? inst;

@@ -1,7 +1,7 @@
 ﻿using MemoryPack;
 using OpenGM.Loading;
 
-namespace OpenGM.VirtualMachine;
+namespace OpenGM.SerializedFiles;
 
 /// <summary>
 /// VMCode but with a different index and name.
