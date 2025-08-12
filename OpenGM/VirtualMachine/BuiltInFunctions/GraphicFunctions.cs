@@ -103,10 +103,32 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        [GMLFunction("display_set_gui_maximise", GMLFunctionFlags.Stub)]
-        [GMLFunction("display_set_gui_maximize", GMLFunctionFlags.Stub)]
+        [GMLFunction("display_set_gui_maximise")]
+        [GMLFunction("display_set_gui_maximize")]
         public static object? display_set_gui_maximise(object?[] args)
         {
+            // TODO: position offsets
+            var scaleX = 1.0;
+            var scaleY = 1.0;
+
+            if (args.Length > 0)
+            {
+                scaleX = args[0].Conv<double>();
+                scaleY = args[1].Conv<double>();
+            }
+
+            if (scaleX < 0 && scaleY < 0)
+            {
+                DrawManager.GuiSize = null;
+            }
+            else
+            {
+                var width = window_get_width([]).Conv<int>();
+                var height = window_get_height([]).Conv<int>();
+
+                DrawManager.GuiSize = new((int)(width * scaleX), (int)(height * scaleY));
+            }
+
             return null;
         }
 
@@ -158,7 +180,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var top = args[0].Conv<bool>();
 
             CustomWindow.Instance.AlwaysOnTop = top;
-            
+
             return null;
         }
 
