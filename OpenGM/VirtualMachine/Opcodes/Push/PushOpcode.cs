@@ -73,12 +73,7 @@ public static partial class VMExecutor
         if (self == null)
         {
             DebugLog.LogError($"Null self given to PushSelf varName:{varName} - {VMExecutor.CurrentInstruction!.Raw}");
-
-            DebugLog.LogError($"--Stacktrace--");
-            foreach (var item in CallStack)
-            {
-                DebugLog.LogError($" - {item.CodeName}");
-            }
+            DebugLog.PrintCallStack(DebugLog.LogType.Error);
 
             Call.Stack.Push(null, VMType.v);
             return;
@@ -109,11 +104,7 @@ public static partial class VMExecutor
                     DebugLog.LogError($"Variable {varName} doesn't exist in non-GMO self, pushing undefined.");
                 }
 
-                DebugLog.LogError($"--Stacktrace--");
-                foreach (var item in CallStack)
-                {
-                    DebugLog.LogError($" - {item.CodeName}");
-                }
+                DebugLog.PrintCallStack(DebugLog.LogType.Error);
 
                 self.SelfVariables[varName] = null;
                 Call.Stack.Push(self.SelfVariables[varName], VMType.v);
@@ -174,12 +165,7 @@ public static partial class VMExecutor
         {
             DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
 
-            DebugLog.LogError($"--Stacktrace--");
-            foreach (var stackItem in CallStack)
-            {
-                DebugLog.LogError($" - {stackItem.CodeName}");
-            }
-
+            DebugLog.PrintCallStack(DebugLog.LogType.Error);
             DebugLog.LogError(Environment.StackTrace);
 
             Call.Stack.Push(null, VMType.v);
@@ -537,11 +523,7 @@ public static partial class VMExecutor
                         {
                             DebugLog.LogError($"Tried to push variable {variableName} from {instanceId}, which doesn't exist!!");
 
-                            DebugLog.LogError($"--Stacktrace--");
-                            foreach (var item in CallStack)
-                            {
-                                DebugLog.LogError($" - {item.CodeName}");
-                            }
+                            DebugLog.PrintCallStack(DebugLog.LogType.Error);
 
                             DebugLog.LogError(Environment.StackTrace);
 

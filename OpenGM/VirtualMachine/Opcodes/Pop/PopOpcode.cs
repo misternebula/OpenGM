@@ -471,11 +471,7 @@ public static partial class VMExecutor
                     }
 
                     DebugLog.LogWarning($"idk what's meant to happen here aaaa!!!! varname:{variableName} value:{value}");
-                    DebugLog.LogWarning($"--Stacktrace--");
-                    foreach (var item in VMExecutor.CallStack)
-                    {
-                        DebugLog.LogWarning($" - {item.CodeName}");
-                    }
+                    DebugLog.PrintCallStack(DebugLog.LogType.Warning);
 
                     /*if (VariableResolver.BuiltInSelfVariables.ContainsKey(variableName))
                     {

@@ -1,4 +1,6 @@
-﻿namespace OpenGM.IO;
+﻿using OpenGM.VirtualMachine;
+
+namespace OpenGM.IO;
 
 public static class DebugLog
 {
@@ -69,6 +71,15 @@ public static class DebugLog
         Console.ForegroundColor = ConsoleColor.Magenta;
         Console.WriteLine(message);
         Console.ResetColor();
+    }
+
+    public static void PrintCallStack(LogType? type = LogType.Verbose)
+    {
+        Log($"--Stacktrace--", type);
+        foreach (var item in VMExecutor.CallStack)
+        {
+            Log($" - {item.CodeName}", type);
+        }
     }
 
     public enum LogType

@@ -723,11 +723,7 @@ public static class GameFunctions
             if (instance is null)
             {
                 DebugLog.LogVerbose($"Tried to activate non-existent instance {obj}");
-                DebugLog.LogVerbose($"--Stacktrace--");
-                foreach (var item in VMExecutor.CallStack)
-                {
-                    DebugLog.LogVerbose($" - {item.CodeName}");
-                }
+                DebugLog.PrintCallStack(DebugLog.LogType.Verbose);
 
                 return null;
             }

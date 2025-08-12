@@ -276,12 +276,7 @@ public static partial class VMExecutor
                 }
 
                 DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Label: {lastLabel}) in script {codeName} failed : {data}");
-
-                DebugLog.LogError($"--Stacktrace--");
-                foreach (var item in CallStack)
-                {
-                    DebugLog.LogError($" - {item.CodeName}");
-                }
+                DebugLog.PrintCallStack(DebugLog.LogType.Error);
 
                 //Debug.Break();
                 break;
