@@ -111,7 +111,6 @@ public class Buffer
             DebugLog.LogVerbose($"Pinned buffer is being resized, discarding pin. (current size: {Size}, new size: {newSize})");
             DataPin?.Free();
             DataPin = null;
-            return;
         }
 
         var newData = new byte[newSize];
