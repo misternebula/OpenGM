@@ -23,10 +23,7 @@ public class Buffer
 
     ~Buffer()
     {
-        if (DataPin is GCHandle handle)
-        {
-            handle.Free();
-        }
+        DataPin?.Free();
     }
 
     public nint MakeFixedPointer()
@@ -116,6 +113,11 @@ public class Buffer
             {
                 newData[i] = Data[i];
             }
+        }
+
+        if (DataPin is not null)
+        {
+            DebugLog.LogVerbose("Resizing pinned buffer, this probably won't go well.");
         }
 
         Data = newData;
