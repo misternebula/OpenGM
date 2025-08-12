@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -127,14 +128,66 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return CustomWindow.Instance.IsFullscreen;
         }
 
-        // window_set_showborder
-        // window_get_showborder
+        [GMLFunction("window_set_showborder")]
+        public static object? window_set_showborder(object?[] args)
+        {
+            var border = args[0].Conv<bool>();
+            unsafe
+            {
+                GLFW.SetWindowAttrib(CustomWindow.Instance.WindowPtr, WindowAttribute.Decorated, border);
+            }
+
+            return null;
+        }
+
+        [GMLFunction("window_get_showborder")]
+        public static object window_get_showborder(object?[] args)
+        {
+            unsafe
+            {
+                return GLFW.GetWindowAttrib(CustomWindow.Instance.WindowPtr, WindowAttributeGetBool.Decorated);
+            }
+        }
+
         // window_set_showicons
         // window_get_showicons
-        // window_set_stayontop
-        // window_get_stayontop
-        // window_set_sizeable
-        // window_get_sizeable
+
+        [GMLFunction("window_set_stayontop")]
+        public static object? window_set_stayontop(object?[] args)
+        {
+            var top = args[0].Conv<bool>();
+
+            CustomWindow.Instance.AlwaysOnTop = top;
+            
+            return null;
+        }
+
+        [GMLFunction("window_get_stayontop")]
+        public static object window_get_stayontop(object?[] args)
+        {
+            return CustomWindow.Instance.AlwaysOnTop;
+        }
+
+        [GMLFunction("window_set_sizeable")]
+        public static object? window_set_sizeable(object?[] args)
+        {
+            var sizeable = args[0].Conv<bool>();
+            unsafe
+            {
+                GLFW.SetWindowAttrib(CustomWindow.Instance.WindowPtr, WindowAttribute.Resizable, sizeable);
+            }
+
+            return null;
+        }
+
+        [GMLFunction("window_get_sizeable")]
+        public static object window_get_sizeable(object?[] args)
+        {
+            unsafe
+            {
+                return GLFW.GetWindowAttrib(CustomWindow.Instance.WindowPtr, WindowAttributeGetBool.Resizable);
+            }
+        }
 
         [GMLFunction("window_set_caption")]
         public static object? window_set_caption(object?[] args)
