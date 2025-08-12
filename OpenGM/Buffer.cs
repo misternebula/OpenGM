@@ -105,6 +105,15 @@ public class Buffer
 
     public void Resize(int newSize)
     {
+        if (DataPin is not null)
+        {
+            // TODO: don't know what official runner does in this scenario so bleh
+            DebugLog.LogVerbose($"Pinned buffer is being resized, discarding pin. (current size: {Size}, new size: {newSize})");
+            DataPin?.Free();
+            DataPin = null;
+            return;
+        }
+
         var newData = new byte[newSize];
 
         for (var i = 0; i < newSize; i++)
@@ -113,11 +122,6 @@ public class Buffer
             {
                 newData[i] = Data[i];
             }
-        }
-
-        if (DataPin is not null)
-        {
-            DebugLog.LogVerbose("Resizing pinned buffer, this probably won't go well.");
         }
 
         Data = newData;

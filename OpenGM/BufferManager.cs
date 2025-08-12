@@ -168,8 +168,6 @@ public static class BufferManager
                     buffer.Data[buffer.BufferIndex++], 
                     buffer.Data[buffer.BufferIndex++]
                 };
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 res = BitConverter.ToUInt16(bytes, 0);
                 break;
             }
@@ -180,8 +178,6 @@ public static class BufferManager
                     buffer.Data[buffer.BufferIndex++], 
                     buffer.Data[buffer.BufferIndex++]
                 };
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 res = BitConverter.ToInt16(bytes, 0);
                 break;
             }
@@ -196,8 +192,6 @@ public static class BufferManager
                     buffer.Data[buffer.BufferIndex++],
                     buffer.Data[buffer.BufferIndex++]
                 };
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 res = BitConverter.ToUInt32(bytes, 0);
                 break;
             }
@@ -210,8 +204,6 @@ public static class BufferManager
                     buffer.Data[buffer.BufferIndex++], 
                     buffer.Data[buffer.BufferIndex++]
                 };
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 res = BitConverter.ToInt32(bytes, 0);
                 break;
             }
@@ -230,8 +222,6 @@ public static class BufferManager
                     buffer.Data[buffer.BufferIndex++],
                     buffer.Data[buffer.BufferIndex++]
                 };
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 res = BitConverter.ToUInt64(bytes, 0);
                 break;
             }
@@ -331,8 +321,6 @@ public static class BufferManager
             case BufferDataType.buffer_u16:
             {
                 var bytes = BitConverter.GetBytes(Convert.ToUInt16(value));
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
                 {
                     buffer.Data[buffer.BufferIndex++] = bytes[i];
@@ -342,8 +330,6 @@ public static class BufferManager
             case BufferDataType.buffer_s16:
             {
                 var bytes = BitConverter.GetBytes(Convert.ToInt16(value));
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
                 {
                     buffer.Data[buffer.BufferIndex++] = bytes[i];
@@ -355,8 +341,6 @@ public static class BufferManager
             case BufferDataType.buffer_u32:
             {
                 var bytes = BitConverter.GetBytes(Convert.ToUInt32(value));
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
                 {
                     buffer.Data[buffer.BufferIndex++] = bytes[i];
@@ -366,8 +350,6 @@ public static class BufferManager
             case BufferDataType.buffer_s32:
             {
                 var bytes = BitConverter.GetBytes(Convert.ToInt32(value));
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
                 {
                     buffer.Data[buffer.BufferIndex++] = bytes[i];
@@ -379,8 +361,6 @@ public static class BufferManager
             case BufferDataType.buffer_u64:
             {
                 var bytes = BitConverter.GetBytes(Convert.ToUInt64(value));
-                if (BitConverter.IsLittleEndian)
-                { Array.Reverse(bytes); }
                 for (var i = 0; i < bytes.Length; i++)
                 {
                     buffer.Data[buffer.BufferIndex++] = bytes[i];
