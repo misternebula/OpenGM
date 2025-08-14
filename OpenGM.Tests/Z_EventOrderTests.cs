@@ -113,7 +113,7 @@ public class Z_EventOrderTests
         {
             AssetId = 0,
             Name = "room_test",
-            LooseObjects = new List<GameObject>() { obj1, obj2 }
+            GameObjects = new List<GameObject>() { obj1, obj2 }
         };
 
         RoomManager.RoomList.Add(0, room);

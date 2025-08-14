@@ -117,6 +117,7 @@ public static class RoomManager
         DebugLog.LogInfo($"LOADING PERSISTENT ROOM AssetID:{room.AssetId} ({value.Container.RoomAsset.AssetId}) Name:{value.Container.RoomAsset.Name}");
         CurrentRoom = value.Container;
 
+        // TODO : does instance creation order affect this?
         DebugLog.Log("Instances in persistent room:");
         foreach (var instance in value.Instances)
         {
@@ -236,16 +237,6 @@ public static class RoomManager
                     item.Destroy();
                 }
             }
-
-            foreach (var obj in CurrentRoom.LooseObjects)
-            {
-                if (obj.persistent)
-                {
-                    continue;
-                }
-
-                obj.Destroy();
-            }
         }
 
         if (PersistentRooms.TryGetValue(room.AssetId, out var value))
@@ -327,6 +318,21 @@ public static class RoomManager
             }
         }
 
+        foreach (var obj in CurrentRoom.RoomAsset.GameObjects)
+        {
+            var definition = InstanceManager.ObjectDefinitions[obj.DefinitionID];
+            var newGM = new GamemakerObject(definition, obj.X, obj.Y, obj.DefinitionID, obj.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+
+            newGM.image_xscale = obj.ScaleX;
+            newGM.image_yscale = obj.ScaleY;
+            newGM.image_blend = obj.Color;
+            newGM.image_angle = obj.Rotation;
+            newGM.image_index = obj.FrameIndex;
+            newGM.image_speed = obj.ImageSpeed;
+
+            createdObjects.Add((newGM, obj));
+        }
+
         foreach (var layer in CurrentRoom.RoomAsset.Layers)
         {
             DebugLog.LogInfo($"Creating layer {layer.LayerName}...");
@@ -341,24 +347,9 @@ public static class RoomManager
                 {
                     var item = (element as GameObject)!;
 
-                    var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
-                    var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
-                    newGM.Layer = layer.LayerID;
-
-                    //newGM._createRan = true;
-                    newGM.depth = layer.LayerDepth;
-                    newGM.image_xscale = item.ScaleX;
-                    newGM.image_yscale = item.ScaleY;
-                    newGM.image_blend = item.Color;
-                    newGM.image_angle = item.Rotation;
-                    newGM.image_index = item.FrameIndex;
-                    newGM.image_speed = item.ImageSpeed;
-
-                    createdObjects.Add((newGM, item));
-
-                    layerContainer.ElementsToDraw.Add(newGM);
-
-                    //RunObjEvents(newGM, item);
+                    var obj = createdObjects.First(x => x.go.InstanceID == item.InstanceID);
+                    obj.gm.depth = layer.LayerDepth;
+                    layerContainer.ElementsToDraw.Add(obj.gm);
                 }
                 else if (element.Type == ElementType.Tilemap)
                 {
@@ -445,29 +436,6 @@ public static class RoomManager
             }
 
             CurrentRoom.Layers.Add(layerContainer.ID, layerContainer);
-        }
-
-        DebugLog.LogInfo($"Creating loose objects...");
-        foreach (var item in CurrentRoom.RoomAsset.LooseObjects)
-        {
-            var definition = InstanceManager.ObjectDefinitions[item.DefinitionID];
-            var newGM = new GamemakerObject(definition, item.X, item.Y, item.DefinitionID, item.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
-
-            //newGM._createRan = true;
-            //newGM.depth = layer.LayerDepth;
-            newGM.depth = definition.depth;
-            newGM.image_xscale = item.ScaleX;
-            newGM.image_yscale = item.ScaleY;
-            newGM.image_blend = (int)item.Color;
-            newGM.image_angle = item.Rotation;
-            newGM.image_index = item.FrameIndex;
-            newGM.image_speed = item.ImageSpeed;
-
-            createdObjects.Add((newGM, item));
-
-            CurrentRoom.LooseObjects.Add(newGM);
-
-            //RunObjEvents(newGM, item);
         }
 
         // instance_exists will still return true for all objects even in Create of the first object.... ugh

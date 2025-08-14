@@ -22,7 +22,6 @@ public class RoomContainer
 
     public Dictionary<int, LayerContainer> Layers = new();
     public List<DrawWithDepth> Tiles = new();
-    public List<GamemakerObject> LooseObjects = new();
     public List<GMOldBackground> OldBackgrounds = new();
 
     public LayerContainer? GetLayer(object? layer_id)

@@ -940,8 +940,6 @@ public static class GameConverter
                 };
             }
 
-            var encounteredGameobjects = new List<UndertaleRoom.GameObject>();
-
             foreach (var layer in room.Layers)
             {
                 var layerasset = new Layer
@@ -993,7 +991,6 @@ public static class GameConverter
                             PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
                         };
 
-                        encounteredGameobjects.Add(instance);
                         layerasset.Elements.Add(objectAsset);
                     }
                 }
@@ -1114,11 +1111,6 @@ public static class GameConverter
 
             foreach (var instance in room.GameObjects)
             {
-                if (encounteredGameobjects.Contains(instance))
-                {
-                    continue;
-                }
-
                 var objectAsset = new GameObject
                 {
                     Type = ElementType.Instance,
@@ -1137,9 +1129,7 @@ public static class GameConverter
                     PreCreateCodeID = codes.IndexOf(instance.PreCreateCode),
                 };
 
-                asset.LooseObjects.Add(objectAsset);
-
-                // Gameobject does not appear in any layers. Probably dealing with UNDERTALE which doesn't have layers.
+                asset.GameObjects.Add(objectAsset);
             }
 
             foreach (var tile in room.Tiles)

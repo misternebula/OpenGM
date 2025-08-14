@@ -19,7 +19,7 @@ public partial class Room
     public View[] Views = new View[8];
 
     public List<Layer> Layers = new();
-    public List<GameObject> LooseObjects = new();
+    public List<GameObject> GameObjects = new();
     public List<Tile> Tiles = new();
     public List<OldBackground> OldBackgrounds = new();
     
