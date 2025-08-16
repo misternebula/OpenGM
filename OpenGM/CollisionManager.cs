@@ -210,6 +210,10 @@ public static class CollisionManager
                 }
             }
         }
+        else if (obj == GMConstants.other)
+        {
+            throw new NotImplementedException("Other");
+        }
         else if (obj < GMConstants.FIRST_INSTANCE_ID)
         {
             var instances = InstanceManager.FindByAssetId(obj);

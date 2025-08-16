@@ -1,4 +1,6 @@
 ﻿using OpenGM.IO;
+using OpenGM.Rendering;
+using OpenTK.Mathematics;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
@@ -250,7 +252,52 @@ public static class GameFunctions
             args[6].Conv<bool>());
     }
 
-    // mp_grid_draw
+    [GMLFunction("mp_grid_draw")]
+    public static object? mp_grid_draw(object?[] args)
+    {
+        // TODO : HTML does all this in one draw call, do that
+
+        var grid = args[0].Conv<int>();
+        var mpGrid = MotionPlanningManager.MPGrids[grid];
+
+        var red = new Color4(1, 0, 0, (float)SpriteManager.DrawAlpha);
+        var green = new Color4(0, 1, 0, (float)SpriteManager.DrawAlpha);
+
+        for (var y = 0; y < mpGrid.VCells; y++)
+        {
+            for (var x = 0; x < mpGrid.HCells; x++)
+            {
+                var color = green;
+
+                if (mpGrid.Cells[(mpGrid.VCells * x) + y] < 0)
+                {
+                    color = red;
+                }
+
+                var x1 = mpGrid.Left + (x * mpGrid.CellWidth);
+                var y1 = mpGrid.Top + (y * mpGrid.CellHeight);
+                var x2 = x1 + mpGrid.CellWidth;
+                var y2 = y1 + mpGrid.CellHeight;
+
+                var vertices = new Vector3d[] {
+                    new(x1, y1, GraphicsManager.GR_Depth),
+                    new(x2, y1, GraphicsManager.GR_Depth),
+                    new(x2, y2, GraphicsManager.GR_Depth),
+                    new(x1, y2, GraphicsManager.GR_Depth)
+                };
+
+                CustomWindow.Draw(new GMPolygonJob()
+                {
+                    Colors = [color, color, color, color],
+                    Vertices = vertices,
+                    Outline = false
+                });
+            }
+        }
+
+        return null;
+    }
+
     // mp_grid_to_ds_grid
 
     [GMLFunction("collision_point")]
@@ -638,7 +685,18 @@ public static class GameFunctions
     }
 
     // position_empty
-    // position_meeting
+
+    [GMLFunction("position_meeting")]
+    public static object? position_meeting(object?[] args)
+    {
+        var x = args[0].Conv<float>();
+        var y = args[1].Conv<float>();
+        var obj = args[2].Conv<int>();
+
+        var id = CollisionManager.Command_CollisionPoint(VMExecutor.Self.GMSelf, x, y, obj, true, false);
+        return id != GMConstants.noone;
+    }
+
     // position_destroy
     // position_change
     // instance_id_get
