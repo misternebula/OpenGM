@@ -229,7 +229,8 @@ public static class MathFunctions
         {
             for (var i = new_size; i < oldSize; i++)
             {
-                array_index.RemoveAt(i);
+                // dont removeat(i) because the indexes will keep changing
+                array_index.RemoveAt(new_size);
             }
         }
 
