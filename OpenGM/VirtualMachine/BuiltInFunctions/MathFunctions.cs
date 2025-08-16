@@ -264,7 +264,57 @@ public static class MathFunctions
         return value;
     }
 
-    // array_insert
+    [GMLFunction("array_insert")]
+    public static object? array_insert(object?[] args)
+    {
+        var variable = args[0].Conv<IList>();
+        var index = args[1].Conv<int>();
+
+        var curLength = variable.Count;
+
+        if (index < 0)
+        {
+            // -1 means last element, -2 means second last, etc
+            index = curLength - index;
+        }
+
+        var valueCount = args.Length - 2;
+
+        if (valueCount <= 0)
+        {
+            throw new Exception();
+        }
+
+        var values = args[2..(valueCount + 2)];
+
+        // TODO: check this shit idk man
+
+        if (index == curLength)
+        {
+            foreach (var item in values)
+            {
+                variable.Add(item);
+            }
+            return null;
+        }
+
+        var finalIndex = index + valueCount;
+        if (finalIndex >= curLength)
+        {
+            var amountToAdd = finalIndex - curLength;
+            for (var i = 0; i < amountToAdd; i++)
+            {
+                variable.Add(0); // cpp uses undefined. html uses 0
+            }
+        }
+
+        for (var i = 0; i < valueCount; i++)
+        {
+            variable.Insert(index + i, values[i]);
+        }
+
+        return null;
+    }
 
     [GMLFunction("array_delete")]
     public static object? array_delete(object?[] args)
