@@ -237,7 +237,14 @@ public static partial class VMExecutor
                 {
                     if (instruction.PushFunction)
                     {
-                        Call.Stack.Push(AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
+                        if (ScriptResolver.BuiltInFunctions.ContainsKey(instruction.StringData))
+                        {
+                            Call.Stack.Push(ScriptResolver.BuiltInFunctions.Keys.ToList().IndexOf(instruction.StringData), VMType.i);
+                        }
+                        else
+                        {
+                            Call.Stack.Push(GMConstants.FIRST_INSTANCE_ID + AssetIndexManager.GetIndex(AssetType.scripts, instruction.StringData), VMType.i);
+                        }
                     }
                     else
                     {

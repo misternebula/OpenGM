@@ -43,8 +43,8 @@ public static class MathFunctions
         var struct_ref_or_instance_id = args[0];
         
         var method = args[1] switch {
-            // pass by id
-            int value => new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]),
+            // pass by id - i really hope built in functions cant be used with method
+            int value => new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>() - GMConstants.FIRST_INSTANCE_ID]),
             // pass method directly
             Method value => value,
             // idk

@@ -333,7 +333,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var scriptAssetId = args[0].Conv<int>();
             var scriptArgs = args[1..];
 
-            return VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[scriptAssetId].GetCode(), VMExecutor.Self.Self, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
+            if (scriptAssetId < GMConstants.FIRST_INSTANCE_ID)
+            {
+                var builtInMethod = ScriptResolver.BuiltInFunctions.Values.ElementAt(scriptAssetId);
+                return builtInMethod(scriptArgs);
+            }
+            else
+            {
+                return VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[scriptAssetId - GMConstants.FIRST_INSTANCE_ID].GetCode(), VMExecutor.Self.Self, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
+            }
         }
 
         // script_execute_ext

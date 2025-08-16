@@ -815,7 +815,8 @@ public static partial class VMExecutor
         }
         else if (value is int or long or short)
         {
-            return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>()]);
+            // i really hope built in functions cant be used with method
+            return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>() - GMConstants.FIRST_INSTANCE_ID]);
         }
 
         throw new ArgumentException($"Don't know how to fetch method for {value} ({value.GetType().FullName})");
