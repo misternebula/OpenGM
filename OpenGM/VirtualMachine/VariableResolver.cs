@@ -203,7 +203,7 @@ public static class VariableResolver
         // current_year
         { "current_month", (get_current_month, null)},
         // current_day
-        // current_weekday
+        { "current_weekday", (get_current_weekday, null)},
         // current_hour
         // current_minute
         { "current_second", (get_current_second, null)},
@@ -549,6 +549,8 @@ public static class VariableResolver
     public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
 
     public static object get_current_month() => DateTime.Now.Month;
+
+    public static object get_current_weekday() => DateTime.Now.DayOfWeek;
 
     public static object get_current_second() => DateTime.Now.Second;
 
