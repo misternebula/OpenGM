@@ -371,4 +371,53 @@ public static class SurfaceManager
         GL.BindTexture(TextureTarget.Texture2D, 0);
         return pixels;
     }
+
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/7a976aad876481b2f7bbd4557ba4f5c35303b544/scripts/functions/Function_YoYo.js#L1207
+    public static Vector4 FullScreenOffset()
+    {
+        var left = 0f;
+        var top = 0f;
+        float right;
+        float bottom;
+
+        var fbw = DeviceWidth;
+        var fbh = DeviceHeight;
+
+        if (UsingAppSurface) // TODO: only when "keep aspect ratio" is enabled
+        {
+            var w = (float)ApplicationWidth;
+            var h = (float)ApplicationWidth;
+
+            var aspect = w / h;
+            var hh = fbw / aspect;
+            float ww;
+
+            if (hh < fbh)
+            {
+                aspect = h / w;
+                hh = fbw * aspect;
+                top = (fbh - hh) / 2;
+                ww = fbw;
+                hh += top;
+            }
+            else
+            {
+                aspect = w / h;
+                ww = fbh * aspect;
+                left = (fbw - ww) / 2;
+                hh = fbh;
+                ww += left;
+            }
+
+            right = ww;
+            bottom = hh;
+        }
+        else
+        {
+            right = fbw;
+            bottom = fbh;
+        }
+
+        return new(left, top, right - left, bottom - top);
+    }
 }

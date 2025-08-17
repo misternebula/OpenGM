@@ -126,7 +126,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // gml_release_mode
         // application_surface_draw_enable
-        // application_get_position
+
+        [GMLFunction("application_get_position")]
+        public static object? application_get_position(object?[] args)
+        {
+            var vec = SurfaceManager.FullScreenOffset();
+
+            return new List<float>() { vec.X, vec.Y, vec.Z, vec.W };
+        }
 
         [GMLFunction("application_surface_enable", GMLFunctionFlags.Stub)]
         public static object? application_surface_enable(object?[] args)
