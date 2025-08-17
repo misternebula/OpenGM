@@ -500,7 +500,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
             }
             else
             {
-                increment += image_speed * sprite.PlaybackSpeed / Entry.GameSpeed; // TODO : this should be fps, not game speed
+                increment += image_speed * sprite.PlaybackSpeed / TimingManager.FPS;
             }
         }
 

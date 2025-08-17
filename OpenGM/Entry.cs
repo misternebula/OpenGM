@@ -215,6 +215,7 @@ internal class Entry
         DrawManager._drawObjects.Clear();
 
         GameSpeed = GameLoader.GeneralInfo.FPS;
+        TimingManager.Initialize();
         InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
 
         // TODO : is RNG re-initialized after game_change?
@@ -223,7 +224,7 @@ internal class Entry
         if (window == null)
         {
             var gameSettings = GameWindowSettings.Default;
-            gameSettings.UpdateFrequency = 30;
+            gameSettings.UpdateFrequency = GameSpeed;
             var nativeSettings = NativeWindowSettings.Default;
             nativeSettings.WindowBorder = WindowBorder.Fixed;
             nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;

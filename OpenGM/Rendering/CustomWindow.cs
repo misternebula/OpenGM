@@ -58,6 +58,8 @@ public class CustomWindow : GameWindow
 
         DeltaTime = args.Time;
 
+        TimingManager.StartOfFrame();
+
         ViewportManager.UpdateViews();
 
         KeyboardHandler.UpdateMouseState(MouseState);

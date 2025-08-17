@@ -198,7 +198,7 @@ public static class VariableResolver
         // caption_lives
         // caption_health
         { "fps", (get_fps, null) },
-        // fps_real
+        { "fps_real", (get_fps_real, null) },
         { "current_time", (get_current_time, null)},
         // current_year
         { "current_month", (get_current_month, null)},
@@ -299,10 +299,10 @@ public static class VariableResolver
         return Entry.DataWinFolder + Path.DirectorySeparatorChar;
     }
 
-    public static object get_fps()
-    {
-        return Entry.GameSpeed; // TODO : this shouldnt be the desired fps, but the current fps (fluctuating)
-    }
+    public static object get_fps() => TimingManager.FPS;
+
+    // TODO: implement. will require going back to opentk3 or doing manual frame scheduling with updatefrequency=0
+    public static object get_fps_real() => TimingManager.FPS;
 
     public static object get_delta_time(GamemakerObject instance)
     {
