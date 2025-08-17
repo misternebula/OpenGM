@@ -159,7 +159,29 @@
             return group.Id;
         }
 
-        // buffer_async_group_option
+
+        [GMLFunction("buffer_async_group_option", GMLFunctionFlags.Stub)]
+        public static object? buffer_async_group_option(object?[] args)
+        {
+            var option = args[0].Conv<string>();
+            /*
+             * Available options
+             * - subtitle
+             * - slottitle
+             * - showdialog
+             * - temprloc
+             * - savepadindex
+             * - saveslotsize
+             * - vita_outofspace_msg
+             * - accountindex
+             * - ps_create_backup
+             */
+
+            var value = args[1];
+
+            return null;
+        }
+
         // buffer_copy
         // buffer_exists
         // buffer_get_type

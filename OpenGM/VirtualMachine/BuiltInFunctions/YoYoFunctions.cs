@@ -35,7 +35,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return (int)(DateTime.Now - Entry.GameLoadTime).TotalMicroseconds; // TODO : is this floored? i assume it is
         }
 
-        // os_get_config
+        [GMLFunction("os_get_config")]
+        public static object? os_get_config(object?[] args) => GameLoader.GeneralInfo.Config;
+
         // os_get_info
 
         [GMLFunction("os_get_language")]
@@ -125,7 +127,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // gml_release_mode
         // application_surface_draw_enable
         // application_get_position
-        // application_surface_enable
+
+        [GMLFunction("application_surface_enable", GMLFunctionFlags.Stub)]
+        public static object? application_surface_enable(object?[] args)
+        {
+            return null;
+        }
+
         // application_surface_is_enabled
         // extension_stubfunc_real
         // extension_stubfun_string

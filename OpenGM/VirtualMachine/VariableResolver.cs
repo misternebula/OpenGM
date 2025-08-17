@@ -418,7 +418,7 @@ public static class VariableResolver
 
     public static object get_async_load(GamemakerObject instance) => AsyncManager.AsyncLoadDsIndex;
 
-    public static object get_os_type() => 0; // TODO : Check if this is actually os_windows
+    public static object get_os_type() => 0;
 
     public static object get_browser_width() => CustomWindow.Instance.ClientSize.X;
     public static object get_browser_height() => CustomWindow.Instance.ClientSize.Y;

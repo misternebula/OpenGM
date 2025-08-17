@@ -70,7 +70,8 @@ public static class GameConverter
             DefaultWindowSize = new Vector2i((int)data.GeneralInfo.DefaultWindowWidth, (int)data.GeneralInfo.DefaultWindowHeight),
             FPS = data.GeneralInfo.GMS2FPS,
             RoomOrder = data.GeneralInfo.RoomOrder.Select(p => p.CachedId).ToArray(),
-            IsYYC = data.IsYYC()
+            IsYYC = data.IsYYC(),
+            Config = data.GeneralInfo.Config.Content
         };
         writer.WriteMemoryPack(asset);
     }

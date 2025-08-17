@@ -19,6 +19,7 @@ public partial class GameData
     public required float FPS;
     public required int[] RoomOrder;
     public required bool IsYYC;
+    public required string Config;
 }
 
 public enum BranchType
