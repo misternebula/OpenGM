@@ -301,7 +301,6 @@ public static class VariableResolver
 
     public static object get_fps() => TimingManager.FPS;
 
-    // TODO: implement. will require going back to opentk3 or doing manual frame scheduling with updatefrequency=0
     public static object get_fps_real() => TimingManager.FPS;
 
     public static object get_delta_time(GamemakerObject instance)
