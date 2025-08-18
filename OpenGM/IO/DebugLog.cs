@@ -78,9 +78,9 @@ public static class DebugLog
         Log($"--Stacktrace--", type);
         foreach (var item in VMExecutor.CallStack)
         {
-            if (item.EnvFrame != null && item.EnvFrame.GMSelf != null)
+            if (item.EnvFrame.Self is GamemakerObject gm)
             {
-                Log($" - {item.CodeName} {item.EnvFrame?.GMSelf.instanceId}", type);
+                Log($" - {item.CodeName} {gm.instanceId/*could just envframe tostring here*/}", type);
             }
             else
             {
