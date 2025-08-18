@@ -54,6 +54,7 @@ public class VMCallFrame
     public EventType EventType;
     public int EventIndex;
     public FunctionDefinition? Function; // undertale doesnt have script functions, only script assets, so this will be null
+    public VMEnvFrame? EnvFrame;
 }
 
 public static partial class VMExecutor
@@ -202,7 +203,8 @@ public static partial class VMExecutor
             ReturnValue = defaultReturnValue,
             EventType = eventType,
             EventIndex = eventIndex,
-            Function = func
+            Function = func,
+            EnvFrame = newCtx
         };
         CallStack.Push(call);
 

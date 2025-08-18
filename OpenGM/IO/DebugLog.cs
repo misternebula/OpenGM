@@ -78,7 +78,14 @@ public static class DebugLog
         Log($"--Stacktrace--", type);
         foreach (var item in VMExecutor.CallStack)
         {
-            Log($" - {item.CodeName}", type);
+            if (item.EnvFrame != null && item.EnvFrame.GMSelf != null)
+            {
+                Log($" - {item.CodeName} {item.EnvFrame?.GMSelf.instanceId}", type);
+            }
+            else
+            {
+                Log($" - {item.CodeName}", type);
+            }
         }
     }
 
