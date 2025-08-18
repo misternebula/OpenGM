@@ -516,7 +516,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // path_insert_point
         // path_change_point
         // path_delete_point
-        // path_clear_points
+
+        [GMLFunction("path_clear_points")]
+        public static object? path_clear_points(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            var path = PathManager.Paths[id];
+            PathManager.Clear(path);
+            return null;
+        }
+
         // path_reverse
         // path_mirror
         // path_flip
