@@ -78,14 +78,7 @@ public static class DebugLog
         Log($"--Stacktrace--", type);
         foreach (var item in VMExecutor.CallStack)
         {
-            if (item.EnvFrame.Self is GamemakerObject gm)
-            {
-                Log($" - {item.CodeName} {gm.instanceId/*could just envframe tostring here*/}", type);
-            }
-            else
-            {
-                Log($" - {item.CodeName}", type);
-            }
+            Log($" - {item.CodeName} {item.EnvFrame}", type);
         }
     }
 
