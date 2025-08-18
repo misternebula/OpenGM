@@ -28,6 +28,12 @@ public static class CompatFlags
     [GMCompatFlag(before: "2.3")]
     public static bool ScriptAssetIds = false;
 
+    /// <summary>
+    /// Prior to GMS2, depth rendering was forced to 0 - same as layer_force_draw_depth.
+    /// </summary>
+    [GMCompatFlag(before: "2.0")]
+    public static bool ForceDepthZero = false;
+
     // --------------------------------------
 
     public static Dictionary<string, bool> ForcedValues = [];
@@ -66,6 +72,12 @@ public static class CompatFlags
             }
 
             DebugLog.LogVerbose($"Compat flag \"{fieldInfo.Name}\": {fieldInfo.GetValue(null)}");
+        }
+
+        if (ForceDepthZero)
+        {
+            GraphicsManager.ForceDepth = true;
+            GraphicsManager.ForcedDepth = 0;
         }
     }
 }
