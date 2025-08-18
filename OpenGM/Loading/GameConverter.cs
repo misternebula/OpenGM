@@ -977,7 +977,7 @@ public static class GameConverter
                         var objectAsset = new GameObject
                         {
                             Type = ElementType.Instance,
-                            Id = CurrentElementID++,
+                            Id = (int)instance.InstanceID,
                             X = instance.X,
                             Y = instance.Y,
                             DefinitionID = data.GameObjects.IndexOf(instance.ObjectDefinition),
@@ -1115,7 +1115,7 @@ public static class GameConverter
                 var objectAsset = new GameObject
                 {
                     Type = ElementType.Instance,
-                    Id = CurrentElementID++,
+                    Id = (int)instance.InstanceID,
                     X = instance.X,
                     Y = instance.Y,
                     DefinitionID = data.GameObjects.IndexOf(instance.ObjectDefinition),

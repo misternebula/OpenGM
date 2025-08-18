@@ -1657,7 +1657,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // layer_tile_get_region
         // layer_tile_get_visible
-        // layer_instance_get_instance
+
+        [GMLFunction("layer_instance_get_instance")]
+        public static object? layer_instance_get_instance(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+
+            var instance = InstanceManager.FindByInstanceId(element_id);
+
+            if (instance == null)
+            {
+                return GMConstants.noone;
+            }
+
+            return instance.instanceId;
+        }
 
         // sequence stuff
     }
