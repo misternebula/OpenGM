@@ -22,6 +22,12 @@ public static class CompatFlags
     [GMCompatFlag(before: "2.3")]
     public static bool ZeroReturnValue = false;
 
+    /// <summary>
+    /// If true, scripts are passed using 0-based asset ids, instead of instance-like ids (starting at 10000).
+    /// </summary>
+    [GMCompatFlag(before: "2.3")]
+    public static bool ScriptAssetIds = false;
+
     // --------------------------------------
 
     public static Dictionary<string, bool> ForcedValues = [];
