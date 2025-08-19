@@ -19,18 +19,34 @@ public class GMSprite : DrawWithDepth
 
     public CLayerSpriteElement Element;
 
-    public GMSprite(CLayerSpriteElement element)
+    public GMSprite(CLayerSpriteElement element, int layerDepth)
     {
         Element = element;
         DrawManager.Register(this);
+
+        var c = element.Color;
+        var blend = (int)(c & 0x00FFFFFF);
+        var alpha = ((c & 0xFF000000) >> 6) / 255.0;
+
+        Definition = element.Definition;
+        X = element.X;
+        Y = element.Y;
+        XScale = element.ScaleX;
+        YScale = element.ScaleY;
+        Blend = blend;
+        Alpha = alpha;
+        AnimationSpeed = element.AnimationSpeed;
+        AnimationSpeedType = element.AnimationSpeedType;
+        FrameIndex = element.FrameIndex;
+        Rotation = element.Rotation;
+        instanceId = element.Id;
+        depth = layerDepth;
 
         if (AnimationSpeedType == AnimationSpeedType.FPS)
         {
             _timing = new Stopwatch();
             _timing.Start();
         }
-
-        _spriteFrames = SpriteManager.GetNumberOfFrames(Definition);
     }
 
     private int _spriteFrames;

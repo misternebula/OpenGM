@@ -420,22 +420,7 @@ public static class RoomManager
                     var blend = (int)(c & 0x00FFFFFF);
                     var alpha = ((c & 0xFF000000) >> 6) / 255.0;
 
-                    var newSprite = new GMSprite(sprite)
-                    {
-                        Definition = sprite.Definition,
-                        X = sprite.X,
-                        Y = sprite.Y,
-                        XScale = sprite.ScaleX,
-                        YScale = sprite.ScaleY,
-                        Blend = blend,
-                        Alpha = alpha,
-                        AnimationSpeed = sprite.AnimationSpeed,
-                        AnimationSpeedType = sprite.AnimationSpeedType,
-                        FrameIndex = sprite.FrameIndex,
-                        Rotation = sprite.Rotation,
-                        instanceId = sprite.Id,
-                        depth = layer.LayerDepth
-                    };
+                    var newSprite = new GMSprite(sprite, layer.LayerDepth);
 
                     layerContainer.ElementsToDraw.Add(newSprite);
                 }
