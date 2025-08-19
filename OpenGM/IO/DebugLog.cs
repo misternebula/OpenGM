@@ -1,4 +1,5 @@
-﻿using OpenGM.VirtualMachine;
+﻿using OpenGM.Rendering;
+using OpenGM.VirtualMachine;
 
 namespace OpenGM.IO;
 
@@ -79,6 +80,31 @@ public static class DebugLog
         foreach (var item in VMExecutor.CallStack)
         {
             Log($" - {item.CodeName} {item.EnvFrame}", type);
+        }
+    }
+
+    public static void PrintInstances(LogType? type = LogType.Verbose)
+    {
+        Log("--Instances--", type);
+        foreach (var instance in InstanceManager.instances.Values)
+        {
+            Log($" - {instance.Definition.Name} ({instance.instanceId}) Persistent:{instance.persistent} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}", type);
+        }
+    }
+
+    public static void PrintDrawObjects(LogType? type = LogType.Verbose)
+    {
+        Log("--Draw Objects--", type);
+        foreach (var item in DrawManager._drawObjects)
+        {
+            if (item is GamemakerObject gm)
+            {
+                Log($" - {gm.Definition.Name} ({gm.instanceId}) Depth:{item.depth} Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}", type);
+            }
+            else
+            {
+                Log($" - {item.GetType().Name} InstanceID:{item.instanceId} Depth:{item.depth}", type);
+            }
         }
     }
 

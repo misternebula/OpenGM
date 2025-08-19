@@ -263,24 +263,8 @@ public class KeyboardHandler
 
         if (state.IsKeyPressed(Keys.KeyPad0))
         {
-            DebugLog.Log("INSTANCES :");
-            foreach (var instance in InstanceManager.instances.Values)
-            {
-                DebugLog.Log($" - {instance.Definition.Name} ({instance.instanceId}) Persistent:{instance.persistent} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}");
-            }
-
-            DebugLog.Log("DRAW OBJECTS :");
-            foreach (var item in DrawManager._drawObjects)
-            {
-                if (item is GamemakerObject gm)
-                {
-                    DebugLog.Log($" - {gm.Definition.Name} ({gm.instanceId}) Depth:{item.depth} Persistent:{gm.persistent} Active:{gm.Active} Marked:{gm.Marked} Destroyed:{gm.Destroyed}");
-                }
-                else
-                {
-                    DebugLog.Log($" - {item.GetType().Name} InstanceID:{item.instanceId} Depth:{item.depth}");
-                }
-            }
+            DebugLog.PrintInstances(DebugLog.LogType.Info);
+            DebugLog.PrintDrawObjects(DebugLog.LogType.Info);
         }
 
         if (state.IsKeyPressed(Keys.KeyPad1))
