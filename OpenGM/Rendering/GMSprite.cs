@@ -1,5 +1,4 @@
 ﻿using OpenGM.SerializedFiles;
-using System.Diagnostics;
 using UndertaleModLib.Models;
 
 namespace OpenGM.Rendering;
@@ -41,16 +40,9 @@ public class GMSprite : DrawWithDepth
         Rotation = element.Rotation;
         instanceId = element.Id;
         depth = layerDepth;
-
-        if (AnimationSpeedType == AnimationSpeedType.FPS)
-        {
-            _timing = new Stopwatch();
-            _timing.Start();
-        }
     }
 
     private int _spriteFrames;
-    private Stopwatch? _timing = null;
 
     public override void Draw()
     {
@@ -65,20 +57,14 @@ public class GMSprite : DrawWithDepth
             return;
         }
 
-        if (AnimationSpeedType == AnimationSpeedType.FPS)
+        var fps = TimingManager.FPS;
+
+        if (AnimationSpeedType != AnimationSpeedType.FPS)
         {
-            // Frames per second
-            var frameTime = 1.0 / AnimationSpeed;
-            if (_timing!.Elapsed.TotalSeconds >= frameTime)
-            {
-                FrameIndex++;
-            }
+            fps = 1;
         }
-        else
-        {
-            // Frames per game frame
-            FrameIndex += AnimationSpeed;
-        }
+
+        FrameIndex += (AnimationSpeed / fps) * SpriteManager.GetSpriteAsset(Definition)!.PlaybackSpeed;
 
         if (FrameIndex >= _spriteFrames)
         {
