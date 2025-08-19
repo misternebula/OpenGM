@@ -1,4 +1,5 @@
 ﻿using OpenGM.IO;
+using OpenGM.SerializedFiles;
 using System.Collections;
 using System.Text;
 
@@ -337,32 +338,61 @@ public static class MathFunctions
         return null;
     }
 
-    [GMLFunction("array_sort", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+    [GMLFunction("array_sort")]
     public static object? array_sort(object?[] args)
     {
         var variable = args[0].Conv<IList>();
         var sorttype_or_function = args[1];
 
+        // TODO: this almost definitely doesn't match the output of gamemaker's array_sort
+
         // Strings sorted alphabetically with default asc/desc functionality
         // uses qsort
+
+        var tempArray = new object?[variable.Count];
+        variable.CopyTo(tempArray, 0);
+
+        Comparison<object?> cmp;
 
         if (sorttype_or_function is bool)
         {
             var ascending = sorttype_or_function.Conv<bool>();
+
+            cmp = (a, b) =>
+            {
+                var result = Comparer<object?>.Default.Compare(a, b);
+                return ascending ? result : -result;
+            };
         }
         else
         {
-            // function ugh
+            VMCode? comparingCode;
 
-            /*
-             * arguments: CURRENT ELEMENT and NEXT ELEMENT
-             * returns:
-             *    0        : elements equal
-             *    <= -1    : current element goes before next element
-             *  >= 1    : current element goes after next element
-             */
+            if (sorttype_or_function is int)
+            {
+                var vmscript = ScriptResolver.ScriptsByIndex[sorttype_or_function.Conv<int>()];
+                comparingCode = vmscript.GetCode();
+            }
+            else
+            {
+                var method = sorttype_or_function as Method;
+                comparingCode = method!.func.GetCode();
+            }
+
+            cmp = (a, b) =>
+            {
+                var result = VMExecutor.ExecuteCode(comparingCode, null, args: [a, b]);
+                return result.Conv<int>();
+            };
         }
-        
+
+        Array.Sort(tempArray, cmp);
+
+        for (var i = 0; i < tempArray.Length; i++)
+        {
+            variable[i] = tempArray[i];
+        }
+
         return null;
     }
 
