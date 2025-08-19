@@ -2,6 +2,7 @@
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL;
+using System.Collections;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -92,7 +93,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // shader_set_uniform_i_array
+        [GMLFunction("shader_set_uniform_i_array")]
+        public static object? shader_set_uniform_i_array(object?[] args)
+        {
+            var handle = args[0].Conv<int>();
+            var arr = args[1].Conv<IList>().ConvAll<int>().ToArray();
+
+            if (handle == -1)
+            {
+                return null;
+            }
+
+            GL.Uniform1(handle, arr.Length, arr);
+
+            GraphicsManager.CheckError();
+
+            return null;
+        }
 
         [GMLFunction("shader_set_uniform_f")]
         public static object? shader_set_uniform_f(object?[] args)
@@ -128,7 +145,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // shader_set_uniform_f_array
+        [GMLFunction("shader_set_uniform_f_array")]
+        public static object? shader_set_uniform_f_array(object?[] args)
+        {
+            var handle = args[0].Conv<int>();
+            var arr = args[1].Conv<IList>().ConvAll<float>().ToArray();
+
+            if (handle == -1)
+            {
+                return null;
+            }
+
+            GL.Uniform1(handle, arr.Length, arr);
+
+            GraphicsManager.CheckError();
+
+            return null;
+        }
+
         // shader_set_uniform_matrix
         // shader_set_uniform_matrix_array
         // shader_is_compiled

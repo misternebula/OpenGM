@@ -217,7 +217,13 @@ public static class InstanceManager
         else if (id < GMConstants.FIRST_INSTANCE_ID)
         {
             // asset id
-            return FindByAssetId(id, all)[index];
+            var results = FindByAssetId(id, all);
+            if (results.Count <= index)
+            {
+                return null;
+            }
+
+            return results[index];
         }
         else
         {

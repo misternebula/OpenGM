@@ -61,6 +61,11 @@ public static class ShaderManager
                 PushTextureStage(name);
             }
 
+            if (name.EndsWith("[0]"))
+            {
+                name = name[..^3];
+            }
+
             shader.Uniforms.Add(name, new()
             {
                 Location = GL.GetUniformLocation(shader.ProgramID, name),

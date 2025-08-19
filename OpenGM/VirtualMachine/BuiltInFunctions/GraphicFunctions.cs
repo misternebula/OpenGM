@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -1306,8 +1307,31 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // sprite_get_info
         // font_get_texture
-        // texture_get_width
-        // texture_get_height
+
+        [GMLFunction("texture_get_width")]
+        public static object texture_get_width(object?[] args)
+        {
+            if (args[0] is SpritePageItem item)
+            {
+                var (page, _) = PageManager.TexturePages[item.Page];
+                return (double)item.SourceWidth / page.Width;
+            }
+
+            return 0.0;
+        }
+
+        [GMLFunction("texture_get_height")]
+        public static object texture_get_height(object?[] args)
+        {
+            if (args[0] is SpritePageItem item)
+            {
+                var (page, _) = PageManager.TexturePages[item.Page];
+                return (double)item.SourceHeight / page.Height;
+            }
+
+            return 0.0;
+        }
+
         // texture_preload
         // texture_set_priority
         // texture_global_scale
