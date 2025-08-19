@@ -201,14 +201,24 @@ public static class RoomManager
                     continue;
                 }
 
-                if (instance.persistent)
+                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+            }
+
+            // TODO : if RoomEnd event creates objects, should they be destroyed??
+            instanceList = new List<GamemakerObject>(InstanceManager.instances.Values);
+
+            foreach (var instance in instanceList)
+            {
+                if (instance == null)
                 {
-                    DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name} is persistent!");
                     continue;
                 }
 
-                // TODO : if RoomEnd event creates objects, should they be destroyed??
-                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+                if (instance.persistent)
+                {
+                    continue;
+                }
+
                 // no destroy event https://forum.gamemaker.io/index.php?threads/hold-up-room-change-doesnt-trigger-destroy-event-of-objects.43007/
                 GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
 
