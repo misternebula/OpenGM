@@ -165,9 +165,8 @@ public static partial class VMExecutor
         if (inst == null)
         {
             DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
-
             DebugLog.PrintCallStack(DebugLog.LogType.Error);
-            DebugLog.LogError(Environment.StackTrace);
+            DebugLog.PrintInstances(DebugLog.LogType.Error);
 
             Call.Stack.Push(null, VMType.v);
             return;
