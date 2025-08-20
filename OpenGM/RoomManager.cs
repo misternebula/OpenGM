@@ -336,6 +336,7 @@ public static class RoomManager
             newGM.image_xscale = obj.ScaleX;
             newGM.image_yscale = obj.ScaleY;
             newGM.image_blend = obj.Color;
+            newGM.image_alpha = obj.Color.ABGRToCol4().A;
             newGM.image_angle = obj.Rotation;
             newGM.image_index = obj.FrameIndex;
             newGM.image_speed = obj.ImageSpeed;
