@@ -202,7 +202,6 @@ internal class Entry
 
         //CollisionManager.colliders.Clear();
 
-        ShaderManager.Shaders.Clear();
         AudioManager.Dispose();
         AudioManager.Init();
         GameLoader.LoadGame();
