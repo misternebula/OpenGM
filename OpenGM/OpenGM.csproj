@@ -11,6 +11,8 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>bin</OutputPath>
+      
+    <DefineConstants>RENDERDOC</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

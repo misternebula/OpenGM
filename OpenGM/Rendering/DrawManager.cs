@@ -408,7 +408,9 @@ public static class DrawManager
         }
         _drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
 
+        GraphicsManager.PushMessage("step drawing");
         DoAStep();
+        GraphicsManager.PopMessage();
         
         /*
          * https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyRoom.js#L4168
@@ -428,6 +430,7 @@ public static class DrawManager
         /*
          * PreDraw
          */
+        GraphicsManager.PushMessage("pre draw");
         var fbsize = CustomWindow.Instance.FramebufferSize;
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
         GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
@@ -441,6 +444,7 @@ public static class DrawManager
         {
             return;
         }
+        GraphicsManager.PopMessage();
 
         SurfaceManager.SetApplicationSurface();
 
@@ -455,6 +459,7 @@ public static class DrawManager
         /*
          * DrawViews
          */
+        GraphicsManager.PushMessage("draw views");
         
         /*
          * UpdateViews
@@ -473,6 +478,8 @@ public static class DrawManager
                     continue;
                 }
 
+                GraphicsManager.PushMessage($"draw view {i}");
+                
                 if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
                 {
                     SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
@@ -517,6 +524,7 @@ public static class DrawManager
                 /*
                  * DrawTheRoom
                  */
+                GraphicsManager.PushMessage("draw the room");
                 if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
                 {
                     break;
@@ -531,6 +539,7 @@ public static class DrawManager
                 {
                     break;
                 }
+                GraphicsManager.PopMessage();
 
                 if (DebugBBoxes)
                 {
@@ -576,10 +585,14 @@ public static class DrawManager
                 {
                     SurfaceManager.surface_reset_target();
                 }
+                
+                GraphicsManager.PopMessage(); // draw view
             }
         }
         else // views not enabled
         {
+            GraphicsManager.PushMessage("draw viewless");
+            
             GraphicsManager.SetViewPort(0, 0, SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight);
             GraphicsManager.SetViewArea(0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, 0);
 
@@ -595,6 +608,7 @@ public static class DrawManager
             /*
              * DrawTheRoom
              */
+            GraphicsManager.PushMessage("draw the room");
             if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
             {
                 return;
@@ -609,7 +623,11 @@ public static class DrawManager
             {
                 return;
             }
+            GraphicsManager.PopMessage();
+            GraphicsManager.PopMessage();
         }
+        
+        GraphicsManager.PopMessage(); // draw views
 
         if (SurfaceManager.UsingAppSurface)
         {
@@ -632,6 +650,7 @@ public static class DrawManager
         /*
          * PostDraw
          */
+        GraphicsManager.PushMessage("post draw");
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
         GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         
@@ -639,10 +658,12 @@ public static class DrawManager
         {
             return;
         }
+        GraphicsManager.PopMessage();
 
         /*
          * DrawApplicationSurface
          */
+        GraphicsManager.PushMessage("draw app surface");
         if (SurfaceManager.UsingAppSurface)
         {
             // gamemaker actually uses alpha test enable here, and saves/restores the state. just change it to that when this breaks
@@ -650,6 +671,7 @@ public static class DrawManager
             SurfaceManager.draw_surface_stretched(SurfaceManager.application_surface, 0, 0, fbsize.X, fbsize.Y);
             GL.Enable(EnableCap.Blend);
         }
+        GraphicsManager.PopMessage();
         
         // TODO: calc gui transform? and port stuff?? idk what this is lol
         // and update room extents to that i guess
@@ -659,6 +681,7 @@ public static class DrawManager
          */
         if (ShouldDrawGui)
         {
+            GraphicsManager.PushMessage("draw gui");
             if (GuiSize is Vector2i vec)
             {
                 GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y, 0);
@@ -680,6 +703,7 @@ public static class DrawManager
             }
 
             GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
+            GraphicsManager.PopMessage();
         }
 
         if (RoomManager.CurrentRoom != null)

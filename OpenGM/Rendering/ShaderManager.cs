@@ -16,6 +16,8 @@ public static class ShaderManager
     {
         DefaultProgram = CompileShader(File.ReadAllText("shader.vsh"), File.ReadAllText("shader.fsh"));
 
+        Shaders.Clear();
+
         foreach (var (shaderIndex, shader) in GameLoader.Shaders)
         {
             var program = CompileShader(shader.VertexSource, shader.FragmentSource);

@@ -191,6 +191,8 @@ public static class SpriteManager
         var texturePageName = $"sprite_create_from_surface {spriteId}"; // needed for texture page lookup
 
         // make a copy of the texture. theres better ways to do this but this should work
+        GraphicsManager.PushMessage("sprite_create_from_surface");
+        GraphicsManager.PushMessage("read pixels");
         SurfaceManager.BindSurfaceTexture(surfaceId);
         var pixels = new byte[w * h * 4];
         unsafe
@@ -198,6 +200,8 @@ public static class SpriteManager
             fixed (byte* ptr = pixels)
                 GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
         }
+        GraphicsManager.PopMessage();
+        GraphicsManager.PushMessage("upload texture");
         // store it as a "page". its really just one texture that the sprite will use to draw
         var imageResult = new ImageResult()
         {
@@ -206,6 +210,8 @@ public static class SpriteManager
             Data = pixels
         };
         PageManager.UploadTexture(texturePageName, imageResult);
+        GraphicsManager.PopMessage();
+        GraphicsManager.PopMessage();
 
         // create a sprite with the single texture
         var spritePage = new SpritePageItem
@@ -242,7 +248,7 @@ public static class SpriteManager
             PlaybackSpeedType = AnimSpeedType.FramesPerSecond
         };
         _spriteDict.Add(sprite.AssetIndex, sprite);
-
+        
         return sprite.AssetIndex;
     }
 

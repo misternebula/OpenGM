@@ -2,6 +2,7 @@ using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -196,4 +197,9 @@ public static class GraphicsManager
         GL.Uniform1(ShaderManager.gm_VS_FogEnabled, enable ? 1 : 0);
         CheckError();
     }
+
+    [Conditional("RENDERDOC")]
+    public static void PushMessage(string message) => GL.PushDebugGroup(DebugSourceExternal.DebugSourceApplication, 0, message.Length, message);
+    [Conditional("RENDERDOC")]
+    public static void PopMessage() => GL.PopDebugGroup(); // TODO: check that were popping what we pushed
 }
