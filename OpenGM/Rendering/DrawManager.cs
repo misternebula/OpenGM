@@ -469,8 +469,6 @@ public static class DrawManager
         {
             for (var i = 0; i < 8; i++)
             {
-                GraphicsManager.PushMessage($"draw view {i}");
-                
                 ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
                 if (!ViewportManager.CurrentRenderingView.Visible)
@@ -478,6 +476,8 @@ public static class DrawManager
                     continue;
                 }
 
+                GraphicsManager.PushMessage($"draw view {i}");
+                
                 if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
                 {
                     SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
@@ -583,6 +583,8 @@ public static class DrawManager
                 {
                     SurfaceManager.surface_reset_target();
                 }
+                
+                GraphicsManager.PopMessage(); // draw view
             }
         }
         else // views not enabled
