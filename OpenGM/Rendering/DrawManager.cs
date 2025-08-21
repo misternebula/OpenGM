@@ -382,6 +382,8 @@ public static class DrawManager
     public static void FixedUpdate()
     {
         VariableResolver.GlobalVariables["debug"] = true;
+        VariableResolver.GlobalVariables["chemg_show_room"] = true;
+        VariableResolver.GlobalVariables["chemg_show_val"] = true;
 
         var itemsToRemove = new List<DrawWithDepth>();
         foreach (var item in _drawObjects)
