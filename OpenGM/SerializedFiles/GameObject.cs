@@ -9,12 +9,12 @@ public partial class GameObject : CLayerElementBase
     public float Y;
     public int DefinitionID;
     public int InstanceID;
-    public int CreationCodeID;
+    public int CreationCodeID = -1;
     public float ScaleX;
     public float ScaleY;
     public int Color;
     public float Rotation;
     public int FrameIndex;
     public float ImageSpeed;
-    public int PreCreateCodeID;
+    public int PreCreateCodeID = -1;
 }
