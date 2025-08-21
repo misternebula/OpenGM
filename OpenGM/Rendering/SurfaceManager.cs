@@ -29,6 +29,7 @@ public static class SurfaceManager
         _currentSurfaceId = surface;
 
         var buffer = _framebuffers[surface];
+        GraphicsManager.PushMessage($"surface target = {surface}");
         // future draws will draw to this fbo
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         // draw to entire surface framebuffer
@@ -54,6 +55,8 @@ public static class SurfaceManager
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
+        
+        GraphicsManager.PopMessage();
 
         return true;
     }
@@ -62,6 +65,8 @@ public static class SurfaceManager
 
     public static int CreateSurface(int width, int height, int format) // TODO: format
     {
+        GraphicsManager.PushMessage($"create surface {_nextId}");
+        
         // Generate framebuffer
         var buffer = GL.GenFramebuffer();
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
@@ -85,6 +90,8 @@ public static class SurfaceManager
 
         // Unbind framebuffer
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+        
+        GraphicsManager.PopMessage();
 
         _framebuffers.Add(_nextId, buffer);
 
@@ -102,6 +109,7 @@ public static class SurfaceManager
         {
             var buffer = _framebuffers[id];
 
+            GraphicsManager.PushMessage($"delete surface {id}");
             var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
             GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
@@ -109,6 +117,7 @@ public static class SurfaceManager
             GL.DeleteTexture(textureId);
 
             GL.DeleteFramebuffer(buffer);
+            GraphicsManager.PopMessage();
             _framebuffers.Remove(id);
         }
     }
@@ -186,6 +195,8 @@ public static class SurfaceManager
 
     public static void ResizeSurface(int id, int w, int h)
     {
+        GraphicsManager.PushMessage($"resize surface {id}");
+        
         var bufferId = _framebuffers[id];
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
@@ -211,6 +222,8 @@ public static class SurfaceManager
         }
         
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+        
+        GraphicsManager.PopMessage();
     }
 
     public static int GetSurfaceWidth(int id)
