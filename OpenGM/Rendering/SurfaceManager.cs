@@ -56,7 +56,7 @@ public static class SurfaceManager
         GraphicsManager.SetViewPort(prevViewPort);
         GraphicsManager.SetViewArea(prevViewArea);
         
-        GraphicsManager.PopMessage();
+        GraphicsManager.PopMessage(); // set target
 
         return true;
     }
