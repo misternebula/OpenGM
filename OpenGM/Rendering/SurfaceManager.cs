@@ -25,11 +25,12 @@ public static class SurfaceManager
             return false;
         }
 
+        GraphicsManager.PushMessage($"SurfaceSetTarget {surface}");
+
         SurfaceStack.Push((_currentSurfaceId, GraphicsManager.ViewPort,  GraphicsManager.ViewArea));
         _currentSurfaceId = surface;
 
         var buffer = _framebuffers[surface];
-        GraphicsManager.PushMessage($"surface target = {surface}");
         // future draws will draw to this fbo
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         // draw to entire surface framebuffer
@@ -40,6 +41,8 @@ public static class SurfaceManager
         
         // even if drawing to a view surface or app surface, itll use the whole area
 
+        GraphicsManager.PopMessage();
+
         return true;
     }
 
@@ -47,6 +50,8 @@ public static class SurfaceManager
 
     public static bool surface_reset_target()
     {
+        GraphicsManager.PushMessage($"SurfaceResetTarget");
+
         var (prevSurfaceId, prevViewPort, prevViewArea) = SurfaceStack.Pop();
         _currentSurfaceId = prevSurfaceId;
         
@@ -65,7 +70,7 @@ public static class SurfaceManager
 
     public static int CreateSurface(int width, int height, int format) // TODO: format
     {
-        GraphicsManager.PushMessage($"create surface {_nextId}");
+        GraphicsManager.PushMessage($"CreateSurface width:{width}, height:{height} ({_nextId})");
         
         // Generate framebuffer
         var buffer = GL.GenFramebuffer();
@@ -107,18 +112,16 @@ public static class SurfaceManager
 
         if (force || application_surface != id)
         {
+            GraphicsManager.PushMessage($"FreeSurface {id}");
             var buffer = _framebuffers[id];
-
-            GraphicsManager.PushMessage($"delete surface {id}");
             var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
             GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
             GL.DeleteTexture(textureId);
-
             GL.DeleteFramebuffer(buffer);
-            GraphicsManager.PopMessage();
             _framebuffers.Remove(id);
+            GraphicsManager.PopMessage();
         }
     }
 
@@ -147,6 +150,7 @@ public static class SurfaceManager
     // also copied from cpp
     public static void SetApplicationSurface()
     {
+        GraphicsManager.PushMessage("SetApplicationSurface");
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L1898
         if (!AppSurfaceEnabled)
         {
@@ -191,11 +195,12 @@ public static class SurfaceManager
         }
 
         UsingAppSurface = AppSurfaceEnabled;
+        GraphicsManager.PopMessage();
     }
 
     public static void ResizeSurface(int id, int w, int h)
     {
-        GraphicsManager.PushMessage($"resize surface {id}");
+        GraphicsManager.PushMessage($"ResizeSurface {id} {w}x{h}");
         
         var bufferId = _framebuffers[id];
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
@@ -233,9 +238,11 @@ public static class SurfaceManager
             return -1;
         }
 
+        GraphicsManager.PushMessage($"GetSurfaceWidth {id}");
         BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GraphicsManager.PopMessage();
         return width;
     }
 
@@ -246,9 +253,11 @@ public static class SurfaceManager
             return -1;
         }
 
+        GraphicsManager.PushMessage($"GetSurfaceHeight {id}");
         BindSurfaceTexture(id);
         GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
         GL.BindTexture(TextureTarget.Texture2D, 0);
+        GraphicsManager.PopMessage();
         return height;
     }
 
@@ -344,14 +353,17 @@ public static class SurfaceManager
 
     public static void BindSurfaceTexture(int surfaceId)
     {
+        GraphicsManager.PushMessage($"BindSurfaceTexture {surfaceId}");
+
         var buffer = _framebuffers[surfaceId];
-        
+       
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
         GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
 
         GL.BindTexture(TextureTarget.Texture2D, textureId);
+        GraphicsManager.PopMessage();
     }
 
     public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)

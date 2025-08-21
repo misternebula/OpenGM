@@ -129,9 +129,11 @@ public static class GraphicsManager
     public static void SetViewPort(Vector4i viewPort) => SetViewPort(viewPort.X, viewPort.Y, viewPort.Z, viewPort.W);
     public static void SetViewPort(int x, int y, int w, int h)
     {
+        PushMessage($"SetViewPort {x} {y} {w} {h}");
         ViewPort = new(x, y, w, h);
         GL.Viewport(x, y, w, h);
         CheckError();
+        PopMessage();
     }
 
     // rn we're just replicating g_isZeus = false, where instead of doing camera stuff we just have view area globals
@@ -139,6 +141,7 @@ public static class GraphicsManager
     public static void SetViewArea(Vector4 viewArea) => SetViewArea(viewArea.X, viewArea.Y, viewArea.Z, viewArea.W, 0);
     public static void SetViewArea(float x, float y, float w, float h, float angle)
     {
+        PushMessage($"SetViewArea {x} {y} {w} {h} {angle}");
         ViewArea = new(x, y, w, h);
         // we dont preserve angle. oh well
 
@@ -182,10 +185,12 @@ public static class GraphicsManager
                 CheckError();
             }
         }
+        PopMessage();
     }
 
     public static void SetFog(bool enable, Color4 color, float start, float end)
     {
+        PushMessage($"SetFog Enable:{enable}, Color:{color}, Start:{start}, End:{end}");
         GL.Uniform1(ShaderManager.gm_FogStart, start);
 
         var range = end - start;
@@ -196,6 +201,7 @@ public static class GraphicsManager
         GL.Uniform4(ShaderManager.gm_FogColour, color);
         GL.Uniform1(ShaderManager.gm_VS_FogEnabled, enable ? 1 : 0);
         CheckError();
+        PopMessage();
     }
 
     [Conditional("RENDERDOC")]

@@ -42,6 +42,7 @@ public static class PageManager
 
     public static void UploadTexture(string name, ImageResult image)
     {
+        GraphicsManager.PushMessage($"UploadTexture Name:{name}");
         var newId = GL.GenTexture();
 
         GL.BindTexture(TextureTarget.Texture2D, newId);
@@ -53,6 +54,7 @@ public static class PageManager
         image.Data = null; // let this get gc'd since it was uploaded to the gpu
 
         TexturePages[name] = (image, newId);
+        GraphicsManager.PopMessage();
     }
 
     public static void DeleteTexture(string name)

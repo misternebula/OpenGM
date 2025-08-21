@@ -99,16 +99,22 @@ public static class DrawManager
 
                     if (!hasDrawScript)
                     {
+                        GraphicsManager.PushMessage($"{drawType} (DRAW SELF) {gm.instanceId} ({AssetIndexManager.GetName(AssetType.objects, gm.object_index)})");
                         SpriteManager.DrawSelf(gm);
+                        GraphicsManager.PopMessage();
                         continue;
                     }
                 }
 
+                GraphicsManager.PushMessage($"{drawType} {gm.instanceId} ({AssetIndexManager.GetName(AssetType.objects, gm.object_index)})");
                 GamemakerObject.ExecuteEvent(gm, gm.Definition, EventType.Draw, (int)drawType);
+                GraphicsManager.PopMessage();
             }
             else if (drawType == EventSubtypeDraw.Draw)
             {
+                GraphicsManager.PushMessage($"{drawType} {item.instanceId} ({item.GetType().Name})");
                 item.Draw();
+                GraphicsManager.PopMessage();
             }
         }
 
@@ -408,7 +414,7 @@ public static class DrawManager
         }
         _drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
 
-        GraphicsManager.PushMessage("step drawing");
+        GraphicsManager.PushMessage("DoAStep");
         DoAStep();
         GraphicsManager.PopMessage();
         
@@ -430,7 +436,7 @@ public static class DrawManager
         /*
          * PreDraw
          */
-        GraphicsManager.PushMessage("pre draw");
+        GraphicsManager.PushMessage("PreDraw");
         var fbsize = CustomWindow.Instance.FramebufferSize;
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
         GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
@@ -459,7 +465,7 @@ public static class DrawManager
         /*
          * DrawViews
          */
-        GraphicsManager.PushMessage("draw views");
+        GraphicsManager.PushMessage("DrawViews");
         
         /*
          * UpdateViews
@@ -524,7 +530,7 @@ public static class DrawManager
                 /*
                  * DrawTheRoom
                  */
-                GraphicsManager.PushMessage("draw the room");
+                GraphicsManager.PushMessage("DrawTheRoom");
                 if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
                 {
                     break;
@@ -608,7 +614,7 @@ public static class DrawManager
             /*
              * DrawTheRoom
              */
-            GraphicsManager.PushMessage("draw the room");
+            GraphicsManager.PushMessage("DrawTheRoom");
             if (RunDrawScript(drawList, EventSubtypeDraw.DrawBegin))
             {
                 return;
@@ -650,7 +656,7 @@ public static class DrawManager
         /*
          * PostDraw
          */
-        GraphicsManager.PushMessage("post draw");
+        GraphicsManager.PushMessage("PostDraw");
         GraphicsManager.SetViewPort(0, 0, fbsize.X, fbsize.Y);
         GraphicsManager.SetViewArea(0, 0, fbsize.X, fbsize.Y, 0);
         
@@ -663,7 +669,7 @@ public static class DrawManager
         /*
          * DrawApplicationSurface
          */
-        GraphicsManager.PushMessage("draw app surface");
+        GraphicsManager.PushMessage("DrawApplicationSurface");
         if (SurfaceManager.UsingAppSurface)
         {
             // gamemaker actually uses alpha test enable here, and saves/restores the state. just change it to that when this breaks
@@ -681,7 +687,7 @@ public static class DrawManager
          */
         if (ShouldDrawGui)
         {
-            GraphicsManager.PushMessage("draw gui");
+            GraphicsManager.PushMessage("DrawGUI");
             if (GuiSize is Vector2i vec)
             {
                 GraphicsManager.SetViewArea(0, 0, vec.X, vec.Y, 0);

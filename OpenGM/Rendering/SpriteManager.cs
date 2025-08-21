@@ -192,15 +192,19 @@ public static class SpriteManager
 
         // make a copy of the texture. theres better ways to do this but this should work
         GraphicsManager.PushMessage("sprite_create_from_surface");
-        GraphicsManager.PushMessage("read pixels");
-        SurfaceManager.BindSurfaceTexture(surfaceId);
+
         var pixels = new byte[w * h * 4];
-        unsafe
         {
-            fixed (byte* ptr = pixels)
-                GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
+            GraphicsManager.PushMessage("read pixels");
+            SurfaceManager.BindSurfaceTexture(surfaceId);
+            unsafe
+            {
+                fixed (byte* ptr = pixels)
+                    GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
+            }
+            GraphicsManager.PopMessage();
         }
-        GraphicsManager.PopMessage();
+        
         GraphicsManager.PushMessage("upload texture");
         // store it as a "page". its really just one texture that the sprite will use to draw
         var imageResult = new ImageResult()
