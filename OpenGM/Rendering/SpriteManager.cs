@@ -196,12 +196,13 @@ public static class SpriteManager
         var pixels = new byte[w * h * 4];
         {
             GraphicsManager.PushMessage("read pixels");
-            SurfaceManager.BindSurfaceTexture(surfaceId);
+            SurfaceManager.BindSurfaceFramebuffer(surfaceId);
             unsafe
             {
                 fixed (byte* ptr = pixels)
                     GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
             }
+            SurfaceManager.BindPreviousFramebuffer();
             GraphicsManager.PopMessage();
         }
         

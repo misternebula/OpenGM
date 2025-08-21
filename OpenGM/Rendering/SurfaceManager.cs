@@ -366,6 +366,26 @@ public static class SurfaceManager
         GraphicsManager.PopMessage();
     }
 
+    private static int _prevFrameBuffer;
+
+    public static void BindSurfaceFramebuffer(int surfaceId)
+    {
+        GraphicsManager.PushMessage($"BindSurfaceFramebuffer {surfaceId}");
+        var buffer = _framebuffers[surfaceId];
+        _prevFrameBuffer = GL.GetInteger(GetPName.FramebufferBinding);
+
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+
+        GraphicsManager.PopMessage();
+    }
+
+    public static void BindPreviousFramebuffer()
+    {
+        GraphicsManager.PushMessage($"BindPreviousFramebuffer");
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _prevFrameBuffer);
+        GraphicsManager.PopMessage();
+    }
+
     public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
     {
         if (!surface_exists(dest) || !surface_exists(src))
