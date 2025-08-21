@@ -191,7 +191,7 @@ public static class SpriteManager
         var texturePageName = $"sprite_create_from_surface {spriteId}"; // needed for texture page lookup
 
         // make a copy of the texture. theres better ways to do this but this should work
-        GraphicsManager.PushMessage("sprite_create_from_surface");
+        GraphicsManager.PushMessage($"sprite_create_from_surface Surf:{surfaceId}, x:{x}, y:{y}, w:{w}, h:{h}");
 
         var pixels = new byte[w * h * 4];
         {
@@ -205,7 +205,6 @@ public static class SpriteManager
             GraphicsManager.PopMessage();
         }
         
-        GraphicsManager.PushMessage("upload texture");
         // store it as a "page". its really just one texture that the sprite will use to draw
         var imageResult = new ImageResult()
         {
@@ -214,7 +213,6 @@ public static class SpriteManager
             Data = pixels
         };
         PageManager.UploadTexture(texturePageName, imageResult);
-        GraphicsManager.PopMessage();
         GraphicsManager.PopMessage();
 
         // create a sprite with the single texture
@@ -258,6 +256,7 @@ public static class SpriteManager
 
     public static bool sprite_delete(int index)
     {
+        GraphicsManager.PushMessage($"SpriteDelete {index}");
         // only used with sprite_create_from_surface
 
         // remove the sprite
@@ -265,9 +264,11 @@ public static class SpriteManager
         {
             // remove the copied texture
             PageManager.DeleteTexture(sprite.Textures[0].Page);
+            GraphicsManager.PopMessage();
             return true;
         }
 
+        GraphicsManager.PopMessage();
         return false;
     }
 }

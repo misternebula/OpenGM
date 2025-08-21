@@ -59,9 +59,11 @@ public static class PageManager
 
     public static void DeleteTexture(string name)
     {
+        GraphicsManager.PushMessage($"DeleteTexture {name}");
         if (TexturePages.Remove(name, out var value))
         {
             GL.DeleteTexture(value.id);
         }
+        GraphicsManager.PopMessage();
     }
 }
