@@ -204,8 +204,8 @@ public static class GraphicsManager
         PopMessage();
     }
 
-    [Conditional("RENDERDOC")]
+    [Conditional("DEBUG_EXTRA")]
     public static void PushMessage(string message) => GL.PushDebugGroup(DebugSourceExternal.DebugSourceApplication, 0, message.Length, message);
-    [Conditional("RENDERDOC")]
+    [Conditional("DEBUG_EXTRA")]
     public static void PopMessage() => GL.PopDebugGroup(); // TODO: check that were popping what we pushed
 }
