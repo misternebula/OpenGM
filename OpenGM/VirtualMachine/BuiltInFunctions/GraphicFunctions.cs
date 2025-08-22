@@ -530,7 +530,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? draw_clear(object?[] args)
         {
             var col = args[0].Conv<int>();
-            var colour = col.ABGRToCol4(0);
+            var colour = col.ABGRToCol4(1);
             GL.ClearColor(colour);
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.ClearColor(0, 0, 0, 0);
