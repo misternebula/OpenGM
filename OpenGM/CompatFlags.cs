@@ -5,10 +5,10 @@ namespace OpenGM;
 public static class CompatFlags
 {
     /// <summary>
-    /// Legacy bounding box and collision logic, using integer math over doubles. 
+    /// Prior to GMS2, depth rendering was forced to 0 - same as layer_force_draw_depth.
     /// </summary>
-    [GMCompatFlag(before: "2022.1")]
-    public static bool LegacyCollision = false;
+    [GMCompatFlag(before: "2.0")]
+    public static bool ForceDepthZero = false;
 
     /// <summary>
     /// Whether # should be treated as a newline or not in text rendering.
@@ -29,10 +29,26 @@ public static class CompatFlags
     public static bool ScriptAssetIds = false;
 
     /// <summary>
-    /// Prior to GMS2, depth rendering was forced to 0 - same as layer_force_draw_depth.
+    /// If true, instances on the same depth are sorted using ThenByDescending instead of ThenBy.
     /// </summary>
-    [GMCompatFlag(before: "2.0")]
-    public static bool ForceDepthZero = false;
+
+    // todo: is this the right version?
+
+    // 1.0.0.9999                   OrderByDescending(depth), ThenByDescending(instanceid)
+    // 2.2.0.258 / SURVEY_PROGRAM   OrderByDescending(depth), ThenByDescending(instanceid)
+
+    // // LTS 2022.0.0.12           OrderByDescending(depth), ThenBy(instanceid)
+    // // LTS 2022.0.3.99           OrderByDescending(depth), ThenBy(instanceid)
+    // // 2024.13.1.242             OrderByDescending(depth), ThenBy(instanceid)
+
+    [GMCompatFlag(before: "2.3")]
+    public static bool DepthSortingReverseInstanceIds = false;
+
+    /// <summary>
+    /// Legacy bounding box and collision logic, using integer math over doubles. 
+    /// </summary>
+    [GMCompatFlag(before: "2022.1")]
+    public static bool LegacyCollision = false;
 
     // --------------------------------------
 
