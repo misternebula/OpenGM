@@ -138,11 +138,8 @@ public static class DrawManager
 
         InstanceManager.RememberOldPositions();
         InstanceManager.UpdateImages();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
@@ -157,58 +154,39 @@ public static class DrawManager
 
         // resize event
 
-        // g_pASyncManager.Process();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        AsyncManager.HandleAsyncQueue();
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
         // HandleTimeLine();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
         // HandleTimeSources();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
         HandleAlarm(stepList);
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
         HandleKeyboard();
-        HandleMouse(); // TODO: does this go here?
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
-        // HandleMouse();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        HandleMouse();
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
@@ -226,29 +204,20 @@ public static class DrawManager
         InstanceManager.UpdatePositions(); // UpdateInstancePositions
 
         HandleOther();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
         // YYPushEventsDispatch();
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
         UpdateCollisions(stepList);
-
-        // UpdateActiveLists();
-        if (RoomManager.New_Room != -1)
+        if (RoomManager.CheckAndChangeRoom())
         {
-            RoomManager.ChangeToWaitingRoom();
             return;
         }
 
@@ -272,9 +241,6 @@ public static class DrawManager
             }
         }
         */
-
-        // TODO: figure out where this goes
-        AsyncManager.HandleAsyncQueue();
     }
 
     public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)
@@ -715,7 +681,6 @@ public static class DrawManager
         if (RoomManager.CurrentRoom != null)
         {
             RoomManager.CurrentRoom.RemoveMarked();
-            RoomManager.CurrentRoom.HandleObjectActivation();
         }
 
         //GamemakerCamera.Instance.GetComponent<Camera>().Render();
