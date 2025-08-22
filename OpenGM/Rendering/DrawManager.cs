@@ -423,13 +423,14 @@ public static class DrawManager
          * yyRoom.prototype.Draw
          */
 
-        // 1.0.0.9999  OrderByDescending(depth), ThenByDescending(instanceid)
+        // 1.0.0.9999                   OrderByDescending(depth), ThenByDescending(instanceid)
+        // 2.2.0.258 / SURVEY_PROGRAM   OrderByDescending(depth), ThenByDescending(instanceid)
 
         // // TODO: when did this change??
 
-        // // LTS 2022.0.0.12  OrderByDescending(depth), ThenBy(instanceid)
-        // // LTS 2022.0.3.99  OrderByDescending(depth), ThenBy(instanceid)
-        // // 2024.13.1.242    OrderByDescending(depth), ThenBy(instanceid)
+        // // LTS 2022.0.0.12           OrderByDescending(depth), ThenBy(instanceid)
+        // // LTS 2022.0.3.99           OrderByDescending(depth), ThenBy(instanceid)
+        // // 2024.13.1.242             OrderByDescending(depth), ThenBy(instanceid)
 
         var drawList = _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
