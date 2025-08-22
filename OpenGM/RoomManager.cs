@@ -159,6 +159,18 @@ public static class RoomManager
         PersistentRooms.Remove(room.AssetId);
     }
 
+    public static bool CheckAndChangeRoom()
+    {
+        CurrentRoom.HandleObjectActivation();
+        if (New_Room != -1)
+        {
+            ChangeToWaitingRoom();
+            return true;
+        }
+
+        return false;
+    }
+
     public static void ChangeToWaitingRoom()
     {
         // TODO : What's the difference between ENDOFGAME and ABORTGAME?
