@@ -1818,12 +1818,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var sprite = args[0].Conv<int>();
             var subimg = args[1].Conv<int>();
-            var x = args[2].Conv<double>();
-            var y = args[3].Conv<double>();
-            var xscale = args[4].Conv<double>();
-            var yscale = args[5].Conv<double>();
+            var x = args[2].Conv<float>();
+            var y = args[3].Conv<float>();
+            var xscale = args[4].Conv<float>();
+            var yscale = args[5].Conv<float>();
             var colour = args[6].Conv<int>();
-            var alpha = args[7].Conv<double>();
+            var alpha = args[7].Conv<float>();
 
             if (subimg == -1)
             {
@@ -1831,46 +1831,108 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
+            var spriteAsset = SpriteManager.GetSpriteAsset(sprite)!;
 
-            var sizeWidth = spriteTex.BoundingWidth * xscale;
-            var sizeHeight = spriteTex.BoundingHeight * yscale;
+            TextureDrawTiled(spriteTex, spriteAsset.OriginX, spriteAsset.OriginY, x, y, xscale, yscale, true, true, 0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, colour, alpha);
 
-            var tempX = x;
-            var tempY = y;
+            return null;
+        }
 
-            var viewTopLeftX = ViewportManager.CurrentRenderingView?.ViewPosition.X ?? 0;
-            var viewTopLeftY = ViewportManager.CurrentRenderingView?.ViewPosition.Y ?? 0;
+        // Based on https://github.com/YoYoGames/GameMaker-HTML5/blob/68cded9270496ba29768c3e8a279d538fad659ee/scripts/yyWebGL.js#L1145
+        // and GR_Texture_Draw_Tiled
+        public static void TextureDrawTiled(
+            SpritePageItem? pageitem,
+            float _xorig, float _yorig,
+            float _x, float _y,
+            float _xsc, float _ysc,
+            bool _htiled, bool _vtiled,
+            float _xr, float _yr,
+            float _wr, float _hr,
+            int _col, float _alpha)
+        {
+            // TODO : HTML abs-es the x/yscale and uses the signed version later on, C++ just returns straight away if they're negative?
 
-            var viewSizeX = ViewportManager.CurrentRenderingView?.ViewSize.X ?? RoomManager.CurrentRoom.SizeX;
-            var viewSizeY = ViewportManager.CurrentRenderingView?.ViewSize.Y ?? RoomManager.CurrentRoom.SizeY;
-
-            while (tempX > viewTopLeftX)
+            if (pageitem == null || _xsc < 0.0001 || _ysc < 0.0001)
             {
-                tempX -= sizeWidth;
+                return;
             }
 
-            while (tempY > viewTopLeftY)
+            // todo : check if active cam is 2d
+
+            if (!_htiled && !_vtiled)
             {
-                tempY -= sizeHeight;
+                // Only need to draw one sprite, that's nice!
+
+                return;
             }
 
-            // tempX and tempY are now the topleft-most co-ords that are offscreen
+            var ow = pageitem.BoundingWidth * _xsc;
+            var oh = pageitem.BoundingHeight * _ysc;
 
-            var xOffscreenValue = viewTopLeftX - tempX;
-            var yOffscreenValue = viewTopLeftY - tempY;
-
-            var countToDrawHoriz = CustomMath.CeilToInt((viewSizeX + (float)xOffscreenValue) / sizeWidth);
-            var countToDrawVert = CustomMath.CeilToInt((viewSizeY + (float)yOffscreenValue) / sizeHeight);
-
-            for (var i = 0; i < countToDrawVert; i++)
+            if ((ow <= 0) || (oh <= 0))
             {
-                for (var j = 0; j < countToDrawHoriz; j++)
+                // would result in infinite drawing
+                return;
+            }
+
+            var w = ow;
+            var h = oh;
+            if (_htiled)
+            {
+                w = (((_wr + (ow - 1)) / ow) + 2) * ow;
+                _x = _xr + CustomMath.FMod(_x - _xr, ow) - ow;
+            }
+
+            if (_vtiled)
+            {
+                h = (((_hr + (oh - 1)) / oh) + 2) * oh;
+                _y = _yr + CustomMath.FMod(_y - _yr, oh) - oh;
+            }
+
+            var drawcol = _col.ABGRToCol4(_alpha);
+
+            var page = PageManager.TexturePages[pageitem.Page];
+
+            var invTWidth = 1.0 / page.image.Width;
+            var invTHeight = 1.0 / page.image.Height;
+
+            var u = (pageitem.SourceX * invTWidth);
+            var u2 = (pageitem.SourceX + pageitem.SourceWidth) * invTWidth;
+            var v = (pageitem.SourceY * invTHeight);
+            var v2 = (pageitem.SourceY + pageitem.SourceHeight) * invTHeight;
+            var nw = _xsc * pageitem.TargetWidth;
+            var nh = _ysc * pageitem.TargetHeight;
+
+            var tx = (w / ow);
+            var ty = (h / oh);
+
+            var x1 = -_xsc * _xorig;
+            var y1 = -_ysc * _yorig;
+
+            GL.BindTexture(TextureTarget.Texture2D, page.id);
+
+            var yy = _y + (pageitem.TargetY * _ysc);
+            for (var cy = 0; cy < ty; cy++, yy += oh)
+            {
+                var xx = _x + (pageitem.TargetX * _xsc);
+                var yy2 = yy + nh;
+
+                for (var cx = 0; cx < tx; cx++, xx += ow)
                 {
-                    SpriteManager.DrawSpriteExt(sprite, subimg, tempX + (j * sizeWidth), tempY + (i * sizeHeight), xscale, yscale, 0, colour, alpha);
+                    var xx2 = xx + nw;
+
+                    GraphicsManager.Draw(PrimitiveType.Triangles, [
+                        new(new(xx + x1, yy + y1, GraphicsManager.GR_Depth), drawcol, new(u, v)),
+                        new(new(xx2 + x1, yy + y1, GraphicsManager.GR_Depth), drawcol, new(u2, v)),
+                        new(new(xx2 + x1, yy2 + y1, GraphicsManager.GR_Depth), drawcol, new(u2, v2)),
+                        new(new(xx2 + x1, yy2 + y1, GraphicsManager.GR_Depth), drawcol, new(u2, v2)),
+                        new(new(xx + x1, yy2 + y1, GraphicsManager.GR_Depth), drawcol, new(u, v2)),
+                        new(new(xx + x1, yy + y1, GraphicsManager.GR_Depth), drawcol, new(u, v))
+                        ]);
                 }
             }
 
-            return null;
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         // shader_enable_corner_id

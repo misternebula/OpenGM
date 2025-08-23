@@ -149,6 +149,25 @@ public static class CustomMath
         return new(r, g, b, a);
     }
 
+    public static int CreateColor(int col, float alpha)
+    {
+        var iAlpha = (int)(alpha * 255);
+
+        if (iAlpha < 0)
+        {
+            iAlpha = 0;
+        }
+
+        if (iAlpha > 255)
+        {
+            iAlpha = 255;
+        }
+
+        iAlpha <<= 24;
+
+        return (col & 0x00FFFFFF) | iAlpha;
+    }
+
     /*
      * JS Functions
      * Functions that replicate JS math functions for HTML referenced code.
