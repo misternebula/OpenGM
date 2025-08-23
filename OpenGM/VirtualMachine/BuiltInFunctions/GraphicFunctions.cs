@@ -1859,9 +1859,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             // todo : check if active cam is 2d
 
+            var drawcol = _col.ABGRToCol4(_alpha);
+
             if (!_htiled && !_vtiled)
             {
                 // Only need to draw one sprite, that's nice!
+
+                CustomWindow.Draw(new GMSpriteJob()
+                {
+                    texture = pageitem,
+                    screenPos = new(_x, _y),
+                    angle = 0,
+                    scale = new(_xsc, _ysc),
+                    Colors = [drawcol, drawcol, drawcol, drawcol],
+                    origin = new(_xorig, _yorig)
+                });
 
                 return;
             }
@@ -1888,8 +1900,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 h = (((_hr + (oh - 1)) / oh) + 2) * oh;
                 _y = _yr + CustomMath.FMod(_y - _yr, oh) - oh;
             }
-
-            var drawcol = _col.ABGRToCol4(_alpha);
 
             var page = PageManager.TexturePages[pageitem.Page];
 
