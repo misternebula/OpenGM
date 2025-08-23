@@ -175,11 +175,11 @@ public static class ScriptResolver
 
         if (max_splits == -1)
         {
-            return str.Split(delimiter, option);
+            return str.Split(delimiter, option).ToList();
         }
         else
         {
-            return str.Split(delimiter, max_splits + 1, option);
+            return str.Split(delimiter, max_splits + 1, option).ToList();
         }
     }
 
