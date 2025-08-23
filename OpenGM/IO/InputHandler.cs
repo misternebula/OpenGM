@@ -2,6 +2,7 @@
 using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Text;
 
 namespace OpenGM.IO;
 
@@ -103,7 +104,16 @@ public class InputHandler
         }
 
         IOStream.Write(new byte[4]); // IO_LastChar
-        IOStream.Write(new byte[4100]); // IO_InputString
+
+        // TODO: no idea if this matches the runner, but assuming that
+        // it's a 4 byte length + 4096 byte buffer
+
+        var inputBytes = Encoding.ASCII.GetBytes(KeyboardString);
+        IOStream.Write(BitConverter.GetBytes(inputBytes.Length));
+
+        Array.Resize(ref inputBytes, 4096);
+        IOStream.Write(inputBytes);
+
         IOStream.Write(new byte[4]); // IO_LastKey
         IOStream.Write(new byte[4]); // IO_CurrentKey
 
@@ -149,7 +159,15 @@ public class InputHandler
         try
         {
             IOStream.ReadExactly(new byte[4]); // IO_LastChar
-            IOStream.ReadExactly(new byte[4100]); // IO_InputString
+
+            var inputLengthBuf = new byte[4];
+            IOStream.ReadExactly(inputLengthBuf);
+            var inputLength = BitConverter.ToInt32(inputLengthBuf);
+
+            var inputBytes = new byte[4096];
+            IOStream.ReadExactly(inputBytes);
+            KeyboardString = Encoding.ASCII.GetString(inputBytes[..inputLength]);
+
             IOStream.ReadExactly(new byte[4]); // IO_LastKey
             IOStream.ReadExactly(new byte[4]); // IO_CurrentKey
 
