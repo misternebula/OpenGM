@@ -106,6 +106,11 @@ public class RoomContainer
 
     public void DeactivateInstance(GamemakerObject obj)
     {
+        if (!obj.Active)
+        {
+            return;
+        }
+
         obj.Unregister();
         obj.Active = false;
 
@@ -117,6 +122,11 @@ public class RoomContainer
 
     public void ReactivateInstance(GamemakerObject obj)
     {
+        if (obj.Active)
+        {
+            return;
+        }
+
         if (!InstanceManager.inactiveInstances.Remove(obj.instanceId))
         {
             DebugLog.LogWarning($"Could not remove instance id {obj.instanceId} ({obj.Definition.Name}) from inactive instances list");

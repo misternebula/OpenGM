@@ -237,8 +237,6 @@ public static class RoomManager
                 instance.Destroy();
             }
 
-            InstanceManager.ClearInactive();
-
             foreach (var item in CurrentRoom.Tiles)
             {
                 item.Destroy();

@@ -92,6 +92,15 @@ public static class DebugLog
         }
     }
 
+    public static void PrintInactiveInstances(LogType? type = LogType.Verbose)
+    {
+        Log("--Inactive Instances--", type);
+        foreach (var instance in InstanceManager.inactiveInstances.Values)
+        {
+            Log($" - {instance.Definition.Name} ({instance.instanceId}) Persistent:{instance.persistent} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}", type);
+        }
+    }
+
     public static void PrintDrawObjects(LogType? type = LogType.Verbose)
     {
         Log("--Draw Objects--", type);

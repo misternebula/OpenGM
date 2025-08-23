@@ -264,6 +264,7 @@ public class KeyboardHandler
         if (state.IsKeyPressed(Keys.KeyPad0))
         {
             DebugLog.PrintInstances(DebugLog.LogType.Info);
+            DebugLog.PrintInactiveInstances(DebugLog.LogType.Info);
             DebugLog.PrintDrawObjects(DebugLog.LogType.Info);
         }
 
