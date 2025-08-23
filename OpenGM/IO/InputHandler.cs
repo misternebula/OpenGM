@@ -5,7 +5,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace OpenGM.IO;
 
-public class KeyboardHandler
+public class InputHandler
 {
     public enum State
     {

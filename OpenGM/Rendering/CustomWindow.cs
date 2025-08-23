@@ -62,8 +62,8 @@ public class CustomWindow : GameWindow
 
         ViewportManager.UpdateViews();
 
-        KeyboardHandler.UpdateMouseState(MouseState);
-        KeyboardHandler.UpdateKeyboardState(KeyboardState);
+        InputHandler.UpdateMouseState(MouseState);
+        InputHandler.UpdateKeyboardState(KeyboardState);
 
         DrawManager.FixedUpdate();
         AudioManager.Update();

@@ -740,7 +740,7 @@ public static class DrawManager
         var keyDown = 0;
         for (var i = 0; i < 256; i++)
         {
-            if (KeyboardHandler.KeyDown[i])
+            if (InputHandler.KeyDown[i])
             {
                 keyDown = 1;
                 Handle(i, EventType.Keyboard);
@@ -756,7 +756,7 @@ public static class DrawManager
         var keyPressed = 0;
         for (var i = 0; i < 256; i++)
         {
-            if (KeyboardHandler.KeyPressed[i])
+            if (InputHandler.KeyPressed[i])
             {
                 keyPressed = 1;
                 Handle(i, EventType.KeyPress);
@@ -772,7 +772,7 @@ public static class DrawManager
         var keyReleased = 0;
         for (var i = 0; i < 256; i++)
         {
-            if (KeyboardHandler.KeyReleased[i])
+            if (InputHandler.KeyReleased[i])
             {
                 keyReleased = 1;
                 Handle(i, EventType.KeyRelease);
@@ -830,7 +830,7 @@ public static class DrawManager
     {
         for (var i = 0; i < 3; i++)
         {
-            if (!KeyboardHandler.MouseDown[i])
+            if (!InputHandler.MouseDown[i])
             {
                 continue;
             }
@@ -850,7 +850,7 @@ public static class DrawManager
     {
         for (var i = 0; i < 3; i++)
         {
-            if (!KeyboardHandler.MousePressed[i])
+            if (!InputHandler.MousePressed[i])
             {
                 continue;
             }
@@ -870,7 +870,7 @@ public static class DrawManager
     {
         for (var i = 0; i < 3; i++)
         {
-            if (!KeyboardHandler.MouseReleased[i])
+            if (!InputHandler.MouseReleased[i])
             {
                 continue;
             }

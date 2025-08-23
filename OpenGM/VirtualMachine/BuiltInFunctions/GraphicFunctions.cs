@@ -318,20 +318,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("window_mouse_get_x")]
         public static object? window_mouse_get_x(object?[] args)
         {
-            return KeyboardHandler.MousePos.X;
+            return InputHandler.MousePos.X;
         }
 
         [GMLFunction("window_mouse_get_y")]
         public static object? window_mouse_get_y(object?[] args)
         { 
-            return KeyboardHandler.MousePos.Y;
+            return InputHandler.MousePos.Y;
         }
 
         // TODO: account for view that the mouse is currently in
         [GMLFunction("window_views_mouse_get_x")]
         public static object? window_views_mouse_get_x(object?[] args)
         {
-            var mouseX = KeyboardHandler.MousePos.X;
+            var mouseX = InputHandler.MousePos.X;
             var windowWidth = window_get_width([]).Conv<int>();
             var viewX = RoomManager.CurrentRoom.Views[0].ViewPosition.X;
             var viewWidth = RoomManager.CurrentRoom.Views[0].ViewSize.X;
@@ -341,7 +341,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("window_views_mouse_get_y")]
         public static object? window_views_mouse_get_y(object?[] args)
         { 
-            var mouseY = KeyboardHandler.MousePos.Y;
+            var mouseY = InputHandler.MousePos.Y;
             var windowHeight = window_get_height([]).Conv<int>();
             var viewY = RoomManager.CurrentRoom.Views[0].ViewPosition.Y;
             var viewHeight = RoomManager.CurrentRoom.Views[0].ViewSize.Y;

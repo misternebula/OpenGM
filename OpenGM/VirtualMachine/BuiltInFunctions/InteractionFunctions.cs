@@ -34,13 +34,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var key = args[0].Conv<int>();
 
-            if (KeyboardHandler.KeyDown[key])
+            if (InputHandler.KeyDown[key])
             {
                 return null;
             }
 
-            KeyboardHandler.KeyDown[key] = true;
-            KeyboardHandler.KeyPressed[key] = true;
+            InputHandler.KeyDown[key] = true;
+            InputHandler.KeyPressed[key] = true;
 
             return null;
         }
@@ -50,7 +50,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var key = args[0].Conv<int>();
 
-            KeyboardHandler.KeyDown[key] = false;
+            InputHandler.KeyDown[key] = false;
             // oddly doesn't change KeyPressed in the HTML runner
 
             return null;
@@ -73,7 +73,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     var result = true;
                     for (var i = 0; i <= 255; ++i)
                     {
-                        result = KeyboardHandler.KeyDown[i] != true && result;
+                        result = InputHandler.KeyDown[i] != true && result;
                     }
                     return result;
                 }
@@ -82,14 +82,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     var result = false;
                     for (var i = 0; i <= 255; ++i)
                     {
-                        result = KeyboardHandler.KeyDown[i] || result;
+                        result = InputHandler.KeyDown[i] || result;
                     }
                     return result;
                 }
                 case > 255:
                     return false;
                 default:
-                    return KeyboardHandler.KeyDown[key];
+                    return InputHandler.KeyDown[key];
             }
         }
 
@@ -106,7 +106,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     var result = true;
                     for (var i = 0; i <= 255; ++i)
                     {
-                        result = KeyboardHandler.KeyPressed[i] != true && result;
+                        result = InputHandler.KeyPressed[i] != true && result;
                     }
                     return result;
                 }
@@ -115,14 +115,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     var result = false;
                     for (var i = 0; i <= 255; ++i)
                     {
-                        result = KeyboardHandler.KeyPressed[i] || result;
+                        result = InputHandler.KeyPressed[i] || result;
                     }
                     return result;
                 }
                 case > 255:
                     return false;
                 default:
-                    return KeyboardHandler.KeyPressed[key];
+                    return InputHandler.KeyPressed[key];
             }
         }
 
@@ -139,7 +139,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     var result = true;
                     for (var i = 0; i <= 255; ++i)
                     {
-                        result = KeyboardHandler.KeyReleased[i] != true && result;
+                        result = InputHandler.KeyReleased[i] != true && result;
                     }
                     return result;
                 }
@@ -148,14 +148,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     var result = false;
                     for (var i = 0; i <= 255; ++i)
                     {
-                        result = KeyboardHandler.KeyReleased[i] || result;
+                        result = InputHandler.KeyReleased[i] || result;
                     }
                     return result;
                 }
                 case > 255:
                     return false;
                 default:
-                    return KeyboardHandler.KeyReleased[key];
+                    return InputHandler.KeyReleased[key];
             }
         }
 
@@ -163,7 +163,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? keyboard_check_direct(object?[] args)
         {
             var key = args[0].Conv<int>();
-            return KeyboardHandler.KeyboardCheckDirect(key);
+            return InputHandler.KeyboardCheckDirect(key);
         }
 
         [GMLFunction("mouse_check_button")]
@@ -173,9 +173,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             return numb switch
             {
-                -1 => KeyboardHandler.MouseDown.Any(x => x),
-                0 => KeyboardHandler.MouseDown.All(x => !x),
-                _ => KeyboardHandler.MouseDown[numb - 1]
+                -1 => InputHandler.MouseDown.Any(x => x),
+                0 => InputHandler.MouseDown.All(x => !x),
+                _ => InputHandler.MouseDown[numb - 1]
             };
         }
 
@@ -185,9 +185,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var numb = args[0].Conv<int>();
             return numb switch
             {
-                -1 => KeyboardHandler.MousePressed.Any(x => x),
-                0 => KeyboardHandler.MousePressed.All(x => !x),
-                _ => KeyboardHandler.MousePressed[numb - 1]
+                -1 => InputHandler.MousePressed.Any(x => x),
+                0 => InputHandler.MousePressed.All(x => !x),
+                _ => InputHandler.MousePressed[numb - 1]
             };
         }
 
@@ -197,9 +197,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var numb = args[0].Conv<int>();
             return numb switch
             {
-                -1 => KeyboardHandler.MouseReleased.Any(x => x),
-                0 => KeyboardHandler.MouseReleased.All(x => !x),
-                _ => KeyboardHandler.MouseReleased[numb - 1]
+                -1 => InputHandler.MouseReleased.Any(x => x),
+                0 => InputHandler.MouseReleased.All(x => !x),
+                _ => InputHandler.MouseReleased[numb - 1]
             };
         }
 
@@ -217,13 +217,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             // TODO : clear other IO variables when we implement them
 
-            KeyboardHandler.KeyDown = new bool[256];
-            KeyboardHandler.KeyPressed = new bool[256];
-            KeyboardHandler.KeyReleased = new bool[256];
+            InputHandler.KeyDown = new bool[256];
+            InputHandler.KeyPressed = new bool[256];
+            InputHandler.KeyReleased = new bool[256];
 
-            KeyboardHandler.MouseDown = new bool[5];
-            KeyboardHandler.KeyPressed = new bool[5];
-            KeyboardHandler.KeyReleased = new bool[5];
+            InputHandler.MouseDown = new bool[5];
+            InputHandler.KeyPressed = new bool[5];
+            InputHandler.KeyReleased = new bool[5];
             return null;
         }
 
@@ -232,7 +232,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var dev = args[0].Conv<int>();
 
-            var mouseX = KeyboardHandler.MousePos.X;
+            var mouseX = InputHandler.MousePos.X;
             var windowWidth = GraphicFunctions.window_get_width([]).Conv<int>();
             var guiWidth = DrawManager.GuiSize?.X ?? windowWidth;
             return CustomMath.DoubleTilde(mouseX * (guiWidth / windowWidth));
@@ -243,7 +243,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var dev = args[0].Conv<int>();
 
-            var mouseY = KeyboardHandler.MousePos.Y;
+            var mouseY = InputHandler.MousePos.Y;
             var windowHeight = GraphicFunctions.window_get_height([]).Conv<int>();
             var guiHeight = DrawManager.GuiSize?.Y ?? windowHeight;
             return CustomMath.DoubleTilde(mouseY * (guiHeight / windowHeight));

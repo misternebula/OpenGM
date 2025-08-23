@@ -95,7 +95,7 @@ internal class Entry
 
                 case "--record-legacy":
                 {
-                    KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
+                    InputHandler.HandlerState = InputHandler.State.RECORD;
 
                     var path = args[++i];
                     if (File.Exists(path))
@@ -103,13 +103,13 @@ internal class Entry
                         File.Delete(path);
                     }
 
-                    KeyboardHandler.IOStream = File.OpenWrite(path);
+                    InputHandler.IOStream = File.OpenWrite(path);
                     break;
                 }
 
                 case "--record":
                 {
-                    KeyboardHandler.HandlerState = KeyboardHandler.State.RECORD;
+                    InputHandler.HandlerState = InputHandler.State.RECORD;
 
                     var path = args[++i];
                     if (File.Exists(path))
@@ -118,30 +118,30 @@ internal class Entry
                     }
 
                     var source = File.OpenWrite(path);
-                    source.Write(KeyboardHandler.ReplayHeader);
+                    source.Write(InputHandler.ReplayHeader);
 
                     var compressed = new GZipStream(source, CompressionMode.Compress, leaveOpen: false);
-                    KeyboardHandler.IOStream = compressed;
+                    InputHandler.IOStream = compressed;
                     break;
                 }
 
                 case "--playback":
-                    KeyboardHandler.HandlerState = KeyboardHandler.State.PLAYBACK;
+                    InputHandler.HandlerState = InputHandler.State.PLAYBACK;
 
                     var stream = File.OpenRead(args[++i]);
-                    var buf = new byte[KeyboardHandler.ReplayHeader.Length];
+                    var buf = new byte[InputHandler.ReplayHeader.Length];
                     stream.ReadExactly(buf);
 
-                    if (buf.SequenceEqual(KeyboardHandler.ReplayHeader))
+                    if (buf.SequenceEqual(InputHandler.ReplayHeader))
                     {
                         // compressed OpenGM replay
-                        KeyboardHandler.IOStream = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: false);
+                        InputHandler.IOStream = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: false);
                     }
                     else
                     {
                         // legacy GameMaker replay
                         stream.Seek(0, SeekOrigin.Begin);
-                        KeyboardHandler.IOStream = stream;
+                        InputHandler.IOStream = stream;
                     }
 
                     break;
@@ -263,7 +263,7 @@ internal class Entry
         window.Run();
 
         AudioManager.Dispose();
-        KeyboardHandler.IOStream?.Close();
+        InputHandler.IOStream?.Close();
     }
 
     public static void SetGameSpeed(int fps)
