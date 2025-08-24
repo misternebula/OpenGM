@@ -386,6 +386,20 @@ public static class SurfaceManager
         GraphicsManager.PopMessage();
     }
 
+    public static int GetSurfaceTexture(int surfaceId)
+    {
+        GraphicsManager.PushMessage($"GetSurfaceTexture {surfaceId}");
+        var buffer = _framebuffers[surfaceId];
+
+        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
+        GraphicsManager.PopMessage();
+
+        return textureId;
+    }
+
     public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
     {
         if (!surface_exists(dest) || !surface_exists(src))

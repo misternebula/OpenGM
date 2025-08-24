@@ -1945,6 +1945,79 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
+        public static void TextureDrawTiled(
+            int texId, int texWidth, int texHeight,
+            float _xorig, float _yorig,
+            float _x, float _y,
+            float _xsc, float _ysc,
+            bool _htiled, bool _vtiled,
+            float _xr, float _yr,
+            float _wr, float _hr,
+            int _col, float _alpha)
+        {
+            var drawcol = _col.ABGRToCol4(_alpha);
+
+            if (!_htiled && !_vtiled)
+            {
+                // draw once
+                return;
+            }
+
+            var ow = texWidth * _xsc;
+            var oh = texHeight * _ysc;
+
+            if ((ow <= 0) || (oh <= 0))
+            {
+                // would result in infinite drawing
+                return;
+            }
+
+            var w = ow;
+            var h = oh;
+            if (_htiled)
+            {
+                w = (((_wr + (ow - 1)) / ow) + 2) * ow;
+                _x = _xr + CustomMath.FMod(_x - _xr, ow) - ow;
+            }
+
+            if (_vtiled)
+            {
+                h = (((_hr + (oh - 1)) / oh) + 2) * oh;
+                _y = _yr + CustomMath.FMod(_y - _yr, oh) - oh;
+            }
+
+            var tx = (w / ow);
+            var ty = (h / oh);
+
+            var x1 = -_xsc * _xorig;
+            var y1 = -_ysc * _yorig;
+
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+
+            var yy = _y;
+            for (var cy = 0; cy < ty; cy++, yy += oh)
+            {
+                var xx = _x;
+                var yy2 = yy + oh;
+
+                for (var cx = 0; cx < tx; cx++, xx += ow)
+                {
+                    var xx2 = xx + ow;
+                    
+                    GraphicsManager.Draw(PrimitiveType.Triangles, [
+                        new(new(xx + x1, yy + y1, GraphicsManager.GR_Depth), drawcol, new(0, 0)),
+                        new(new(xx2 + x1, yy + y1, GraphicsManager.GR_Depth), drawcol, new(1, 0)),
+                        new(new(xx2 + x1, yy2 + y1, GraphicsManager.GR_Depth), drawcol, new(1, 1)),
+                        new(new(xx2 + x1, yy2 + y1, GraphicsManager.GR_Depth), drawcol, new(1, 1)),
+                        new(new(xx + x1, yy2 + y1, GraphicsManager.GR_Depth), drawcol, new(0, 1)),
+                        new(new(xx + x1, yy + y1, GraphicsManager.GR_Depth), drawcol, new(0, 0))
+                    ]);
+                }
+            }
+
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
         // shader_enable_corner_id
 
         [GMLFunction("surface_create")]
@@ -2132,15 +2205,49 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // draw_surface_part_ext
         // draw_surface_general
 
-        [GMLFunction("draw_surface_tiled", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("draw_surface_tiled")]
         public static object? draw_surface_tiled(object?[] args)
         {
+            var id = args[0].Conv<int>();
+            var x = args[1].Conv<float>();
+            var y = args[2].Conv<float>();
+
+            var surf = SurfaceManager.GetSurfaceTexture(id);
+
+            TextureDrawTiled(surf, SurfaceManager.GetSurfaceWidth(id), SurfaceManager.GetSurfaceHeight(id),
+                0, 0,
+                x, y,
+                1, 1,
+                true, true,
+                0, 0,
+                RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY,
+                0xFFFFFF, (float)SpriteManager.DrawAlpha);
+
             return null;
         }
 
-        [GMLFunction("draw_surface_tiled_ext", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        [GMLFunction("draw_surface_tiled_ext")]
         public static object? draw_surface_tiled_ext(object?[] args)
         {
+            var id = args[0].Conv<int>();
+            var x = args[1].Conv<float>();
+            var y = args[2].Conv<float>();
+            var xscale = args[3].Conv<float>();
+            var yscale = args[4].Conv<float>();
+            var col = args[5].Conv<int>();
+            var alpha = args[6].Conv<float>();
+
+            var surf = SurfaceManager.GetSurfaceTexture(id);
+
+            TextureDrawTiled(surf, SurfaceManager.GetSurfaceWidth(id), SurfaceManager.GetSurfaceHeight(id),
+                0, 0,
+                x, y,
+                xscale, yscale,
+                true, true,
+                0, 0,
+                RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY,
+                col, alpha);
+
             return null;
         }
 
