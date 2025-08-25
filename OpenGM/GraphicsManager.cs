@@ -1,6 +1,6 @@
 using OpenGM.IO;
 using OpenGM.Rendering;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;

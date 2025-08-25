@@ -2,7 +2,7 @@ using MotionTK;
 using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.Rendering;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using System.Globalization;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions

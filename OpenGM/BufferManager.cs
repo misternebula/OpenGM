@@ -1,7 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
-using OpenTK.Graphics.ES11;
+using OpenTK.Graphics.OpenGL4;
 using System.Text;
 
 namespace OpenGM;
@@ -437,7 +437,7 @@ public static class BufferManager
 
         SurfaceManager.BindSurfaceTexture(surfaceId);
         // TODO : account for offset
-        GL.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
         GL.BindTexture(TextureTarget.Texture2D, 0);

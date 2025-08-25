@@ -1,5 +1,5 @@
 ﻿using OpenGM.IO;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 // reference: https://learnopengl.com/Advanced-OpenGL/Framebuffers

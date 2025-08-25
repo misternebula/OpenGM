@@ -1,7 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.VirtualMachine.BuiltInFunctions;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace OpenGM.Rendering;

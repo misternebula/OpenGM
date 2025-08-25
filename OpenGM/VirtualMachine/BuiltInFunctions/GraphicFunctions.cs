@@ -1,7 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;

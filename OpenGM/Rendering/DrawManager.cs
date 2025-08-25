@@ -2,7 +2,7 @@
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using UndertaleModLib.Models;
 using EventType = OpenGM.VirtualMachine.EventType;
