@@ -163,4 +163,7 @@ public class LayerContainer
     public int Depth;
 
     public bool Visible;
+
+    public VMScript? BeginScript = null;
+    public VMScript? EndScript = null;
 }

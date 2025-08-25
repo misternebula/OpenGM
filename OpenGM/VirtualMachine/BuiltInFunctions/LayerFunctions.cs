@@ -270,8 +270,40 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return layer.VSpeed;
         }
 
-        // layer_script_begin
-        // layer_script_end
+        [GMLFunction("layer_script_begin")]
+        public static object? layer_script_begin(object?[] args)
+        {
+            var layer_id = args[0];
+            var script = args[1].Conv<Method>();
+
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (layer == null)
+            {
+                return null;
+            }
+
+            layer.BeginScript = script.func;
+            return null;
+        }
+
+        [GMLFunction("layer_script_end")]
+        public static object? layer_script_end(object?[] args)
+        {
+            var layer_id = args[0];
+            var script = args[1].Conv<Method>();
+
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (layer == null)
+            {
+                return null;
+            }
+
+            layer.EndScript = script.func;
+            return null;
+        }
+
         // layer_shader
         // layer_get_script_begin
         // layer_get_script_end
