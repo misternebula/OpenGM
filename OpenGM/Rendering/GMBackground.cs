@@ -1,4 +1,5 @@
 ﻿using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 
 namespace OpenGM.Rendering;
 
@@ -49,13 +50,14 @@ public class GMBackground : DrawWithDepth
         // TODO : account for stretch
         // TODO : work out what foreground does
         // TODO : account for animations
+        
+        // TODO : use GR_Texture_Draw_Tiled guy
 
         var sprite = SpriteManager.GetSpritePageItem(Element.Index, FrameIndex);
         var origin = SpriteManager.GetSpriteOrigin(Element.Index);
 
         var c = Element.Color.ABGRToCol4(Element.Alpha);
 
-        // TODO: use room extents
         var camWidth = ViewportManager.CurrentRenderingView!.ViewSize.X;
         var camHeight = ViewportManager.CurrentRenderingView!.ViewSize.Y;
         var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
