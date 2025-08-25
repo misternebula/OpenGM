@@ -15,12 +15,13 @@ public class CustomWindow : GameWindow
     public static List<GMBaseJob> DebugJobs = new();
 
     #if DEBUG_EXTRA
-    private static readonly DebugProc DebugMessageDelegate = (source, type, id, severity, length, messagePtr, param) =>
+    private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;
+    private static void OnDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr param)
     {
         var message = MarshalTk.MarshalPtrToString(messagePtr);
         if (type == DebugType.DebugTypeError) throw new Exception($"GL error from {source}: {message}");
         DebugLog.LogInfo($"GL message from {source}: {message}");
-    };
+    }
     #endif
 
     public double DeltaTime = 0.0;
@@ -55,7 +56,7 @@ public class CustomWindow : GameWindow
         unsafe
         {
             GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePushGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
-            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePopGroup, DebugSeverityControl.DontCare, 1, (int*)null, false);
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePopGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
         }
         #endif
         

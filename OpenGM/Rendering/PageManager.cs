@@ -43,17 +43,17 @@ public static class PageManager
     public static void UploadTexture(string name, ImageResult image)
     {
         GraphicsManager.PushMessage($"UploadTexture Name:{name}");
-        var newId = GL.GenTexture();
 
-        GL.BindTexture(TextureTarget.Texture2D, newId);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out int texture);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, name);
+        GL.TextureStorage2D(texture, 1, SizedInternalFormat.Rgba8, image.Width, image.Height);
+        GL.TextureSubImage2D(texture, 0, 0, 0, image.Width, image.Height, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+        GL.TextureParameter(texture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(texture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        
         image.Data = null; // let this get gc'd since it was uploaded to the gpu
 
-        TexturePages[name] = (image, newId);
+        TexturePages[name] = (image, texture);
         GraphicsManager.PopMessage();
     }
 

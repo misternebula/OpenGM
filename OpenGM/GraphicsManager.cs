@@ -38,11 +38,12 @@ public static class GraphicsManager
     /// </summary>
     public static void Init()
     {
-        DefaultTexture = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, DefaultTexture);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out DefaultTexture);
+        LabelObject(ObjectLabelIdentifier.Texture, DefaultTexture, nameof(DefaultTexture));
+        GL.TextureStorage2D(DefaultTexture, 1, SizedInternalFormat.Rgba8, 1, 1);
+        GL.TextureSubImage2D(DefaultTexture, 0, 0, 0, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[]{255,255,255,255});
+        GL.TextureParameter(DefaultTexture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(DefaultTexture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
         CheckError();
 
         // use one buffer for everything

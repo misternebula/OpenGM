@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 // reference: https://learnopengl.com/Advanced-OpenGL/Framebuffers
-// and https://opentk.net/learn/appendix_opengl/debug_callback.html for dsa
+// and https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions for dsa
 
 namespace OpenGM.Rendering;
 public static class SurfaceManager
@@ -177,6 +177,7 @@ public static class SurfaceManager
             {
                 // creatingApplicationSurface = true
                 application_surface = CreateSurface(ApplicationWidth, ApplicationHeight, -1);
+                GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, _framebuffers[application_surface], nameof(application_surface));
                 // wind_regionwidth = ApplicationWidth
                 // creatingApplicationSurface = false
                 // wind_regionheight = ApplicationHeight
