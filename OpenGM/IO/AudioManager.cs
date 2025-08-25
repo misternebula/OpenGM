@@ -3,6 +3,7 @@ using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Audio.OpenAL;
 using StbVorbisSharp;
+using System.Diagnostics;
 
 namespace OpenGM.IO;
 
@@ -229,6 +230,7 @@ public static class AudioManager
         }
     }
 
+    [Conditional("DEBUG_EXTRA")]
     public static void CheckALCError()
     {
         var e = ALC.GetError(_device);
@@ -238,6 +240,7 @@ public static class AudioManager
         }
     }
 
+    [Conditional("DEBUG_EXTRA")]
     public static void CheckALError()
     {
         var e = AL.GetError();

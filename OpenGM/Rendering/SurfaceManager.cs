@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 // reference: https://learnopengl.com/Advanced-OpenGL/Framebuffers
+// and https://opentk.net/learn/appendix_opengl/debug_callback.html for dsa
 
 namespace OpenGM.Rendering;
 public static class SurfaceManager

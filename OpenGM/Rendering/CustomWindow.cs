@@ -14,6 +14,15 @@ public class CustomWindow : GameWindow
 
     public static List<GMBaseJob> DebugJobs = new();
 
+    #if DEBUG_EXTRA
+    private static readonly DebugProc DebugMessageDelegate = (source, type, id, severity, length, messagePtr, param) =>
+    {
+        var message = MarshalTk.MarshalPtrToString(messagePtr);
+        if (type == DebugType.DebugTypeError) throw new Exception($"GL error from {source}: {message}");
+        DebugLog.LogInfo($"GL message from {source}: {message}");
+    };
+    #endif
+
     public double DeltaTime = 0.0;
 
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -37,6 +46,18 @@ public class CustomWindow : GameWindow
         SurfaceManager.ApplicationHeight = FramebufferSize.Y;
         
         GraphicsManager.Init();
+        
+        #if DEBUG_EXTRA
+        // https://opentk.net/learn/appendix_opengl/debug_callback.html
+        GL.Enable(EnableCap.DebugOutput);
+        GL.Enable(EnableCap.DebugOutputSynchronous); // for callstack
+        GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
+        unsafe
+        {
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePushGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePopGroup, DebugSeverityControl.DontCare, 1, (int*)null, false);
+        }
+        #endif
         
         /*
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>

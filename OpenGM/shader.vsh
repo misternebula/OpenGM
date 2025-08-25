@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 #define MATRIX_VIEW 0
 #define MATRIX_PROJECTION 1
