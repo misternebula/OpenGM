@@ -500,13 +500,14 @@ public static class MathFunctions
         return GMRandom.Seed;
     }
 
-    [GMLFunction("randomise", GMLFunctionFlags.Stub)]
-    [GMLFunction("randomize", GMLFunctionFlags.Stub)]
+    [GMLFunction("randomise")]
+    [GMLFunction("randomize")]
     public static object? randomize(object?[] args)
     {
-        // todo : implement
-        //throw new NotImplementedException();
-        return 0;
+        // TODO: check this is the same as C++ (this is the HTML implementation)
+        var t = (uint)DateTime.Now.Millisecond;
+        t = (t & 0xFFFFFFFF) ^ ((t >> 16) & 0xFFFF) ^ ((t << 16) & 0xFFFF0000);
+        return GMRandom.InitRandom(t);
     }
 
     [GMLFunction("abs")]
