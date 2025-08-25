@@ -9,7 +9,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         private static Dictionary<int, Dictionary<object, object?>> _dsMapDict = new();
         private static Dictionary<int, Queue<object?>> _dsQueueDict = new();
         private static Dictionary<int, Stack<object?>> _dsStackDict = new();
-        private static Dictionary<int, PriorityQueue<object, double>> _priorityDict = new();
+        private static Dictionary<int, PriorityQueue<object?, double>> _priorityDict = new();
 
         // ...
 
@@ -644,7 +644,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_priority_copy
         // ds_priority_size
         // ds_priority_empty
-        // ds_priority_add
+
+        [GMLFunction("ds_priority_add")]
+        public static object? ds_priority_add(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var val = args[1];
+            var priority = args[2].Conv<double>();
+
+            _priorityDict[id].Enqueue(val, priority);
+            return null;
+        }
+
         // ds_priority_change_priority
         // ds_priority_find_priority
         // ds_priority_delete_value
