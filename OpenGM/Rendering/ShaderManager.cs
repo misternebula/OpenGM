@@ -14,13 +14,13 @@ public static class ShaderManager
 
     public static void CompileShaders()
     {
-        DefaultProgram = CompileShader(File.ReadAllText("shader.vsh"), File.ReadAllText("shader.fsh"));
+        DefaultProgram = CompileShader("default shader", File.ReadAllText("shader.vsh"), File.ReadAllText("shader.fsh"));
 
         Shaders.Clear();
 
         foreach (var (shaderIndex, shader) in GameLoader.Shaders)
         {
-            var program = CompileShader(shader.VertexSource, shader.FragmentSource);
+            var program = CompileShader(shader.Name, shader.VertexSource, shader.FragmentSource);
 
             var runtimeShader = new RuntimeShader();
             runtimeShader.Name = shader.Name;
@@ -78,12 +78,13 @@ public static class ShaderManager
         }
     }
 
-    private static int CompileShader(string vertSource, string fragSource)
+    private static int CompileShader(string name, string vertSource, string fragSource)
     {
-        var vertexShader = CompileShaderHalf(ShaderType.VertexShader, vertSource);
-        var fragmentShader = CompileShaderHalf(ShaderType.FragmentShader, fragSource);
+        var vertexShader = CompileShaderHalf(name, ShaderType.VertexShader, vertSource);
+        var fragmentShader = CompileShaderHalf(name, ShaderType.FragmentShader, fragSource);
 
         var program = GL.CreateProgram();
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Program, program, name);
         GL.AttachShader(program, vertexShader);
         GL.AttachShader(program, fragmentShader);
         GL.LinkProgram(program);
@@ -102,9 +103,10 @@ public static class ShaderManager
         return program;
     }
 
-    private static int CompileShaderHalf(ShaderType type, string source)
+    private static int CompileShaderHalf(string name, ShaderType type, string source)
     {
         var shader = GL.CreateShader(type);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Shader, shader, $"{name} {type}");
         GL.ShaderSource(shader, source);
         GL.CompileShader(shader);
         GL.GetShader(shader, ShaderParameter.CompileStatus, out var code);
