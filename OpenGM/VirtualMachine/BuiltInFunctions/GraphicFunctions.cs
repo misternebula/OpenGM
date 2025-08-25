@@ -1833,6 +1833,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);
             var spriteAsset = SpriteManager.GetSpriteAsset(sprite)!;
 
+            // TODO: use room extents
             TextureDrawTiled(spriteTex, spriteAsset.OriginX, spriteAsset.OriginY, x, y, xscale, yscale, true, true, 0, 0, RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY, colour, alpha);
 
             return null;
@@ -2214,6 +2215,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var surf = SurfaceManager.GetSurfaceTexture(id);
 
+            // TODO: use room extents
             TextureDrawTiled(surf, SurfaceManager.GetSurfaceWidth(id), SurfaceManager.GetSurfaceHeight(id),
                 0, 0,
                 x, y,
@@ -2239,6 +2241,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var surf = SurfaceManager.GetSurfaceTexture(id);
 
+            // TODO: use room extents
             TextureDrawTiled(surf, SurfaceManager.GetSurfaceWidth(id), SurfaceManager.GetSurfaceHeight(id),
                 0, 0,
                 x, y,
