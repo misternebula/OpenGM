@@ -15,7 +15,7 @@ public class CustomWindow : GameWindow
     public static List<GMBaseJob> DebugJobs = new();
 
     #if DEBUG_EXTRA
-    private static readonly DebugProc DebugMessageDelegate = OnDebugMessage;
+    private static readonly DebugProc DebugMessageDelegate = OnDebugMessage; // prevents gc
     private static void OnDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr param)
     {
         var message = MarshalTk.MarshalPtrToString(messagePtr);
@@ -29,25 +29,6 @@ public class CustomWindow : GameWindow
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
-        Instance = this;
-        
-        DebugLog.LogInfo($"-- CustomWindow .ctor --");
-        DebugLog.LogInfo($"  Version: {nativeWindowSettings.API} {nativeWindowSettings.APIVersion}");
-        DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
-        DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
-        DebugLog.LogInfo($"------------------------");
-        DebugLog.LogInfo($"  GL Version: {GL.GetString(StringName.Version)}");
-        DebugLog.LogInfo($"  GLSL Version: {GL.GetString(StringName.ShadingLanguageVersion)}");
-        DebugLog.LogInfo($"------------------------");
-
-        GLFWProvider.SetErrorCallback((code, msg) => DebugLog.LogError($"GLFW error {code}: {msg}"));
-
-        // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L721
-        SurfaceManager.ApplicationWidth = FramebufferSize.X;
-        SurfaceManager.ApplicationHeight = FramebufferSize.Y;
-        
-        GraphicsManager.Init();
-        
         #if DEBUG_EXTRA
         // https://opentk.net/learn/appendix_opengl/debug_callback.html
         GL.Enable(EnableCap.DebugOutput);
@@ -59,6 +40,25 @@ public class CustomWindow : GameWindow
             GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePopGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
         }
         #endif
+
+        GLFWProvider.SetErrorCallback((code, msg) => DebugLog.LogError($"GLFW error {code}: {msg}"));
+        
+        Instance = this;
+        
+        DebugLog.LogInfo($"-- CustomWindow .ctor --");
+        DebugLog.LogInfo($"  Version: {nativeWindowSettings.API} {nativeWindowSettings.APIVersion}");
+        DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
+        DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
+        DebugLog.LogInfo($"------------------------");
+        DebugLog.LogInfo($"  GL Version: {GL.GetString(StringName.Version)}");
+        DebugLog.LogInfo($"  GLSL Version: {GL.GetString(StringName.ShadingLanguageVersion)}");
+        DebugLog.LogInfo($"------------------------");
+
+        // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L721
+        SurfaceManager.ApplicationWidth = FramebufferSize.X;
+        SurfaceManager.ApplicationHeight = FramebufferSize.Y;
+        
+        GraphicsManager.Init();
         
         /*
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>

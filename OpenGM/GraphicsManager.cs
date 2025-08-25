@@ -50,7 +50,9 @@ public static class GraphicsManager
         var vao = GL.GenVertexArray();
         var vbo = GL.GenBuffer();
         GL.BindVertexArray(vao);
+        LabelObject(ObjectLabelIdentifier.VertexArray, vao, "main vao");
         GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+        LabelObject(ObjectLabelIdentifier.Buffer, vbo, "main vbo");
         CheckError();
 
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 0 * sizeof(float));
@@ -62,6 +64,7 @@ public static class GraphicsManager
         CheckError();
     }
 
+    [Conditional("SJAGJASGSJGLASGLJASGK")] // TODO: remove this later. we have debug logs now
     public static void CheckError(
         [CallerMemberName] string memberName = "",
         [CallerFilePath] string filePath = "",

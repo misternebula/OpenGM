@@ -77,10 +77,12 @@ public static class SurfaceManager
         var buffer = GL.GenFramebuffer();
         var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, $"surface {_nextId}");
 
         // Generate texture to attach to framebuffer
         var newId = GL.GenTexture();
         GL.BindTexture(TextureTarget.Texture2D, newId);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, newId, $"surface {_nextId} texture");
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
@@ -215,6 +217,7 @@ public static class SurfaceManager
         // Generate texture to attach to framebuffer
         var newId = GL.GenTexture();
         GL.BindTexture(TextureTarget.Texture2D, newId);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, newId, $"surface {_nextId} texture");
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
@@ -412,7 +415,6 @@ public static class SurfaceManager
         var srcBuffer = _framebuffers[src];
         var dstBuffer = _framebuffers[dest];
 
-        // https://ktstephano.github.io/rendering/opengl/dsa direct state access is cool
         GL.BlitNamedFramebuffer(
             srcBuffer, 
             dstBuffer,
