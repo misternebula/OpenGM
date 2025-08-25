@@ -1,5 +1,6 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
+using OpenTK.Core.Native;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -24,6 +25,9 @@ public class CustomWindow : GameWindow
         DebugLog.LogInfo($"  Version: {nativeWindowSettings.API} {nativeWindowSettings.APIVersion}");
         DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
         DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
+        DebugLog.LogInfo($"------------------------");
+        DebugLog.LogInfo($"  GL Version: {GL.GetString(StringName.Version)}");
+        DebugLog.LogInfo($"  GLSL Version: {GL.GetString(StringName.ShadingLanguageVersion)}");
         DebugLog.LogInfo($"------------------------");
 
         GLFWProvider.SetErrorCallback((code, msg) => DebugLog.LogError($"GLFW error {code}: {msg}"));

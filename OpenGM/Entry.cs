@@ -228,8 +228,11 @@ internal class Entry
             var nativeSettings = NativeWindowSettings.Default;
             nativeSettings.WindowBorder = WindowBorder.Fixed;
             nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-            // nativeSettings.Profile = ContextProfile.Compatability; // needed for immediate mode gl
+            nativeSettings.APIVersion = new(4, 6); // just require latest version. we use dsa
             nativeSettings.Flags = ContextFlags.Default;
+#if DEBUG_EXTRA
+            nativeSettings.Flags = ContextFlags.Debug;
+#endif
             GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
             GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
 

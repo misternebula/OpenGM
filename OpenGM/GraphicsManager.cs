@@ -208,4 +208,7 @@ public static class GraphicsManager
     public static void PushMessage(string message) => GL.PushDebugGroup(DebugSourceExternal.DebugSourceApplication, 0, message.Length, message);
     [Conditional("DEBUG_EXTRA")]
     public static void PopMessage() => GL.PopDebugGroup(); // TODO: check that were popping what we pushed
+
+    [Conditional("DEBUG_EXTRA")]
+    public static void LabelObject(ObjectLabelIdentifier id, int obj, string label) => GL.ObjectLabel(id, obj, label.Length, label);
 }
