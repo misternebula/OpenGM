@@ -490,7 +490,7 @@ public static class MathFunctions
     public static object? random_set_seed(object?[] args)
     {
         var val = args[0].Conv<uint>();
-        GMRandom.InitialiseRNG(val);
+        GMRandom.InitRandom(val);
         return null;
     }
 

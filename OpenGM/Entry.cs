@@ -219,7 +219,7 @@ internal class Entry
         InstanceManager.NextInstanceID = GameLoader.GeneralInfo.LastObjectID + 1;
 
         // TODO : is RNG re-initialized after game_change?
-        GMRandom.InitialiseRNG(0);
+        GMRandom.InitRandom(0);
 
         if (window == null)
         {

@@ -6,7 +6,7 @@ public static class GMRandom
     public static uint Index;
     public static uint RandomPoly = 0xDA442D24; // TODO : in older gm versions this was 0xDA442D20 incorrectly. there's a setting to go back to this i think?
 
-    public static uint InitialiseRNG(uint seed)
+    public static uint InitRandom(uint seed)
     {
         var passedInSeed = seed;
 
