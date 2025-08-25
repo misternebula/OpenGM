@@ -92,7 +92,7 @@ public static class ShaderManager
         if (code != (int)All.True)
         {
             var infoLog = GL.GetProgramInfoLog(program);
-            throw new Exception($"Error while linking program.\n\n{infoLog}");
+            throw new Exception($"Error while linking program {name}.\n\n{infoLog}");
         }
 
         GL.DeleteShader(vertexShader);
@@ -113,7 +113,7 @@ public static class ShaderManager
         if (code != (int)All.True)
         {
             var infoLog = GL.GetShaderInfoLog(shader);
-            throw new Exception($"Error while compiling {type}\n\n{infoLog}");
+            throw new Exception($"Error while compiling shader {name}\n\n{infoLog}");
         }
 
         GraphicsManager.CheckError();
