@@ -939,10 +939,11 @@ public static partial class VMExecutor
                 }
             }
         }
-        else if (@this is int or long or short or Enum)
+        else if (@this is int or long or short or Enum or uint)
         {
             var l = Convert.ToInt64(@this);
 
+            if (type == typeof(uint)) return (uint)l;
             if (type == typeof(int)) return (int)l;
             if (type == typeof(short)) return (short)l;
             if (type == typeof(long)) return (long)l;
