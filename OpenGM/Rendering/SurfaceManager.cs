@@ -243,11 +243,8 @@ public static class SurfaceManager
             return -1;
         }
 
-        GraphicsManager.PushMessage($"GetSurfaceWidth {id}");
-        BindSurfaceTexture(id);
-        GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GraphicsManager.PopMessage();
+        var texture = GetSurfaceTexture(id);
+        GL.GetTextureLevelParameter(texture, 0, GetTextureParameter.TextureWidth, out int width);
         return width;
     }
 
@@ -258,11 +255,8 @@ public static class SurfaceManager
             return -1;
         }
 
-        GraphicsManager.PushMessage($"GetSurfaceHeight {id}");
-        BindSurfaceTexture(id);
-        GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GraphicsManager.PopMessage();
+        var texture = GetSurfaceTexture(id);
+        GL.GetTextureLevelParameter(texture, 0, GetTextureParameter.TextureHeight, out int height);
         return height;
     }
 
@@ -373,6 +367,7 @@ public static class SurfaceManager
 
     private static int _prevFrameBuffer;
 
+    // TODO: remove this and stop using ReadPixels
     public static void BindSurfaceFramebuffer(int surfaceId)
     {
         GraphicsManager.PushMessage($"BindSurfaceFramebuffer {surfaceId}");
@@ -383,7 +378,7 @@ public static class SurfaceManager
 
         GraphicsManager.PopMessage();
     }
-
+    // TODO: remove this and stop using ReadPixels
     public static void BindPreviousFramebuffer()
     {
         GraphicsManager.PushMessage($"BindPreviousFramebuffer");
@@ -393,16 +388,9 @@ public static class SurfaceManager
 
     public static int GetSurfaceTexture(int surfaceId)
     {
-        GraphicsManager.PushMessage($"GetSurfaceTexture {surfaceId}");
         var buffer = _framebuffers[surfaceId];
-
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        GraphicsManager.PopMessage();
-
-        return textureId;
+        GL.GetNamedFramebufferAttachmentParameter(buffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var texture);
+        return texture;
     }
 
     public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
@@ -426,12 +414,19 @@ public static class SurfaceManager
 
     public static byte[] ReadPixels(int surfaceId, int x, int y, int w, int h)
     {
+        /*
         BindSurfaceFramebuffer(surfaceId);
 
         var pixels = new byte[w * h * 4];
         GL.ReadPixels(x, y, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
 
         BindPreviousFramebuffer();
+        */
+
+        // TODO: test that this actually works the same
+        var texture = GetSurfaceTexture(surfaceId);
+        var pixels = new byte[(w - x) * (h - y) * 4];
+        GL.GetTextureSubImage(texture, 0, x, y, 0, w, h, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.Length, pixels);
         return pixels;
     }
 

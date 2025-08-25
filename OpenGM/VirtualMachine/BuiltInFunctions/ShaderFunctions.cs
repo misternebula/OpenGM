@@ -181,9 +181,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var (image, id) = PageManager.TexturePages[tex.Page];
 
-            GL.ActiveTexture(TextureUnit.Texture0 + stage);
-            GL.BindTexture(TextureTarget.Texture2D, id);
-            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTextureUnit(stage, id);
             GraphicsManager.CheckError();
             return null;
         }
