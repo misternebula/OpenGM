@@ -632,7 +632,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // ds_priority_destroy
-        // ds_priority_clear
+
+        [GMLFunction("ds_priority_clear")]
+        public static object? ds_priority_clear(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            _priorityDict[id].Clear();
+            return null;
+        }
+
         // ds_priority_copy
         // ds_priority_size
         // ds_priority_empty
