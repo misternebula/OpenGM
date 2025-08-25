@@ -74,31 +74,24 @@ public static class SurfaceManager
         GraphicsManager.PushMessage($"CreateSurface width:{width}, height:{height} ({_nextId})");
         
         // Generate framebuffer
-        var buffer = GL.GenFramebuffer();
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.CreateFramebuffers(1, out int buffer);
         GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, $"surface {_nextId}");
 
         // Generate texture to attach to framebuffer
-        var newId = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, newId);
-        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, newId, $"surface {_nextId} texture");
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out int texture);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, $"surface {_nextId} texture");
+        GL.TextureStorage2D(texture, 1, SizedInternalFormat.Rgba8, width, height);
+        GL.TextureParameter(texture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(texture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
         // Attach texture to framebuffer
-        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
+        GL.NamedFramebufferTexture(buffer, FramebufferAttachment.ColorAttachment0, texture, 0);
 
-        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+        if (GL.CheckNamedFramebufferStatus(buffer, FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
         {
             DebugLog.LogError($"ERROR: Framebuffer is not complete!");
         }
 
-        // Unbind framebuffer
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        
         GraphicsManager.PopMessage();
 
         _framebuffers.Add(_nextId, buffer);
@@ -117,11 +110,8 @@ public static class SurfaceManager
         {
             GraphicsManager.PushMessage($"FreeSurface {id}");
             var buffer = _framebuffers[id];
-            var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-            GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-            GL.DeleteTexture(textureId);
+            var texture = GetSurfaceTexture(id);
+            GL.DeleteTexture(texture);
             GL.DeleteFramebuffer(buffer);
             _framebuffers.Remove(id);
             GraphicsManager.PopMessage();
@@ -206,32 +196,25 @@ public static class SurfaceManager
     {
         GraphicsManager.PushMessage($"ResizeSurface {id} {w}x{h}");
         
-        var bufferId = _framebuffers[id];
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
-        
+        var buffer = _framebuffers[id];
         // delete existing texture if there is one
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-        GL.DeleteTexture(textureId);
+        var texture = GetSurfaceTexture(id);
+        GL.DeleteTexture(texture);
 
         // Generate texture to attach to framebuffer
-        var newId = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, newId);
-        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, newId, $"surface {_nextId} texture");
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out texture);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, $"surface {_nextId} texture");
+        GL.TextureStorage2D(texture, 1, SizedInternalFormat.Rgba8, w, h);
+        GL.TextureParameter(texture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(texture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
         // Attach texture to framebuffer
-        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
+        GL.NamedFramebufferTexture(buffer, FramebufferAttachment.ColorAttachment0, texture, 0);
 
-        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+        if (GL.CheckNamedFramebufferStatus(buffer, FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
         {
             DebugLog.LogError($"ERROR: Framebuffer is not complete!\n{Environment.StackTrace}");
         }
-        
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
         
         GraphicsManager.PopMessage();
     }
