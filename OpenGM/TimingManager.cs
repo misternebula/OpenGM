@@ -18,7 +18,7 @@ public static class TimingManager
     private static int _frameCounter;
     private static Stopwatch _oneSecondStopwatch = new();
     private static Stopwatch _frameStopwatch = new();
-    private static int _query = 0;
+    private static int _query;
 
     public static void Initialize()
     {
@@ -63,6 +63,8 @@ public static class TimingManager
         
         CPUTime = _frameStopwatch.Elapsed;
         GL.EndQuery(QueryTarget.TimeElapsed);
+        // this syncs. might be slow. hide behind DEBUG_EXTRA?
+        // or make it only happen when holding debug button?
         GL.GetQueryObject(_query, GetQueryObjectParam.QueryResult, out int nanoseconds);
         GPUTime = TimeSpan.FromSeconds(nanoseconds * 1e-9);
     }
