@@ -88,8 +88,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     throw new NotImplementedException();
             }
 
-            GraphicsManager.CheckError();
-
             return null;
         }
 
@@ -105,8 +103,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             GL.Uniform1(handle, arr.Length, arr);
-
-            GraphicsManager.CheckError();
 
             return null;
         }
@@ -140,8 +136,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     throw new NotImplementedException();
             }
 
-            GraphicsManager.CheckError();
-
             return null;
         }
 
@@ -157,8 +151,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             GL.Uniform1(handle, arr.Length, arr);
-
-            GraphicsManager.CheckError();
 
             return null;
         }
@@ -182,7 +174,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var (image, id) = PageManager.TexturePages[tex.Page];
 
             GL.BindTextureUnit(stage, id);
-            GraphicsManager.CheckError();
             return null;
         }
 
