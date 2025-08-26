@@ -80,6 +80,8 @@ public class CustomWindow : GameWindow
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
+        base.OnUpdateFrame(args);
+
         DeltaTime = args.Time;
 
         TimingManager.StartOfFrame();
