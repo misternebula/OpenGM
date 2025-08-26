@@ -159,8 +159,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object sprite_create_from_surface(object?[] args)
         {
             var index = args[0].Conv<int>();
-            var x = args[1].Conv<double>(); // unused by html5. probably sourcepos but deltarune doesnt use it so idc to find out
-            var y = args[2].Conv<double>();
+            var x = args[1].Conv<int>(); // unused by html5. probably sourcepos but deltarune doesnt use it so idc to find out
+            var y = args[2].Conv<int>();
             var w = args[3].Conv<int>();
             var h = args[4].Conv<int>();
             var removeback = args[5].Conv<bool>(); // TODO: implement

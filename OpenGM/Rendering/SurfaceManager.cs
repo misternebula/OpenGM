@@ -328,27 +328,6 @@ public static class SurfaceManager
         ]);
     }
 
-    private static int _prevFrameBuffer;
-
-    // TODO: remove this and stop using ReadPixels
-    public static void BindSurfaceFramebuffer(int surfaceId)
-    {
-        GraphicsManager.PushMessage($"BindSurfaceFramebuffer {surfaceId}");
-        var buffer = _framebuffers[surfaceId];
-        _prevFrameBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-
-        GraphicsManager.PopMessage();
-    }
-    // TODO: remove this and stop using ReadPixels
-    public static void BindPreviousFramebuffer()
-    {
-        GraphicsManager.PushMessage($"BindPreviousFramebuffer");
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _prevFrameBuffer);
-        GraphicsManager.PopMessage();
-    }
-
     public static int GetSurfaceTexture(int surfaceId)
     {
         var buffer = _framebuffers[surfaceId];
@@ -388,7 +367,7 @@ public static class SurfaceManager
 
         // TODO: test that this actually works the same
         var texture = GetSurfaceTexture(surfaceId);
-        var pixels = new byte[(w - x) * (h - y) * 4];
+        var pixels = new byte[w * h * 4];
         GL.GetTextureSubImage(texture, 0, x, y, 0, w, h, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.Length, pixels);
         return pixels;
     }

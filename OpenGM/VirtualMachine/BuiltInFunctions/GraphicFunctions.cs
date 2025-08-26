@@ -2258,15 +2258,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var x = args[1].Conv<int>();
             var y = args[2].Conv<int>();
 
-            SurfaceManager.BindSurfaceFramebuffer(surfaceid);
-
-            var values = new byte[4];
-            unsafe
-            {
-                fixed (byte* ptr = values)
-                    GL.ReadPixels(x, y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
-            }
-            SurfaceManager.BindPreviousFramebuffer();
+            var values = SurfaceManager.ReadPixels(surfaceid, x, y, 1, 1);
 
             // TODO : check this
             var r = values[0];

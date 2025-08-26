@@ -180,7 +180,7 @@ public static class SpriteManager
     }
 
 
-    public static int sprite_create_from_surface(int surfaceId, double x, double y, int w, int h, bool removeback, bool smooth, int xorig, int yorig)
+    public static int sprite_create_from_surface(int surfaceId, int x, int y, int w, int h, bool removeback, bool smooth, int xorig, int yorig)
     {
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/functions/Function_Sprite.js#L485
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/yyWebGL.js#L4370
@@ -196,13 +196,8 @@ public static class SpriteManager
         var pixels = new byte[w * h * 4];
         {
             GraphicsManager.PushMessage("read pixels");
-            SurfaceManager.BindSurfaceFramebuffer(surfaceId);
-            unsafe
-            {
-                fixed (byte* ptr = pixels)
-                    GL.ReadPixels(0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, (IntPtr)ptr);
-            }
-            SurfaceManager.BindPreviousFramebuffer();
+            var texture = SurfaceManager.GetSurfaceTexture(surfaceId);
+            GL.GetTextureSubImage(texture, 0, x, y, 0, w, h, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.Length, pixels);
             GraphicsManager.PopMessage();
         }
         
