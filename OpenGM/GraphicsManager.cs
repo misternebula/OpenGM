@@ -18,7 +18,6 @@ public static class GraphicsManager
         [FieldOffset(0 * sizeof(float))] public Vector3 pos = (Vector3)pos;
         [FieldOffset(3 * sizeof(float))] public Vector4 color = (Vector4)color;
         [FieldOffset((3 + 4) * sizeof(float))] public Vector2 uv = (Vector2)uv;
-        // TODO: match format with gamemaker for when we do shaders
     }
 
     /// <summary>
