@@ -1,4 +1,4 @@
-#version 460 core
+#version 330 core // 460 has new stuff for gl_fragcolor etc. dont feel like changing it
 
 #define MATRIX_VIEW 0
 #define MATRIX_PROJECTION 1
