@@ -193,23 +193,20 @@ public static class SpriteManager
         // make a copy of the texture. theres better ways to do this but this should work
         GraphicsManager.PushMessage($"sprite_create_from_surface Surf:{surfaceId}, x:{x}, y:{y}, w:{w}, h:{h}");
 
-        var pixels = new byte[w * h * 4];
-        {
-            GraphicsManager.PushMessage("read pixels");
-            var texture = SurfaceManager.GetSurfaceTexture(surfaceId);
-            GL.GetTextureSubImage(texture, 0, x, y, 0, w, h, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.Length, pixels);
-            GraphicsManager.PopMessage();
-        }
+        var surfaceTexture = SurfaceManager.GetSurfaceTexture(surfaceId);
         
-        // store it as a "page". its really just one texture that the sprite will use to draw
-        var imageResult = new ImageResult()
-        {
-            Width = w,
-            Height = h,
-            Data = pixels
-        };
-        PageManager.UploadTexture(texturePageName, imageResult);
-        GraphicsManager.PopMessage();
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out int spriteTexture);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, spriteTexture, texturePageName);
+        GL.TextureParameter(spriteTexture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(spriteTexture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        GL.TextureStorage2D(spriteTexture, 1, SizedInternalFormat.Rgba8, w, h);
+        
+        GL.CopyImageSubData(
+            surfaceTexture, ImageTarget.Texture2D, 0, x, y, 0,
+            spriteTexture, ImageTarget.Texture2D, 0, 0, 0, 0,
+            w, h, 1
+        );
+        PageManager.TexturePages[texturePageName] = (new() { Width = w, Height = h }, spriteTexture);
 
         // create a sprite with the single texture
         var spritePage = new SpritePageItem
