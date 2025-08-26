@@ -435,12 +435,9 @@ public static class BufferManager
             return;
         }
 
-        SurfaceManager.BindSurfaceTexture(surfaceId);
+        var texture = SurfaceManager.GetSurfaceTexture(surfaceId);
         // TODO : account for offset
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.TextureSubImage2D(texture, 0, 0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data);
         GraphicsManager.CheckError();
     }
 

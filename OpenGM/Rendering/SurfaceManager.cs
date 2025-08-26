@@ -250,7 +250,7 @@ public static class SurfaceManager
     public static void draw_surface_stretched(int id, double x, double y, double w, double h)
     {
         // draw rectangle with that texture
-        BindSurfaceTexture(id);
+        GL.BindTextureUnit(0, GetSurfaceTexture(id));
         // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
@@ -271,7 +271,6 @@ public static class SurfaceManager
             new(new(x + w, y + h, GraphicsManager.GR_Depth), Color4.White, new(1, 1)),
             new(new(x, y + h, GraphicsManager.GR_Depth), Color4.White, new(0, 1)),
         ]);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
@@ -279,7 +278,7 @@ public static class SurfaceManager
         var w = GetSurfaceWidth(id);
         var h = GetSurfaceHeight(id);
 
-        BindSurfaceTexture(id);
+        GL.BindTextureUnit(0, GetSurfaceTexture(id));
 
         var scaledWidth = w * xscale;
         var scaledHeight = h * yscale;
@@ -297,8 +296,6 @@ public static class SurfaceManager
             new(vertexThree, drawColor, new(1, 1)),
             new(vertexFour, drawColor, new(0, 1))
         ]);
-
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
@@ -306,7 +303,7 @@ public static class SurfaceManager
         var surfWidth = (double)GetSurfaceWidth(id);
         var surfHeight = (double)GetSurfaceHeight(id);
 
-        BindSurfaceTexture(id);
+        GL.BindTextureUnit(0, GetSurfaceTexture(id));
 
         var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth);
         var vertexTwo = new Vector3d(x + w, y, GraphicsManager.GR_Depth);
@@ -329,23 +326,6 @@ public static class SurfaceManager
             new(vertexThree, Color4.White, uvThree),
             new(vertexFour, Color4.White, uvFour)
         ]);
-
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-    }
-
-    public static void BindSurfaceTexture(int surfaceId)
-    {
-        GraphicsManager.PushMessage($"BindSurfaceTexture {surfaceId}");
-
-        var buffer = _framebuffers[surfaceId];
-       
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
-        GraphicsManager.PopMessage();
     }
 
     private static int _prevFrameBuffer;
