@@ -1919,7 +1919,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var x1 = -_xsc * _xorig;
             var y1 = -_ysc * _yorig;
 
-            GL.BindTexture(TextureTarget.Texture2D, page.id);
+            GL.BindTextureUnit(0, page.id);
 
             var yy = _y + (pageitem.TargetY * _ysc);
             for (var cy = 0; cy < ty; cy++, yy += oh)
@@ -1941,8 +1941,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                         ]);
                 }
             }
-
-            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         public static void TextureDrawTiled(
@@ -1992,7 +1990,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var x1 = -_xsc * _xorig;
             var y1 = -_ysc * _yorig;
 
-            GL.BindTexture(TextureTarget.Texture2D, texId);
+            GL.BindTextureUnit(0, texId);
 
             var yy = _y;
             for (var cy = 0; cy < ty; cy++, yy += oh)
@@ -2014,8 +2012,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     ]);
                 }
             }
-
-            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         // shader_enable_corner_id

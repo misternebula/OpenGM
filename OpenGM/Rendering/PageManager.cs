@@ -16,7 +16,8 @@ public static class PageManager
 
         Console.Write("Unbinding textures...");
 
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.BindTextureUnit(0, 0);
+        // doesnt unbind other texture units. is that gonna be a problem?
         
         foreach (var name in TexturePages.Keys)
         {

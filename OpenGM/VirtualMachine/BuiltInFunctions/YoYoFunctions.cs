@@ -264,6 +264,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             VideoDataSource!.Update();
 
+            // not converting this to gl4 dsa stuff because video draw is totally broken rn anyway
             GL.BindTexture(TextureTarget.Texture2D, VideoPlayback.TextureHandle);
             var pixels = new byte[w * h * 4];
             unsafe
