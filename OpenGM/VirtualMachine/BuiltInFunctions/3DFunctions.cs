@@ -343,7 +343,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     // bm_reverse_subtract
                     GraphicsManager.PushMessage("BM_REVERSE_SUBTRACT");
                     GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-                    GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
+                    // TODO: had a look in RenderDoc and reverse_subtract is not doing what the docs say. fun.
+                    //GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
+                    GL.BlendEquation(BlendEquationMode.FuncSubtract);
                     break;
             }
 
