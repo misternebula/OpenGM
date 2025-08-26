@@ -25,7 +25,7 @@ public class GMSprite : DrawWithDepth
 
         var c = element.Color;
         var blend = (int)(c & 0x00FFFFFF);
-        var alpha = ((c & 0xFF000000) >> 6) / 255.0;
+        var alpha = ((c & 0xFF000000) >> (4 * 6)) / 255.0;
 
         Definition = element.Definition;
         X = element.X;
