@@ -24,8 +24,6 @@ public class CustomWindow : GameWindow
     }
     #endif
 
-    public double DeltaTime = 0.0;
-
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -80,11 +78,7 @@ public class CustomWindow : GameWindow
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
-        base.OnUpdateFrame(args);
-
-        DeltaTime = args.Time;
-
-        TimingManager.StartOfFrame();
+        TimingManager.BeginFrame(args.Time);
 
         ViewportManager.UpdateViews();
 
@@ -102,6 +96,8 @@ public class CustomWindow : GameWindow
         DebugJobs.Clear();
 
         SwapBuffers();
+
+        TimingManager.EndFrame();
     }
 
     public static void Draw(GMBaseJob baseJob)
