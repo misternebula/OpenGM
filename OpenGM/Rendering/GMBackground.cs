@@ -23,6 +23,11 @@ public class GMBackground : DrawWithDepth
             return;
         }
 
+        if (!SpriteManager.SpriteExists(Element.Index))
+        {
+            return;
+        }
+
         if (Element.Index < 0)
         {
             var color = Element.Color.ABGRToCol4(Element.Alpha);
