@@ -169,7 +169,12 @@ public static class SurfaceManager
             {
                 // creatingApplicationSurface = true
                 application_surface = CreateSurface(ApplicationWidth, ApplicationHeight, -1);
-                GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, _framebuffers[application_surface], nameof(application_surface));
+                {
+                    var buffer = _framebuffers[application_surface];
+                    var texture = GetSurfaceTexture(application_surface);
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, "app surface");
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, "app surface texture");
+                }
                 // wind_regionwidth = ApplicationWidth
                 // creatingApplicationSurface = false
                 // wind_regionheight = ApplicationHeight
@@ -180,6 +185,12 @@ public static class SurfaceManager
             {
                 NewApplicationSize = false;
                 ResizeSurface(application_surface, NewApplicationWidth, NewApplicationHeight);
+                {
+                    var buffer = _framebuffers[application_surface];
+                    var texture = GetSurfaceTexture(application_surface);
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, "app surface");
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, "app surface texture");
+                }
                 ApplicationWidth = NewApplicationWidth;
                 ApplicationHeight = NewApplicationHeight;
             }
