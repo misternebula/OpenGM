@@ -23,11 +23,6 @@ public class GMBackground : DrawWithDepth
             return;
         }
 
-        if (!SpriteManager.SpriteExists(Element.Index))
-        {
-            return;
-        }
-
         if (Element.Index < 0)
         {
             var color = Element.Color.ABGRToCol4(Element.Alpha);
@@ -49,6 +44,11 @@ public class GMBackground : DrawWithDepth
                 Outline = false
             });
 
+            return;
+        }
+
+        if (!SpriteManager.SpriteExists(Element.Index))
+        {
             return;
         }
 
