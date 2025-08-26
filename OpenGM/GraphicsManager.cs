@@ -47,7 +47,7 @@ public static class GraphicsManager
         CheckError();
 
         // use one buffer for everything
-        // could replace this with dsa version, but for now we always use on vao and vbo so theres no point
+        // could replace this with dsa version, but for now we always bind one vao and vbo so theres no point
         var vao = GL.GenVertexArray();
         var vbo = GL.GenBuffer();
         GL.BindVertexArray(vao);
