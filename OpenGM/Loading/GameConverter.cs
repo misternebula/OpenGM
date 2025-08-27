@@ -651,10 +651,15 @@ public static class GameConverter
     {
         Console.Write($"Converting sprites...");
 
-        writer.Write(sprites.Count);
+        writer.Write(sprites.Count(x => x != null));
         for (var i = 0; i < sprites.Count; i++)
         {
             var sprite = sprites[i];
+
+            if (sprite == null)
+            {
+                continue;
+            }
 
             var asset = new SpriteData
             {
@@ -1016,6 +1021,11 @@ public static class GameConverter
                         AnimationSpeed = layer.BackgroundData.AnimationSpeed,
                         AnimationSpeedType = layer.BackgroundData.AnimationSpeedType
                     };
+
+                    if (layer.BackgroundData.Sprite == null)
+                    {
+                        backgroundElement.Index = -1;
+                    }
 
                     layerasset.Elements.Add(backgroundElement);
                 }

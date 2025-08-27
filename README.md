@@ -36,6 +36,15 @@ The following games are planned to be tested at some point:
 | -------------------------------------------- | ------------ | ------------ |
 | FAITH: The Unholy Trinity v1.5               | Unknown      | 2022.0.2.49  |
 
+## Dependencies
+- [MemoryPack](https://github.com/Cysharp/MemoryPack)
+- [NAudio](https://github.com/naudio/NAudio)
+- [OpenTK](https://github.com/opentk/opentk)
+- [StbImageSharp](https://github.com/StbSharp/StbImageSharp)
+- [StbVorbisSharp](https://github.com/StbSharp/StbVorbisSharp)
+- [MotionTK](https://github.com/AtomCrafty/MotionTK)
+- [UndertaleModLib](https://github.com/UnderminersTeam/UndertaleModTool)
+
 ## Legal Stuff
 This project is covered by the MIT license. See [the license](LICENSE) for more information.
 

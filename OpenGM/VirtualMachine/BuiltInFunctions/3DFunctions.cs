@@ -310,37 +310,46 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 case 0:
                     // bm_normal
+                    GraphicsManager.PushMessage("BM_NORMAL");
                     GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
                     GL.BlendEquation(BlendEquationMode.FuncAdd);
                     break;
                 case 1:
                     // bm_add
+                    GraphicsManager.PushMessage("BM_ADD");
                     GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
                     GL.BlendEquation(BlendEquationMode.FuncAdd);
                     break;
                 case 2:
                     // bm_max
+                    GraphicsManager.PushMessage("BM_MAX");
                     GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcColor);
                     GL.BlendEquation(BlendEquationMode.FuncAdd);
                     break;
                 case 3:
                     // bm_subtract
+                    GraphicsManager.PushMessage("BM_SUBTRACT");
                     // https://github.com/YoYoGames/GameMaker-Bugs/issues/11061#issuecomment-3005485747
                     GL.BlendFunc(BlendingFactor.Zero, BlendingFactor.OneMinusSrcColor);
                     GL.BlendEquation(BlendEquationMode.FuncAdd);
                     break;
                 case 4:
                     // bm_min
+                    GraphicsManager.PushMessage("BM_MIN");
                     GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
                     GL.BlendEquation(BlendEquationMode.Min);
                     break;
                 case 5:
                     // bm_reverse_subtract
+                    GraphicsManager.PushMessage("BM_REVERSE_SUBTRACT");
                     GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-                    GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
+                    // TODO: had a look in RenderDoc and reverse_subtract is not doing what the docs say. fun.
+                    //GL.BlendEquation(BlendEquationMode.FuncReverseSubtract);
+                    GL.BlendEquation(BlendEquationMode.FuncSubtract);
                     break;
             }
 
+            GraphicsManager.PopMessage();
             return null;
         }
 

@@ -47,6 +47,11 @@ public class GMBackground : DrawWithDepth
             return;
         }
 
+        if (!SpriteManager.SpriteExists(Element.Index))
+        {
+            return;
+        }
+
         // TODO : account for stretch
         // TODO : work out what foreground does
         // TODO : account for animations

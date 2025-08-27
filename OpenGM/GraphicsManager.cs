@@ -132,7 +132,7 @@ public static class GraphicsManager
         y = y + (h / 2);
 
         var pos = new Vector3(x, y, -16000);
-        var at = new Vector3(x, y, 0);
+        var at = new Vector3(x, y, 16000);
         var up = new Vector3((float)Math.Sin(-angle * CustomMath.Deg2Rad), (float)Math.Cos(-angle * CustomMath.Deg2Rad),
             0);
 

@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6E39087B-C41D-4702-BBC6-F5D6F50C9FB7}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -82,7 +83,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {16B56A52-4694-492D-8E1F-1023CE388F66}
 		        SolutionGuid = {65A17395-4877-4F62-8486-D79907921F40}
+		SolutionGuid = {16B56A52-4694-492D-8E1F-1023CE388F66}
 	EndGlobalSection
 EndGlobal
