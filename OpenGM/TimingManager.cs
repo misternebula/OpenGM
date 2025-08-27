@@ -1,7 +1,9 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenGM.IO;
+using OpenTK.Graphics.OpenGL4;
 using System.Diagnostics;
 
 namespace OpenGM;
+
 /// <summary>
 /// for cpp:
 /// fps = count frames in a second like here. so +1 per new frame. includes the waiting at the end of the frame.
@@ -13,7 +15,7 @@ public static class TimingManager
     public static double FPSReal;
     public static double DeltaTime;
 
-    public static TimeSpan CPUTime, GPUTime; // for debugging
+    public static bool DebugTime;
 
     private static int _frameCounter;
     private static Stopwatch _oneSecondStopwatch = new();
@@ -30,17 +32,21 @@ public static class TimingManager
     {
         DeltaTime = dt;
 
-        if (_query == 0)
+        if (DebugTime)
         {
-            GL.CreateQueries(QueryTarget.TimeElapsed, 1, out _query);
+            if (_query == 0)
+            {
+                GL.CreateQueries(QueryTarget.TimeElapsed, 1, out _query);
+            }
+
+            GL.GetQuery(QueryTarget.TimeElapsed, GetQueryParam.CurrentQuery, out var currentQuery);
+            if (currentQuery != 0)
+            {
+                GL.EndQuery(QueryTarget.TimeElapsed);
+            }
+
+            GL.BeginQuery(QueryTarget.TimeElapsed, _query);
         }
-        // game_change is recursive :P so have to end the existing query
-        GL.GetQuery(QueryTarget.TimeElapsed, GetQueryParam.CurrentQuery, out var currentQuery);
-        if (currentQuery != 0)
-        {
-            GL.EndQuery(QueryTarget.TimeElapsed);
-        }
-        GL.BeginQuery(QueryTarget.TimeElapsed, _query);
 
         if (_oneSecondStopwatch.Elapsed.TotalSeconds >= 1)
         {
@@ -60,12 +66,21 @@ public static class TimingManager
     {
         _frameStopwatch.Stop();
         FPSReal = 1 / _frameStopwatch.Elapsed.TotalSeconds;
-        
-        CPUTime = _frameStopwatch.Elapsed;
-        GL.EndQuery(QueryTarget.TimeElapsed);
-        // this syncs. might be slow. hide behind DEBUG_EXTRA?
-        // or make it only happen when holding debug button?
-        GL.GetQueryObject(_query, GetQueryObjectParam.QueryResult, out int nanoseconds);
-        GPUTime = TimeSpan.FromSeconds(nanoseconds * 1e-9);
+
+        if (DebugTime)
+        {
+            var cpuTime = _frameStopwatch.Elapsed;
+
+            GL.GetQuery(QueryTarget.TimeElapsed, GetQueryParam.CurrentQuery, out var currentQuery);
+            if (currentQuery != 0)
+            {
+                GL.EndQuery(QueryTarget.TimeElapsed);
+            }
+
+            GL.GetQueryObject(_query, GetQueryObjectParam.QueryResult, out int nanoseconds);
+            var gpuTime = TimeSpan.FromSeconds(nanoseconds * 1e-9);
+
+            DebugLog.Log($"fps = {FPS} fps\tfps_real = {FPSReal:N} fps\t\tcpu time = {cpuTime.TotalMilliseconds:N} ms\tgpu time = {gpuTime.TotalMilliseconds:N} ms");
+        }
     }
 }
