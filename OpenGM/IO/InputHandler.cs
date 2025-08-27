@@ -279,6 +279,11 @@ public class InputHandler
             DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
         }
 
+        if (state.IsKeyDown(Keys.F6))
+        {
+            DebugLog.Log($"fps = {TimingManager.FPS} fps\tfps_real = {TimingManager.FPSReal:N} fps\t\tcpu time = {TimingManager.CPUTime.TotalMilliseconds:N} ms\tgpu time = {TimingManager.GPUTime.TotalMilliseconds:N} ms");
+        }
+
         if (state.IsKeyPressed(Keys.KeyPad0))
         {
             DebugLog.PrintInstances(DebugLog.LogType.Info);

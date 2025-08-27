@@ -1,40 +1,71 @@
-﻿using System.Diagnostics;
+﻿using OpenTK.Graphics.OpenGL4;
+using System.Diagnostics;
 
 namespace OpenGM;
-/*
- * right now this is mimicking what html5 does to track fps.
- *
- * cpp does it totally different.
- * fps = time including the waiting period. we can just use opentk's elapsed thing that we use for deltatime. otherwise we have to edit opentk to do the stopwatch ourselves.
- * fps_real = time WITHOUT the waiting period. we can just use a stopwatch in OnUpdateFrame there. it wont include window events but it's close enough unless we edit opentk.
- * these values change PER FRAME, unlike html5 and here, making them fluctuate rapidly
- *
- * none of this actually matters because this is only for debug because of how noisy the value is.
- */
+/// <summary>
+/// for cpp:
+/// fps = count frames in a second like here. so +1 per new frame. includes the waiting at the end of the frame.
+/// fps_real = times just the frame, without waiting and without counting. also without window event handling like inputs.
+/// </summary>
 public static class TimingManager
 {
     public static double FPS;
+    public static double FPSReal;
+    public static double DeltaTime;
+
+    public static TimeSpan CPUTime, GPUTime; // for debugging
 
     private static int _frameCounter;
-    private static Stopwatch _stopwatch = new();
+    private static Stopwatch _oneSecondStopwatch = new();
+    private static Stopwatch _frameStopwatch = new();
+    private static int _query;
 
     public static void Initialize()
     {
-        _stopwatch.Restart();
         FPS = Entry.GameSpeed;
+        _oneSecondStopwatch.Restart();
     }
 
-    public static void StartOfFrame()
+    public static void BeginFrame(double dt)
     {
-        if (_stopwatch.ElapsedMilliseconds >= 1000)
+        DeltaTime = dt;
+
+        if (_query == 0)
+        {
+            GL.CreateQueries(QueryTarget.TimeElapsed, 1, out _query);
+        }
+        // game_change is recursive :P so have to end the existing query
+        GL.GetQuery(QueryTarget.TimeElapsed, GetQueryParam.CurrentQuery, out var currentQuery);
+        if (currentQuery != 0)
+        {
+            GL.EndQuery(QueryTarget.TimeElapsed);
+        }
+        GL.BeginQuery(QueryTarget.TimeElapsed, _query);
+
+        if (_oneSecondStopwatch.Elapsed.TotalSeconds >= 1)
         {
             FPS = _frameCounter;
             _frameCounter = 0;
-            _stopwatch.Restart();
+            _oneSecondStopwatch.Restart();
         }
         else
         {
             _frameCounter++;
         }
+
+        _frameStopwatch.Restart();
+    }
+
+    public static void EndFrame()
+    {
+        _frameStopwatch.Stop();
+        FPSReal = 1 / _frameStopwatch.Elapsed.TotalSeconds;
+        
+        CPUTime = _frameStopwatch.Elapsed;
+        GL.EndQuery(QueryTarget.TimeElapsed);
+        // this syncs. might be slow. hide behind DEBUG_EXTRA?
+        // or make it only happen when holding debug button?
+        GL.GetQueryObject(_query, GetQueryObjectParam.QueryResult, out int nanoseconds);
+        GPUTime = TimeSpan.FromSeconds(nanoseconds * 1e-9);
     }
 }

@@ -1,4 +1,4 @@
-#version 330 core
+#version 330 core // 460 has new stuff for gl_fragcolor etc. dont feel like changing it
 
 in vec4 fcolor;
 in vec2 texc;

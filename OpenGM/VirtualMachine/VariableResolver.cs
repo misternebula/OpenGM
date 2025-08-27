@@ -301,12 +301,12 @@ public static class VariableResolver
 
     public static object get_fps() => TimingManager.FPS;
 
-    public static object get_fps_real() => TimingManager.FPS;
+    public static object get_fps_real() => TimingManager.FPSReal;
 
     public static object get_delta_time(GamemakerObject instance)
     {
         // why is this a self variable? who knows!
-        return CustomWindow.Instance.DeltaTime;
+        return TimingManager.DeltaTime;
     }
 
     public static object get_x(GamemakerObject instance) => instance.x;

@@ -1,7 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using System.Collections;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
@@ -88,8 +88,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     throw new NotImplementedException();
             }
 
-            GraphicsManager.CheckError();
-
             return null;
         }
 
@@ -105,8 +103,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             GL.Uniform1(handle, arr.Length, arr);
-
-            GraphicsManager.CheckError();
 
             return null;
         }
@@ -140,8 +136,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     throw new NotImplementedException();
             }
 
-            GraphicsManager.CheckError();
-
             return null;
         }
 
@@ -157,8 +151,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             GL.Uniform1(handle, arr.Length, arr);
-
-            GraphicsManager.CheckError();
 
             return null;
         }
@@ -181,10 +173,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             var (image, id) = PageManager.TexturePages[tex.Page];
 
-            GL.ActiveTexture(TextureUnit.Texture0 + stage);
-            GL.BindTexture(TextureTarget.Texture2D, id);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GraphicsManager.CheckError();
+            GL.BindTextureUnit(stage, id);
             return null;
         }
 

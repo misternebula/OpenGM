@@ -1,8 +1,9 @@
 ﻿using OpenGM.IO;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 // reference: https://learnopengl.com/Advanced-OpenGL/Framebuffers
+// and https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions for dsa
 
 namespace OpenGM.Rendering;
 public static class SurfaceManager
@@ -73,29 +74,24 @@ public static class SurfaceManager
         GraphicsManager.PushMessage($"CreateSurface width:{width}, height:{height} ({_nextId})");
         
         // Generate framebuffer
-        var buffer = GL.GenFramebuffer();
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
+        GL.CreateFramebuffers(1, out int buffer);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, $"surface {_nextId}");
 
         // Generate texture to attach to framebuffer
-        var newId = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, newId);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out int texture);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, $"surface {_nextId} texture");
+        GL.TextureStorage2D(texture, 1, SizedInternalFormat.Rgba8, width, height);
+        GL.TextureParameter(texture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(texture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
         // Attach texture to framebuffer
-        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
+        GL.NamedFramebufferTexture(buffer, FramebufferAttachment.ColorAttachment0, texture, 0);
 
-        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+        if (GL.CheckNamedFramebufferStatus(buffer, FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
         {
             DebugLog.LogError($"ERROR: Framebuffer is not complete!");
         }
 
-        // Unbind framebuffer
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        
         GraphicsManager.PopMessage();
 
         _framebuffers.Add(_nextId, buffer);
@@ -114,11 +110,8 @@ public static class SurfaceManager
         {
             GraphicsManager.PushMessage($"FreeSurface {id}");
             var buffer = _framebuffers[id];
-            var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-            GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-            GL.DeleteTexture(textureId);
+            var texture = GetSurfaceTexture(id);
+            GL.DeleteTexture(texture);
             GL.DeleteFramebuffer(buffer);
             _framebuffers.Remove(id);
             GraphicsManager.PopMessage();
@@ -176,6 +169,12 @@ public static class SurfaceManager
             {
                 // creatingApplicationSurface = true
                 application_surface = CreateSurface(ApplicationWidth, ApplicationHeight, -1);
+                {
+                    var buffer = _framebuffers[application_surface];
+                    var texture = GetSurfaceTexture(application_surface);
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, "app surface");
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, "app surface texture");
+                }
                 // wind_regionwidth = ApplicationWidth
                 // creatingApplicationSurface = false
                 // wind_regionheight = ApplicationHeight
@@ -186,6 +185,12 @@ public static class SurfaceManager
             {
                 NewApplicationSize = false;
                 ResizeSurface(application_surface, NewApplicationWidth, NewApplicationHeight);
+                {
+                    var buffer = _framebuffers[application_surface];
+                    var texture = GetSurfaceTexture(application_surface);
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Framebuffer, buffer, "app surface");
+                    GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, "app surface texture");
+                }
                 ApplicationWidth = NewApplicationWidth;
                 ApplicationHeight = NewApplicationHeight;
             }
@@ -202,31 +207,25 @@ public static class SurfaceManager
     {
         GraphicsManager.PushMessage($"ResizeSurface {id} {w}x{h}");
         
-        var bufferId = _framebuffers[id];
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, bufferId);
-        
+        var buffer = _framebuffers[id];
         // delete existing texture if there is one
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-        GL.DeleteTexture(textureId);
+        var texture = GetSurfaceTexture(id);
+        GL.DeleteTexture(texture);
 
         // Generate texture to attach to framebuffer
-        var newId = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, newId);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, w, h, 0, PixelFormat.Rgba, PixelType.UnsignedByte, (nint)null);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out texture);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Texture, texture, $"surface {_nextId} texture");
+        GL.TextureStorage2D(texture, 1, SizedInternalFormat.Rgba8, w, h);
+        GL.TextureParameter(texture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(texture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
         // Attach texture to framebuffer
-        GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, newId, 0);
+        GL.NamedFramebufferTexture(buffer, FramebufferAttachment.ColorAttachment0, texture, 0);
 
-        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+        if (GL.CheckNamedFramebufferStatus(buffer, FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
         {
             DebugLog.LogError($"ERROR: Framebuffer is not complete!\n{Environment.StackTrace}");
         }
-        
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
         
         GraphicsManager.PopMessage();
     }
@@ -238,11 +237,8 @@ public static class SurfaceManager
             return -1;
         }
 
-        GraphicsManager.PushMessage($"GetSurfaceWidth {id}");
-        BindSurfaceTexture(id);
-        GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GraphicsManager.PopMessage();
+        var texture = GetSurfaceTexture(id);
+        GL.GetTextureLevelParameter(texture, 0, GetTextureParameter.TextureWidth, out int width);
         return width;
     }
 
@@ -253,11 +249,8 @@ public static class SurfaceManager
             return -1;
         }
 
-        GraphicsManager.PushMessage($"GetSurfaceHeight {id}");
-        BindSurfaceTexture(id);
-        GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-        GraphicsManager.PopMessage();
+        var texture = GetSurfaceTexture(id);
+        GL.GetTextureLevelParameter(texture, 0, GetTextureParameter.TextureHeight, out int height);
         return height;
     }
 
@@ -268,7 +261,7 @@ public static class SurfaceManager
     public static void draw_surface_stretched(int id, double x, double y, double w, double h)
     {
         // draw rectangle with that texture
-        BindSurfaceTexture(id);
+        GL.BindTextureUnit(0, GetSurfaceTexture(id));
         // we drew into this fbo earlier, get its texture data
         /*
         GL.Begin(PrimitiveType.Quads);
@@ -289,7 +282,6 @@ public static class SurfaceManager
             new(new(x + w, y + h, GraphicsManager.GR_Depth), Color4.White, new(1, 1)),
             new(new(x, y + h, GraphicsManager.GR_Depth), Color4.White, new(0, 1)),
         ]);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void draw_surface_ext(int id, double x, double y, double xscale, double yscale, double rot, int col, double alpha)
@@ -297,7 +289,7 @@ public static class SurfaceManager
         var w = GetSurfaceWidth(id);
         var h = GetSurfaceHeight(id);
 
-        BindSurfaceTexture(id);
+        GL.BindTextureUnit(0, GetSurfaceTexture(id));
 
         var scaledWidth = w * xscale;
         var scaledHeight = h * yscale;
@@ -315,8 +307,6 @@ public static class SurfaceManager
             new(vertexThree, drawColor, new(1, 1)),
             new(vertexFour, drawColor, new(0, 1))
         ]);
-
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
@@ -324,7 +314,7 @@ public static class SurfaceManager
         var surfWidth = (double)GetSurfaceWidth(id);
         var surfHeight = (double)GetSurfaceHeight(id);
 
-        BindSurfaceTexture(id);
+        GL.BindTextureUnit(0, GetSurfaceTexture(id));
 
         var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth);
         var vertexTwo = new Vector3d(x + w, y, GraphicsManager.GR_Depth);
@@ -347,57 +337,13 @@ public static class SurfaceManager
             new(vertexThree, Color4.White, uvThree),
             new(vertexFour, Color4.White, uvFour)
         ]);
-
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-    }
-
-    public static void BindSurfaceTexture(int surfaceId)
-    {
-        GraphicsManager.PushMessage($"BindSurfaceTexture {surfaceId}");
-
-        var buffer = _framebuffers[surfaceId];
-       
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
-        GraphicsManager.PopMessage();
-    }
-
-    private static int _prevFrameBuffer;
-
-    public static void BindSurfaceFramebuffer(int surfaceId)
-    {
-        GraphicsManager.PushMessage($"BindSurfaceFramebuffer {surfaceId}");
-        var buffer = _framebuffers[surfaceId];
-        _prevFrameBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-
-        GraphicsManager.PopMessage();
-    }
-
-    public static void BindPreviousFramebuffer()
-    {
-        GraphicsManager.PushMessage($"BindPreviousFramebuffer");
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, _prevFrameBuffer);
-        GraphicsManager.PopMessage();
     }
 
     public static int GetSurfaceTexture(int surfaceId)
     {
-        GraphicsManager.PushMessage($"GetSurfaceTexture {surfaceId}");
         var buffer = _framebuffers[surfaceId];
-
-        var prevBuffer = GL.GetInteger(GetPName.FramebufferBinding);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
-        GL.GetFramebufferAttachmentParameter(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var textureId);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, prevBuffer);
-        GraphicsManager.PopMessage();
-
-        return textureId;
+        GL.GetNamedFramebufferAttachmentParameter(buffer, FramebufferAttachment.ColorAttachment0, FramebufferParameterName.FramebufferAttachmentObjectName, out var texture);
+        return texture;
     }
 
     public static void Copy(int dest, int x, int y, int src, int xs, int ys, int ws, int hs)
@@ -410,7 +356,6 @@ public static class SurfaceManager
         var srcBuffer = _framebuffers[src];
         var dstBuffer = _framebuffers[dest];
 
-        // https://ktstephano.github.io/rendering/opengl/dsa direct state access is cool
         GL.BlitNamedFramebuffer(
             srcBuffer, 
             dstBuffer,
@@ -422,12 +367,19 @@ public static class SurfaceManager
 
     public static byte[] ReadPixels(int surfaceId, int x, int y, int w, int h)
     {
+        /*
         BindSurfaceFramebuffer(surfaceId);
 
         var pixels = new byte[w * h * 4];
         GL.ReadPixels(x, y, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
 
         BindPreviousFramebuffer();
+        */
+
+        // TODO: test that this actually works the same
+        var texture = GetSurfaceTexture(surfaceId);
+        var pixels = new byte[w * h * 4];
+        GL.GetTextureSubImage(texture, 0, x, y, 0, w, h, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.Length, pixels);
         return pixels;
     }
 

@@ -1,6 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.SerializedFiles;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Core.Native;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -13,11 +14,33 @@ public class CustomWindow : GameWindow
 
     public static List<GMBaseJob> DebugJobs = new();
 
-    public double DeltaTime = 0.0;
+    #if DEBUG_EXTRA
+    private static readonly DebugProc DebugMessageDelegate = OnDebugMessage; // prevents gc
+    private static void OnDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr param)
+    {
+        var message = MarshalTk.MarshalPtrToString(messagePtr);
+        if (type == DebugType.DebugTypeError) throw new Exception($"GL error from {source}: {message}");
+        DebugLog.LogInfo($"GL message from {source}: {message}");
+    }
+    #endif
 
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
+        #if DEBUG_EXTRA
+        // https://opentk.net/learn/appendix_opengl/debug_callback.html
+        GL.Enable(EnableCap.DebugOutput);
+        GL.Enable(EnableCap.DebugOutputSynchronous); // for callstack
+        GL.DebugMessageCallback(DebugMessageDelegate, IntPtr.Zero);
+        unsafe
+        {
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePushGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
+            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePopGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
+        }
+        #endif
+
+        GLFWProvider.SetErrorCallback((code, msg) => DebugLog.LogError($"GLFW error {code}: {msg}"));
+        
         Instance = this;
         
         DebugLog.LogInfo($"-- CustomWindow .ctor --");
@@ -25,8 +48,9 @@ public class CustomWindow : GameWindow
         DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
         DebugLog.LogInfo($"  Flags: {nativeWindowSettings.Flags}");
         DebugLog.LogInfo($"------------------------");
-
-        GLFWProvider.SetErrorCallback((code, msg) => DebugLog.LogError($"GLFW error {code}: {msg}"));
+        DebugLog.LogInfo($"  GL Version: {GL.GetString(StringName.Version)}");
+        DebugLog.LogInfo($"  GLSL Version: {GL.GetString(StringName.ShadingLanguageVersion)}");
+        DebugLog.LogInfo($"------------------------");
 
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L721
         SurfaceManager.ApplicationWidth = FramebufferSize.X;
@@ -54,11 +78,7 @@ public class CustomWindow : GameWindow
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
-        base.OnUpdateFrame(args);
-
-        DeltaTime = args.Time;
-
-        TimingManager.StartOfFrame();
+        TimingManager.BeginFrame(args.Time);
 
         ViewportManager.UpdateViews();
 
@@ -76,6 +96,8 @@ public class CustomWindow : GameWindow
         DebugJobs.Clear();
 
         SwapBuffers();
+
+        TimingManager.EndFrame();
     }
 
     public static void Draw(GMBaseJob baseJob)
@@ -223,7 +245,7 @@ public class CustomWindow : GameWindow
                 var topY = (pageY + glyph.y) / (float)texturePage.Height;
                 var bottomY = (pageY + glyph.y + glyph.h) / (float)texturePage.Height;
 
-                GL.BindTexture(TextureTarget.Texture2D, pageId);
+                GL.BindTextureUnit(0, pageId);
 
                 var topLeftPos = new Vector3d(topLeftX, topLeftY, GraphicsManager.GR_Depth);
                 var topRightPos = new Vector3d(topLeftX + glyph.w * textJob.scale.X, topLeftY, GraphicsManager.GR_Depth);
@@ -242,8 +264,6 @@ public class CustomWindow : GameWindow
                     new(bottomLeftPos,bottomLeftCol, new(leftX, bottomY)),
                 ]);
 
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-
                 xOffset += glyph.shift * textJob.scale.X;
                 if (textJob.asset.IsSpriteFont())
                 {
@@ -256,7 +276,7 @@ public class CustomWindow : GameWindow
     public static void Draw(GMSpriteJob spriteJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[spriteJob.texture.Page];
-        GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.BindTextureUnit(0, id);
 
         // Gonna define some terminology here to make this easer
         // "Full Sprite" is the sprite area with padding around the outside - the bounding box.
@@ -309,14 +329,12 @@ public class CustomWindow : GameWindow
             new(drawAreaBottomRight, spriteJob.Colors[2], bottomRightUV),
             new(drawAreaBottomLeft, spriteJob.Colors[3], bottomLeftUV),
         ]);
-        
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMSpritePartJob partJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
-        GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.BindTextureUnit(0, id);
 
         var left = (double)partJob.left;
         var top = (double)partJob.top;
@@ -406,7 +424,6 @@ public class CustomWindow : GameWindow
         }
 
         // GL.End();
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -437,14 +454,13 @@ public class CustomWindow : GameWindow
 
         GL.End();
         */
-        GL.BindTexture(TextureTarget.Texture2D, GraphicsManager.DefaultTexture);
+        GL.BindTextureUnit(0, GraphicsManager.DefaultTexture);
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(new(lineJob.x1 - height, lineJob.y1 + width, GraphicsManager.GR_Depth), lineJob.col1, Vector2.Zero),
             new(new(lineJob.x2 - height, lineJob.y2 + width, GraphicsManager.GR_Depth), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x2 + height, lineJob.y2 - width, GraphicsManager.GR_Depth), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x1 + height, lineJob.y1 - width, GraphicsManager.GR_Depth), lineJob.col1, Vector2.Zero),
         ]); 
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMLinesJob linesJob)
@@ -455,9 +471,8 @@ public class CustomWindow : GameWindow
             v[i] = new(linesJob.Vertices[i], linesJob.Colors[i], Vector2d.Zero);
         }
 
-        GL.BindTexture(TextureTarget.Texture2D, GraphicsManager.DefaultTexture);
+        GL.BindTextureUnit(0, GraphicsManager.DefaultTexture);
         GraphicsManager.Draw(PrimitiveType.LineStrip, v);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMPolygonJob polyJob)
@@ -468,16 +483,15 @@ public class CustomWindow : GameWindow
             v[i] = new(polyJob.Vertices[i], polyJob.Colors[i], Vector2d.Zero);
         }
 
-        GL.BindTexture(TextureTarget.Texture2D, GraphicsManager.DefaultTexture);
+        GL.BindTextureUnit(0, GraphicsManager.DefaultTexture);
         // guessing polygon works with triangle fan since quad worked with that and polygons must be convex i think
         GraphicsManager.Draw(polyJob.Outline ? PrimitiveType.LineLoop : PrimitiveType.TriangleFan, v);
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
     public static void Draw(GMTexturedPolygonJob texPolyJob)
     {
         var (pageTexture, id) = PageManager.TexturePages[texPolyJob.Texture.Page];
-        GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.BindTextureUnit(0, id);
 
         Span<GraphicsManager.Vertex> vArr = stackalloc GraphicsManager.Vertex[texPolyJob.Vertices.Length];
         for (var i = 0; i < texPolyJob.Vertices.Length; i++)
@@ -485,8 +499,6 @@ public class CustomWindow : GameWindow
             vArr[i] = new GraphicsManager.Vertex(texPolyJob.Vertices[i], texPolyJob.Colors[i], texPolyJob.UVs[i]);
         }
         GraphicsManager.Draw(PrimitiveType.TriangleFan, vArr);
-        
-        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 }
 

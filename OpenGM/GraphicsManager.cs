@@ -1,6 +1,5 @@
-using OpenGM.IO;
 using OpenGM.Rendering;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -19,7 +18,6 @@ public static class GraphicsManager
         [FieldOffset(0 * sizeof(float))] public Vector3 pos = (Vector3)pos;
         [FieldOffset(3 * sizeof(float))] public Vector4 color = (Vector4)color;
         [FieldOffset((3 + 4) * sizeof(float))] public Vector2 uv = (Vector2)uv;
-        // TODO: match format with gamemaker for when we do shaders
     }
 
     /// <summary>
@@ -38,19 +36,21 @@ public static class GraphicsManager
     /// </summary>
     public static void Init()
     {
-        DefaultTexture = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, DefaultTexture);
-        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 1, 1, 0, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[] { 255, 255, 255, 255 });
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-        CheckError();
+        GL.CreateTextures(TextureTarget.Texture2D, 1, out DefaultTexture);
+        LabelObject(ObjectLabelIdentifier.Texture, DefaultTexture, nameof(DefaultTexture));
+        GL.TextureStorage2D(DefaultTexture, 1, SizedInternalFormat.Rgba8, 1, 1);
+        GL.TextureSubImage2D(DefaultTexture, 0, 0, 0, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, new byte[]{255,255,255,255});
+        GL.TextureParameter(DefaultTexture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TextureParameter(DefaultTexture,  TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
         // use one buffer for everything
+        // could replace this with dsa version, but for now we always bind one vao and vbo so theres no point
         var vao = GL.GenVertexArray();
         var vbo = GL.GenBuffer();
         GL.BindVertexArray(vao);
+        LabelObject(ObjectLabelIdentifier.VertexArray, vao, "main vao");
         GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        CheckError();
+        LabelObject(ObjectLabelIdentifier.Buffer, vbo, "main vbo");
 
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), 0 * sizeof(float));
         GL.EnableVertexAttribArray(0);
@@ -58,22 +58,6 @@ public static class GraphicsManager
         GL.EnableVertexAttribArray(1);
         GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Unsafe.SizeOf<Vertex>(), (3 + 4) * sizeof(float));
         GL.EnableVertexAttribArray(2);
-        CheckError();
-    }
-
-    public static void CheckError(
-        [CallerMemberName] string memberName = "",
-        [CallerFilePath] string filePath = "",
-        [CallerLineNumber] int lineNumber = -1)
-    {
-        var error = GL.GetError();
-
-        if (error == ErrorCode.NoError)
-        {
-            return;
-        }
-
-        DebugLog.LogError($"[GL Error] - {error} : {memberName} line {lineNumber} ({Path.GetFileName(filePath)})");
     }
 
     /// <summary>
@@ -120,9 +104,7 @@ public static class GraphicsManager
         }
 
         GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * Unsafe.SizeOf<Vertex>(), ref vertices.GetPinnableReference(), BufferUsageHint.StreamDraw);
-        CheckError();
         GL.DrawArrays(primitiveType, 0, vertices.Length);
-        CheckError();
     }
 
     public static Vector4i ViewPort { get; private set; }
@@ -132,7 +114,6 @@ public static class GraphicsManager
         PushMessage($"SetViewPort {x} {y} {w} {h}");
         ViewPort = new(x, y, w, h);
         GL.Viewport(x, y, w, h);
-        CheckError();
         PopMessage();
     }
 
@@ -182,7 +163,6 @@ public static class GraphicsManager
             fixed (Matrix4* ptr = &matrices[0])
             {
                 GL.UniformMatrix4(ShaderManager.gm_Matrices, matrices.Length, false, (float*)ptr);
-                CheckError();
             }
         }
         PopMessage();
@@ -200,7 +180,6 @@ public static class GraphicsManager
         GL.Uniform1(ShaderManager.gm_PS_FogEnabled, enable ? 1 : 0);
         GL.Uniform4(ShaderManager.gm_FogColour, color);
         GL.Uniform1(ShaderManager.gm_VS_FogEnabled, enable ? 1 : 0);
-        CheckError();
         PopMessage();
     }
 
@@ -208,4 +187,7 @@ public static class GraphicsManager
     public static void PushMessage(string message) => GL.PushDebugGroup(DebugSourceExternal.DebugSourceApplication, 0, message.Length, message);
     [Conditional("DEBUG_EXTRA")]
     public static void PopMessage() => GL.PopDebugGroup(); // TODO: check that were popping what we pushed
+
+    [Conditional("DEBUG_EXTRA")]
+    public static void LabelObject(ObjectLabelIdentifier id, int obj, string label) => GL.ObjectLabel(id, obj, label.Length, label);
 }

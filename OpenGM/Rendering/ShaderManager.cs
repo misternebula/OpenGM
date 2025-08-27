@@ -1,7 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.VirtualMachine.BuiltInFunctions;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace OpenGM.Rendering;
@@ -14,13 +14,13 @@ public static class ShaderManager
 
     public static void CompileShaders()
     {
-        DefaultProgram = CompileShader(File.ReadAllText("shader.vsh"), File.ReadAllText("shader.fsh"));
+        DefaultProgram = CompileShader("default shader", File.ReadAllText("shader.vsh"), File.ReadAllText("shader.fsh"));
 
         Shaders.Clear();
 
         foreach (var (shaderIndex, shader) in GameLoader.Shaders)
         {
-            var program = CompileShader(shader.VertexSource, shader.FragmentSource);
+            var program = CompileShader(shader.Name, shader.VertexSource, shader.FragmentSource);
 
             var runtimeShader = new RuntimeShader();
             runtimeShader.Name = shader.Name;
@@ -78,12 +78,13 @@ public static class ShaderManager
         }
     }
 
-    private static int CompileShader(string vertSource, string fragSource)
+    private static int CompileShader(string name, string vertSource, string fragSource)
     {
-        var vertexShader = CompileShaderHalf(ShaderType.VertexShader, vertSource);
-        var fragmentShader = CompileShaderHalf(ShaderType.FragmentShader, fragSource);
+        var vertexShader = CompileShaderHalf(name, ShaderType.VertexShader, vertSource);
+        var fragmentShader = CompileShaderHalf(name, ShaderType.FragmentShader, fragSource);
 
         var program = GL.CreateProgram();
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Program, program, name);
         GL.AttachShader(program, vertexShader);
         GL.AttachShader(program, fragmentShader);
         GL.LinkProgram(program);
@@ -91,30 +92,27 @@ public static class ShaderManager
         if (code != (int)All.True)
         {
             var infoLog = GL.GetProgramInfoLog(program);
-            throw new Exception($"Error while linking program.\n\n{infoLog}");
+            throw new Exception($"Error while linking program {name}.\n\n{infoLog}");
         }
 
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
 
-        GraphicsManager.CheckError();
-
         return program;
     }
 
-    private static int CompileShaderHalf(ShaderType type, string source)
+    private static int CompileShaderHalf(string name, ShaderType type, string source)
     {
         var shader = GL.CreateShader(type);
+        GraphicsManager.LabelObject(ObjectLabelIdentifier.Shader, shader, $"{name} {type}");
         GL.ShaderSource(shader, source);
         GL.CompileShader(shader);
         GL.GetShader(shader, ShaderParameter.CompileStatus, out var code);
         if (code != (int)All.True)
         {
             var infoLog = GL.GetShaderInfoLog(shader);
-            throw new Exception($"Error while compiling {type}\n\n{infoLog}");
+            throw new Exception($"Error while compiling shader {name} {type}\n\n{infoLog}");
         }
-
-        GraphicsManager.CheckError();
 
         return shader;
     }
@@ -135,7 +133,6 @@ public static class ShaderManager
         CurrentShaderIndex = index;
         var shader = Shaders[index];
         GL.UseProgram(shader.ProgramID);
-        GraphicsManager.CheckError();
         AttachUniforms(shader.ProgramID);
         GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
     }
@@ -144,7 +141,6 @@ public static class ShaderManager
     {
         CurrentShaderIndex = -1;
         GL.UseProgram(DefaultProgram);
-        GraphicsManager.CheckError();
         AttachUniforms(DefaultProgram);
         GraphicsManager.SetViewArea(GraphicsManager.ViewArea); // hack to keep gm_matrices values when changing shader
     }
@@ -159,7 +155,6 @@ public static class ShaderManager
         gm_PS_FogEnabled = GL.GetUniformLocation(program, "gm_PS_FogEnabled");
         gm_FogColour = GL.GetUniformLocation(program, "gm_FogColour");
         gm_VS_FogEnabled = GL.GetUniformLocation(program, "gm_VS_FogEnabled");
-        GraphicsManager.CheckError();
     }
 
     public static void LoadMatrices(Camera camera)
@@ -182,7 +177,6 @@ public static class ShaderManager
             fixed (Matrix4* ptr = &matrices[0])
             {
                 GL.UniformMatrix4(gm_Matrices, matrices.Length, false, (float*)ptr);
-                GraphicsManager.CheckError();
             }
         }
     }
