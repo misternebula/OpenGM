@@ -279,7 +279,7 @@ public class InputHandler
             DebugLog.LogInfo($"Debug mode : {VMExecutor.DebugMode}");
         }
 
-        if (state.IsKeyDown(Keys.F6))
+        if (state.IsKeyPressed(Keys.F6))
         {
             TimingManager.DebugTime = !TimingManager.DebugTime;
         }

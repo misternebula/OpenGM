@@ -69,18 +69,18 @@ public static class TimingManager
 
         if (DebugTime)
         {
-            var cpuTime = _frameStopwatch.Elapsed;
-
             GL.GetQuery(QueryTarget.TimeElapsed, GetQueryParam.CurrentQuery, out var currentQuery);
             if (currentQuery != 0)
             {
+                var cpuTime = _frameStopwatch.Elapsed;
+
                 GL.EndQuery(QueryTarget.TimeElapsed);
+
+                GL.GetQueryObject(_query, GetQueryObjectParam.QueryResult, out int nanoseconds);
+                var gpuTime = TimeSpan.FromSeconds(nanoseconds * 1e-9);
+
+                DebugLog.Log($"fps = {FPS} fps\tfps_real = {FPSReal:N} fps\t\tcpu time = {cpuTime.TotalMilliseconds:N} ms\tgpu time = {gpuTime.TotalMilliseconds:N} ms");
             }
-
-            GL.GetQueryObject(_query, GetQueryObjectParam.QueryResult, out int nanoseconds);
-            var gpuTime = TimeSpan.FromSeconds(nanoseconds * 1e-9);
-
-            DebugLog.Log($"fps = {FPS} fps\tfps_real = {FPSReal:N} fps\t\tcpu time = {cpuTime.TotalMilliseconds:N} ms\tgpu time = {gpuTime.TotalMilliseconds:N} ms");
         }
     }
 }
