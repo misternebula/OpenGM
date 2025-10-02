@@ -1642,7 +1642,27 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // layer_tile_region
-        // layer_tile_visible
+
+        [GMLFunction("layer_tile_visible")]
+        public static object? layer_tile_visible(object?[] args)
+        {
+            var __index = args[0].Conv<int>();
+            var visible = args[1].Conv<bool>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers.Values)
+            {
+                foreach (var element in layer.ElementsToDraw)
+                {
+                    if (element is GMTile tile && tile.instanceId == __index)
+                    {
+                        tile.Visible = visible;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         // layer_tile_get_sprite
         // layer_tile_get_xscale
         // layer_tile_get_yscale
