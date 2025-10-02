@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.IO;
+using OpenGM.Rendering;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -102,6 +103,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var camera = CameraManager.GetCamera(camera_id);
             if (camera == null)
             {
+                DebugLog.LogWarning($"camera_get_view_x : Couldn't find camera with id {camera_id}");
                 return -1;
             }
 

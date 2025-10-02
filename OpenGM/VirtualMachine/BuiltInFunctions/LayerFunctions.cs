@@ -153,6 +153,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
+                DebugLog.LogWarning($"layer_x : Couldn't find layer {layer_id}");
                 return null;
             }
 
@@ -170,6 +171,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
+                DebugLog.LogWarning($"layer_y : Couldn't find layer {layer_id}");
                 return null;
             }
 
@@ -384,6 +386,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (baseElement == null)
             {
+                DebugLog.LogError($"layer_get_element_type : Couldn't find element for element_id {element_id}");
                 return (int)ElementType.Undefined;
             }
 
