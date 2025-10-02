@@ -127,7 +127,7 @@ public static class DrawManager
         return false;
     }
 
-    public static void DoAStep()
+    public static bool DoAStep(List<DrawWithDepth> objs)
     {
         // g_pBuiltIn.delta_time = (g_CurrentTime - g_pBuiltIn.last_time)*1000;
         // g_pBuiltIn.last_time = g_CurrentTime;
@@ -140,16 +140,16 @@ public static class DrawManager
         InstanceManager.UpdateImages();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         // g_pLayerManager.UpdateLayers();
         // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
 
-        var stepList = _drawObjects.Where(x => x is not GamemakerObject obj || obj.Active).OrderBy(x => x.instanceId);
+        var stepList = objs.Where(x => x is not GamemakerObject obj || obj.Active).OrderBy(x => x.instanceId);
         if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
         {
-            return;
+            return true;
         }
 
         // resize event
@@ -157,37 +157,37 @@ public static class DrawManager
         AsyncManager.HandleAsyncQueue();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         // HandleTimeLine();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         // HandleTimeSources();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         HandleAlarm(stepList);
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         HandleKeyboard();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         HandleMouse();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         // g_pEffectsManager.StepEffectsForRoom(g_RunRoom);
@@ -197,7 +197,7 @@ public static class DrawManager
 
         if (RunStepScript(stepList, EventSubtypeStep.Step))
         {
-            return;
+            return true;
         }
 
         // ProcessSpriteMessageEvents();
@@ -206,26 +206,26 @@ public static class DrawManager
         HandleOther();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         // YYPushEventsDispatch();
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         UpdateCollisions(stepList);
         if (RoomManager.CheckAndChangeRoom())
         {
-            return;
+            return true;
         }
 
         // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_END);
 
         if (RunStepScript(stepList, EventSubtypeStep.EndStep))
         {
-            return;
+            return true;
         }
 
         // ParticleSystem_UpdateAll();
@@ -241,6 +241,8 @@ public static class DrawManager
             }
         }
         */
+
+        return false;
     }
 
     public static void HandleAlarm(IOrderedEnumerable<DrawWithDepth> stepList)
@@ -380,8 +382,14 @@ public static class DrawManager
         }
         _drawObjects.RemoveAll(x => itemsToRemove.Contains(x));
 
+        // copy items so newly created objects don't appear half way through update
+        var drawObjectsToUse = new List<DrawWithDepth>(_drawObjects);
+
         GraphicsManager.PushMessage("DoAStep");
-        DoAStep();
+        if (DoAStep(drawObjectsToUse))
+        {
+            return;
+        }
         GraphicsManager.PopMessage();
         
         /*
@@ -390,8 +398,8 @@ public static class DrawManager
          */
 
         var drawList = CompatFlags.DepthSortingReverseInstanceIds
-            ? _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId)
-            : _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
+            ? drawObjectsToUse.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId)
+            : drawObjectsToUse.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
         /*
          * PreDraw
@@ -509,7 +517,7 @@ public static class DrawManager
 
                 if (DebugBBoxes)
                 {
-                    foreach (var item in _drawObjects)
+                    foreach (var item in drawObjectsToUse)
                     {
                         if (item is GamemakerObject gm && gm.Active)
                         {
