@@ -508,11 +508,18 @@ public static class GameConverter
 
                 if (shouldGetVariableInfo)
                 {
-                    GetVariableInfo(instruction, out var variableName, out var variableType, out var variablePrefix, out var assetId);
-                    instruction.variableName = variableName;
-                    instruction.variableType = variableType;
-                    instruction.variablePrefix = variablePrefix;
-                    instruction.assetId = assetId;
+                    try
+                    {
+                        GetVariableInfo(instruction, out var variableName, out var variableType, out var variablePrefix, out var assetId);
+                        instruction.variableName = variableName;
+                        instruction.variableType = variableType;
+                        instruction.variablePrefix = variablePrefix;
+                        instruction.assetId = assetId;
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLog.LogError($"Exception while getting variable info for instruction \"{instruction.Raw}\" - {ex}");
+                    }
                 }
 
                 asset.Instructions.Add(instruction);
@@ -617,6 +624,10 @@ public static class GameConverter
         else if (context == "static")
         {
             variableType = VariableType.Static;
+        }
+        else if (context == "undefined")
+        {
+            variableType = VariableType.None;
         }
         else if (int.TryParse(context, out var index))
         {
