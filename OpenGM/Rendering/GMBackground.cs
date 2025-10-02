@@ -1,5 +1,4 @@
 ﻿using OpenGM.SerializedFiles;
-using OpenGM.VirtualMachine.BuiltInFunctions;
 
 namespace OpenGM.Rendering;
 
@@ -12,6 +11,7 @@ public class GMBackground : DrawWithDepth
         DrawManager.Register(this);
         Element = element;
         FrameIndex = element.FirstFrame;
+        instanceId = element.Id;
     }
 
     public int FrameIndex;

@@ -487,6 +487,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             item.Visible = true;
             item.Color = 0xFFFFFFFF;
             item.Layer = layer;
+            item.Type = ElementType.Background;
+            item.Id = GameConverter.CurrentElementID++;
 
             var background = new GMBackground(item)
             {
