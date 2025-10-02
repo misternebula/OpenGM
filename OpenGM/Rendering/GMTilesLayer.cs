@@ -94,7 +94,7 @@ internal class GMTilesLayer : DrawWithDepth
                     texture = _tileSet.Texture,
                     width = _tileSet.TileWidth,
                     height = _tileSet.TileHeight,
-                    screenPos = new Vector2d(Element.x + _x * _tileSet.TileWidth, Element.y + _y * _tileSet.TileHeight) + offset,
+                    screenPos = new Vector2d(Element.x + (_x * _tileSet.TileWidth) + Element.Layer.X, Element.y + (_y * _tileSet.TileHeight) + Element.Layer.Y) + offset,
                     Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
                     left = (tileSetColumn * tileWidth) + _tileSet.OutputBorderX,
                     top = (tileSetRow * tileHeight) + _tileSet.OutputBorderX,
