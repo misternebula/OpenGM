@@ -152,8 +152,8 @@ public static class SpriteManager
     {
         var sprite = GetSpritePageItem(name, index);
 
-        var spriteWidth = sprite.TargetWidth;
-        var spriteHeight = sprite.TargetHeight;
+        var spriteWidth = sprite.BoundingWidth;
+        var spriteHeight = sprite.BoundingHeight;
 
         var c = color.ABGRToCol4(alpha);
 
