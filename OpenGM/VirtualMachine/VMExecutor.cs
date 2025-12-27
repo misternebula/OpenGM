@@ -128,6 +128,11 @@ public static partial class VMExecutor
     public static bool DebugMode;
     public static Regex? ScriptFilter;
     public static VMCodeInstruction? CurrentInstruction;
+
+    /// <summary>
+    /// True if we are currently executing Global Init code.
+    /// </summary>
+    public static bool GlobalInit;
     
     // private static IList? _temporaryArrayStorage = null;
 

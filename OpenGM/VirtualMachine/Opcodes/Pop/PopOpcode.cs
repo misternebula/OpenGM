@@ -223,6 +223,12 @@ public static partial class VMExecutor
             }
             else if (variableType == VariableType.Self)
             {
+                if (GlobalInit)
+                {
+                    PopToGlobal(variableName, dataPopped);
+                    return (ExecutionResult.Success, null);
+                }
+
                 PopToSelf(Self.Self, variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }

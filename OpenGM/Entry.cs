@@ -251,10 +251,12 @@ internal class Entry
 
         DebugLog.LogInfo($"Executing global init scripts...");
 
+        VMExecutor.GlobalInit = true;
         foreach (var item in ScriptResolver.GlobalInit)
         {
             VMExecutor.ExecuteCode(item, null);
         }
+        VMExecutor.GlobalInit = false;
 
         DebugLog.LogInfo($"Changing to first room...");
 
