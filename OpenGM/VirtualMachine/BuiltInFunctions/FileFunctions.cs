@@ -119,7 +119,7 @@ public static class FileFunctions
         var reader = _fileHandles[fileid].Reader!;
 
         var result = "";
-        while (reader.Peek() != 0x0D && reader.Peek() >= 0)
+        while (reader.Peek() != 0x0D && reader.Peek() != 0x0A && reader.Peek() >= 0)
         {
             result += (char)reader.Read();
         }
@@ -134,7 +134,7 @@ public static class FileFunctions
         var reader = _fileHandles[fileid].Reader!;
 
         var result = "";
-        while (reader.Peek() != 0x0D && reader.Peek() >= 0)
+        while (reader.Peek() != 0x0D && reader.Peek() != 0x0A && reader.Peek() >= 0)
         {
             result += (char)reader.Read();
         }
