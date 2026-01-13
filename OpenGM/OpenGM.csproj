@@ -12,7 +12,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>bin</OutputPath>
       
-    <!--<DefineConstants>DEBUG_EXTRA</DefineConstants> ~1~for more logs and checks@1@-->
+    <DefineConstants>DEBUG_EXTRA</DefineConstants> <!--for more logs and checks-->
   </PropertyGroup>
 
   <ItemGroup>
