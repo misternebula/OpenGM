@@ -24,22 +24,31 @@ public static class FileFunctions
     public static object? file_text_open_read(object?[] args)
     {
         var fname = args[0].Conv<string>();
-        var filepath = Path.Combine(Entry.DataWinFolder, fname);
-
-        DebugLog.Log($"file_text_open_read {filepath}");
-
-        if (!File.Exists(filepath))
-        {
-            return -1;
-        }
-
-        var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
 
         if (_fileHandles.Count == 32)
         {
-            fileStream.Close();
+            DebugLog.LogError("Cannot open any more files!");
             return -1;
         }
+
+        var _name = "";
+
+        if (LoadSave.SaveFileExists(fname))
+        {
+            LoadSave.GetSaveFileName(ref _name, 1024, fname);
+        }
+        else
+        {
+            if (!LoadSave.BundleFileExist(fname))
+            {
+                DebugLog.LogError($"Failed to open file: {fname}");
+                return -1;
+            }
+
+            LoadSave.GetBundleFileName(ref _name, 1024, fname);
+        }
+
+        var fileStream = new FileStream(_name, FileMode.Open, FileAccess.Read);
 
         var highestIndex = -1;
         if (_fileHandles.Count > 0)
@@ -61,14 +70,17 @@ public static class FileFunctions
     {
         if (_fileHandles.Count == 32)
         {
+            DebugLog.LogError("Cannot open any more files!");
             return -1;
         }
 
         var fname = args[0].Conv<string>();
-        var filepath = Path.Combine(Entry.DataWinFolder, fname);
 
-        File.Delete(filepath);
-        var fileStream = new FileStream(filepath, FileMode.Create, FileAccess.Write);
+        var _name = "";
+        LoadSave.GetSaveFileName(ref _name, 1024, fname);
+        // EnsureDirectoryIsCreated(_name)
+
+        var fileStream = new FileStream(_name, FileMode.Create, FileAccess.Write);
 
         var highestIndex = -1;
         if (_fileHandles.Count > 0)
@@ -210,17 +222,22 @@ public static class FileFunctions
     public static object file_exists(object?[] args)
     {
         var fname = args[0].Conv<string>();
-        var filepath = Path.Combine(Entry.DataWinFolder, fname);
-        return File.Exists(filepath);
+        return LoadSave.BundleFileExist(fname) || LoadSave.SaveFileExists(fname);
     }
 
     [GMLFunction("file_delete")]
     public static object file_delete(object?[] args)
     {
         var fname = args[0].Conv<string>();
-        var filepath = Path.Combine(Entry.DataWinFolder, fname);
-        File.Delete(filepath);
-        return true; // TODO : this should return false if this fails.
+
+        if (!LoadSave.SaveFileExists(fname))
+        {
+            return false;
+        }
+
+        var _name = "";
+        LoadSave.GetSaveFileName(ref _name, 2048, fname);
+        return LoadSave.RemoveSaveFile(_name);
     }
 
     // file_rename
@@ -228,6 +245,8 @@ public static class FileFunctions
     [GMLFunction("file_copy")]
     public static object? file_copy(object?[] args)
     {
+        // TODO: use LoadSave here
+
         var fname = args[0].Conv<string>();
         var newname = args[1].Conv<string>();
 
@@ -333,6 +352,8 @@ public static class FileFunctions
     [GMLFunction("ini_open")]
     public static object? ini_open(object?[] args)
     {
+        // TODO: use LoadSave here
+
         var name = args[0].Conv<string>();
 
         if (_iniFile != null)
@@ -372,6 +393,8 @@ public static class FileFunctions
     [GMLFunction("ini_close")]
     public static object? ini_close(object?[] args)
     {
+        // TODO: use LoadSave here
+
         if (_iniFile == null)
         {
             return null;
