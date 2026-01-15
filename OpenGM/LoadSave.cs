@@ -27,7 +27,6 @@ public static class LoadSave
 
     public static bool FileExists(string _pFilename)
     {
-        DebugLog.Log($"FileExists - {_pFilename}");
         return File.Exists(_pFilename);
     }
 
@@ -40,24 +39,20 @@ public static class LoadSave
             return -1;
         }
 
+        var savedCurrentDir = Environment.CurrentDirectory;
+        Environment.CurrentDirectory = Entry.GamePath;
+
         var fullPath = Path.GetFullPath(_pszFileName);
         var currentDirectory = Environment.CurrentDirectory;
         var filePrePend = GetFilePrePend();
+
+        Environment.CurrentDirectory = savedCurrentDir;
 
         if (fullPath.StartsWith(currentDirectory))
         {
             name = "";
             name += filePrePend;
             name += fullPath[currentDirectory.Length..];
-        }
-
-        var workingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-        if (fullPath.StartsWith(workingDirectory))
-        {
-            name = "";
-            name += filePrePend;
-            name += fullPath[workingDirectory.Length..];
-            return 0;
         }
 
         if (fullPath.StartsWith(filePrePend))
@@ -81,10 +76,15 @@ public static class LoadSave
             return -1;
         }
 
+        var savedCurrentDir = Environment.CurrentDirectory;
+        Environment.CurrentDirectory = Entry.GamePath;
+
         var fullPath = Path.GetFullPath(_pszFileName);
         var currentDirectory = Environment.CurrentDirectory;
         // check whitelisted
         var savePrepend = GetSavePrePend();
+
+        Environment.CurrentDirectory = savedCurrentDir;
 
         if (fullPath.StartsWith(currentDirectory))
         {

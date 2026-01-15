@@ -78,7 +78,7 @@ public static class FileFunctions
 
         var _name = "";
         LoadSave.GetSaveFileName(ref _name, 1024, fname);
-        // EnsureDirectoryIsCreated(_name)
+        Directory.CreateDirectory(Path.GetDirectoryName(_name)!);
 
         var fileStream = new FileStream(_name, FileMode.Create, FileAccess.Write);
 

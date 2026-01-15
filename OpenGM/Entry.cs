@@ -22,6 +22,8 @@ internal class Entry
 
     public static string? PathOverride = null;
 
+    public static string GamePath { get; private set; } = "";
+
     static int Main(string[] args)
     {
         var passedArgs = ProcessArgs(args);
@@ -44,6 +46,9 @@ internal class Entry
                 return -1;
             }
         }
+
+        GamePath = Path.GetFullPath(path);
+        DebugLog.Log($"GamePath: {GamePath}");
 
         var dataWin = File.Exists(path) ? path : Path.Combine(path, "data.win");
         LoadGame(dataWin, passedArgs);
