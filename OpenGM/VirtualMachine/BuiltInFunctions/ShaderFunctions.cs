@@ -180,6 +180,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("texture_get_texel_width")]
         public static object? texture_get_texel_width(object?[] args)
         {
+            if (args[0] is int i && i == -1)
+            {
+                return 1.0;
+            }
+
             var tex = args[0] as SpritePageItem;
 
             if (tex == null)
