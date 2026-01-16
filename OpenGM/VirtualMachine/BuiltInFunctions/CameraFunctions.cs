@@ -14,7 +14,62 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return cam.ID;
         }
 
-        // camera_create_view
+        [GMLFunction("camera_create_view")]
+        public static object? camera_create_view(object?[] args)
+        {
+            var room_x = args[0].Conv<float>();
+            var room_y = args[1].Conv<float>();
+            var width = args[2].Conv<float>();
+            var height = args[3].Conv<float>();
+
+            var angle = 0f;
+            var _object = 0;
+            var x_speed = 0f;
+            var y_speed = 0f;
+            var x_border = 0f;
+            var y_border = 0f;
+
+            if (args.Length >= 5)
+            {
+                angle = args[4].Conv<float>();
+            }
+
+            if (args.Length >= 6)
+            {
+                _object = args[5].Conv<int>();
+            }
+
+            if (args.Length >= 7)
+            {
+                x_speed = args[6].Conv<float>();
+            }
+
+            if (args.Length >= 8)
+            {
+                y_speed = args[7].Conv<float>();
+            }
+
+            if (args.Length >= 9)
+            {
+                x_border = args[8].Conv<float>();
+            }
+
+            if (args.Length >= 10)
+            {
+                y_border = args[9].Conv<float>();
+            }
+
+            var cam = CameraManager.CreateCameraView(
+                room_x, room_y, 
+                width, height, 
+                angle, 
+                _object, 
+                x_speed, y_speed,
+                x_border, y_border);
+
+            return cam.ID;
+        }
+
         // camera_destroy
         // camera_apply
         // camera_get_active

@@ -27,4 +27,32 @@ public static class CameraManager
         RegisterCamera(cam);
         return cam;
     }
+
+    public static Camera CreateCameraView(
+        float room_x,
+        float room_y,
+        float width,
+        float height,
+        float angle = 0,
+        int _object = -1,
+        float x_speed = -1,
+        float y_speed = -1,
+        float x_border = 0,
+        float y_border = 0)
+    {
+        var cam = new Camera { 
+            ViewX = room_x, 
+            ViewY = room_y,
+            ViewWidth = width,
+            ViewHeight = height,
+            ViewAngle = angle,
+            TargetInstance = _object,
+            SpeedX = x_speed,
+            SpeedY = y_speed,
+            BorderX = x_border,
+            BorderY = y_border
+        };
+        RegisterCamera(cam);
+        return cam;
+    }
 }

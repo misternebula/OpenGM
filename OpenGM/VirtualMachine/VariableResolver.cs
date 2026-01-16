@@ -170,8 +170,8 @@ public static class VariableResolver
         { "view_yview", (get_view_yview, set_view_yview)},
         { "view_wview", (get_view_wview, set_view_wview)},
         { "view_hview", (get_view_hview, set_view_hview)},
-        // view_xport
-        // view_yport
+        { "view_xport", (get_view_xport, set_view_xport)},
+        { "view_yport", (get_view_yport, set_view_yport)},
         { "view_wport", (get_view_wport, set_view_wport)},
         { "view_hport", (get_view_hport, set_view_hport)},
         // view_angle
@@ -457,6 +457,21 @@ public static class VariableResolver
 
     public static object? get_nan() => double.NaN;
     public static object? get_infinity() => double.PositiveInfinity;
+
+    public static object get_view_xport() => ViewportManager.view_xport;
+
+    public static void set_view_xport(object? value)
+    {
+        ViewportManager.view_xport = value.Conv<IList>().ConvAll<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
+
+    public static object get_view_yport() => ViewportManager.view_yport;
+    public static void set_view_yport(object? value)
+    {
+        ViewportManager.view_yport = value.Conv<IList>().ConvAll<int>().ToArray();
+        ViewportManager.UpdateFromArrays();
+    }
 
     public static object get_view_wport() => ViewportManager.view_wport;
 

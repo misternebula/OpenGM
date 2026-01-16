@@ -3,6 +3,8 @@
 namespace OpenGM.Rendering;
 public static class ViewportManager
 {
+    public static int[] view_xport = new int[8];
+    public static int[] view_yport = new int[8];
     public static int[] view_wport = new int[8];
     public static int[] view_hport = new int[8];
 
@@ -22,6 +24,8 @@ public static class ViewportManager
         {
             var view = RoomManager.CurrentRoom.Views[i];
 
+            view_xport[i] = view.PortPosition.X;
+            view_yport[i] = view.PortPosition.Y;
             view_wport[i] = view.PortSize.X;
             view_hport[i] = view.PortSize.Y;
 
@@ -41,6 +45,7 @@ public static class ViewportManager
         {
             var view = RoomManager.CurrentRoom.Views[i];
 
+            view.PortPosition = new(view_xport[i], view_yport[i]);
             view.PortSize = new(view_wport[i], view_hport[i]);
 
             view.ViewPosition = new(view_xview[i], view_yview[i]);
