@@ -257,7 +257,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // window_set_max_width
         // window_set_min_height
         // window_set_max_height
-        // window_set_position
+
+         [GMLFunction("window_set_position")]
+         public static object? window_set_position(object?[] args)
+         {
+             var x = args[0].Conv<int>();
+             var y = args[1].Conv<int>();
+
+             CustomWindow.Instance.ClientLocation = new Vector2i(x, y);
+
+             return null;
+         }
 
         [GMLFunction("window_set_size")]
         public static object? window_set_size(object?[] args)
@@ -272,7 +282,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // window_set_rectangle
+        [GMLFunction("window_set_rectangle")]
+        public static object? window_set_rectangle(object?[] args)
+        {
+            var x = args[0].Conv<int>();
+            var y = args[1].Conv<int>();
+            var w = args[2].Conv<int>();
+            var h = args[3].Conv<int>();
+
+            window_set_position([x, y]);
+            window_set_size([w, h]);
+            return null;
+        }
 
         [GMLFunction("window_center")]
         public static object? window_center(object?[] args)
