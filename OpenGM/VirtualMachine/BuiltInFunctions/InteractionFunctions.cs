@@ -222,8 +222,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             InputHandler.KeyReleased = new bool[256];
 
             InputHandler.MouseDown = new bool[5];
-            InputHandler.KeyPressed = new bool[5];
-            InputHandler.KeyReleased = new bool[5];
+            InputHandler.MousePressed = new bool[5];
+            InputHandler.MouseReleased = new bool[5];
             return null;
         }
 
