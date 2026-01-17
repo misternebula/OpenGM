@@ -67,7 +67,13 @@
             return 0;
         }
 
-        // gamepad_hat_value
+        [GMLFunction("gamepad_hat_value", GMLFunctionFlags.Stub)]
+        public static object gamepad_hat_value(object?[] args)
+        {
+            // TODO : implement
+            return 0;
+        }
+
         // gamepad_hat_count
         // gamepad_remove_mapping
         // gamepad_test_mapping
