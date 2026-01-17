@@ -10,9 +10,18 @@
     
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>bin</OutputPath>
-      
+    <Platforms>AnyCPU;x86;x64</Platforms>
+
     <DefineConstants>DEBUG_EXTRA</DefineConstants> <!--for more logs and checks-->
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +38,19 @@
     <ProjectReference Include="..\MotionTK\MotionTK.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="OpenAL32.dll">
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <None Update="lib\64\OpenAL32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
 
+  <ItemGroup Condition="'$(Platform)'=='x86'">
+    <None Update="lib\86\OpenAL32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="shader.fsh">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
