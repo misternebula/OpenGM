@@ -38,16 +38,19 @@
     <ProjectReference Include="..\MotionTK\MotionTK.csproj" />
   </ItemGroup>
 
+
   <ItemGroup Condition="'$(Platform)'=='x64'">
-    <None Update="lib\64\OpenAL32.dll">
+    <Content Include="lib\64\openal32.dll">
+      <Link>openal32.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)'=='x86'">
-    <None Update="lib\86\OpenAL32.dll">
+    <Content Include="lib\86\openal32.dll">
+      <Link>openal32.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
