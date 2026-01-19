@@ -53,6 +53,7 @@ public static class LoadSave
             name = "";
             name += filePrePend;
             name += fullPath[currentDirectory.Length..];
+            return 0;
         }
 
         if (fullPath.StartsWith(filePrePend))
