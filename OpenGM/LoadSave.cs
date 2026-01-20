@@ -148,7 +148,7 @@ public static class LoadSave
             return g_pFilePrePend;
         }
 
-        g_pFilePrePend = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        g_pFilePrePend = Path.GetDirectoryName(Entry.GamePath)!;
         return g_pFilePrePend;
     }
 
