@@ -3,6 +3,9 @@
 public static class GMConstants
 {
     public const int FIRST_INSTANCE_ID = 100000;
+    public const int BASE_QUEUE_SOUND_INDEX = 200000;
+    public const int BASE_STREAM_SOUND_INDEX = 300000; // BASE_SOUND_INDEX in HTML
+    public const int BASE_SOUND_INDEX = 400000; // Not used in HTML
 
     public const int self = -1;
     public const int other = -2;

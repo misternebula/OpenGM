@@ -172,7 +172,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var id = args[0].Conv<int>();
 
-            if (id < GMConstants.FIRST_INSTANCE_ID)
+            if (id < GMConstants.BASE_SOUND_INDEX)
             {
                 foreach (var item in AudioManager.GetAudioInstances(id))
                 {
@@ -202,7 +202,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 foreach (var item in AudioManager.GetAudioInstances(index))
                 {
@@ -229,7 +229,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 foreach (var item in AudioManager.GetAudioInstances(index))
                 {
@@ -279,7 +279,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 // playing = exists for us, so anything in here means something is playing
                 foreach (var item in AudioManager.GetAudioInstances(index))
@@ -310,7 +310,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 return AudioManager.GetAudioInstances(index).Any();
             }
@@ -426,7 +426,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            if (index >= GMConstants.FIRST_INSTANCE_ID)
+            if (index >= GMConstants.BASE_SOUND_INDEX)
             {
                 // instance id
                 var soundAsset = AudioManager.GetAudioInstance(index);
@@ -459,7 +459,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             pitch = Math.Clamp(pitch, 1.0 / 256.0, 256.0);
 
-            if (index >= GMConstants.FIRST_INSTANCE_ID)
+            if (index >= GMConstants.BASE_SOUND_INDEX)
             {
                 // instance id
                 var soundAsset = AudioManager.GetAudioInstance(index);
@@ -498,7 +498,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 var asset = AudioManager.GetAudioAsset(index);
                 if (asset != null)
@@ -540,7 +540,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index >= GMConstants.FIRST_INSTANCE_ID)
+            if (index >= GMConstants.BASE_SOUND_INDEX)
             {
                 var instance = AudioManager.GetAudioInstance(index);
 
@@ -565,7 +565,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index >= GMConstants.FIRST_INSTANCE_ID)
+            if (index >= GMConstants.BASE_SOUND_INDEX)
             {
                 // instance id
                 var soundAsset = AudioManager.GetAudioInstance(index);
@@ -593,7 +593,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var index = args[0].Conv<int>();
             var time = args[1].Conv<double>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 AudioManager.SetAssetOffset(index, time);
 
@@ -617,7 +617,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var index = args[0].Conv<int>();
 
-            if (index < GMConstants.FIRST_INSTANCE_ID)
+            if (index < GMConstants.BASE_SOUND_INDEX)
             {
                 return AudioManager.GetAssetOffset(index);
 

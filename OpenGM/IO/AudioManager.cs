@@ -350,7 +350,7 @@ public static class AudioManager
         Update(); // hack: deletes the sources. maybe make official stop and delete function
     }
 
-    private static int _highestSoundInstanceId = GMConstants.FIRST_INSTANCE_ID;
+    private static int _highestSoundInstanceId = GMConstants.BASE_SOUND_INDEX;
 
     private static AudioInstance GetNewAudioInstance()
     {
