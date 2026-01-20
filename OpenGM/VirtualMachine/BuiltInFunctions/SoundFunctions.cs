@@ -585,7 +585,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
         }
 
-        // audio_get_name
+        [GMLFunction("audio_get_name")]
+        public static object? audio_get_name(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            if (index >= GMConstants.BASE_SOUND_INDEX)
+            {
+                var instance = AudioManager.GetAudioInstance(index);
+
+                return instance == null ? "<undefined>" : instance.Asset.Name;
+            }
+
+            var asset = AudioManager.GetAudioAsset(index);
+            return asset == null ? "<undefined>" : asset.Name;
+        }
 
         [GMLFunction("audio_sound_set_track_position")]
         public static object? audio_sound_set_track_position(object?[] args)
