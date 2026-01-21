@@ -51,9 +51,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        [GMLFunction("part_type_scale", GMLFunctionFlags.Stub)]
+        [GMLFunction("part_type_scale")]
         public static object? part_type_scale(object?[] args)
         {
+            var ind = args[0].Conv<int>();
+            var xScale = args[1].Conv<double>();
+            var yScale = args[2].Conv<double>();
+
+            var type = ParticleManager.PartTypes[ind];
+            type.XScale = xScale;
+            type.YScale = yScale;
+
             return null;
         }
 
