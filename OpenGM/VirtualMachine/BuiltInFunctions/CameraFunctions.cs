@@ -70,7 +70,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return cam.ID;
         }
 
-        // camera_destroy
+        [GMLFunction("camera_destroy")]
+        public static object? camera_destroy(object?[] args)
+        {
+            var camera_id = args[0].Conv<int>();
+            CameraManager.DestroyCamera(camera_id);
+            return null;
+        }
+
         // camera_apply
         // camera_get_active
         // camera_get_default
@@ -314,7 +321,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return RoomManager.CurrentRoom.Views[view_port].PortSize.Y;
         }
 
-        // view_get_surface_id
+        [GMLFunction("view_get_surface_id")]
+        public static object? view_get_surface_id(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            return RoomManager.CurrentRoom.Views[view_port].SurfaceId;
+        }
+
         // view_set_camera
 
         [GMLFunction("view_set_visible")]
@@ -397,6 +416,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // view_set_surface_id
+        [GMLFunction("view_set_surface_id")]
+        public static object? view_set_surface_id(object?[] args)
+        {
+            var view_port = args[0].Conv<int>();
+            var surf = args[1].Conv<int>();
+
+            if (view_port is < 0 or > 7)
+            {
+                view_port = 0;
+            }
+
+            RoomManager.CurrentRoom.Views[view_port].SurfaceId = surf;
+            return null;
+        }
     }
 }
