@@ -301,10 +301,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
+        public static int Blendmode;
+
         [GMLFunction("gpu_set_blendmode")]
         public static object? gpu_set_blendmode(object?[] args)
         {
             var mode = args[0].Conv<int>();
+            Blendmode = mode;
 
             switch (mode)
             {
@@ -512,7 +515,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // gpu_get_zwriteenable
         // gpu_get_fog
         // gpu_get_cullmode
-        // gpu_get_blendmode
+
+        [GMLFunction("gpu_get_blendmode")]
+        public static object? gpu_get_blendmode(object?[] args)
+        {
+	        return Blendmode;
+        }
+
         // gpu_get_blendmode_ext
         // gpu_get_blendmode_ext_sepalpha
         // gpu_get_blendmode_src
