@@ -1599,10 +1599,70 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_text_ext_color
-        // draw_text_ext_colour
-        // draw_text_ext_transformed_color
-        // draw_text_ext_transformed_colour
+        [GMLFunction("draw_text_ext_color")]
+        [GMLFunction("draw_text_ext_colour")]
+        public static object? draw_text_ext_color(object?[] args)
+        {
+	        var x = args[0].Conv<double>();
+	        var y = args[1].Conv<double>();
+	        var str = args[2].Conv<string>();
+	        var sep = args[3].Conv<int>();
+	        var w = args[4].Conv<double>();
+	        var c1 = args[5].Conv<int>();
+	        var c2 = args[6].Conv<int>();
+	        var c3 = args[7].Conv<int>();
+	        var c4 = args[8].Conv<int>();
+	        var alpha = args[9].Conv<double>();
+
+	        CustomWindow.Draw(new GMTextJob()
+	        {
+		        Colors = [c1.ABGRToCol4(alpha), c2.ABGRToCol4(alpha), c3.ABGRToCol4(alpha), c4.ABGRToCol4(alpha)],
+		        angle = 0,
+		        asset = TextManager.fontAsset,
+		        halign = TextManager.halign,
+		        valign = TextManager.valign,
+		        lineSep = sep,
+		        text = str,
+		        screenPos = new(x, y),
+		        scale = Vector2d.One
+	        });
+
+	        return null;
+        }
+
+        [GMLFunction("draw_text_ext_transformed_color")]
+        [GMLFunction("draw_text_ext_transformed_colour")]
+        public static object? draw_text_ext_transformed_color(object?[] args)
+        {
+	        var x = args[0].Conv<double>();
+	        var y = args[1].Conv<double>();
+	        var str = args[2].Conv<string>();
+	        var sep = args[3].Conv<int>();
+	        var w = args[4].Conv<int>(); // TODO : implement
+	        var xscale = args[5].Conv<double>();
+	        var yscale = args[6].Conv<double>();
+	        var angle = args[7].Conv<double>();
+	        var c1 = args[8].Conv<int>();
+	        var c2 = args[9].Conv<int>();
+	        var c3 = args[10].Conv<int>();
+	        var c4 = args[11].Conv<int>();
+	        var alpha = args[12].Conv<double>();
+
+	        CustomWindow.Draw(new GMTextJob()
+	        {
+		        screenPos = new(x, y),
+		        asset = TextManager.fontAsset,
+		        angle = angle,
+		        Colors = [c1.ABGRToCol4(alpha), c2.ABGRToCol4(alpha), c3.ABGRToCol4(alpha), c4.ABGRToCol4(alpha)],
+		        halign = TextManager.halign,
+		        valign = TextManager.valign,
+		        scale = new(xscale, yscale),
+		        lineSep = sep,
+		        text = str
+	        });
+
+	        return null;
+        }
 
         [GMLFunction("draw_self")]
         public static object? draw_self(object?[] args)
