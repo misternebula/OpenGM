@@ -2,10 +2,9 @@
 {
     public static class GamepadFunctions
     {
-        [GMLFunction("gamepad_is_supported", GMLFunctionFlags.Stub)]
+        [GMLFunction("gamepad_is_supported")]
         public static object gamepad_is_supported(object?[] args)
         {
-            // TODO : implement
             return true;
         }
 
