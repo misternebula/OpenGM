@@ -47,11 +47,11 @@ internal class Entry
             }
         }
 
-        GamePath = Path.GetFullPath(path);
+        path = Path.GetFullPath(path);
+        GamePath = File.Exists(path) ? path : Path.Combine(path, "data.win");
         DebugLog.Log($"GamePath: {GamePath}");
 
-        var dataWin = File.Exists(path) ? path : Path.Combine(path, "data.win");
-        LoadGame(dataWin, passedArgs);
+        LoadGame(GamePath, passedArgs);
 
         return GameFunctions.GameEndReturnCode;
     }

@@ -40,7 +40,7 @@ public static class LoadSave
         }
 
         var savedCurrentDir = Environment.CurrentDirectory;
-        Environment.CurrentDirectory = Entry.GamePath;
+        Environment.CurrentDirectory = GetFilePrePend();
 
         var fullPath = Path.GetFullPath(_pszFileName);
         var currentDirectory = Environment.CurrentDirectory;
@@ -78,7 +78,7 @@ public static class LoadSave
         }
 
         var savedCurrentDir = Environment.CurrentDirectory;
-        Environment.CurrentDirectory = Entry.GamePath;
+        Environment.CurrentDirectory = GetFilePrePend();
 
         var fullPath = Path.GetFullPath(_pszFileName);
         var currentDirectory = Environment.CurrentDirectory;
@@ -95,7 +95,7 @@ public static class LoadSave
             return 0;
         }
 
-        var workingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        var workingDirectory = GetFilePrePend();
         if (fullPath.StartsWith(workingDirectory))
         {
             name = "";
