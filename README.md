@@ -19,22 +19,18 @@ Ideally, any Gamemaker game should work. However, it's impossible to support eve
 
 The following games are used in development to test feature parity, and as such OpenGM should support any game running on the same engine version as these games :
 
-| Game | Engine Version | GMSIdentify Version |
-| -------------------------------------------- | ------------ | ------------ |
-| DELTARUNE                                    | 2022.0.3.104 | 2022.0.3.104 |
-| DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2022.0.3.99  | 2022.0.3.99  |
-| DELTARUNE Chapter 1 & 2 DEMO                 | Unknown      | 2022.1.0.482 |
-| DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | Unknown      | 2.2.0.258    |
-| Undertale                                    | 1.0.0.1539   |	Unknown		 |
-| Pizza Tower SAGE 2019 Demo                   | 2.2.2.302    | 2.2.3.344	 |
-| Pizza Tower Eggplant Build                   | 2022.3.0.497 | 2022.3.0.497 |
+| Game | Engine Version |
+| -------------------------------------------- | -------------------- |
+| DELTARUNE                                    | 2022.0.3.104 (LTS-I) |
+| DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2022.0.3.99 (LTS)	  |
+| FAITH: The Unholy Trinity v1.5               | 2022.0.2.49 (LTS)    |
+| Pizza Tower Eggplant Build                   | 2022.3.0.497		  |
+| DELTARUNE Chapter 1 & 2 DEMO                 | 2022.1.0.482		  |
+| Pizza Tower SAGE 2019 Demo                   | 2.2.3.344			  |
+| DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | 2.2.0.258			  |
+| Undertale                                    | 1.0.0.1539			  |
 
 Not every feature from these games may work, but the game will at least load and try to execute.
-
-The following games are planned to be tested at some point:
-| Game  | Engine Version | GMSIdentify Version |
-| -------------------------------------------- | ------------ | ------------ |
-| FAITH: The Unholy Trinity v1.5               | Unknown      | 2022.0.2.49  |
 
 ## Dependencies
 - [MemoryPack](https://github.com/Cysharp/MemoryPack)

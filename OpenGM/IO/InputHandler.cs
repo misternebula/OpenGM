@@ -342,6 +342,12 @@ public class InputHandler
             DebugLog.LogInfo($"Frustum culling {(GraphicsManager.EnableCulling ? "enabled" : "disabled")}.");
         }
 
+        if (state.IsKeyPressed(Keys.KeyPad6))
+        {
+            CameraManager.LockToRoomBounds = !CameraManager.LockToRoomBounds;
+            DebugLog.LogInfo($"Camera room bounds locking {(CameraManager.LockToRoomBounds ? "enabled" : "disabled")}.");
+        }
+
         if (HandlerState == State.RECORD)
         {
             RecordIOState();

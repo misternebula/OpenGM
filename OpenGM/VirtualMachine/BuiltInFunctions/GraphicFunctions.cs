@@ -2279,7 +2279,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_surface_part_ext
+        [GMLFunction("draw_surface_part_ext")]
+        public static object? draw_surface_part_ext(object?[] args)
+        {
+	        var id = args[0].Conv<int>();
+	        var left = args[1].Conv<int>();
+	        var top = args[2].Conv<int>();
+	        var w = args[3].Conv<int>();
+	        var h = args[4].Conv<int>();
+	        var x = args[5].Conv<double>();
+	        var y = args[6].Conv<double>();
+	        var xscale = args[7].Conv<double>();
+	        var yscale = args[8].Conv<double>();
+	        var colour = args[9].Conv<int>();
+	        var alpha = args[10].Conv<double>();
+
+            SurfaceManager.draw_surface_part_ext(id, left, top, w, h, x, y, xscale, yscale, colour, alpha);
+	        return null;
+        }
+
         // draw_surface_general
 
         [GMLFunction("draw_surface_tiled")]

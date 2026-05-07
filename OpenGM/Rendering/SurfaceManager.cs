@@ -311,32 +311,38 @@ public static class SurfaceManager
 
     public static void draw_surface_part(int id, int left, int top, int w, int h, double x, double y)
     {
-        var surfWidth = (double)GetSurfaceWidth(id);
-        var surfHeight = (double)GetSurfaceHeight(id);
+	    draw_surface_part_ext(id, left, top, w, h, x, y, 1, 1, (int)Color4.White.Col4ToABGR(), 1);
+    }
 
-        GL.BindTextureUnit(0, GetSurfaceTexture(id));
+    public static void draw_surface_part_ext(int id, int left, int top, int w, int h, double x, double y, double xscale, double yscale, int colour, double alpha)
+    {
+	    var surfWidth = (double)GetSurfaceWidth(id);
+	    var surfHeight = (double)GetSurfaceHeight(id);
 
-        var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth);
-        var vertexTwo = new Vector3d(x + w, y, GraphicsManager.GR_Depth);
-        var vertexThree = new Vector3d(x + w, y + h, GraphicsManager.GR_Depth);
-        var vertexFour = new Vector3d(x, y + h, GraphicsManager.GR_Depth);
+	    GL.BindTextureUnit(0, GetSurfaceTexture(id));
 
-        var uvLeft = left / surfWidth;
-        var uvRight = (left + w) / surfWidth;
-        var uvTop = top / surfHeight;
-        var uvBottom = (top + h) / surfHeight;
+	    var vertexOne = new Vector3d(x, y, GraphicsManager.GR_Depth);
+	    var vertexTwo = new Vector3d(x + (w * xscale), y, GraphicsManager.GR_Depth);
+	    var vertexThree = new Vector3d(x + (w * xscale), y + (h * yscale), GraphicsManager.GR_Depth);
+	    var vertexFour = new Vector3d(x, y + (h * yscale), GraphicsManager.GR_Depth);
 
-        var uvOne = new Vector2d(uvLeft, uvTop);
-        var uvTwo = new Vector2d(uvRight, uvTop);
-        var uvThree = new Vector2d(uvRight, uvBottom);
-        var uvFour = new Vector2d(uvLeft, uvBottom);
+	    var uvLeft = left / surfWidth;
+	    var uvRight = (left + w) / surfWidth;
+	    var uvTop = top / surfHeight;
+	    var uvBottom = (top + h) / surfHeight;
 
+	    var uvOne = new Vector2d(uvLeft, uvTop);
+	    var uvTwo = new Vector2d(uvRight, uvTop);
+	    var uvThree = new Vector2d(uvRight, uvBottom);
+	    var uvFour = new Vector2d(uvLeft, uvBottom);
+
+	    var c = colour.ABGRToCol4(alpha);
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
-            new(vertexOne, Color4.White, uvOne),
-            new(vertexTwo, Color4.White, uvTwo),
-            new(vertexThree, Color4.White, uvThree),
-            new(vertexFour, Color4.White, uvFour)
-        ]);
+		    new(vertexOne, c, uvOne),
+		    new(vertexTwo, c, uvTwo),
+		    new(vertexThree, c, uvThree),
+		    new(vertexFour, c, uvFour)
+	    ]);
     }
 
     public static int GetSurfaceTexture(int surfaceId)

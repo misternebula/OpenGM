@@ -58,19 +58,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // TODO : implement try/catches?
 
-        [GMLFunction("@@try_hook@@")]
+        [GMLFunction("@@try_hook@@", GMLFunctionFlags.Stub)]
         public static object? TryHook(object?[] args) => null;
 
-        [GMLFunction("@@try_unhook@@")]
+        [GMLFunction("@@try_unhook@@", GMLFunctionFlags.Stub)]
         public static object? TryUnhook(object?[] args) => null;
 
-        [GMLFunction("@@throw@@")]
+        [GMLFunction("@@throw@@", GMLFunctionFlags.Stub)]
         public static object? Throw(object?[] args) => null;
 
-        [GMLFunction("@@finish_catch@@")]
+        [GMLFunction("@@finish_catch@@", GMLFunctionFlags.Stub)]
         public static object? FinishCatch(object?[] args) => null;
 
-        [GMLFunction("@@finish_finally@@")]
+        [GMLFunction("@@finish_finally@@", GMLFunctionFlags.Stub)]
         public static object? FinishFinally(object?[] args) => null;
         // $PRINT
         // $FAIL

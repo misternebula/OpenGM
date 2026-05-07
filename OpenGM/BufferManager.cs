@@ -436,8 +436,7 @@ public static class BufferManager
         }
 
         var texture = SurfaceManager.GetSurfaceTexture(surfaceId);
-        // TODO : account for offset
-        GL.TextureSubImage2D(texture, 0, 0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data);
+        GL.TextureSubImage2D(texture, 0, 0, 0, w, h, PixelFormat.Rgba, PixelType.UnsignedByte, buffer.Data.Skip(offset).Take(w * h * 4).ToArray());
     }
 
     public static void BufferGetSurface(int bufferId, int surfaceId, int offset)

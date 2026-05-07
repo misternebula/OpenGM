@@ -445,6 +445,7 @@ public static class DrawManager
         {
             for (var i = 0; i < 8; i++)
             {
+	            ViewportManager.ViewCurrent = i;
                 ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
                 if (!ViewportManager.CurrentRenderingView.Visible)

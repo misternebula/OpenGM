@@ -192,25 +192,28 @@ public class Camera
             t = flooredY + BorderY - ViewHeight;
         }
 
-        // Make sure it does not extend beyond the room
-        if (l < 0)
+        if (CameraManager.LockToRoomBounds)
         {
-            l = 0;
-        }
+            // Make sure it does not extend beyond the room
+            if (l < 0)
+            {
+                l = 0;
+            }
 
-        if (l + ViewWidth > RoomManager.CurrentRoom.SizeX)
-        {
-            l = RoomManager.CurrentRoom.SizeX - ViewWidth;
-        }
+            if (l + ViewWidth > RoomManager.CurrentRoom.SizeX)
+            {
+                l = RoomManager.CurrentRoom.SizeX - ViewWidth;
+            }
 
-        if (t < 0)
-        {
-            t = 0;
-        }
+            if (t < 0)
+            {
+                t = 0;
+            }
 
-        if (t + ViewHeight > RoomManager.CurrentRoom.SizeY)
-        {
-            t = RoomManager.CurrentRoom.SizeY - ViewHeight;
+            if (t + ViewHeight > RoomManager.CurrentRoom.SizeY)
+            {
+                t = RoomManager.CurrentRoom.SizeY - ViewHeight;
+            }
         }
 
         // Restrict motion speed
