@@ -376,16 +376,12 @@ public static class VariableResolver
     public static void set_hspeed(GamemakerObject instance, object? value) => instance.hspeed = value.Conv<double>();
 
     public static object get_vspeed(GamemakerObject instance) => instance.vspeed;
-    public static void set_vspeed(GamemakerObject instance, object? value)
-    {
-        //DebugLog.Log($"{instance.Definition.Name} set vspeed to {value}");
-        instance.vspeed = value.Conv<double>();
-    }
+    public static void set_vspeed(GamemakerObject instance, object? value) => instance.vspeed = value.Conv<double>();
 
     public static object get_direction(GamemakerObject instance) => instance.direction;
     public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<double>();
 
-    public static object get_view_current() => 0; // TODO : aghhhhh viewports aghhh
+    public static object get_view_current() => ViewportManager.ViewCurrent;
 
     public static object get_persistent(GamemakerObject instance) => instance.persistent;
     public static void set_persistent(GamemakerObject instance, object? value) => instance.persistent = value.Conv<bool>();

@@ -9,10 +9,13 @@ namespace OpenGM.Rendering;
 public static class CameraManager
 
 {
+    public static bool LockToRoomBounds = true;
+
     private static int _nextCameraId;
     private static Dictionary<int, Camera> _cameraDict = new();
 
     public static Camera? GetCamera(int id) => _cameraDict.TryGetValue(id, out var value) ? value : null;
+    public static void DestroyCamera(int id) => _cameraDict.Remove(id);
 
     public static int RegisterCamera(Camera camera)
     {
