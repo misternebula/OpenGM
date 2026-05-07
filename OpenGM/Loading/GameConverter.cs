@@ -115,7 +115,7 @@ public static class GameConverter
 
             var asmFile = code.Disassemble(data.Variables, codeLocals);
 
-            var asset = ConvertAssembly(asmFile);
+            var asset = ConvertAssembly(data, asmFile);
 
             asset.AssetId = codes.IndexOf(code);
             asset.Name = code.Name.Content;
@@ -198,7 +198,7 @@ public static class GameConverter
         }
     }
 
-    public static VMCode ConvertAssembly(string asmFile)
+    public static VMCode ConvertAssembly(UndertaleData? data, string asmFile)
     {
         var asmFileLines = asmFile.SplitLines();
 
@@ -493,7 +493,14 @@ public static class GameConverter
                         var parameters = parameterString.Split(' ');
                         if (parameters.Length == 1)
                         {
-                            instruction.IntData = int.Parse(parameterString);
+                            if (int.TryParse(parameterString, out var intVal))
+                            {
+                                instruction.IntData = intVal;
+                            }
+                            else
+                            {
+                                instruction.IntData = data!.Scripts.IndexOf(data.Scripts.First(x => x.Name.Content == parameterString));
+                            }
                         }
                         else
                         {
