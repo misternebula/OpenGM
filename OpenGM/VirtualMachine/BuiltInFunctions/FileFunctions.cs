@@ -263,7 +263,30 @@ public static class FileFunctions
         return null;
     }
 
-    // directory_exists
+    [GMLFunction("directory_exists")]
+    public static object? directory_exists(object?[] args)
+    {
+        var dname = args[0].Conv<string>();
+
+        var _name = "";
+        LoadSave.GetSaveFileName(ref _name, 0x400, dname);
+
+        if (!Directory.Exists(_name))
+        {
+            if (LoadSave.GetBundleFileName(ref _name, 0x400, dname) == 0)
+            {
+                if (Directory.Exists(_name))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
     // directory_create
     // directory_destroy
     
@@ -598,7 +621,40 @@ public static class FileFunctions
     }
 
     // json_stringify
-    // json_parse
+
+    [GMLFunction("json_parse", GMLFunctionFlags.Stub)]
+    public static object? json_parse(object?[] args)
+    {
+        static object Parse(JToken jToken)
+        {
+            switch (jToken)
+            {
+                case JValue jValue:
+                    return jValue.Value!;
+                case JArray jArray:
+                    {
+                        return jArray.Select(Parse).ToList();
+                    }
+                case JObject jObject:
+                    {
+                        var retStruct = new GMLObject();
+                        foreach (var (name, value) in jObject)
+                        {
+                            retStruct[name] = Parse(value!);
+                        }
+                        return retStruct;
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        var json = args[0].Conv<string>();
+        var jToken = JToken.Parse(json);
+
+        return Parse(jToken);
+    }
+
     // zip_unzip
     // load_csv
 }
