@@ -15,6 +15,12 @@ public class VertexFormat
         _formatBit <<= 1;
     }
 
+    public void AddPosition3D()
+    {
+        Add(VertexType.FLOAT3, VertexUsage.POSITION, _formatBit);
+        _formatBit <<= 1;
+    }
+
     public void AddColor()
     {
         Add(VertexType.COLOR, VertexUsage.COLOR, _formatBit);
@@ -24,6 +30,12 @@ public class VertexFormat
     public void AddNormal()
     {
         Add(VertexType.FLOAT3, VertexUsage.NORMAL, _formatBit);
+        _formatBit <<= 1;
+    }
+
+    public void AddTexcoord()
+    {
+        Add(VertexType.FLOAT2, VertexUsage.TEXCOORD, _formatBit);
         _formatBit <<= 1;
     }
 
