@@ -1,4 +1,6 @@
-﻿using OpenGM.Loading;
+﻿using OpenGM.IO;
+using OpenGM.Loading;
+using System.Diagnostics;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -119,6 +121,33 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // @@GlobalScope@@
         // @@NewObject@@
         // @@NewProperty@@
-        // @@CopyStatic@@
+
+        [GMLFunction("@@CopyStatic@@")]
+        public static object? CopyStatic(object?[] args)
+        {
+            var func = args[0].Conv<int>();
+            var script = ScriptResolver.ScriptsByIndex[func - GMConstants.FIRST_INSTANCE_ID];
+            var code = script.GetCode();
+
+            if (code == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            var parent = GameLoader.Codes[code.ParentAssetId];
+            var def = parent.Functions.FirstOrDefault(x => x.FunctionName == code.Name);
+
+            if (def == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            foreach (var item in def.StaticVariables)
+            {
+                VMExecutor.Call.Function!.StaticVariables.Add(item.Key, item.Value);
+            }
+
+            return null;
+        }
     }
 }
