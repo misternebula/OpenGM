@@ -19,16 +19,17 @@ Ideally, any Gamemaker game should work. However, it's impossible to support eve
 
 The following games are used in development to test feature parity, and as such OpenGM should support any game running on the same engine version as these games :
 
-| Game | Engine Version |
-| -------------------------------------------- | -------------------- |
-| DELTARUNE                                    | 2022.0.3.104 (LTS-I) |
-| DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2022.0.3.99 (LTS)	  |
-| FAITH: The Unholy Trinity v1.5               | 2022.0.2.49 (LTS)    |
-| Pizza Tower Eggplant Build                   | 2022.3.0.497		  |
-| DELTARUNE Chapter 1 & 2 DEMO                 | 2022.1.0.482		  |
-| Pizza Tower SAGE 2019 Demo                   | 2.2.3.344			  |
-| DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | 2.2.0.258			  |
-| Undertale                                    | 1.0.0.1539			  |
+| Game | Engine Version | Notes |
+| -------------------------------------------- | -------------------- | ----------------------------------------------- |
+| MINDWAVE Demo								   | 2024.11.0.226		  | Loads, but missing core engine features.		|
+| DELTARUNE                                    | 2022.0.3.104 (LTS-I) | Tested the most, works very well.				|
+| DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2022.0.3.99 (LTS)	  | Works well.										|
+| FAITH: The Unholy Trinity v1.5               | 2022.0.2.49 (LTS)    |													|
+| Pizza Tower Eggplant Build                   | 2022.3.0.497		  |													|
+| DELTARUNE Chapter 1 & 2 DEMO                 | 2022.1.0.482		  |	Works well.										|
+| Pizza Tower SAGE 2019 Demo                   | 2.2.3.344			  |													|
+| DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | 2.2.0.258			  |	Works well.										|
+| Undertale                                    | 1.0.0.1539			  | Kind of works, but breaks in a lot of places.	|
 
 Not every feature from these games may work, but the game will at least load and try to execute.
 
