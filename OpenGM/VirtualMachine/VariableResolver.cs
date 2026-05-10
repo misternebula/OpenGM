@@ -133,7 +133,7 @@ public static class VariableResolver
         // game_id
         // game_display_name
         // game_project_name
-        // game_save_id
+        { "game_save_id", (get_game_save_id, null)},
         { "working_directory", (get_working_directory, null) },
         // temp_directory
         // program_directory
@@ -581,4 +581,9 @@ public static class VariableResolver
 
     public static object get_layer(GamemakerObject instance) => instance.Layer;
     public static void set_layer(GamemakerObject instance, object? value) => instance.Layer = value.Conv<int>();
+
+    public static object? get_game_save_id()
+    {
+        return LoadSave.GetSavePrePend();
+    }
 }
