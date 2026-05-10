@@ -183,7 +183,15 @@
         }
 
         // buffer_copy
-        // buffer_exists
+
+        [GMLFunction("buffer_exists")]
+        public static object? buffer_exists(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            return BufferManager.Buffers.ContainsKey(index);
+        }
+
         // buffer_get_type
         // buffer_get_alignment
         // buffer_fill
