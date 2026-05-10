@@ -1,4 +1,5 @@
-﻿using OpenGM.Rendering;
+﻿using OpenGM.Loading;
+using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
 
 namespace OpenGM.IO;
@@ -79,7 +80,16 @@ public static class DebugLog
         Log($"--Stacktrace--", type);
         foreach (var item in VMExecutor.CallStack)
         {
-            Log($" - {item.CodeName} {item.EnvFrame}", type);
+            var lastLabel = 0;
+            foreach (var (label, index) in GameLoader.Codes.First(x => x.Value.Name == item.CodeName).Value.Labels)
+            {
+                if (index <= item.InstructionIndex && lastLabel < label)
+                {
+                    lastLabel = label;
+                }
+            }
+
+            Log($" - {item.CodeName} | {item.EnvFrame} | @ Ins:{item.InstructionIndex} Label:{lastLabel}", type);
         }
     }
 

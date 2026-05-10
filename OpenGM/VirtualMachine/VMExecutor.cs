@@ -26,7 +26,7 @@ public class VMEnvFrame
 
         if (Self is GamemakerObject gm)
         {
-            var ret = $"{gm.Definition.Name} ({gm.object_index}, instance {gm.instanceId})";
+            var ret = $"{gm.Definition.Name} (Obj:{gm.object_index}, Inst:{gm.instanceId})";
             return ret;
         }
         else if (Self is GMLObject obj)
@@ -55,6 +55,7 @@ public class VMCallFrame
     public int EventIndex;
     public FunctionDefinition? Function; // undertale doesnt have script functions, only script assets, so this will be null
     public VMEnvFrame EnvFrame = null!;
+    public int InstructionIndex;
 }
 
 public static partial class VMExecutor
@@ -209,7 +210,8 @@ public static partial class VMExecutor
             EventType = eventType,
             EventIndex = eventIndex,
             Function = func,
-            EnvFrame = newCtx
+            EnvFrame = newCtx,
+            InstructionIndex = instructionIndex
         };
         CallStack.Push(call);
 
@@ -244,7 +246,7 @@ public static partial class VMExecutor
 
             try
             {
-                (executionResult, data) = ExecuteInstruction(code.Instructions[instructionIndex]);
+                (executionResult, data) = ExecuteInstruction(code.Instructions[Call.InstructionIndex]);
 
                 if (VerboseStackLogs && Self != null)
                 {
@@ -281,13 +283,13 @@ public static partial class VMExecutor
                 var lastLabel = 0;
                 foreach (var (label, index) in code.Labels)
                 {
-                    if (index <= instructionIndex && lastLabel < label)
+                    if (index <= Call.InstructionIndex && lastLabel < label)
                     {
                         lastLabel = label;
                     }
                 }
 
-                DebugLog.LogError($"Execution of instruction {code.Instructions[instructionIndex].Raw} (Index: {instructionIndex}, Label: {lastLabel}) in script {codeName} failed : {data}");
+                DebugLog.LogError($"Execution of instruction {code.Instructions[Call.InstructionIndex].Raw} (Index: {Call.InstructionIndex}, Label: {lastLabel}) in script {codeName} failed : {data}");
                 DebugLog.PrintCallStack(DebugLog.LogType.Error);
 
                 //Debug.Break();
@@ -296,13 +298,13 @@ public static partial class VMExecutor
 
             if (executionResult == ExecutionResult.Success)
             {
-                if (instructionIndex == code.Instructions.Count - 1)
+                if (Call.InstructionIndex == code.Instructions.Count - 1)
                 {
                     // script finished!
                     break;
                 }
 
-                instructionIndex++;
+                Call.InstructionIndex++;
                 continue;
             }
 
@@ -314,7 +316,7 @@ public static partial class VMExecutor
             if (executionResult == ExecutionResult.JumpedToLabel)
             {
                 var label = (int)data!;
-                instructionIndex = code.Labels[label];
+                Call.InstructionIndex = code.Labels[label];
                 continue;
             }
 
