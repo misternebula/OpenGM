@@ -485,7 +485,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // gpu_set_texrepeat
+        [GMLFunction("gpu_set_texrepeat", GMLFunctionFlags.Stub)]
+        public static object? gpu_set_texrepeat(object?[] args)
+        {
+            return null;
+        }
+
         // gpu_set_texrepeat_ext
         // gpu_set_tex_filter
         // gpu_set_tex_filter_ext
