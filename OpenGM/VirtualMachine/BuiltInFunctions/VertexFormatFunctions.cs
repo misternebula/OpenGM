@@ -39,7 +39,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // vertex_format_add_position_3d
+        [GMLFunction("vertex_format_add_position_3d")]
+        public static object? vertex_format_add_position_3d(object?[] args)
+        {
+            if (NewFormat == null)
+            {
+                throw new Exception("No format is under construction!");
+            }
+
+            NewFormat.AddPosition3D();
+            return null;
+        }
 
         [GMLFunction("vertex_format_add_color")]
         [GMLFunction("vertex_format_add_colour")]
@@ -66,8 +76,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // vertex_format_add_textcoord
-        // vertex_format_add_texcoord
+        [GMLFunction("vertex_format_add_textcoord")]
+        [GMLFunction("vertex_format_add_texcoord")]
+        public static object? vertex_format_add_texcoord(object?[] args)
+        {
+            if (NewFormat == null)
+            {
+                throw new Exception("No format is under construction!");
+            }
+
+            NewFormat.AddTexcoord();
+            return null;
+        }
+
         // vertex_format_add_custom
     }
 }
