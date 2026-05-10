@@ -223,12 +223,7 @@ public static partial class VMExecutor
         if (args != null)
         {
             // conv should be able to handle list to array via casting to IList
-
-            // ensure args length
-            var newArgs = new object?[16];
-            Array.Copy(args, newArgs, args.Length);
-
-            call.Locals["arguments"] = newArgs;
+            call.Locals["arguments"] = args;
         }
 
         code.CodeExecuted();
