@@ -21,7 +21,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // audio_listener_velocity
-        // audio_listener_orientation
+
+        [GMLFunction("audio_listener_orientation")]
+        public static object? audio_listener_orientation(object?[] args)
+        {
+            var lookat_x = args[0].Conv<float>();
+            var lookat_y = args[1].Conv<float>();
+            var lookat_z = args[2].Conv<float>();
+            var up_x = args[3].Conv<float>();
+            var up_y = args[4].Conv<float>();
+            var up_z = args[5].Conv<float>();
+
+            AudioManager.Listener.At = new Vector3(lookat_x, lookat_y, lookat_z);
+            AudioManager.Listener.Up = new Vector3(up_x, up_y, up_z);
+            return null;
+        }
 
         [GMLFunction("audio_emitter_position")]
         public static object? audio_emitter_position(object?[] args)
