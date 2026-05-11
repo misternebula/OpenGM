@@ -22,6 +22,9 @@ public static class DrawManager
     public static bool DebugBBoxes = false;
     public static bool ShouldDrawGui = true;
 
+    public static EventType EventType;
+    public static int EventNumber;
+
     public static void Register(DrawWithDepth obj)
     {
         if (_drawObjects.Contains(obj))
@@ -63,6 +66,17 @@ public static class DrawManager
 
     private static bool RunDrawScript(IOrderedEnumerable<DrawWithDepth> items, EventSubtypeDraw drawType)
     {
+        EventType = EventType.Draw;
+        EventNumber = (int)drawType;
+
+        foreach (var (id, layer) in RoomManager.CurrentRoom.Layers)
+        {
+            if (layer.BeginScript != null)
+            {
+                VMExecutor.ExecuteCode(layer.BeginScript.GetCode(), null);
+            }
+        }
+
         foreach (var item in items)
         {
             if (GraphicsManager.ForceDepth)
@@ -115,6 +129,14 @@ public static class DrawManager
                 GraphicsManager.PushMessage($"{drawType} {item.instanceId} ({item.GetType().Name})");
                 item.Draw();
                 GraphicsManager.PopMessage();
+            }
+        }
+
+        foreach (var (id, layer) in RoomManager.CurrentRoom.Layers)
+        {
+            if (layer.EndScript != null)
+            {
+                VMExecutor.ExecuteCode(layer.EndScript.GetCode(), null);
             }
         }
 

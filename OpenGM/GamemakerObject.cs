@@ -571,6 +571,9 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
             return false;
         }
 
+        DrawManager.EventType = eventType;
+        DrawManager.EventNumber = eventNumber;
+
         switch (eventType)
         {
             case EventType.Create:

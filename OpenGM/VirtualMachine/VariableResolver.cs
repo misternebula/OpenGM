@@ -207,8 +207,8 @@ public static class VariableResolver
         // current_hour
         // current_minute
         { "current_second", (get_current_second, null)},
-        // event_type
-        // event_number
+        { "event_type", (get_event_type, null)},
+        { "event_number", (get_event_number, null)},
         // event_object
         // event_action
         // error_occurred
@@ -582,8 +582,8 @@ public static class VariableResolver
     public static object get_layer(GamemakerObject instance) => instance.Layer;
     public static void set_layer(GamemakerObject instance, object? value) => instance.Layer = value.Conv<int>();
 
-    public static object? get_game_save_id()
-    {
-        return LoadSave.GetSavePrePend();
-    }
+    public static object? get_game_save_id() => LoadSave.GetSavePrePend();
+
+    public static object? get_event_type() => (int)DrawManager.EventType - 1;
+    public static object? get_event_number() => DrawManager.EventNumber;
 }
