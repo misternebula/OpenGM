@@ -111,27 +111,36 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // variable_global_get
         // variable_global_set
 
+        [GMLFunction("struct_exists")]
         [GMLFunction("variable_instance_exists")]
         [GMLFunction("variable_struct_exists")]
         public static object variable_instance_exists(object?[] args)
         {
-            var instance_id = args[0].Conv<int>();
             var name = args[1].Conv<string>();
 
-            GamemakerObject? instance;
+            IStackContextSelf? instance;
 
-            if (instance_id == GMConstants.global)
+            if (args[0] is GMLObject)
             {
-                throw new NotImplementedException();
-            }
-            else if (instance_id < GMConstants.FIRST_INSTANCE_ID)
-            {
-                // todo : first how? or should this iterate?
-                instance = InstanceManager.FindByAssetId(instance_id).First();
+                instance = args[0].Conv<GMLObject>();
             }
             else
             {
-                instance = InstanceManager.FindByInstanceId(instance_id);
+                var instanceId = args[0].Conv<int>();
+
+                if (instanceId == GMConstants.global)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+                {
+                    // todo : first how?
+                    instance = InstanceManager.FindByAssetId(instanceId).First();
+                }
+                else
+                {
+                    instance = InstanceManager.FindByInstanceId(instanceId);
+                }
             }
 
             if (instance == null)
@@ -147,27 +156,36 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return false;
         }
 
+        [GMLFunction("struct_get")]
         [GMLFunction("variable_instance_get")]
         [GMLFunction("variable_struct_get")]
         public static object? variable_instance_get(object?[] args)
         {
-            var instanceId = args[0].Conv<int>();
             var name = args[1].Conv<string>();
 
-            GamemakerObject? instance;
+            IStackContextSelf? instance;
 
-            if (instanceId == GMConstants.global)
+            if (args[0] is GMLObject)
             {
-                throw new NotImplementedException();
-            }
-            else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
-            {
-                // todo : first how?
-                instance = InstanceManager.FindByAssetId(instanceId).First();
+                instance = args[0].Conv<GMLObject>();
             }
             else
             {
-                instance = InstanceManager.FindByInstanceId(instanceId);
+                var instanceId = args[0].Conv<int>();
+
+                if (instanceId == GMConstants.global)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+                {
+                    // todo : first how?
+                    instance = InstanceManager.FindByAssetId(instanceId).First();
+                }
+                else
+                {
+                    instance = InstanceManager.FindByInstanceId(instanceId);
+                }
             }
 
             if (instance == null)
@@ -178,19 +196,28 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (VariableResolver.BuiltInSelfVariables.ContainsKey(name))
             {
                 var (getter, setter) = VariableResolver.BuiltInSelfVariables[name];
-                return getter(instance);
+                return getter((GamemakerObject)instance);
             }
 
             return instance.SelfVariables.TryGetValue(name, out var value) ? value : null;
         }
 
+        [GMLFunction("struct_set")]
         [GMLFunction("variable_instance_set")]
         [GMLFunction("variable_struct_set")]
         public static object? variable_instance_set(object?[] args)
         {
-            var instanceId = args[0].Conv<int>();
+            //var instanceId = args[0].Conv<int>();
             var name = args[1].Conv<string>();
             var value = args[2];
+
+            if (args[0] is GMLObject gmlObj)
+            {
+                gmlObj.SelfVariables[name] = value;
+                return null;
+            }
+
+            var instanceId = args[0].Conv<int>();
 
             if (instanceId == GMConstants.global)
             {
@@ -218,7 +245,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             else
             {
                 // instance id
-                var instance = InstanceManager.FindByInstanceId(instanceId)!;
+                var instance = InstanceManager.FindByInstanceId(instanceId);
+
+                if (instance == null)
+                {
+                    DebugLog.LogError($"No instance of id {instanceId}");
+	                return null;
+                }
 
                 if (VariableResolver.BuiltInSelfVariables.TryGetValue(name, out var getset))
                 {
@@ -241,7 +274,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // variable_struct_set
         // variable_struct_set_pre
         // variable_struct_set_post
-        // variable_struct_get_names
+
+        [GMLFunction("struct_get_names")]
+        [GMLFunction("variable_struct_get_names")]
+        public static object? variable_struct_get_names(object?[] args)
+        {
+            var @struct = args[0].Conv<GMLObject>();
+
+            var varNames = new List<string>();
+            foreach (var (name, val) in @struct.SelfVariables)
+            {
+                varNames.Add(name);
+            }
+
+            return varNames;
+        }
+
         // variable_struct_names_count
         // variable_struct_remove
         // gc_collect
