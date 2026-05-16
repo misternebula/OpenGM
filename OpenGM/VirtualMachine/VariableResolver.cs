@@ -99,22 +99,22 @@ public static class VariableResolver
     {
         // argument_relative
         { "argument", (get_argument, null) },
-        { "argument0", (get_argument_0, (val) => VMExecutor.PopToArgument(0, val)) },
-        { "argument1", (get_argument_1, (val) => VMExecutor.PopToArgument(1, val)) },
-        { "argument2", (get_argument_2, (val) => VMExecutor.PopToArgument(2, val)) },
-        { "argument3", (get_argument_3, (val) => VMExecutor.PopToArgument(3, val)) },
-        { "argument4", (get_argument_4, (val) => VMExecutor.PopToArgument(4, val)) },
-        { "argument5", (get_argument_5, (val) => VMExecutor.PopToArgument(5, val)) },
-        { "argument6", (get_argument_6, (val) => VMExecutor.PopToArgument(6, val)) },
-        { "argument7", (get_argument_7, (val) => VMExecutor.PopToArgument(7, val)) },
-        { "argument8", (get_argument_8, (val) => VMExecutor.PopToArgument(8, val)) },
-        { "argument9", (get_argument_9, (val) => VMExecutor.PopToArgument(9, val)) },
-        { "argument10", (get_argument_10, (val) => VMExecutor.PopToArgument(10, val)) },
-        { "argument11", (get_argument_11, (val) => VMExecutor.PopToArgument(11, val)) },
-        { "argument12", (get_argument_12, (val) => VMExecutor.PopToArgument(12, val)) },
-        { "argument13", (get_argument_13, (val) => VMExecutor.PopToArgument(13, val)) },
-        { "argument14", (get_argument_14, (val) => VMExecutor.PopToArgument(14, val)) },
-        { "argument15", (get_argument_15, (val) => VMExecutor.PopToArgument(15, val)) },
+        { "argument0", (() => GetArgument(0), (val) => VMExecutor.PopToArgument(0, val)) },
+        { "argument1", (() => GetArgument(1), (val) => VMExecutor.PopToArgument(1, val)) },
+        { "argument2", (() => GetArgument(2), (val) => VMExecutor.PopToArgument(2, val)) },
+        { "argument3", (() => GetArgument(3), (val) => VMExecutor.PopToArgument(3, val)) },
+        { "argument4", (() => GetArgument(4), (val) => VMExecutor.PopToArgument(4, val)) },
+        { "argument5", (() => GetArgument(5), (val) => VMExecutor.PopToArgument(5, val)) },
+        { "argument6", (() => GetArgument(6), (val) => VMExecutor.PopToArgument(6, val)) },
+        { "argument7", (() => GetArgument(7), (val) => VMExecutor.PopToArgument(7, val)) },
+        { "argument8", (() => GetArgument(8), (val) => VMExecutor.PopToArgument(8, val)) },
+        { "argument9", (() => GetArgument(9), (val) => VMExecutor.PopToArgument(9, val)) },
+        { "argument10", (() => GetArgument(10), (val) => VMExecutor.PopToArgument(10, val)) },
+        { "argument11", (() => GetArgument(11), (val) => VMExecutor.PopToArgument(11, val)) },
+        { "argument12", (() => GetArgument(12), (val) => VMExecutor.PopToArgument(12, val)) },
+        { "argument13", (() => GetArgument(13), (val) => VMExecutor.PopToArgument(13, val)) },
+        { "argument14", (() => GetArgument(14), (val) => VMExecutor.PopToArgument(14, val)) },
+        { "argument15", (() => GetArgument(15), (val) => VMExecutor.PopToArgument(15, val)) },
         { "argument_count", (get_argument_count, null) },
         { "debug_mode", (get_debug_mode, null)},
         // pointer_invalid
@@ -425,22 +425,18 @@ public static class VariableResolver
 
     public static object get_argument_count() => VMExecutor.Call.Locals["arguments"].Conv<IList>().Count;
     public static object get_argument() => VMExecutor.Call.Locals["arguments"]!;
-    public static object? get_argument_0() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[0];
-    public static object? get_argument_1() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[1];
-    public static object? get_argument_2() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[2];
-    public static object? get_argument_3() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[3];
-    public static object? get_argument_4() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[4];
-    public static object? get_argument_5() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[5];
-    public static object? get_argument_6() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[6];
-    public static object? get_argument_7() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[7];
-    public static object? get_argument_8() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[8];
-    public static object? get_argument_9() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[9];
-    public static object? get_argument_10() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[10];
-    public static object? get_argument_11() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[11];
-    public static object? get_argument_12() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[12];
-    public static object? get_argument_13() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[13];
-    public static object? get_argument_14() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[14];
-    public static object? get_argument_15() => VMExecutor.Call.Locals["arguments"].Conv<IList>()[15];
+
+    private static object? GetArgument(int index)
+    {
+        var arguments = VMExecutor.Call.Locals["arguments"].Conv<IList>();
+        if (arguments.Count <= index)
+        {
+            // Reading arguments past the given ones gives undefined.
+            return null;
+        }
+
+        return arguments[index];
+    }
 
     private static void SetArgumentIndex(int index, object? value)
     {
