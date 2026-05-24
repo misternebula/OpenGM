@@ -641,9 +641,33 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // ds_priority_copy
+        [GMLFunction("ds_priority_copy")]
+        public static object? ds_priority_copy(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var source = args[1].Conv<int>();
+
+            var to = _priorityDict[id];
+            var from = _priorityDict[source];
+
+            to.Clear();
+            foreach (var (elem, priority) in from.UnorderedItems)
+            {
+                to.Enqueue(elem, priority);
+            }
+
+            return null;
+        }
+
         // ds_priority_size
-        // ds_priority_empty
+
+        [GMLFunction("ds_priority_empty")]
+        public static object? ds_priority_empty(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            var queue = _priorityDict[id];
+            return queue.Count == 0;
+        }
 
         [GMLFunction("ds_priority_add")]
         public static object? ds_priority_add(object?[] args)
@@ -659,7 +683,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_priority_change_priority
         // ds_priority_find_priority
         // ds_priority_delete_value
-        // ds_priority_delete_min
+
+        [GMLFunction("ds_priority_delete_min")]
+        public static object? ds_priority_delete_min(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            var queue = _priorityDict[id];
+
+            if (queue.Count <= 0)
+            {
+                return 0;
+            }
+
+            queue.TryDequeue(out _, out var priority);
+
+            return priority;
+        }
+
         // ds_priority_find_min
         // ds_priority_delete_max
         // ds_priority_write
