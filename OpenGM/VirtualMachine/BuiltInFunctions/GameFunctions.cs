@@ -23,7 +23,30 @@ public static class GameFunctions
     }
 
     // place_snapped
-    // move_snap
+
+    [GMLFunction("move_snap")]
+    public static object? move_snap(object?[] args)
+    {
+        var hsnap = args[0].Conv<float>();
+        var vsnap = args[1].Conv<float>();
+
+        var newX = VMExecutor.Self.GMSelf.x;
+        var newY = VMExecutor.Self.GMSelf.y;
+
+        if (0 < hsnap)
+        {
+            newX = (float)(Math.Round(newX / hsnap, MidpointRounding.ToEven) * hsnap);
+        }
+
+        if (0 < vsnap)
+        {
+            newY = (float)(Math.Round(newY / vsnap, MidpointRounding.ToEven) * vsnap);
+        }
+
+        VMExecutor.Self.GMSelf.x = newX;
+        VMExecutor.Self.GMSelf.y = newY;
+        return null;
+    }
 
     [GMLFunction("move_towards_point")]
     public static object? move_towards_point(object?[] args)
@@ -162,6 +185,7 @@ public static class GameFunctions
         return Math.Sqrt((xd * xd) + (yd * yd));
     }
 
+    [GMLFunction("action_path", before: "2.0.0.0")]
     [GMLFunction("path_start")]
     public static object? path_start(object?[] args)
     {
@@ -237,7 +261,16 @@ public static class GameFunctions
 
     // mp_grid_get_cell
     // mp_grid_add_rectangle
-    // mp_grid_add_instances
+
+    [GMLFunction("mp_grid_add_instances")]
+    public static object? mp_grid_add_instances(object?[] args)
+    {
+        MotionPlanningManager.GridAddInstances(
+            args[0].Conv<int>(),
+            args[1].Conv<int>(),
+            args[2].Conv<bool>());
+        return null;
+    }
 
     [GMLFunction("mp_grid_path")]
     public static object? mp_grid_path(object?[] args)

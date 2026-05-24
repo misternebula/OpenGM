@@ -1,4 +1,6 @@
-﻿namespace OpenGM
+﻿using OpenGM.VirtualMachine;
+
+namespace OpenGM
 {
     public static class MotionPlanningManager
     {
@@ -37,6 +39,93 @@
 
             var grid = MPGrids[id];
             grid.Poke(h, v, -1);
+        }
+
+        public static void GridAddInstances(int id, int obj, bool prec)
+        {
+            // https://github.com/YoYoGames/GameMaker-HTML5/blob/ab8f0019fd026d9a05dfd9d769aa3898326fb7e8/scripts/functions/Function_MotionPlanning.js#L1011
+
+            if (!MPGrids.ContainsKey(id))
+            {
+                return;
+            }
+
+            var grid = MPGrids[id];
+
+            if (grid == null)
+            {
+                return;
+            }
+
+            var col_delta = 0.0001; //To avoid leaching into the next cell
+            if (CompatFlags.LegacyCollision)
+            {
+                col_delta = 0.0; //or in compat mode to go back to how it was
+            }
+
+            var instances = new List<GamemakerObject>();
+
+            if (obj < GMConstants.FIRST_INSTANCE_ID)
+            {
+                instances = InstanceManager.FindByAssetId(obj);
+            }
+            else
+            {
+                instances = InstanceManager.FindByLegacyValue(obj);
+            }
+
+            foreach (var inst in instances)
+            {
+                if (inst.Marked || !inst.Active)
+                {
+                    continue;
+                }
+
+                if (inst.bbox_dirty)
+                {
+                    inst.bbox = CollisionManager.CalculateBoundingBox(inst);
+                }
+
+                var xx1 = CustomMath.DoubleTilde((inst.bbox_left + col_delta - grid.Left) / grid.CellWidth);
+                if (xx1 < 0)
+                    xx1 = 0;
+
+                var xx2 = CustomMath.DoubleTilde((inst.bbox_right - col_delta - grid.Left) / grid.CellWidth);
+                if (xx2 >= grid.HCells)
+                    xx2 = grid.HCells - 1;
+
+                var yy1 = CustomMath.DoubleTilde((inst.bbox.top + col_delta - grid.Top) / grid.CellHeight);
+                if (yy1 < 0)
+                    yy1 = 0;
+
+                var yy2 = CustomMath.DoubleTilde((inst.bbox.bottom - col_delta - grid.Top) / grid.CellHeight);
+                if (yy2 >= grid.VCells)
+                    yy2 = grid.VCells - 1;
+
+                for (var i = xx1; i <= xx2; i++)
+                {
+                    for (var j = yy1; j <= yy2; j++)
+                    {
+                        if (!prec)
+                        {
+                            grid.Cells[i * grid.VCells + j] = -1;
+                            continue;
+                        }
+
+                        if (grid.Cells[i * grid.VCells + j] < 0)
+                            continue;
+
+                        if (CollisionManager.Collision_Rectangle(inst, 
+                                grid.Left + i * grid.CellWidth,
+                                grid.Top + j * grid.CellHeight, 
+                                grid.Left + (i + 1) * grid.CellWidth - 1,
+                                grid.Top + (j + 1) * grid.CellHeight - 1, true))
+                        {
+                            grid.Cells[i * grid.VCells + j] = -1;
+                        }
+                    }
+                }
+            }
         }
 
         public static bool GridPath(int id, int pathid, int xstart, int ystart, int xgoal, int ygoal, bool allowdiag)

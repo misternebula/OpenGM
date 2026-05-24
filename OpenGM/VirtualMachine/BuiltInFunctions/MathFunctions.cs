@@ -1020,7 +1020,16 @@ public static class MathFunctions
         return str.IndexOf(substr) + 1;
     }
 
-    // string_pos_ext
+    [GMLFunction("string_pos_ext")]
+    public static object string_pos_ext(object?[] args)
+    {
+        var substr = args[0].Conv<string>();
+        var str = args[1].Conv<string>();
+        var start_pos = args[2].Conv<int>();
+
+        return str.IndexOf(substr, start_pos - 1) + 1;
+    }
+
     // string_last_pos
     // string_last_pos_ext
 

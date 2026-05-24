@@ -271,6 +271,56 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // font_add
         // font_add_sprite
 
+        [GMLFunction("font_add_sprite")]
+        public static object? font_add_sprite(object?[] args)
+        {
+            var spr = args[0].Conv<int>();
+            var first = args[1].Conv<int>();
+            var prop = args[2].Conv<bool>();
+            var sep = args[3].Conv<int>();
+
+            var spriteAsset = SpriteManager.GetSpriteAsset(spr)!;
+
+            var index = AssetIndexManager.Register(AssetType.fonts, $"fnt_{spriteAsset.Name}");
+
+            var newFont = new FontAsset
+            {
+                AssetIndex = index,
+                name = $"fnt_{spriteAsset.Name}",
+                spriteIndex = spr,
+                sep = sep,
+                Size = spriteAsset.Width,
+                ScaleX = 1,
+                ScaleY = 1
+            };
+
+            for (var i = 0; i < spriteAsset.Textures.Count; i++)
+            {
+                var page = SpriteManager.GetSpritePageItem(spr, i);
+
+                var fontAssetEntry = new Glyph
+                {
+                    characterIndex = first + i,
+                    frameIndex = i,
+                    x = page.SourceX,
+                    y = page.SourceY,
+                    w = page.SourceWidth,
+                    h = page.SourceHeight,
+                    shift = page.SourceWidth,
+                    // this looks wrong for some reason so commenting it out for now
+                    // xOffset = page.TargetX,
+                    yOffset = page.TargetY
+                };
+
+                newFont.entries.Add(fontAssetEntry);
+                newFont.entriesDict[fontAssetEntry.characterIndex] = fontAssetEntry;
+            }
+
+            TextManager.FontAssets.Add(newFont);
+
+            return newFont.AssetIndex;
+        }
+
         [GMLFunction("font_add_sprite_ext")]
         public static object font_add_sprite_ext(object?[] args)
         {
@@ -324,7 +374,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // font_replace_sprite
         // font_replace_sprite_ext
         // font_delete
-        // script_exists
+
+        [GMLFunction("script_exists")]
+        public static object? script_exists(object?[] args)
+        {
+            var scr = args[0].Conv<int>();
+
+            if (CompatFlags.ScriptAssetIds)
+            {
+                return ScriptResolver.ScriptsByIndex.ContainsKey(scr);
+            }
+
+            if (scr < GMConstants.FIRST_INSTANCE_ID)
+            {
+                return ScriptResolver.BuiltInFunctions.Values.Count > scr;
+            }
+
+            return ScriptResolver.ScriptsByIndex.ContainsKey(scr - GMConstants.FIRST_INSTANCE_ID);
+        }
+
         // script_get_name
 
         [GMLFunction("script_execute")]
