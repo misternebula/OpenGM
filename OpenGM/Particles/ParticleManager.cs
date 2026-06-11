@@ -76,6 +76,18 @@ namespace OpenGM.Particles
         public static void HandleLife(ParticleSystem sys)
         {
             DebugLog.LogWarning("Method HandleLife not implemented.");
+
+            foreach (var item in sys.Particles)
+            {
+                item.Age++;
+
+                if (item.Age >= item.Lifetime)
+                {
+                    item.Alive = false;
+
+
+                }
+            }
         }
 
         public static void HandleMotion(ParticleSystem sys)
@@ -193,6 +205,19 @@ namespace OpenGM.Particles
             p.Ran = (int)GMRandom.YYRandom(10000);
 
             return p;
+        }
+
+        public static void ParticleSystem_Particles_Create(
+            ParticleSystem system, 
+            float x, 
+            float y, 
+            int parttype,
+            int numb)
+        {
+            for (var i = 0; i < numb; i++)
+            {
+                system.Particles.Add(CreateParticle(x, y, parttype));
+            }
         }
 
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/74b6f0783881bb08be6aab3a73aedb81ed338ca5/scripts/yyParticle.js#L626
