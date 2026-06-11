@@ -502,7 +502,7 @@ public static class GameConverter
                             }
                             else
                             {
-                                instruction.IntData = data!.Scripts.IndexOf(data.Scripts.First(x => x.Name.Content == parameterString));
+                                instruction.IntData = GMConstants.FIRST_INSTANCE_ID +  data!.Scripts.IndexOf(data.Scripts.First(x => x.Name.Content == parameterString));
                             }
                         }
                         else
