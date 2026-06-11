@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OpenGM.IO;
 using OpenGM.Rendering;
+using OpenGM.Sequences;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
@@ -55,6 +56,7 @@ public static class GameLoader
             LoadPaths(reader);
             LoadShaders(reader);
             LoadAnimCurves(reader);
+            LoadSequences(reader);
         }
         catch
         {
@@ -545,6 +547,28 @@ public static class GameLoader
 
             curve.channels = channelArray;
             AnimCurves.Add(asset.AssetIndex, curve);
+        }
+
+        Console.WriteLine($" Done!");
+    }
+
+    public static Dictionary<int, RuntimeSequence> Sequences = new();
+
+    private static void LoadSequences(BinaryReader reader)
+    {
+        Console.Write($"Loading sequences...");
+        Sequences.Clear();
+
+        var length = reader.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var asset = reader.ReadMemoryPack<OpenGM.SerializedFiles.Sequence>();
+
+            var runtime = new RuntimeSequence(asset);
+
+            DebugLog.Log($"Added {runtime.name}");
+
+            Sequences.Add(asset.AssetIndex, runtime);
         }
 
         Console.WriteLine($" Done!");

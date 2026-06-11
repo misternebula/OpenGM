@@ -1,6 +1,7 @@
 ﻿using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.Rendering;
+using OpenGM.Sequences;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenTK.Mathematics;
@@ -434,6 +435,24 @@ public static class RoomManager
                     var newSprite = new GMSprite(sprite, layer.LayerDepth);
 
                     layerContainer.ElementsToDraw.Add(newSprite);
+                }
+                else if (element.Type == ElementType.Sequence)
+                {
+                    var sequence = (element as CLayerSequenceElement)!;
+
+                    var newSequence = new GMSequence(sequence);
+                    newSequence.ImageSpeed = sequence.ImageSpeed;
+                    newSequence.SpeedType = sequence.SpeedType;
+                    newSequence.ImageScaleX = sequence.ImageScaleX;
+                    newSequence.ImageScaleY = sequence.ImageScaleY;
+                    newSequence.ImageAngle = sequence.ImageAngle;
+                    newSequence.ImageBlend = sequence.ImageBlend;
+                    newSequence.ImageAlpha = sequence.ImageAlpha;
+                    newSequence.X = sequence.X;
+                    newSequence.Y = sequence.Y;
+                    //newSequence.HeadPosition = sequence.HeadPosition;
+
+                    layerContainer.ElementsToDraw.Add(newSequence);
                 }
                 else
                 {

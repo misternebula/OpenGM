@@ -6,7 +6,9 @@ using System.Text;
 using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
+using static UndertaleModLib.Models.UndertaleSequence;
 using EventType = OpenGM.VirtualMachine.EventType;
+using Track = OpenGM.SerializedFiles.Track;
 
 namespace OpenGM.Loading;
 
@@ -43,6 +45,7 @@ public static class GameConverter
             ExportPaths(writer, data);
             ExportShaders(writer, data);
             ExportAnimCurves(writer, data);
+            ExportSequences(writer, data);
         }
         catch
         {
@@ -1094,7 +1097,25 @@ public static class GameConverter
                     {
                         foreach (var item in assetsData.Sequences)
                         {
-                            DebugLog.LogError($"Don't know how to handle Sequence {item.Name.Content}!!!!");
+                            var val = new CLayerSequenceElement();
+                            val.Type = ElementType.Sequence;
+                            val.Id = CurrentElementID++;
+                            val.Name = item.Name.Content;
+
+                            val.SeqID = data.Sequences.IndexOf(item.Sequence);
+                            //val.InstID
+                            val.ImageSpeed = item.AnimationSpeed;
+                            val.SpeedType = (int)item.AnimationSpeedType;
+                            val.ImageScaleX = item.ScaleX;
+                            val.ImageScaleY = item.ScaleY;
+                            val.ImageAngle = item.Rotation;
+                            val.ImageBlend = item.Color;
+                            //val.ImageAlpha
+                            val.X = item.X;
+                            val.Y = item.Y;
+                            val.HeadPosition = item.FrameIndex;
+
+                            layerasset.Elements.Add(val);
                         }
                     }
 
@@ -1587,5 +1608,328 @@ public static class GameConverter
 
             writer.WriteMemoryPack(asset);
         }
+    }
+
+    public static void ExportSequences(BinaryWriter writer, UndertaleData data)
+    {
+        if (data.Sequences is null)
+        {
+            writer.Write(0);
+            return;
+        }
+
+        Console.Write($"Exporting sequences...");
+
+        writer.Write(data.Sequences.Count);
+        foreach (var sequence in data.Sequences)
+        {
+            var sequenceAsset = new OpenGM.SerializedFiles.Sequence();
+            sequenceAsset.AssetIndex = data.Sequences.IndexOf(sequence);
+            sequenceAsset.Name = sequence.Name.Content;
+            sequenceAsset.Loopmode = sequence.Playback;
+            sequenceAsset.PlaybackSpeed = sequence.PlaybackSpeed;
+            sequenceAsset.PlaybackSpeedType = sequence.PlaybackSpeedType;
+            sequenceAsset.Length = sequence.Length;
+            sequenceAsset.XOrigin = sequence.OriginX;
+            sequenceAsset.YOrigin = sequence.OriginY;
+            sequenceAsset.Volume = sequence.Volume;
+            sequenceAsset.Width = sequence.Width;
+            sequenceAsset.Height = sequence.Height;
+
+            foreach (var item in sequence.BroadcastMessages)
+            {
+                var keyframe = new Keyframe();
+                keyframe.Key = item.Key;
+                keyframe.Length = item.Length;
+                keyframe.Stretch = item.Stretch;
+                keyframe.Disabled = item.Disabled;
+                keyframe.Channels = new List<KeyframeData>();
+                foreach (var channel in item.Channels)
+                {
+                    var newChannel = new KeyframeData();
+                    newChannel.Channel = channel.Channel;
+                    newChannel.Events = channel.Value.Messages.Select(x => x.Content).ToList();
+                    keyframe.Channels.Add(newChannel);
+                }
+                sequenceAsset.BroadcastMessages.Add(keyframe);
+            }
+
+            foreach (var item in sequence.Moments)
+            {
+                var keyframe = new Keyframe();
+                keyframe.Key = item.Key;
+                keyframe.Length = item.Length;
+                keyframe.Stretch = item.Stretch;
+                keyframe.Disabled = item.Disabled;
+                keyframe.Channels = new List<KeyframeData>();
+                foreach (var channel in item.Channels)
+                {
+                    var newChannel = new KeyframeData();
+                    newChannel.Channel = channel.Channel;
+
+                    if (channel.Value.Events.Count > 1)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    var script = data.Scripts.Single(x => x.Name.Content == channel.Value.Events[0].Content);
+                    newChannel.Event = data.Scripts.IndexOf(script);
+                    keyframe.Channels.Add(newChannel);
+                }
+                sequenceAsset.Moments.Add(keyframe);
+            }
+
+            foreach (var item in sequence.Tracks)
+            {
+                var track = GetTrack(item, data);
+                sequenceAsset.Tracks.Add(track);
+            }
+
+            writer.WriteMemoryPack(sequenceAsset);
+        }
+    }
+
+    public static Track GetTrack(UndertaleSequence.Track item, UndertaleData data)
+    {
+        var track = new SerializedFiles.Track();
+        track.ModelName = item.ModelName.Content;
+        track.Name = item.Name.Content;
+        track.BuiltinName = item.BuiltinName;
+        track.Traits = item.Traits;
+        track.IsCreationTrack = item.IsCreationTrack;
+        track.Tags = item.Tags;
+
+        track.Tracks = new List<Track>();
+        foreach (var subtrack in item.Tracks)
+        {
+            track.Tracks.Add(GetTrack(subtrack, data));
+        }
+
+        track.Keyframes = new List<Keyframe>();
+        switch (track.ModelName)
+        {
+            case "GMAudioTrack":
+                {
+                    var keyframes = (item.Keyframes as AudioKeyframes)!;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.PlaybackMode = (int)channel.Value.Mode;
+                            newChannel.SoundIndex = data.Sounds.IndexOf(channel.Value.Resource.Resource);
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMInstanceTrack":
+                {
+                    var keyframes = (item.Keyframes as InstanceKeyframes)!;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.ObjectIndex = data.GameObjects.IndexOf(channel.Value.Resource.Resource);
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMGraphicTrack":
+                {
+                    var keyframes = (item.Keyframes as GraphicKeyframes)!;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.SpriteIndex = data.Sprites.IndexOf(channel.Value.Resource.Resource);
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMTextTrack":
+                {
+                    var keyframes = (item.Keyframes as TextKeyframes)!;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.Text = channel.Value.Text.Content;
+                            newChannel.Wrap = channel.Value.Wrap;
+                            newChannel.AlignmentH = channel.Value.AlignmentH;
+                            newChannel.AlignmentV = channel.Value.AlignmentV;
+                            newChannel.FontIndex = channel.Value.FontIndex;
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMClipMaskTrack":
+                // no keyframes
+                break;
+            case "GMSequenceTrack":
+                {
+                    var keyframes = (item.Keyframes as SequenceKeyframes)!;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.SequenceIndex = data.Sequences.IndexOf(channel.Value.Resource.Resource);
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMGroupTrack":
+                // no keyframes
+                break;
+            case "GMRealTrack":
+                {
+                    var keyframes = (item.Keyframes as RealKeyframes)!;
+                    track.Interpolation = keyframes.Interpolation;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.Value = channel.Value.Value;
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMColourTrack":
+                {
+                    var keyframes = (item.Keyframes as IntKeyframes)!;
+                    track.Interpolation = keyframes.Interpolation;
+
+                    foreach (var utKeyframe in keyframes.List)
+                    {
+                        var newKeyframe = new Keyframe();
+
+                        newKeyframe.Key = utKeyframe.Key;
+                        newKeyframe.Length = utKeyframe.Length;
+                        newKeyframe.Stretch = utKeyframe.Stretch;
+                        newKeyframe.Disabled = utKeyframe.Disabled;
+
+                        newKeyframe.Channels = new();
+                        foreach (var channel in utKeyframe.Channels)
+                        {
+                            var newChannel = new KeyframeData();
+                            newChannel.Channel = channel.Channel;
+                            newChannel.Value = channel.Value.Value;
+
+                            newKeyframe.Channels.Add(newChannel);
+                        }
+
+                        track.Keyframes.Add(newKeyframe);
+                    }
+                    break;
+                }
+            case "GMClipMask_Mask":
+                // no keyframes?
+                if (item.Keyframes != null)
+                {
+                    throw new NotImplementedException();
+                }
+                break;
+            case "GMClipMask_Subject":
+                // no keyframes?
+                if (item.Keyframes != null)
+                {
+                    throw new NotImplementedException();
+                }
+                break;
+            default:
+                throw new NotImplementedException($"{track.ModelName} not implemented.");
+        }
+
+        // ownedresources
+
+        return track;
     }
 }

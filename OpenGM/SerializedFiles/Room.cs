@@ -115,6 +115,7 @@ public enum ElementType
 [MemoryPackUnion(3, typeof(CLayerTileElement))]
 [MemoryPackUnion(4, typeof(CLayerSpriteElement))]
 [MemoryPackUnion(5, typeof(CLayerParticleElement))]
+[MemoryPackUnion(6, typeof(CLayerSequenceElement))]
 public abstract partial class CLayerElementBase
 {
     public ElementType Type;
@@ -199,6 +200,24 @@ public partial class CLayerSpriteElement : CLayerElementBase
 public partial class CLayerParticleElement : CLayerElementBase
 {
     public int SystemID;
+}
+
+[MemoryPackable]
+public partial class CLayerSequenceElement : CLayerElementBase
+{
+    public int SeqID;
+    public int InstID;
+    public float ImageSpeed;
+    public int SpeedType;
+    public float ImageScaleX;
+    public float ImageScaleY;
+    public float ImageAngle;
+    public uint ImageBlend;
+    public float ImageAlpha;
+    public float X;
+    public float Y;
+    public float HeadPosition;
+    public uint DirtyFlags;
 }
 
 // not serialized
