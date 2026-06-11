@@ -447,6 +447,10 @@ public static class AudioManager
         volume = Math.Max(0, volume); // TODO : check if this is what GM does?
 
         // todo implement lerping with timer
+        if (milliseconds > 0)
+        {
+            DebugLog.LogWarning($"Audio gain lerping not implemented!");
+        }
         AL.Source(source, ALSourcef.Gain, (float)volume);
         CheckALError();
     }
