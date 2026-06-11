@@ -427,13 +427,7 @@ public static class RoomManager
                 else if (element.Type == ElementType.Sprite)
                 {
                     var sprite = (element as CLayerSpriteElement)!;
-
-                    var c = sprite.Color;
-                    var blend = (int)(c & 0x00FFFFFF);
-                    var alpha = ((c & 0xFF000000) >> 6) / 255.0;
-
                     var newSprite = new GMSprite(sprite, layer.LayerDepth);
-
                     layerContainer.ElementsToDraw.Add(newSprite);
                 }
                 else if (element.Type == ElementType.Sequence)
