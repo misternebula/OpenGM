@@ -74,9 +74,22 @@ public static partial class VMExecutor
                 throw new UnreachableException($"we check stacktop id above");
             }
         }
-        else if (id is GMConstants.global or GMConstants.all)
+        else if (id is GMConstants.all)
         {
-            throw new NotImplementedException($"Don't know how to pushenv {id}");
+	        foreach (var inst in InstanceManager.FindByLegacyValue(GMConstants.all))
+	        {
+		        var newCtx = new VMEnvFrame()
+		        {
+			        Self = inst,
+			        ObjectDefinition = inst.Definition
+		        };
+
+		        EnvStack.Push(newCtx);
+            }
+        }
+        else if (id is GMConstants.global)
+        {
+            throw new NotImplementedException($"Don't know how to pushenv global");
         }
         else if (id < 0)
         {
