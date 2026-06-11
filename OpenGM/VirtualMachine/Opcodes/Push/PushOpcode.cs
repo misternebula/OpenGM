@@ -45,6 +45,11 @@ public static partial class VMExecutor
             var value = Self.Self.SelfVariables[varName];
             Call.Stack.Push(value, VMType.v);
         }
+        else if (Call.Function!.StaticVariables.ContainsKey(varName))
+        {
+            var value = Call.Function!.StaticVariables[varName];
+            Call.Stack.Push(value, VMType.v);
+        }
         else
         {
             throw new NotImplementedException();
@@ -61,6 +66,16 @@ public static partial class VMExecutor
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
         {
             var array = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf).Conv<IList>();
+            Call.Stack.Push(array[index], VMType.v);
+        }
+        else if (Self.Self.SelfVariables.ContainsKey(varName))
+        {
+            var array = Self.Self.SelfVariables[varName].Conv<IList>();
+            Call.Stack.Push(array[index], VMType.v);
+        }
+        else if (Call.Function!.StaticVariables.ContainsKey(varName))
+        {
+            var array = Call.Function!.StaticVariables[varName].Conv<IList>();
             Call.Stack.Push(array[index], VMType.v);
         }
         else
