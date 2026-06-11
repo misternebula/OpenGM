@@ -14,7 +14,7 @@ internal class Program
 
 	static void Main(string[] args)
     {
-        GamePath = Path.GetFullPath(Environment.CurrentDirectory + "../../../OpenGM/bin/game");
+        GamePath = Path.GetFullPath(Environment.CurrentDirectory + "../../../OpenGM/bin/x64/Debug/game");
 
         var game = args[0];
         switch (game)
