@@ -1,4 +1,5 @@
-﻿using OpenGM.SerializedFiles;
+﻿using OpenGM.IO;
+using OpenGM.SerializedFiles;
 
 namespace OpenGM.VirtualMachine;
 
@@ -42,12 +43,27 @@ public static partial class VMExecutor
         var valTwo = Call.Stack.Pop(instruction.TypeOne);
         var valOne = Call.Stack.Pop(instruction.TypeTwo);
 
+        if (instruction.TypeTwo == VMType.s && instruction.TypeOne != VMType.s)
+        {
+	        if (instruction.TypeOne == VMType.v)
+	        {
+		        if (valTwo is not string)
+		        {
+			        DebugLog.LogWarning($"Trying to add s ({valOne}) to non-string v ({valTwo})");
+                }
+            }
+	        else
+	        {
+		        DebugLog.LogWarning($"Trying to add s ({valOne}) to {instruction.TypeOne} ({valTwo})");
+            }
+        }
+
         var retType = GetMathReturnType(instruction);
 
-        var hasString = instruction.TypeOne == VMType.s || instruction.TypeTwo == VMType.s;
-        var variableIsString = valOne is string || valTwo is string;
+        var bothString = instruction.TypeOne == VMType.s && instruction.TypeTwo == VMType.s;
+        bothString |= (valOne is string && valTwo is string);
 
-        if (hasString || variableIsString)
+        if (bothString)
         {
             // strings need to concat
             Call.Stack.Push(valOne.Conv<string>() + valTwo.Conv<string>(), retType);
