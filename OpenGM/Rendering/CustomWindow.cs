@@ -142,7 +142,7 @@ public class CustomWindow : GameWindow
         }
 
         var lines = textJob.text.SplitLines();
-        var lineYOffset = 0;
+        var lineYOffset = 0f;
 
         var textWidth = (int)(TextManager.StringWidth(textJob.text) * textJob.scale.X);
         var textHeight = (int)(TextManager.StringHeight(textJob.text) * textJob.scale.Y);
@@ -179,7 +179,7 @@ public class CustomWindow : GameWindow
                 xOffset = -width;
             }
 
-            var yOffset = 0;
+            var yOffset = 0f;
             if (textJob.valign == VAlign.fa_middle)
             {
                 yOffset = -(textHeight / 2);
@@ -546,7 +546,7 @@ public class GMTextJob : GMBaseJob
     public required VAlign valign;
     public required double angle;
     public required FontAsset asset;
-    public required int lineSep;
+    public required float lineSep;
     public required Color4[] Colors;
 }
 
