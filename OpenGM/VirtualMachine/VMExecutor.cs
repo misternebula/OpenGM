@@ -1001,6 +1001,10 @@ public static partial class VMExecutor
         {
             if (type == typeof(bool)) return true; // methods are always evaluated to true i think?
         }
+        else if (@this is GMLObject)
+        {
+            if (type == typeof(GMLObject)) return @this;
+        }
             
         throw new ArgumentException($"Don't know how to convert {@this} ({@this.GetType()}) to {type}");
     }
