@@ -225,6 +225,11 @@ public static class VariableResolver
         // os_browser
         { "browser_width", (get_browser_width, null) },
         { "browser_height", (get_browser_height, null) },
+
+        /* TODO: this is a hack fix! delta_time is a self variable,
+         * but can be called by constructors which don't have an associated GamemakerObject!
+         */
+        { "delta_time", (() => TimingManager.DeltaTime, null)} 
     };
 
     // InitLocalVariables
