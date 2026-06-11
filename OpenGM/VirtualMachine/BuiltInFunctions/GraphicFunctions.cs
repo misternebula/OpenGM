@@ -2124,7 +2124,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (w < 1 || h < 1 || w > 8192 || h > 8192)
             {
-                throw new NotImplementedException("Invalid surface dimensions");
+                throw new NotImplementedException($"Invalid surface dimensions - w:{w} h:{h}");
             }
 
             if (surface_id == SurfaceManager.application_surface)

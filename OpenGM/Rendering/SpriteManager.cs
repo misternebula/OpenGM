@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using System.Diagnostics;
+using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -131,7 +132,15 @@ public static class SpriteManager
             return;
         }
 
-        var image_index = GetIndexFromImageIndex(obj.image_index + obj.frame_overflow, GetNumberOfFrames(obj.sprite_index));
+        var frameCount = GetNumberOfFrames(obj.sprite_index);
+
+        if (frameCount == 0)
+        {
+            DebugLog.LogWarning($"Tried to DrawSelf on {obj.instanceId} ({obj.Definition.Name}) with sprite {GetSpriteAsset(obj.sprite_index)!.Name} that has 0 subimages!");
+	        return;
+        }
+
+        var image_index = GetIndexFromImageIndex(obj.image_index + obj.frame_overflow, frameCount);
         obj.frame_overflow = 0;
 
         DrawSpriteExt(obj.sprite_index, image_index, obj.x, obj.y, obj.image_xscale, obj.image_yscale, obj.image_angle, obj.image_blend, obj.image_alpha);
@@ -139,6 +148,12 @@ public static class SpriteManager
 
     private static int GetIndexFromImageIndex(double index, int imageNumber)
     {
+	    if (imageNumber == 0)
+	    {
+            DebugLog.LogError("Tried to call GetIndexFromImageIndex with imageNumber of 0!");
+            return 0;
+	    }
+
         var ind = CustomMath.FloorToInt(index) % imageNumber;
         if (ind < 0)
         {

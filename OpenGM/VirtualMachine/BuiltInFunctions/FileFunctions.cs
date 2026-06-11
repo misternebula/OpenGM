@@ -151,7 +151,15 @@ public static class FileFunctions
             result += (char)reader.Read();
         }
 
-        return double.Parse(result);
+        if (double.TryParse(result, out var ret))
+        {
+            return ret;
+        }
+        else
+        {
+            DebugLog.LogError($"Couldn't read \"{result}\" as a real!");
+            return 0;
+        }
     }
 
     [GMLFunction("file_text_readln")]
