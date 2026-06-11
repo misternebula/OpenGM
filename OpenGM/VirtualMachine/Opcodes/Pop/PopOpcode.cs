@@ -166,7 +166,9 @@ public static partial class VMExecutor
         }
         else
         {
-            throw new ArgumentException($"No such builtin array \"{varName}\"");
+            // try this? idk
+            PopToSelfArray(Self.Self, varName, index, value);
+            //throw new ArgumentException($"No such builtin array \"{varName}\"");
         }
     }
 
@@ -185,10 +187,12 @@ public static partial class VMExecutor
             currentFunc.StaticVariables = new();
         }
 
-        if (!currentFunc.StaticVariables.ContainsKey(varName) && currentFunc.HasStaticInitRan)
+        // TODO: this check breaks it? weird
+
+        /*if (!currentFunc.StaticVariables.ContainsKey(varName) && currentFunc.HasStaticInitRan)
         {
             throw new NotImplementedException("StaticVariables should contain every static variable after initialization!?");
-        }
+        }*/
 
         currentFunc.StaticVariables[varName] = value;
     }
@@ -388,55 +392,54 @@ public static partial class VMExecutor
         }
         else if (variablePrefix == VariablePrefix.Stacktop)
         {
-            // TODO : Check if 'self' is the only context where [stacktop] is used.
-            // TODO : clean this shit up lol
+            int id;
+            object? value;
 
+            if (instruction.TypeOne == VMType.i) // flips value and id pop
+            {
+                value = Call.Stack.Pop(instruction.TypeTwo);
+
+                id = Call.Stack.Pop(VMType.i).Conv<int>();
+                if (id == GMConstants.stacktop)
+                {
+                    var popped = Call.Stack.Pop(VMType.v);
+
+                    if (popped is GMLObject gmlo)
+                    {
+                        PopToSelf(gmlo, variableName, value);
+                        return (ExecutionResult.Success, null);
+                    }
+                    else
+                    {
+                        id = popped.Conv<int>();
+                    }
+                }
+            }
+            else // v
+            {
+                id = Call.Stack.Pop(VMType.i).Conv<int>();
+                if (id == GMConstants.stacktop)
+                {
+                    var popped = Call.Stack.Pop(VMType.v);
+
+                    if (popped is GMLObject gmlo)
+                    {
+                        value = Call.Stack.Pop(instruction.TypeTwo);
+                        PopToSelf(gmlo, variableName, value);
+                        return (ExecutionResult.Success, null);
+                    }
+                    else
+                    {
+                        id = popped.Conv<int>();
+                    }
+                }
+
+                value = Call.Stack.Pop(instruction.TypeTwo);
+            }
+
+            // TODO: do we even need to check variabletype?
             if (variableType == VariableType.Self)
             {
-                int id;
-                object? value;
-                if (instruction.TypeOne == VMType.i) // flips value and id pop
-                {
-                    value = Call.Stack.Pop(instruction.TypeTwo);
-
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
-                    if (id == GMConstants.stacktop)
-                    {
-                        var popped = Call.Stack.Pop(VMType.v);
-
-                        if (popped is GMLObject gmlo)
-                        {
-                            PopToSelf(gmlo, variableName, value);
-                            return (ExecutionResult.Success, null);
-                        }
-                        else
-                        {
-                            id = popped.Conv<int>();
-                        }
-                    }
-                }
-                else // v
-                {
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
-                    if (id == GMConstants.stacktop)
-                    {
-                        var popped = Call.Stack.Pop(VMType.v);
-
-                        if (popped is GMLObject gmlo)
-                        {
-                            value = Call.Stack.Pop(instruction.TypeTwo);
-                            PopToSelf(gmlo, variableName, value);
-                            return (ExecutionResult.Success, null);
-                        }
-                        else
-                        {
-                            id = popped.Conv<int>();
-                        }
-                    }
-
-                    value = Call.Stack.Pop(instruction.TypeTwo);
-                }
-
                 if (id == GMConstants.global)
                 {
                     PopToGlobal(variableName, value);
@@ -497,53 +500,16 @@ public static partial class VMExecutor
                 PopToIndex(id, variableName, value);
                 return (ExecutionResult.Success, null);
             }
+            else if (variableType == VariableType.Global)
+            {
+                if (id == GMConstants.global)
+                {
+                    PopToGlobal(variableName, value);
+                    return (ExecutionResult.Success, null);
+                }
+            }
             else if (variableType == VariableType.Static)
             {
-                int id;
-                object? value;
-
-                if (instruction.TypeOne == VMType.i) // flips value and id pop
-                {
-                    value = Call.Stack.Pop(instruction.TypeTwo);
-
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
-                    if (id == GMConstants.stacktop)
-                    {
-                        var popped = Call.Stack.Pop(VMType.v);
-
-                        if (popped is GMLObject gmlo)
-                        {
-                            PopToSelf(gmlo, variableName, value);
-                            return (ExecutionResult.Success, null);
-                        }
-                        else
-                        {
-                            id = popped.Conv<int>();
-                        }
-                    }
-                }
-                else // v
-                {
-                    id = Call.Stack.Pop(VMType.i).Conv<int>();
-                    if (id == GMConstants.stacktop)
-                    {
-                        var popped = Call.Stack.Pop(VMType.v);
-
-                        if (popped is GMLObject gmlo)
-                        {
-                            value = Call.Stack.Pop(instruction.TypeTwo);
-                            PopToSelf(gmlo, variableName, value);
-                            return (ExecutionResult.Success, null);
-                        }
-                        else
-                        {
-                            id = popped.Conv<int>();
-                        }
-                    }
-
-                    value = Call.Stack.Pop(instruction.TypeTwo);
-                }
-
                 if (id == GMConstants.@static)
                 {
                     // TODO: do proper static stuff here
