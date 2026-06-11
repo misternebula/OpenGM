@@ -630,7 +630,7 @@ public static class FileFunctions
 
     // json_stringify
 
-    [GMLFunction("json_parse", GMLFunctionFlags.Stub)]
+    [GMLFunction("json_parse")]
     public static object? json_parse(object?[] args)
     {
         static object Parse(JToken jToken)
