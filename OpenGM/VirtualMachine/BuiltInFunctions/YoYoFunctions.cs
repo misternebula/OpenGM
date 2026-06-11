@@ -149,8 +149,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // application_surface_is_enabled
-        // extension_stubfunc_real
-        // extension_stubfun_string
+
+        [GMLFunction("extension_stubfunc_real")]
+        public static object? extension_stubfunc_real(object?[] args) => 0;
+
+        [GMLFunction("extension_stubfunc_string")]
+        public static object? extension_stubfunc_string(object?[] args) => "";
 
         // ...
 

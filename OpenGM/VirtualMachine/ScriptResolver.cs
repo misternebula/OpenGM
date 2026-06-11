@@ -3,6 +3,7 @@ using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Mathematics;
+using System.Collections;
 using System.Reflection;
 
 namespace OpenGM.VirtualMachine;
@@ -187,6 +188,184 @@ public static class ScriptResolver
     public static object? steam_is_screenshot_requested(object?[] args)
     {
         // TODO : implement
+        return false;
+    }
+
+    [GMLFunction("@@SetStatic@@")]
+    public static object? SetStatic(object?[] args)
+    {
+        var currentFunc = VMExecutor.Call.Function;
+
+        if (currentFunc == null)
+        {
+            // uhhhhh fuckin uhhh
+            throw new NotImplementedException();
+        }
+
+        // TODO: wtf does this do
+
+        //currentFunc.HasStaticInitRan = true;
+        return null;
+    }
+
+    [GMLFunction("is_debug_overlay_open")]
+    public static object? is_debug_overlay_open(object?[] args)
+    {
+        // TODO: implement? not stubbing out because it would spam the console
+        return false;
+    }
+
+    [GMLFunction("is_mouse_over_debug_overlay")]
+    public static object? is_mouse_over_debug_overlay(object?[] args)
+    {
+        // TODO: implement? not stubbing out because it would spam the console
+        return false;
+    }
+
+    [GMLFunction("dbg_view", GMLFunctionFlags.Stub)]
+    public static object? dbg_view(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_section", GMLFunctionFlags.Stub)]
+    public static object? dbg_section(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_slider", GMLFunctionFlags.Stub)]
+    public static object? dbg_slider(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_button", GMLFunctionFlags.Stub)]
+    public static object? dbg_button(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_text", GMLFunctionFlags.Stub)]
+    public static object? dbg_text(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_text_input", GMLFunctionFlags.Stub)]
+    public static object? dbg_text_input(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_watch", GMLFunctionFlags.Stub)]
+    public static object? dbg_watch(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_checkbox", GMLFunctionFlags.Stub)]
+    public static object? dbg_checkbox(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("dbg_color", GMLFunctionFlags.Stub)]
+    public static object? dbg_color(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("show_debug_overlay", GMLFunctionFlags.Stub)]
+    public static object? show_debug_overlay(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("ref_create", GMLFunctionFlags.Stub)]
+    public static object? ref_create(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("array_contains")]
+    public static object? array_contains(object?[] args)
+    {
+        // TODO : test this
+        var array = args[0].Conv<IList>();
+        var value = args[1];
+
+        var offset = 0;
+        var length = array.Count;
+
+        if (args.Length >= 3)
+        {
+            offset = args[2].Conv<int>();
+        }
+
+        if (args.Length >= 4)
+        {
+            length = args[3].Conv<int>();
+        }
+
+        var startingIndex = 0;
+        if (offset < 0)
+        {
+            startingIndex = array.Count + offset;
+        }
+        else
+        {
+            startingIndex = offset;
+        }
+
+        startingIndex = Math.Clamp(startingIndex, 0, array.Count - 1);
+
+        if (length > 0)
+        {
+            // normal iteration
+
+            for (var i = 0; i < length; i++)
+            {
+                var checkIndex = startingIndex + i;
+
+                if (i >= array.Count)
+                {
+                    continue;
+                }
+
+                if (Equals(array[checkIndex], value))
+                {
+                    return true;
+                }
+            }
+        }
+        else if (length == 0)
+        {
+            return false;
+        }
+        else
+        {
+            // backwards iteration
+
+            for (var i = -length; i >= 0; i--)
+            {
+                var checkIndex = startingIndex + i;
+
+                if (i >= array.Count)
+                {
+                    continue;
+                }
+
+                DebugLog.Log($"- index {checkIndex} - {array[checkIndex]} vs {value}");
+
+                if (Equals(array[checkIndex], value))
+                {
+                    DebugLog.Log($"- MATCH");
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
