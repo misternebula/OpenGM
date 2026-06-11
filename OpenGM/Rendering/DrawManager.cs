@@ -661,7 +661,7 @@ public static class DrawManager
          * DrawApplicationSurface
          */
         GraphicsManager.PushMessage("DrawApplicationSurface");
-        if (SurfaceManager.UsingAppSurface)
+        if (SurfaceManager.AppSurfaceAutodraw && SurfaceManager.UsingAppSurface)
         {
             // gamemaker actually uses alpha test enable here, and saves/restores the state. just change it to that when this breaks
             GL.Disable(EnableCap.Blend);

@@ -125,7 +125,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ...
 
         // gml_release_mode
-        // application_surface_draw_enable
+
+        [GMLFunction("application_surface_draw_enable", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Warning)]
+        public static object? application_surface_draw_enable(object?[] args)
+        {
+            //SurfaceManager.AppSurfaceAutodraw = args[0].Conv<bool>();
+
+            return null;
+        }
 
         [GMLFunction("application_get_position")]
         public static object? application_get_position(object?[] args)

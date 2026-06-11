@@ -122,6 +122,8 @@ public static class SurfaceManager
     public static int NewApplicationWidth = -1;
     public static int NewApplicationHeight = -1;
 
+    public static bool AppSurfaceAutodraw = true;
+
     /*
      * below is unused for now
      */
