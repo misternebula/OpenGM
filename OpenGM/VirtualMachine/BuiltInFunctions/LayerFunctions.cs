@@ -80,6 +80,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return newLayerId;
         }
 
+        [GMLFunction("layer_destroy", GMLFunctionFlags.Stub)]
+        public static object? layer_destroy(object?[] args)
+        {
+            var layer_id = args[0];
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            // TODO: implement
+
+            return null;
+        }
+
         // layer_destroy
         // layer_destroy_instances
         // layer_add_instance
