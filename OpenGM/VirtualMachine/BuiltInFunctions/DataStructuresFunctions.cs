@@ -11,6 +11,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         private static Dictionary<int, Stack<object?>> _dsStackDict = new();
         private static Dictionary<int, PriorityQueue<object?, double>> _priorityDict = new();
 
+        public static void Clear()
+        {
+            _dsListDict.Clear();
+            _dsMapDict.Clear();
+            _dsQueueDict.Clear();
+            _dsStackDict.Clear();
+            _priorityDict.Clear();
+        }
+
         // ...
 
         [GMLFunction("ds_exists")]

@@ -218,6 +218,8 @@ internal class Entry
         VMExecutor.CallStack.Clear();
         InstanceManager.instances.Clear();
         DrawManager._drawObjects.Clear();
+        DataStructuresFunctions.Clear();
+        VariableResolver.GlobalVariables.Clear();
 
         GameSpeed = GameLoader.GeneralInfo.FPS;
         TimingManager.Initialize();
