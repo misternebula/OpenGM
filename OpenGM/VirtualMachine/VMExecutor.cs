@@ -63,10 +63,24 @@ public static partial class VMExecutor
     public static Stack<VMEnvFrame?> EnvStack = new();
 
     public static Stack<VMCallFrame> CallStack = new();
+
     /// <summary>
     /// the top level call frame
     /// </summary>
-    public static VMCallFrame Call => CallStack.Peek();
+    public static VMCallFrame Call
+    {
+        get
+        {
+            if (CallStack.Count == 0)
+            {
+                // TODO: hack fix - investigate why this actually happens
+                DebugLog.LogError($"Tried to get Call when CallStack is empty!");
+                return new VMCallFrame();
+            }
+
+            return CallStack.Peek();
+        }
+    }
 
     /// <summary>
     /// the top level environment frame, for the current object.
