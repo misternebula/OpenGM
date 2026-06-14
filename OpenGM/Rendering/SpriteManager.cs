@@ -32,6 +32,7 @@ public static class SpriteManager
         }
 
         DebugLog.LogError($"Sprite Dictionary does not contain {name}");
+        DebugLog.PrintCallStack(DebugLog.LogType.Error);
         return null;
     }
 
@@ -136,7 +137,8 @@ public static class SpriteManager
 
         if (frameCount == 0)
         {
-            DebugLog.LogWarning($"Tried to DrawSelf on {obj.instanceId} ({obj.Definition.Name}) with sprite {GetSpriteAsset(obj.sprite_index)!.Name} that has 0 subimages!");
+            DebugLog.LogWarning($"Tried to DrawSelf on {obj.instanceId} ({obj.Definition.Name}) with sprite {GetSpriteAsset(obj.sprite_index)?.Name} that has 0 subimages!");
+            DebugLog.PrintCallStack(DebugLog.LogType.Warning);
 	        return;
         }
 
@@ -188,6 +190,7 @@ public static class SpriteManager
         if (!_spriteDict.TryGetValue(name, out var value))
         {
             DebugLog.LogWarning($"Tried to get number of frames for sprite {name} (count = {_spriteDict.Count})");
+            DebugLog.PrintCallStack(DebugLog.LogType.Warning);
             return 0;
         }
 
