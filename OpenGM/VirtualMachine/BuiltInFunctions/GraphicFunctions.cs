@@ -354,8 +354,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var mouseX = InputHandler.MousePos.X;
             var windowWidth = window_get_width([]).Conv<int>();
-            var viewX = RoomManager.CurrentRoom.Views[0].ViewPosition.X;
-            var viewWidth = RoomManager.CurrentRoom.Views[0].ViewSize.X;
+            var viewX = RoomManager.CurrentRoom.Views[0].ViewX;
+            var viewWidth = RoomManager.CurrentRoom.Views[0].ViewW;
             return CustomMath.FloorToInt(viewX + (mouseX * (viewWidth / windowWidth)));
         }
 
@@ -364,8 +364,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         { 
             var mouseY = InputHandler.MousePos.Y;
             var windowHeight = window_get_height([]).Conv<int>();
-            var viewY = RoomManager.CurrentRoom.Views[0].ViewPosition.Y;
-            var viewHeight = RoomManager.CurrentRoom.Views[0].ViewSize.Y;
+            var viewY = RoomManager.CurrentRoom.Views[0].ViewY;
+            var viewHeight = RoomManager.CurrentRoom.Views[0].ViewH;
             return CustomMath.FloorToInt(viewY + (mouseY * (viewHeight / windowHeight)));
         }
 

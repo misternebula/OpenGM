@@ -25,6 +25,9 @@ public static class DrawManager
     public static EventType EventType;
     public static int EventNumber;
 
+    public static int ViewCurrent;
+    public static RuntimeView? CurrentRenderingView;
+
     public static void Register(DrawWithDepth obj)
     {
         if (_drawObjects.Contains(obj))
@@ -377,10 +380,6 @@ public static class DrawManager
 
     public static void FixedUpdate()
     {
-        VariableResolver.GlobalVariables["debug"] = true;
-        VariableResolver.GlobalVariables["chemg_show_room"] = true;
-        VariableResolver.GlobalVariables["chemg_show_val"] = true;
-
         var itemsToRemove = new List<DrawWithDepth>();
         foreach (var item in _drawObjects)
         {
@@ -467,19 +466,19 @@ public static class DrawManager
         {
             for (var i = 0; i < 8; i++)
             {
-	            ViewportManager.ViewCurrent = i;
-                ViewportManager.CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
+	            ViewCurrent = i;
+                CurrentRenderingView = RoomManager.CurrentRoom.Views[i];
 
-                if (!ViewportManager.CurrentRenderingView.Visible)
+                if (!CurrentRenderingView.Visible)
                 {
                     continue;
                 }
 
                 GraphicsManager.PushMessage($"draw view {i}");
                 
-                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                if (CurrentRenderingView.SurfaceId != -1)
                 {
-                    SurfaceManager.surface_set_target(ViewportManager.CurrentRenderingView.SurfaceId);
+                    SurfaceManager.surface_set_target(CurrentRenderingView.SurfaceId);
 
                     // idk what the deal with scaled port stuff is. happens in both html5 and cpp
 
@@ -499,10 +498,10 @@ public static class DrawManager
                 }
 
                 GraphicsManager.SetViewArea(
-                    ViewportManager.CurrentRenderingView.ViewPosition.X,
-                    ViewportManager.CurrentRenderingView.ViewPosition.Y,
-                    ViewportManager.CurrentRenderingView.ViewSize.X,
-                    ViewportManager.CurrentRenderingView.ViewSize.Y,
+                    CurrentRenderingView.ViewX,
+                    CurrentRenderingView.ViewY,
+                    CurrentRenderingView.ViewW,
+                    CurrentRenderingView.ViewH,
                     0
                 );
 
@@ -578,7 +577,7 @@ public static class DrawManager
                     }
                 }
 
-                if (ViewportManager.CurrentRenderingView.SurfaceId != -1)
+                if (CurrentRenderingView.SurfaceId != -1)
                 {
                     SurfaceManager.surface_reset_target();
                 }
@@ -595,10 +594,12 @@ public static class DrawManager
 
             // dummy view for full room rendering
             // i think this is mostly for tiled rendering, which should switch to using room extents
-            ViewportManager.CurrentRenderingView = new()
+            CurrentRenderingView = new()
             {
-                ViewPosition = Vector2.Zero,
-                ViewSize = new(RoomManager.CurrentRoom.SizeX, RoomManager.CurrentRoom.SizeY),
+                ViewX = 0,
+                ViewY = 0,
+                ViewW = RoomManager.CurrentRoom.SizeX,
+                ViewH = RoomManager.CurrentRoom.SizeY,
                 PortSize = new(SurfaceManager.ApplicationWidth, SurfaceManager.ApplicationHeight)
             };
 
@@ -642,7 +643,7 @@ public static class DrawManager
             return;
         }
 
-        ViewportManager.CurrentRenderingView = null;
+        CurrentRenderingView = null;
 
         /*
          * PostDraw

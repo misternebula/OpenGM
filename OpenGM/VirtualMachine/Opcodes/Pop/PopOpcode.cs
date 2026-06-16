@@ -40,7 +40,7 @@ public static partial class VMExecutor
         // check built in variables beforehand
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
-            VariableResolver.BuiltInVariables[varName].setter!(value);
+            VariableResolver.BuiltInVariables[varName].setter!(value, 0);
             return;
         }
 
@@ -58,11 +58,7 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gs))
         {
-            VariableResolver.ArraySet(
-                index,
-                value,
-                () => gs.getter(),
-                array => gs.setter!(array));
+            gs.setter!(value, index);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gsSelf) && self is GamemakerObject gm)
         {
@@ -142,7 +138,7 @@ public static partial class VMExecutor
         }
         else
         {
-            builtinGetSet.setter!(value);
+            builtinGetSet.setter!(value, 0);
         }
     }
 
@@ -150,11 +146,7 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gettersetter))
         {
-            VariableResolver.ArraySet(
-                index,
-                value,
-                () => gettersetter.getter() ,
-                array => gettersetter.setter!(array));
+            gettersetter.setter!(value, index);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfgettersetter))
         {

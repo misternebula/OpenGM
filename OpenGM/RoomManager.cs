@@ -316,8 +316,6 @@ public static class RoomManager
             CurrentRoom.Views[i] = runtimeView;
         }
 
-        ViewportManager.UpdateViews();
-
         var createdObjects = new List<(GamemakerObject gm, GameObject go)>();
 
         void RunObjEvents(GamemakerObject obj, GameObject go)

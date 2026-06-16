@@ -80,8 +80,6 @@ public class CustomWindow : GameWindow
     {
         TimingManager.BeginFrame(args.Time);
 
-        ViewportManager.UpdateViews();
-
         InputHandler.UpdateMouseState(MouseState);
         InputHandler.UpdateKeyboardState(KeyboardState);
 

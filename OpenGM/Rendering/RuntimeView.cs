@@ -8,30 +8,35 @@ using System.Threading.Tasks;
 namespace OpenGM.Rendering;
 public class RuntimeView
 {
+    public int ViewIndex;
+
     public bool Visible = false;
 
-    public Vector2 ViewPosition
+    public float ViewX
     {
-        get => new(Camera.ViewX, Camera.ViewY);
-        set
-        {
-            // BUG: doesnt update matrices??? is this bad??? i dont know what gamemaker does
-            Camera.ViewX = value.X;
-            Camera.ViewY = value.Y;
-        }
+        get => Camera.ViewX;
+        set => Camera.ViewX = value;
     }
 
-    public Vector2 ViewSize
+    public float ViewY
     {
-        get => new(Camera.ViewWidth, Camera.ViewHeight);
-        set
-        {
-            Camera.ViewWidth = value.X;
-            Camera.ViewHeight = value.Y;
-        }
+        get => Camera.ViewY;
+        set => Camera.ViewY = value;
     }
 
-    public Vector2i PortPosition = Vector2i.Zero;
+    public float ViewW
+    {
+        get => Camera.ViewWidth;
+        set => Camera.ViewWidth = value;
+    }
+
+    public float ViewH
+    {
+        get => Camera.ViewHeight;
+        set => Camera.ViewHeight = value;
+    }
+
+    public Vector2i PortPosition;
     public Vector2i PortSize;
 
     public float Angle

@@ -63,10 +63,10 @@ public class GMBackground : DrawWithDepth
 
         var c = Element.Color.ABGRToCol4(Element.Alpha);
 
-        var camWidth = ViewportManager.CurrentRenderingView!.ViewSize.X;
-        var camHeight = ViewportManager.CurrentRenderingView!.ViewSize.Y;
-        var camX = ViewportManager.CurrentRenderingView!.ViewPosition.X;
-        var camY = ViewportManager.CurrentRenderingView!.ViewPosition.Y;
+        var camWidth = DrawManager.CurrentRenderingView!.ViewW;
+        var camHeight = DrawManager.CurrentRenderingView!.ViewH;
+        var camX = DrawManager.CurrentRenderingView!.ViewX;
+        var camY = DrawManager.CurrentRenderingView!.ViewY;
 
         var offsetX = 0;
         var offsetY = 0;

@@ -95,26 +95,26 @@ public static class VariableResolver
 
     public static Dictionary<string, object?> CustomBuiltInVariableValues = new();
     // InitGlobalVariables
-    public static Dictionary<string, (Func<object?> getter, Action<object?>? setter)> BuiltInVariables = new()
+    public static Dictionary<string, (Func<int, object?> getter, Action<object?, int>? setter)> BuiltInVariables = new()
     {
         // argument_relative
         { "argument", (get_argument, null) },
-        { "argument0", (() => GetArgument(0), (val) => VMExecutor.PopToArgument(0, val)) },
-        { "argument1", (() => GetArgument(1), (val) => VMExecutor.PopToArgument(1, val)) },
-        { "argument2", (() => GetArgument(2), (val) => VMExecutor.PopToArgument(2, val)) },
-        { "argument3", (() => GetArgument(3), (val) => VMExecutor.PopToArgument(3, val)) },
-        { "argument4", (() => GetArgument(4), (val) => VMExecutor.PopToArgument(4, val)) },
-        { "argument5", (() => GetArgument(5), (val) => VMExecutor.PopToArgument(5, val)) },
-        { "argument6", (() => GetArgument(6), (val) => VMExecutor.PopToArgument(6, val)) },
-        { "argument7", (() => GetArgument(7), (val) => VMExecutor.PopToArgument(7, val)) },
-        { "argument8", (() => GetArgument(8), (val) => VMExecutor.PopToArgument(8, val)) },
-        { "argument9", (() => GetArgument(9), (val) => VMExecutor.PopToArgument(9, val)) },
-        { "argument10", (() => GetArgument(10), (val) => VMExecutor.PopToArgument(10, val)) },
-        { "argument11", (() => GetArgument(11), (val) => VMExecutor.PopToArgument(11, val)) },
-        { "argument12", (() => GetArgument(12), (val) => VMExecutor.PopToArgument(12, val)) },
-        { "argument13", (() => GetArgument(13), (val) => VMExecutor.PopToArgument(13, val)) },
-        { "argument14", (() => GetArgument(14), (val) => VMExecutor.PopToArgument(14, val)) },
-        { "argument15", (() => GetArgument(15), (val) => VMExecutor.PopToArgument(15, val)) },
+        { "argument0", ((_) => get_argument(0), (val, _) => VMExecutor.PopToArgument(0, val)) },
+        { "argument1", ((_) => get_argument(1), (val, _) => VMExecutor.PopToArgument(1, val)) },
+        { "argument2", ((_) => get_argument(2), (val, _) => VMExecutor.PopToArgument(2, val)) },
+        { "argument3", ((_) => get_argument(3), (val, _) => VMExecutor.PopToArgument(3, val)) },
+        { "argument4", ((_) => get_argument(4), (val, _) => VMExecutor.PopToArgument(4, val)) },
+        { "argument5", ((_) => get_argument(5), (val, _) => VMExecutor.PopToArgument(5, val)) },
+        { "argument6", ((_) => get_argument(6), (val, _) => VMExecutor.PopToArgument(6, val)) },
+        { "argument7", ((_) => get_argument(7), (val, _) => VMExecutor.PopToArgument(7, val)) },
+        { "argument8", ((_) => get_argument(8), (val, _) => VMExecutor.PopToArgument(8, val)) },
+        { "argument9", ((_) => get_argument(9), (val, _) => VMExecutor.PopToArgument(9, val)) },
+        { "argument10", ((_) => get_argument(10), (val, _) => VMExecutor.PopToArgument(10, val)) },
+        { "argument11", ((_) => get_argument(11), (val, _) => VMExecutor.PopToArgument(11, val)) },
+        { "argument12", ((_) => get_argument(12), (val, _) => VMExecutor.PopToArgument(12, val)) },
+        { "argument13", ((_) => get_argument(13), (val, _) => VMExecutor.PopToArgument(13, val)) },
+        { "argument14", ((_) => get_argument(14), (val, _) => VMExecutor.PopToArgument(14, val)) },
+        { "argument15", ((_) => get_argument(15), (val, _) => VMExecutor.PopToArgument(15, val)) },
         { "argument_count", (get_argument_count, null) },
         { "debug_mode", (get_debug_mode, null)},
         // pointer_invalid
@@ -229,7 +229,7 @@ public static class VariableResolver
         /* TODO: this is a hack fix! delta_time is a self variable,
          * but can be called by constructors which don't have an associated GamemakerObject!
          */
-        { "delta_time", (() => TimingManager.DeltaTime, null)} 
+        { "delta_time", ((_) => TimingManager.DeltaTime, null)} 
     };
 
     // InitLocalVariables
@@ -299,14 +299,14 @@ public static class VariableResolver
         // sequence_instance
     };
 
-    public static object get_working_directory()
+    public static object get_working_directory(int index)
     {
         return Entry.DataWinFolder + Path.DirectorySeparatorChar;
     }
 
-    public static object get_fps() => TimingManager.FPS;
+    public static object get_fps(int index) => TimingManager.FPS;
 
-    public static object get_fps_real() => TimingManager.FPSReal;
+    public static object get_fps_real(int index) => TimingManager.FPSReal;
 
     public static object get_delta_time(GamemakerObject instance)
     {
@@ -320,8 +320,8 @@ public static class VariableResolver
     public static object get_y(GamemakerObject instance) => instance.y;
     public static void set_y(GamemakerObject instance, object? value) => instance.y = value.Conv<double>();
 
-    public static object get_room_width() => (double)RoomManager.CurrentRoom.SizeX;
-    public static object get_room_height() => (double)RoomManager.CurrentRoom.SizeY;
+    public static object get_room_width(int index) => (double)RoomManager.CurrentRoom.SizeX;
+    public static object get_room_height(int index) => (double)RoomManager.CurrentRoom.SizeY;
 
     public static object get_image_index(GamemakerObject instance) => instance.image_index;
     public static void set_image_index(GamemakerObject instance, object? value) => instance.image_index = value.Conv<double>();
@@ -348,8 +348,8 @@ public static class VariableResolver
     public static object get_depth(GamemakerObject instance) => instance.depth;
     public static void set_depth(GamemakerObject instance, object? value) => instance.depth = value.Conv<double>();
 
-    public static object get_room() => RoomManager.CurrentRoom.AssetId;
-    public static void set_room(object? value) => RoomManager.New_Room = value.Conv<int>();
+    public static object get_room(int index) => RoomManager.CurrentRoom.AssetId;
+    public static void set_room(object? value, int index) => RoomManager.New_Room = value.Conv<int>();
 
     public static object get_bbox_bottom(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_index == -1) ? instance.y : instance.bbox_bottom;
     public static object get_bbox_top(GamemakerObject instance) => (instance.sprite_index == -1 && instance.mask_index == -1) ? instance.y : instance.bbox_top;
@@ -386,7 +386,7 @@ public static class VariableResolver
     public static object get_direction(GamemakerObject instance) => instance.direction;
     public static void set_direction(GamemakerObject instance, object? value) => instance.direction = value.Conv<double>();
 
-    public static object get_view_current() => ViewportManager.ViewCurrent;
+    public static object get_view_current(int index) => DrawManager.ViewCurrent;
 
     public static object get_persistent(GamemakerObject instance) => instance.persistent;
     public static void set_persistent(GamemakerObject instance, object? value) => instance.persistent = value.Conv<bool>();
@@ -404,34 +404,32 @@ public static class VariableResolver
 
     public static object get_image_number(GamemakerObject instance) => SpriteManager.GetNumberOfFrames(instance.sprite_index);
 
-    public static object get_room_persistent() => RoomManager.CurrentRoom.Persistent;
-
-    public static void set_room_persistent(object? value)
+    public static object get_room_persistent(int index) => RoomManager.CurrentRoom.Persistent;
+    public static void set_room_persistent(object? value, int index)
     {
         var val = value.Conv<bool>();
         DebugLog.Log($"room_persistent = {val}");
         RoomManager.CurrentRoom.Persistent = val;
     }
 
-    public static object get_room_speed() => Entry.GameSpeed;
-    public static void set_room_speed(object? value) => Entry.SetGameSpeed(value.Conv<int>());
+    public static object get_room_speed(int index) => Entry.GameSpeed;
+    public static void set_room_speed(object? value, int index) => Entry.SetGameSpeed(value.Conv<int>());
 
     public static object get_async_load(GamemakerObject instance) => AsyncManager.AsyncLoadDsIndex;
 
-    public static object get_os_type() => 0;
+    public static object get_os_type(int index) => 0;
 
-    public static object get_browser_width() => CustomWindow.Instance.ClientSize.X;
-    public static object get_browser_height() => CustomWindow.Instance.ClientSize.Y;
+    public static object get_browser_width(int index) => CustomWindow.Instance.ClientSize.X;
+    public static object get_browser_height(int index) => CustomWindow.Instance.ClientSize.Y;
 
-    public static object get_application_surface() => SurfaceManager.application_surface;
+    public static object get_application_surface(int index) => SurfaceManager.application_surface;
 
     public static object get_alarm(GamemakerObject instance) => instance.alarm;
     public static void set_alarm(GamemakerObject instance, object? value) => instance.alarm = value.Conv<IList>().ConvAll<int>().ToArray();
 
-    public static object get_argument_count() => VMExecutor.Call.Locals["arguments"].Conv<IList>().Count;
-    public static object get_argument() => VMExecutor.Call.Locals["arguments"]!;
+    public static object get_argument_count(int index) => VMExecutor.Call.Locals["arguments"].Conv<IList>().Count;
 
-    private static object? GetArgument(int index)
+    private static object? get_argument(int index)
     {
         var arguments = VMExecutor.Call.Locals["arguments"].Conv<IList>();
         if (arguments.Count <= index)
@@ -450,90 +448,48 @@ public static class VariableResolver
         VMExecutor.Call.Locals["arguments"] = args;
     }
 
-    public static object? get_undefined() => null;
+    public static object? get_undefined(int index) => null;
 
-    public static object? get_nan() => double.NaN;
-    public static object? get_infinity() => double.PositiveInfinity;
+    public static object? get_nan(int index) => double.NaN;
+    public static object? get_infinity(int index) => double.PositiveInfinity;
 
-    public static object get_view_xport() => ViewportManager.view_xport;
+    public static object get_view_xport(int index) => RoomManager.CurrentRoom.Views[index].PortPosition.X;
+    public static void set_view_xport(object? value, int index) => RoomManager.CurrentRoom.Views[index].PortPosition.X = value.Conv<int>();
 
-    public static void set_view_xport(object? value)
-    {
-        ViewportManager.view_xport = value.Conv<IList>().ConvAll<int>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_yport(int index) => RoomManager.CurrentRoom.Views[index].PortPosition.Y;
+    public static void set_view_yport(object? value, int index) => RoomManager.CurrentRoom.Views[index].PortPosition.Y = value.Conv<int>();
 
-    public static object get_view_yport() => ViewportManager.view_yport;
-    public static void set_view_yport(object? value)
-    {
-        ViewportManager.view_yport = value.Conv<IList>().ConvAll<int>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_wport(int index) => RoomManager.CurrentRoom.Views[index].PortSize.X;
+    public static void set_view_wport(object? value, int index) => RoomManager.CurrentRoom.Views[index].PortSize.X = value.Conv<int>();
 
-    public static object get_view_wport() => ViewportManager.view_wport;
+    public static object get_view_hport(int index) => RoomManager.CurrentRoom.Views[index].PortSize.Y;
+    public static void set_view_hport(object? value, int index) => RoomManager.CurrentRoom.Views[index].PortSize.Y = value.Conv<int>();
 
-    public static void set_view_wport(object? value)
-    {
-        ViewportManager.view_wport = value.Conv<IList>().ConvAll<int>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_xview(int index) => RoomManager.CurrentRoom.Views[index].ViewX;
+    public static void set_view_xview(object? value, int index) => RoomManager.CurrentRoom.Views[index].ViewX = value.Conv<float>();
 
-    public static object get_view_hport() => ViewportManager.view_hport;
-    public static void set_view_hport(object? value)
-    {
-        ViewportManager.view_hport = value.Conv<IList>().ConvAll<int>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_yview(int index) => RoomManager.CurrentRoom.Views[index].ViewY;
+    public static void set_view_yview(object? value, int index) => RoomManager.CurrentRoom.Views[index].ViewY = value.Conv<float>();
 
-    public static object get_view_xview() => ViewportManager.view_xview;
-    public static void set_view_xview(object? value)
-    {
-        ViewportManager.view_xview = value.Conv<IList>().ConvAll<float>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_wview(int index) => RoomManager.CurrentRoom.Views[index].ViewW;
+    public static void set_view_wview(object? value, int index) => RoomManager.CurrentRoom.Views[index].ViewW = value.Conv<float>();
 
-    public static object get_view_yview() => ViewportManager.view_yview;
-    public static void set_view_yview(object? value)
-    {
-        ViewportManager.view_yview = value.Conv<IList>().ConvAll<float>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_hview(int index) => RoomManager.CurrentRoom.Views[index].ViewH;
+    public static void set_view_hview(object? value, int index) => RoomManager.CurrentRoom.Views[index].ViewH = value.Conv<float>();
 
-    public static object get_view_wview() => ViewportManager.view_wview;
-    public static void set_view_wview(object? value)
-    {
-        ViewportManager.view_wview = value.Conv<IList>().ConvAll<float>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_camera(int index) => RoomManager.CurrentRoom.Views[index].Camera.ID;
+    public static void set_view_camera(object? value, int index) => RoomManager.CurrentRoom.Views[index].Camera = CameraManager.GetCamera(value.Conv<int>())!;
 
-    public static object get_view_hview() => ViewportManager.view_hview;
-    public static void set_view_hview(object? value)
-    {
-        ViewportManager.view_hview = value.Conv<IList>().ConvAll<float>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_view_visible(int index) => RoomManager.CurrentRoom.Views[index].Visible;
+    public static void set_view_visible(object? value, int index) => RoomManager.CurrentRoom.Views[index].Visible = value.Conv<bool>();
 
-    public static object get_view_camera() => ViewportManager.view_camera;
-    public static void set_view_camera(object? value)
-    {
-        ViewportManager.view_camera = value.Conv<IList>().ConvAll<int>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_mouse_x(int index) => GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
+    public static object get_mouse_y(int index) => GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
 
-    public static object get_view_visible() => ViewportManager.view_visible;
-    public static void set_view_visible(object? value)
-    {
-        ViewportManager.view_visible = value.Conv<IList>().ConvAll<bool>().ToArray();
-        ViewportManager.UpdateFromArrays();
-    }
+    public static object get_keyboard_string(int index) => InputHandler.KeyboardString;
+    public static void set_keyboard_string(object? value, int index) => InputHandler.KeyboardString = value.Conv<string>();
 
-    public static object get_mouse_x() => GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
-    public static object get_mouse_y() => GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
-
-    public static object get_keyboard_string() => InputHandler.KeyboardString;
-    public static void set_keyboard_string(object? value) => InputHandler.KeyboardString = value.Conv<string>();
-
-    public static object? get_pointer_null() => null;
+    public static object? get_pointer_null(int index) => null;
 
     public static object get_xprevious(GamemakerObject instance) => instance.xprevious;
     public static void set_xprevious(GamemakerObject instance, object? value) => instance.xprevious = value.Conv<double>();
@@ -555,26 +511,26 @@ public static class VariableResolver
     public static object get_path_scale(GamemakerObject instance) => instance.path_scale;
     public static void set_path_scale(GamemakerObject instance, object? value) => instance.path_scale = value.Conv<double>();
 
-    public static object get_instance_count() => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
+    public static object get_instance_count(int index) => InstanceManager.instances.Count; // TODO : this should only count instances at the START of the step
 
-    public static object get_current_time() => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
+    public static object get_current_time(int index) => (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds; // TODO : do this in a better way
 
-    public static object get_current_month() => DateTime.Now.Month;
+    public static object get_current_month(int index) => DateTime.Now.Month;
 
-    public static object get_current_weekday() => DateTime.Now.DayOfWeek;
+    public static object get_current_weekday(int index) => DateTime.Now.DayOfWeek;
 
-    public static object get_current_second() => DateTime.Now.Second;
+    public static object get_current_second(int index) => DateTime.Now.Second;
 
-    public static object get_debug_mode() => false;
+    public static object get_debug_mode(int index) => false;
 
-    public static object? get_background_color()
+    public static object? get_background_color(int index)
     {
         // TODO : Implement
         DebugLog.LogWarning("get_background_color not implemented");
         return null;
     }
 
-    public static void set_background_color(object? value)
+    public static void set_background_color(object? value, int index)
     {
         DebugLog.LogWarning("set_background_color not implemented");
         // TODO : Implement
@@ -583,8 +539,8 @@ public static class VariableResolver
     public static object get_layer(GamemakerObject instance) => instance.Layer;
     public static void set_layer(GamemakerObject instance, object? value) => instance.Layer = value.Conv<int>();
 
-    public static object? get_game_save_id() => LoadSave.GetSavePrePend();
+    public static object? get_game_save_id(int index) => LoadSave.GetSavePrePend();
 
-    public static object? get_event_type() => (int)DrawManager.EventType - 1;
-    public static object? get_event_number() => DrawManager.EventNumber;
+    public static object? get_event_type(int index) => (int)DrawManager.EventType - 1;
+    public static object? get_event_number(int index) => DrawManager.EventNumber;
 }

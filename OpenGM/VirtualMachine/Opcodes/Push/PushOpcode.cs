@@ -32,7 +32,7 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
-            var value = VariableResolver.BuiltInVariables[varName].getter();
+            var value = VariableResolver.BuiltInVariables[varName].getter(0);
             Call.Stack.Push(value, VMType.v);
         }
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
@@ -60,8 +60,7 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
-            var array = VariableResolver.BuiltInVariables[varName].getter().Conv<IList>();
-            Call.Stack.Push(array[index], VMType.v);
+            Call.Stack.Push(VariableResolver.BuiltInVariables[varName].getter(index), VMType.v);
         }
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
         {
@@ -97,7 +96,7 @@ public static partial class VMExecutor
 
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
         {
-            Call.Stack.Push(builtin_gettersetter.getter(), VMType.v);
+            Call.Stack.Push(builtin_gettersetter.getter(0), VMType.v);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfbuiltin_gettersetter) && self is GamemakerObject gm)
         {
@@ -139,9 +138,11 @@ public static partial class VMExecutor
 
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var bi_gettersetter))
         {
-            array = bi_gettersetter.getter().Conv<IList>();
+            Call.Stack.Push(bi_gettersetter.getter(index), VMType.v);
+            return;
         }
-        else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var bis_gettersetter) && self is GamemakerObject gm)
+
+        if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var bis_gettersetter) && self is GamemakerObject gm)
         {
             array = bis_gettersetter.getter(gm).Conv<IList>();
         }
