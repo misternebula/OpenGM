@@ -341,7 +341,7 @@ public static class RoomManager
         foreach (var obj in CurrentRoom.RoomAsset.GameObjects)
         {
             var definition = InstanceManager.ObjectDefinitions[obj.DefinitionID];
-            var newGM = new GamemakerObject(definition, obj.X, obj.Y, obj.DefinitionID, obj.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+            var newGM = new GamemakerObject(definition, obj.X, obj.Y, definition.depth, obj.InstanceID, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
 
             newGM.image_xscale = obj.ScaleX;
             newGM.image_yscale = obj.ScaleY;
