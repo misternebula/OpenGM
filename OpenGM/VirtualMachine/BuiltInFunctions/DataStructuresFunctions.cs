@@ -711,7 +711,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // ds_priority_find_min
-        // ds_priority_delete_max
+
+        [GMLFunction("ds_priority_delete_max")]
+        public static object? ds_priority_delete_max(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+
+            var queue = _priorityDict[id];
+
+            if (queue.Count <= 0)
+            {
+                return 0;
+            }
+
+            var highest = queue.UnorderedItems.MaxBy(x => x.Priority);
+            queue.Remove(highest, out var element, out _);
+            return element;
+        }
+
         // ds_priority_write
         // ds_priority_read
 
