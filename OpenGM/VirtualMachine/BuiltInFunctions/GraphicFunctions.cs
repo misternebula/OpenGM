@@ -570,7 +570,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_point
+        [GMLFunction("draw_point")]
+        public static object? draw_point(object?[] args)
+        {
+            var x = args[0].Conv<double>();
+            var y = args[1].Conv<double>();
+
+            draw_point_color([x, y, SpriteManager.DrawColor]);
+            return null;
+        }
 
         [GMLFunction("draw_line")]
         public static object? draw_line(object?[] args)
@@ -915,8 +923,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // draw_point_color
-        // draw_point_colour
+        [GMLFunction("draw_point_color")]
+        [GMLFunction("draw_point_colour")]
+        public static object? draw_point_color(object?[] args)
+        {
+            var x = args[0].Conv<double>();
+            var y = args[1].Conv<double>();
+            var c = args[2].Conv<int>();
+
+            draw_rectangle_colour([x, y, x, y, c, c, c, c, false]);
+            return null;
+        }
 
         [GMLFunction("draw_line_color")]
         [GMLFunction("draw_line_colour")]
@@ -1326,7 +1343,65 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return SpriteManager.GetSpritePageItem(spr, subimg);
         }
 
-        // sprite_get_info
+        [GMLFunction("sprite_get_info")]
+        public static object? sprite_get_info(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+
+            var sprite = SpriteManager.GetSpriteAsset(index);
+
+            if (sprite == null)
+            {
+                return null;
+            }
+
+            var struc = new GMLObject();
+            struc["width"] = sprite.Width;
+            struc["height"] = sprite.Height;
+            struc["xoffset"] = sprite.OriginX;
+            struc["yoffset"] = sprite.OriginY;
+            // transparent
+            // smooth
+            // type
+            struc["bbox_left"] = sprite.MarginLeft;
+            struc["bbox_top"] = sprite.MarginTop;
+            struc["bbox_right"] = sprite.MarginRight;
+            struc["bbox_bottom"] = sprite.MarginBottom;
+            struc["name"] = sprite.Name;
+            struc["num_subimages"] = sprite.Textures.Count;
+            // use_mask
+            // rotated_bounds
+            // nineslice
+            // messages
+            // frame_info
+            // frame_speed
+            // frame_type
+
+            var frames = new GMLObject[sprite.Textures.Count];
+            for (var i = 0; i < sprite.Textures.Count; i++)
+            {
+                var tex = sprite.Textures[i];
+
+                var frameStruct = new GMLObject();
+                frameStruct["x"] = tex.SourceX;
+                frameStruct["y"] = tex.SourceY;
+                frameStruct["w"] = tex.SourceWidth;
+                frameStruct["h"] = tex.SourceHeight;
+                frameStruct["texture"] = PageManager.TexturePages.Keys.ToList().IndexOf(tex.Page);
+                frameStruct["original_width"] = tex.BoundingWidth;
+                frameStruct["original_height"] = tex.BoundingHeight;
+                frameStruct["crop_width"] = tex.TargetWidth;
+                frameStruct["crop_height"] = tex.TargetHeight;
+                frameStruct["x_offset"] = tex.TargetX;
+                frameStruct["y_offset"] = tex.TargetY;
+
+                frames[i] = frameStruct;
+            }
+            struc["frames"] = frames;
+
+            return struc;
+        }
+
         // font_get_texture
 
         [GMLFunction("texture_get_width")]
@@ -2218,7 +2293,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // surface_depth_disable
-        // surface_get_depth_disable
+
+        [GMLFunction("surface_depth_disable", GMLFunctionFlags.Stub)]
+        public static object? surface_depth_disable(object?[] args)
+        {
+            var disable = args[0].Conv<bool>();
+
+            return null;
+        }
 
         [GMLFunction("draw_surface")]
         public static object? draw_surface(object?[] args)
