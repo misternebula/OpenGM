@@ -199,7 +199,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // sprite_flush
         // sprite_flush_multi
         // sprite_set_speed
-        // sprite_get_speed_type
+
+        [GMLFunction("sprite_get_speed_type")]
+        public static object? sprite_get_speed_type(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var asset = SpriteManager.GetSpriteAsset(index);
+
+            if (asset == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            return asset.PlaybackSpeedType;
+        }
+
         // sprite_get_speed
         // sprite_get_nineslice
         // sprite_set_nineslice
