@@ -99,23 +99,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("layer_set_visible")]
         public static object? layer_set_visible(object?[] args)
         {
-            var layer_value = args[0];
-            LayerContainer layer;
-            if (layer_value is string s)
-            {
-                layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
-                if (layer == null)
-                {
-                    DebugLog.Log($"layer_set_visible() - could not find specified layer \"{s}\" in current room");
-                    return null;
-                }
-            }
-            else
-            {
-                layer = RoomManager.CurrentRoom.Layers[args[0].Conv<int>()];
-            }
-
+            var layer_id = args[0];
             var visible = args[1].Conv<bool>();
+
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (layer == null)
+            {
+                throw new Exception($"Layer {layer_id} not found!");
+            }
 
             layer.Visible = visible;
             return null;
@@ -124,16 +116,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("layer_get_visible")]
         public static object? layer_get_visible(object?[] args)
         {
-            var layer_value = args[0];
+            var layer_id = args[0];
 
-            if (layer_value is string s)
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (layer == null)
             {
-                return RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value.Visible;
+                throw new Exception($"Layer {layer_id} not found!");
             }
-            else
-            {
-                return RoomManager.CurrentRoom.Layers[args[0].Conv<int>()].Visible;
-            }
+
+            return layer.Visible;
         }
 
         [GMLFunction("layer_exists")]
