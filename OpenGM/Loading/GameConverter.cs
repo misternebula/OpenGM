@@ -1311,8 +1311,22 @@ public static class GameConverter
                     // .wav in some audio group file
                     asset.File = $"{asset.Name}.wav";
 
-                    var audioGroupPath = Path.Combine(Entry.DataWinFolder, $"audiogroup{item.GroupID}.dat");
-                    using var stream = new FileStream(audioGroupPath, FileMode.Open, FileAccess.Read);
+                    var audioGroupFileName = data.IsVersionAtLeast(2024, 14) ? data.AudioGroups[item.GroupID].Path.Content : $"audiogroup{item.GroupID}.dat";
+                    var audioGroupPath = Path.Combine(Entry.DataWinFolder, audioGroupFileName);
+
+                    FileStream stream;
+                    try
+                    {
+                        stream = new(audioGroupPath, FileMode.Open, FileAccess.Read);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        DebugLog.LogError($"Audio group file {audioGroupFileName} not found. Skipping.");
+                        writer.WriteMemoryPack(asset);
+                        writer.Write(0);
+                        continue;
+                    }
+
                     using var audioGroupData = UndertaleIO.Read(stream);
 
                     var embeddedAudio = audioGroupData.EmbeddedAudio;
