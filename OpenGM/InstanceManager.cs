@@ -175,7 +175,7 @@ public static class InstanceManager
     public static int instance_number(int obj)
     {
         //instances.RemoveAll(x => x == null);
-        return instances.Values.Count(x => HasAssetInParents(x.Definition, obj));
+        return instances.Values.Count(x => HasAssetInParents(x.Definition, obj) && x.Active && !x.Marked);
     }
 
     public static bool HasAssetInParents(ObjectDefinition definition, int id)
