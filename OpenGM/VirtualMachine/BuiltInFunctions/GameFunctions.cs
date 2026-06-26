@@ -610,7 +610,7 @@ public static class GameFunctions
 
         if (layer == null)
         {
-            throw new Exception($"instance_create_layer - Layer {layer_id} not found!");
+            throw new Exception($"Layer {layer_id} not found!");
         }
 
         return InstanceManager.instance_create_layer(x, y, layer, obj, var_struct);
