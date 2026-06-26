@@ -705,9 +705,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return 0;
             }
 
-            queue.TryDequeue(out _, out var priority);
+            queue.TryDequeue(out var element, out _);
 
-            return priority;
+            return element;
         }
 
         // ds_priority_find_min
