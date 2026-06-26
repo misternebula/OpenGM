@@ -26,6 +26,7 @@ internal class Program
                 CompileScripts(GetChapterDataWin(2), GetChapterScripts(2));
                 CompileScripts(GetChapterDataWin(3), GetChapterScripts(3));
                 CompileScripts(GetChapterDataWin(4), GetChapterScripts(4));
+                CompileScripts(GetChapterDataWin(5), GetChapterScripts(5));
                 break;
             case "undertale":
                 ScriptsFolder = Path.Combine("Scripts", "Undertale");
