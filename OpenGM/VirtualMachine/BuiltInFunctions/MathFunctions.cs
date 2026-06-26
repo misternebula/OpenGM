@@ -91,7 +91,10 @@ public static class MathFunctions
 
     // method_get_index
     // method_get_self
-    // is_method
+
+    [GMLFunction("is_method")]
+    public static object? is_method(object?[] args) => args[0] is Method;
+
     // is_nan
     // is_infinity
     // typeof
@@ -1323,47 +1326,10 @@ public static class MathFunctions
         var x2 = args[2].Conv<double>();
         var y2 = args[3].Conv<double>();
 
-        // TODO : simplify this mess lol
+        var deltaX = x2 - x1;
+        var deltaY = y2 - y1;
 
-        var gmHoriz = x2 - x1;
-        var gmVert = y2 - y1;
-
-        if (gmHoriz >= 0 && gmVert == 0)
-        {
-            return 0;
-        }
-
-        if (gmHoriz > 0 && gmVert == 0)
-        {
-            return 0;
-        }
-
-        if (gmHoriz == 0 && gmVert < 0)
-        {
-            return 90;
-        }
-
-        // +gmVert means down, -gmVert means up
-        gmVert = -gmVert;
-
-        var angle = Math.Atan(gmVert / gmHoriz) * CustomMath.Rad2Deg;
-
-        if (gmVert > 0)
-        {
-            if (gmHoriz > 0)
-            {
-                return angle;
-            }
-
-            return angle + 180;
-        }
-
-        if (gmHoriz > 0)
-        {
-            return 360 + angle;
-        }
-
-        return 180 + angle;
+        return ((-Math.Atan2(deltaY, deltaX) * 180.0 / Math.PI) + 360) % 360;
     }
 
     [GMLFunction("lengthdir_x")]
