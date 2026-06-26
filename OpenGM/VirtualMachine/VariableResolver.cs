@@ -95,9 +95,10 @@ public static class VariableResolver
 
     public static Dictionary<string, object?> CustomBuiltInVariableValues = new();
     // InitGlobalVariables
-    public static Dictionary<string, (Func<int, object?> getter, Action<object?, int>? setter)> BuiltInVariables = new()
+    public static Dictionary<string, (Func<int, object?>? getter, Action<object?, int>? setter)> BuiltInVariables = new()
     {
-        // argument_relative
+
+        { "argument_relative", (null, null)},
         { "argument", (get_argument, null) },
         { "argument0", ((_) => get_argument(0), (val, _) => VMExecutor.PopToArgument(0, val)) },
         { "argument1", ((_) => get_argument(1), (val, _) => VMExecutor.PopToArgument(1, val)) },
@@ -117,53 +118,53 @@ public static class VariableResolver
         { "argument15", ((_) => get_argument(15), (val, _) => VMExecutor.PopToArgument(15, val)) },
         { "argument_count", (get_argument_count, null) },
         { "debug_mode", (get_debug_mode, null)},
-        // pointer_invalid
+        { "pointer_invalid", (null, null)},
         { "pointer_null", (get_pointer_null, null)},
         { "undefined", (get_undefined, null) },
         { "NaN", (get_nan, null) },
         { "infinity", (get_infinity, null) },
         { "room", (get_room, set_room) },
-        // room_first
-        // room_last
-        // transition_kind
-        // transition_steps
-        // score
-        // lives
-        // health
-        // game_id
-        // game_display_name
-        // game_project_name
+        { "room_first", (null, null)},
+        { "room_last", (null, null)},
+        { "transition_kind", (null, null)},
+        { "transition_steps", (null, null)},
+        { "score", (null, null)},
+        { "lives", (null, null)},
+        { "health", (null, null)},
+        { "game_id", (null, null)},
+        { "game_display_name", (null, null)},
+        { "game_project_name", (null, null)},
         { "game_save_id", (get_game_save_id, null)},
         { "working_directory", (get_working_directory, null) },
-        // temp_directory
-        // program_directory
+        { "temp_directory", (null, null)},
+        { "program_directory", (null, null)},
         { "instance_count", (get_instance_count, null)},
-        // instance_id
+        { "instance_id", (null, null)},
         { "room_width", (get_room_width, null) },
         { "room_height", (get_room_height, null) },
-        // room_caption
+        { "room_caption", (null, null)},
         { "room_speed", (get_room_speed, set_room_speed) },
         { "room_persistent", (get_room_persistent, set_room_persistent)},
-        { "background_color", (get_background_color, set_background_color)},
-        // background_showcolor
-        // background_colour
-        // background_showcolour
-        // background_visible
-        // background_foreground
-        // background_index
-        // background_x
-        // background_y
-        // background_width
-        // background_height
-        // background_htiled
-        // background_vtiled
-        // background_xscale
-        // background_yscale
-        // background_hspeed
-        // background_vspeed
-        // background_blend
-        // background_alpha
-        // view_enabled
+        { "background_color", (null, null)},
+        { "background_showcolor", (null, null)},
+        { "background_colour", (null, null)},
+        { "background_showcolour", (null, null)},
+        { "background_visible", (null, null)},
+        { "background_foreground", (null, null)},
+        { "background_index", (null, null)},
+        { "background_x", (null, null)},
+        { "background_y", (null, null)},
+        { "background_width", (null, null)},
+        { "background_height", (null, null)},
+        { "background_htiled", (null, null)},
+        { "background_vtiled", (null, null)},
+        { "background_xscale", (get_background_xscale, set_background_xscale)},
+        { "background_yscale", (get_background_yscale, set_background_yscale)},
+        { "background_hspeed", (null, null)},
+        { "background_vspeed", (null, null)},
+        { "background_blend", (null, null)},
+        { "background_alpha", (null, null)},
+        { "view_enabled", (null, null)},
         { "view_current", (get_view_current, null)},
         { "view_visible", (get_view_visible, set_view_visible)},
         { "view_xview", (get_view_xview, set_view_xview)},
@@ -174,13 +175,13 @@ public static class VariableResolver
         { "view_yport", (get_view_yport, set_view_yport)},
         { "view_wport", (get_view_wport, set_view_wport)},
         { "view_hport", (get_view_hport, set_view_hport)},
-        // view_angle
-        // view_hborder
-        // view_vborder
-        // view_hspeed
-        // view_vspeed
-        // view_object
-        // view_surface_id
+        { "view_angle", (null, null)},
+        { "view_hborder", (null, null)},
+        { "view_vborder", (null, null)},
+        { "view_hspeed", (null, null)},
+        { "view_vspeed", (null, null)},
+        { "view_object", (null, null)},
+        { "view_surface_id", (null, null)},
         { "view_camera", (get_view_camera, set_view_camera)},
         { "mouse_x", (get_mouse_x, null)},
         { "mouse_y", (get_mouse_y, null)},
@@ -233,7 +234,7 @@ public static class VariableResolver
     };
 
     // InitLocalVariables
-    public static Dictionary<string, (Func<GamemakerObject, object> getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
+    public static Dictionary<string, (Func<GamemakerObject, object>? getter, Action<GamemakerObject, object?>? setter)> BuiltInSelfVariables = new()
     {
         { "x", (get_x, set_x) },
         { "y", (get_y, set_y) },
@@ -248,11 +249,11 @@ public static class VariableResolver
         { "friction", (get_friction, set_friction) },
         { "gravity", (get_gravity, set_gravity) },
         { "gravity_direction", (get_gravity_direction, set_gravity_direction) },
-        // in_collision_tree
+        { "in_collision_tree", (null, null)},
         { "object_index", (get_object_index, null) },
         { "id", (get_id, null) },
         { "alarm", (get_alarm, set_alarm) },
-        // solid
+        { "solid", (null, null)},
         { "visible", (get_visible, set_visible) },
         { "persistent", (get_persistent, set_persistent) },
         { "depth", (get_depth, set_depth) },
@@ -262,7 +263,7 @@ public static class VariableResolver
         { "bbox_bottom", (get_bbox_bottom, null) },
         { "sprite_index", (get_sprite_index, set_sprite_index) },
         { "image_index", (get_image_index, set_image_index) },
-        // image_single
+        { "image_single", (null, null)},
         { "image_number", (get_image_number, null) },
         { "sprite_width", (get_sprite_width, null) },
         { "sprite_height", (get_sprite_height, null) },
@@ -277,11 +278,11 @@ public static class VariableResolver
         { "mask_index", (get_mask_index, set_mask_index)},
         { "path_index", (get_path_index, null)},
         { "path_position", (get_path_position, set_path_position)},
-        // path_positionprevious
+        { "path_positionprevious", (null, null)},
         { "path_speed", (get_path_speed, set_path_speed)},
         { "path_scale", (get_path_scale, set_path_scale)},
-        // path_orientation
-        // path_endaction
+        { "path_orientation", (null, null)},
+        { "path_endaction", (null, null)},
         
         // .. timeline stuff
 
@@ -523,19 +524,6 @@ public static class VariableResolver
 
     public static object get_debug_mode(int index) => false;
 
-    public static object? get_background_color(int index)
-    {
-        // TODO : Implement
-        DebugLog.LogWarning("get_background_color not implemented");
-        return null;
-    }
-
-    public static void set_background_color(object? value, int index)
-    {
-        DebugLog.LogWarning("set_background_color not implemented");
-        // TODO : Implement
-    }
-
     public static object get_layer(GamemakerObject instance) => instance.Layer;
     public static void set_layer(GamemakerObject instance, object? value) => instance.Layer = value.Conv<int>();
 
@@ -543,4 +531,26 @@ public static class VariableResolver
 
     public static object? get_event_type(int index) => (int)DrawManager.EventType - 1;
     public static object? get_event_number(int index) => DrawManager.EventNumber;
+
+    public static object? get_background_xscale(int index)
+    {
+        DebugLog.LogWarning("get_background_xscale not implemented.");
+        return 0;
+    }
+
+    public static void set_background_xscale(object? value, int index)
+    {
+        DebugLog.LogWarning("set_background_xscale not implemented.");
+    }
+
+    public static object? get_background_yscale(int index)
+    {
+        DebugLog.LogWarning("get_background_yscale not implemented.");
+        return 0;
+    }
+
+    public static void set_background_yscale(object? value, int index)
+    {
+        DebugLog.LogWarning("set_background_yscale not implemented.");
+    }
 }

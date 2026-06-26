@@ -32,12 +32,26 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
-            var value = VariableResolver.BuiltInVariables[varName].getter(0);
+            var getter = VariableResolver.BuiltInVariables[varName].getter;
+
+            if (getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            var value = getter(0);
             Call.Stack.Push(value, VMType.v);
         }
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
         {
-            var value = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf);
+            var getter = VariableResolver.BuiltInSelfVariables[varName].getter;
+
+            if (getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            var value = getter(Self.GMSelf);
             Call.Stack.Push(value, VMType.v);
         }
         else if (Self.Self.SelfVariables.ContainsKey(varName))
@@ -60,11 +74,25 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
-            Call.Stack.Push(VariableResolver.BuiltInVariables[varName].getter(index), VMType.v);
+            var getter = VariableResolver.BuiltInVariables[varName].getter;
+
+            if (getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            Call.Stack.Push(getter(index), VMType.v);
         }
         else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
         {
-            var array = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf).Conv<IList>();
+            var getter = VariableResolver.BuiltInSelfVariables[varName].getter;
+
+            if (getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            var array = getter(Self.GMSelf).Conv<IList>();
             Call.Stack.Push(array[index], VMType.v);
         }
         else if (Self.Self.SelfVariables.ContainsKey(varName))
@@ -96,10 +124,20 @@ public static partial class VMExecutor
 
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
         {
+            if (builtin_gettersetter.getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             Call.Stack.Push(builtin_gettersetter.getter(0), VMType.v);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfbuiltin_gettersetter) && self is GamemakerObject gm)
         {
+            if (selfbuiltin_gettersetter.getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             Call.Stack.Push(selfbuiltin_gettersetter.getter(gm), VMType.v);
         }
         else
@@ -138,12 +176,22 @@ public static partial class VMExecutor
 
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var bi_gettersetter))
         {
+            if (bi_gettersetter.getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             Call.Stack.Push(bi_gettersetter.getter(index), VMType.v);
             return;
         }
 
         if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var bis_gettersetter) && self is GamemakerObject gm)
         {
+            if (bis_gettersetter.getter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             array = bis_gettersetter.getter(gm).Conv<IList>();
         }
         else

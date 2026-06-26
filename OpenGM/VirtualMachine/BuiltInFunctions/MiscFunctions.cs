@@ -196,6 +196,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (VariableResolver.BuiltInSelfVariables.ContainsKey(name))
             {
                 var (getter, setter) = VariableResolver.BuiltInSelfVariables[name];
+
+                if (getter == null)
+                {
+                    throw new NotImplementedException($"Built in variable {name} not implemented.");
+                }
+
                 return getter((GamemakerObject)instance);
             }
 

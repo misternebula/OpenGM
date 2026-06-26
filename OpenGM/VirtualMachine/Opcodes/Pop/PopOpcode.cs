@@ -58,15 +58,25 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gs))
         {
-            gs.setter!(value, index);
+            if (gs.setter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            gs.setter(value, index);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gsSelf) && self is GamemakerObject gm)
         {
+            if (gsSelf.getter == null || gsSelf.setter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             VariableResolver.ArraySet(
                 index,
                 value,
                 () => gsSelf.getter(gm),
-                array => gsSelf.setter!(gm, array));
+                array => gsSelf.setter(gm, array));
         }
         else
         {
@@ -146,15 +156,25 @@ public static partial class VMExecutor
     {
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gettersetter))
         {
-            gettersetter.setter!(value, index);
+            if (gettersetter.setter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            gettersetter.setter(value, index);
         }
         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfgettersetter))
         {
+            if (selfgettersetter.getter == null || selfgettersetter.setter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             VariableResolver.ArraySet(
                 index,
                 value,
                 () => selfgettersetter.getter(Self.GMSelf),
-                array => selfgettersetter.setter!(Self.GMSelf, array));
+                array => selfgettersetter.setter(Self.GMSelf, array));
         }
         else
         {
