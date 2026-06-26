@@ -28,7 +28,7 @@ public class RoomContainer
     {
         if (layer_id is string s)
         {
-            return Layers.FirstOrDefault(x => x.Value.Name == s).Value;
+            return Layers.FirstOrDefault(x => x.Value.Name.Equals(s, StringComparison.CurrentCultureIgnoreCase)).Value;
         }
         else
         {
