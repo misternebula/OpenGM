@@ -723,7 +723,7 @@ public static partial class VMExecutor
             }
             case VMOpcode.CALLV:
             {
-                var method = FetchMethod(Call.Stack.Pop(VMType.v));
+                var method = FetchMethod(Call.Stack.Pop(VMType.v), instruction.IntData);
                 var self = Call.Stack.Pop(VMType.v);
 
                 var args = new object?[instruction.IntData];
@@ -826,7 +826,41 @@ public static partial class VMExecutor
         throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
     }
 
-    internal static Method? FetchMethod(object? value)
+    internal static VMCode GenerateCodeForBuiltIn(string builtin, int nArgs)
+    {
+        var code = new VMCode { LocalVariables = [], Name = $"GENERATED CALLV FOR {builtin}"};
+
+        for (var i = nArgs - 1; i >= 0; i--)
+        {
+            var pushInstruction = new VMCodeInstruction
+            {
+                Opcode = VMOpcode.PUSH,
+                TypeOne = VMType.v,
+                variablePrefix = VariablePrefix.None,
+                variableType = VariableType.Argument,
+                variableName = $"argument{i}"
+            };
+            code.Instructions.Add(pushInstruction);
+        }
+
+        code.Instructions.Add(new VMCodeInstruction
+        {
+            Opcode = VMOpcode.CALL,
+            TypeOne = VMType.i,
+            FunctionName = builtin,
+            FunctionArgumentCount = nArgs
+        });
+
+        code.Instructions.Add(new VMCodeInstruction
+        {
+            Opcode = VMOpcode.RET,
+            TypeOne = VMType.v,
+        });
+
+        return code;
+    }
+
+    internal static Method? FetchMethod(object? value, int nArgs)
     {
         if (value is null)
         {
@@ -838,8 +872,20 @@ public static partial class VMExecutor
         }
         else if (value is int or long or short)
         {
-            // i really hope built in functions cant be used with method
-            return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>() - GMConstants.FIRST_INSTANCE_ID]);
+            var index = value.Conv<int>();
+
+            if (index < GMConstants.FIRST_INSTANCE_ID)
+            {
+                var builtin = ScriptResolver.BuiltInFunctions.ElementAt(index);
+
+                var script = new VMScript { CustomCode = GenerateCodeForBuiltIn(builtin.Key, nArgs) };
+
+                return new Method(script);
+            }
+            else
+            {
+                return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>() - GMConstants.FIRST_INSTANCE_ID]);
+            }
         }
 
         throw new ArgumentException($"Don't know how to fetch method for {value} ({value.GetType().FullName})");
