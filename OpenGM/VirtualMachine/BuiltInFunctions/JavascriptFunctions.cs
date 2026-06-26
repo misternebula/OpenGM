@@ -9,7 +9,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("@@NewGMLObject@@")]
         public static object? NewGMLObject(object?[] args)
         {
-            var ctor = VMExecutor.FetchMethod(args[0]);
+            if (args.Length == 0)
+            {
+                return new GMLObject();
+            }
+
+            var ctor = VMExecutor.FetchMethod(args[0], args.Length - 1);
             var values = args[1..];
             var obj = new GMLObject();
 
