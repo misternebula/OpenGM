@@ -369,5 +369,14 @@ public static class ScriptResolver
         return false;
     }
 
+    [GMLFunction("@@string@@", GMLFunctionFlags.Stub)]
+    public static object? js_string(object?[] args)
+    {
+        var format = args[0].Conv<string>();
+        var values = args[1..].ConvAll<string>();
+
+        return string.Format(format, values);
+    }
+
     public delegate object? GMLFunctionType(object?[] args);
 }
