@@ -135,7 +135,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
                 {
                     // todo : first how?
-                    instance = InstanceManager.FindByAssetId(instanceId).First();
+                    var all = InstanceManager.FindByAssetId(instanceId);
+
+                    if (all == null || all.Count == 0)
+                    {
+                        DebugLog.LogError($"Couldn't find any instances with asset index {instanceId}");
+                        DebugLog.PrintCallStack();
+                        return false;
+                    }
+
+                    instance = all.First();
                 }
                 else
                 {
@@ -180,7 +189,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 else if (instanceId < GMConstants.FIRST_INSTANCE_ID)
                 {
                     // todo : first how?
-                    instance = InstanceManager.FindByAssetId(instanceId).First();
+                    var all = InstanceManager.FindByAssetId(instanceId);
+
+                    if (all == null || all.Count == 0)
+                    {
+                        DebugLog.LogError($"Couldn't find any instances with asset index {instanceId}");
+                        DebugLog.PrintCallStack();
+                        return null;
+                    }
+
+                    instance = all.First();
                 }
                 else
                 {
