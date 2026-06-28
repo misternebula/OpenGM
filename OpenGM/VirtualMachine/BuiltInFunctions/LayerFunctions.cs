@@ -14,7 +14,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var layer_name = args[0].Conv<string>();
 
-            var layer = RoomManager.CurrentRoom.Layers.Values.FirstOrDefault(x => x.Name == layer_name);
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_name);
+
             return layer == default ? -1 : layer.ID;
         }
 
@@ -106,7 +107,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
-                throw new Exception($"Layer {layer_id} not found!");
+                DebugLog.LogWarning($"layer_set_visible() - couldn't find {layer_id}");
+                return null;
             }
 
             layer.Visible = visible;
@@ -132,18 +134,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? layer_exists(object?[] args)
         {
             var layer = args[0];
-
-            if (layer is string)
-            {
-                var layer_name = layer.Conv<string>();
-                var actual_layer = RoomManager.CurrentRoom.Layers.Values.FirstOrDefault(x => x.Name == layer_name);
-                return actual_layer != null;
-            }
-            else
-            {
-                var layer_id = layer.Conv<int>();
-                return RoomManager.CurrentRoom.Layers.ContainsKey(layer_id);
-            }
+            return RoomManager.CurrentRoom.GetLayer(layer) != null;
         }
 
         [GMLFunction("layer_x")]
@@ -330,7 +321,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (layer == null)
             {
-                throw new Exception();
+                DebugLog.LogWarning($"layer_get_all_elements - couldn't find layer {args[0]}");
+                return Array.Empty<object>();
             }
 
             // make it an untyped array because non-ints may be set here
@@ -390,6 +382,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (baseElement == null)
             {
                 DebugLog.LogError($"layer_get_element_type : Couldn't find element for element_id {element_id}");
+                DebugLog.PrintCallStack();
                 return (int)ElementType.Undefined;
             }
 
@@ -477,15 +470,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var layer_id = args[0];
             var sprite = args[1].Conv<int>();
 
-            LayerContainer layer;
-            if (layer_id is string s)
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (layer == null)
             {
-                layer = RoomManager.CurrentRoom.Layers.FirstOrDefault(x => x.Value.Name == s).Value;
-            }
-            else
-            {
-                var id = layer_id.Conv<int>();
-                layer = RoomManager.CurrentRoom.Layers[id];
+                throw new NotImplementedException();
             }
 
             var item = new CLayerBackgroundElement();
@@ -1194,15 +1183,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("layer_tilemap_get_id")]
         public static object layer_tilemap_get_id(object?[] args)
         {
-            var layer_id = args[0].Conv<int>();
+            var layer_id = args[0];
 
-            if (!RoomManager.CurrentRoom.Layers.ContainsKey(layer_id))
+            var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (layer == null)
             {
-                DebugLog.Log($"layer_tilemap_get_id() - specified tilemap not found");
+                DebugLog.Log($"layer_tilemap_get_id() - couldn't find layer {layer_id}");
                 return -1;
             }
-
-            var layer = RoomManager.CurrentRoom.Layers[layer_id];
 
             var layerElements = layer.LayerAsset.Elements;
             var element = layerElements.FirstOrDefault(x => x is CLayerTilemapElement);
