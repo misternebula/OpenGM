@@ -91,11 +91,15 @@ internal class Program
 			throw new Exception();
 		}
 
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Success.");
+        Console.ResetColor();
+
 		foreach (var codeName in codeNames)
 		{
 			var code = data.Code.First(x => x.Name.Content == codeName);
 
-			var asmFile = code.Disassemble(data.Variables, data.CodeLocals.For(code));
+			var asmFile = code.Disassemble(data.Variables, data.CodeLocals?.For(code));
 			var vmCode = GameConverter.ConvertAssembly(data, asmFile);
 			vmCode.Name = code.Name.Content;
 			var json = JsonConvert.SerializeObject(vmCode);
