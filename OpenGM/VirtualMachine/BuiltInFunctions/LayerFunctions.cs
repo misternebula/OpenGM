@@ -389,7 +389,46 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return (int)baseElement.Type;
         }
 
-        // layer_element_move
+        [GMLFunction("layer_element_move")]
+        public static object? layer_element_move(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+            var layer_id = args[1];
+
+            var newLayer = RoomManager.CurrentRoom.GetLayer(layer_id);
+
+            if (newLayer == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            CLayerElementBase baseElement = null!;
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.LayerAsset.Elements)
+                {
+                    if (element.Id == element_id)
+                    {
+                        baseElement = element;
+                        break;
+                    }
+                }
+
+                if (baseElement != null)
+                {
+                    break;
+                }
+            }
+
+            if (baseElement == null)
+            {
+                throw new NotImplementedException();
+            }
+
+            baseElement.Layer = newLayer;
+            return null;
+        }
 
         [GMLFunction("layer_force_draw_depth")]
         public static object? layer_force_draw_depth(object?[] args)
@@ -859,7 +898,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // layer_sprite_index
+        [GMLFunction("layer_sprite_index")]
+        public static object? layer_sprite_index(object?[] args)
+        {
+            var element_id = args[0].Conv<int>();
+            var index = args[1].Conv<double>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMSprite sprite && sprite.Element.Id == element_id)
+                    {
+                        sprite.FrameIndex = index;
+                    }
+                }
+            }
+
+            return null;
+        }
 
         [GMLFunction("layer_sprite_speed")]
         public static object? layer_sprite_speed(object?[] args)
@@ -1323,10 +1380,84 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return -1;
         }
 
-        // tilemap_get_tile_width
-        // tilemap_get_tile_height
-        // tilemap_get_width
-        // tilemap_get_height
+        [GMLFunction("tilemap_get_tile_width")]
+        public static object tilemap_get_tile_width(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        var tileset = GameLoader.TileSets[tilemap.Element.BackgroundIndex];
+                        return tileset.TileWidth;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("tilemap_get_tile_height")]
+        public static object tilemap_get_tile_height(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        var tileset = GameLoader.TileSets[tilemap.Element.BackgroundIndex];
+                        return tileset.TileHeight;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("tilemap_get_width")]
+        public static object tilemap_get_width(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        return tilemap.Element.Width;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        [GMLFunction("tilemap_get_height")]
+        public static object tilemap_get_height(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        return tilemap.Element.Height;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
         // tilemap_set_width
         // tilemap_set_height
 
