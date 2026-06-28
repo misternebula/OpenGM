@@ -378,5 +378,14 @@ public static class ScriptResolver
         return string.Format(format, values);
     }
 
+    [GMLFunction("string_starts_with")]
+    public static object? string_starts_with(object?[] args)
+    {
+        var str = args[0].Conv<string>();
+        var substr = args[1].Conv<string>();
+        // TODO: should this be case-sensitive or not?
+        return str.StartsWith(substr);
+    }
+
     public delegate object? GMLFunctionType(object?[] args);
 }
