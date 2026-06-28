@@ -515,12 +515,88 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return (col >> 16) & 0xFF;
         }
 
-        // color_get_hue
-        // colour_get_hue
-        // color_get_saturation
-        // colour_get_saturation
-        // color_get_value
-        // colour_get_value
+        private static (double h, double s, double v) RGBToHSV(int col)
+        {
+            var rprime = col.ABGRToCol4().R;
+            var gprime = col.ABGRToCol4().G;
+            var bprime = col.ABGRToCol4().B;
+
+            var cmax = CustomMath.Max(rprime, gprime, bprime);
+            var cmin = CustomMath.Min(rprime, gprime, bprime);
+
+            var delta = cmax - cmin;
+
+            var hprime = 0.0;
+            var sprime = 0.0;
+            var vprime = 0.0;
+
+            if (delta / cmax == 0)
+            {
+                hprime = 0;
+            }
+            else
+            {
+                if (cmax == rprime)
+                {
+                    hprime = 60 * (gprime - bprime) / delta;
+                }
+                else if (cmax == gprime)
+                {
+                    hprime = (60 * (bprime - rprime) / delta) + 120;
+                }
+                else if (cmax == bprime)
+                {
+                    hprime = (60 * (rprime - gprime) / delta) + 240;
+                }
+
+                if (hprime < 0)
+                {
+                    hprime += 360;
+                }
+            }
+
+            if (cmax == 0)
+            {
+                sprime = 0;
+                hprime = 0;
+            }
+            else
+            {
+                sprime = delta / cmax;
+            }
+
+            vprime = cmax;
+
+            var h = Math.Min(255, Math.Max(0, hprime * 255 / 360));
+            var v = Math.Min(255, Math.Max(0, vprime * 255));
+            var s = Math.Min(255, Math.Max(0, sprime * 255));
+
+            return (h, s, v);
+        }
+
+        [GMLFunction("color_get_hue")]
+        [GMLFunction("colour_get_hue")]
+        public static object? color_get_hue(object?[] args)
+        {
+            var col = args[0].Conv<int>();
+            return RGBToHSV(col).h;
+        }
+
+        [GMLFunction("color_get_saturation")]
+        [GMLFunction("colour_get_saturation")]
+        public static object? color_get_saturation(object?[] args)
+        {
+            var col = args[0].Conv<int>();
+            return RGBToHSV(col).s;
+        }
+
+        [GMLFunction("color_get_value")]
+        [GMLFunction("colour_get_value")]
+        public static object? color_get_value(object?[] args)
+        {
+            var col = args[0].Conv<int>();
+            return RGBToHSV(col).v;
+        }
 
         [GMLFunction("merge_color")]
         [GMLFunction("merge_colour")]
