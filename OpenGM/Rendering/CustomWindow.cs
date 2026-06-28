@@ -309,18 +309,6 @@ public class CustomWindow : GameWindow
         drawAreaBottomRight = drawAreaBottomRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         drawAreaBottomLeft = drawAreaBottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         
-        /*
-        GL.TexCoord2(topLeftUV);
-        GL.Vertex2(drawAreaTopLeft);
-        GL.TexCoord2(topRightUV);
-        GL.Vertex2(drawAreaTopRight);
-        GL.TexCoord2(bottomRightUV);
-        GL.Vertex2(drawAreaBottomRight);
-        GL.TexCoord2(bottomLeftUV);
-        GL.Vertex2(drawAreaBottomLeft);
-        
-        GL.End();
-        */
         GraphicsManager.Draw(PrimitiveType.TriangleFan, [
             new(drawAreaTopLeft, spriteJob.Colors[0], topLeftUV),
             new(drawAreaTopRight, spriteJob.Colors[1], topRightUV),
@@ -334,94 +322,115 @@ public class CustomWindow : GameWindow
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTextureUnit(0, id);
 
-        var left = (double)partJob.left;
-        var top = (double)partJob.top;
-        var width = (double)partJob.width;
-        var height = (double)partJob.height;
+        var left = partJob.left;
+        var top = partJob.top;
+        var width = partJob.width;
+        var height = partJob.height;
         var x = partJob.screenPos.X;
         var y = partJob.screenPos.Y;
         var xscale = partJob.scale.X;
         var yscale = partJob.scale.Y;
+        var angle = partJob.angle;
 
-        var sinAngle = Math.Sin(CustomMath.Deg2Rad * partJob.angle);
-        var cosAngle = Math.Cos(CustomMath.Deg2Rad * partJob.angle);
+        var _pTPE = partJob.texture;
 
-        double xUVOffset;
-        var fVar7 = (double)partJob.texture.TargetX;
-        if (fVar7 <= left)
+        var sin = Math.Sin(angle * CustomMath.Deg2Rad);
+        var cos = Math.Cos(angle * CustomMath.Deg2Rad);
+
+        var xoffset = _pTPE.TargetX;
+        var yoffset = _pTPE.TargetY;
+
+        double adjustedLeft;
+        double adjustedTop;
+        var adjustedWidth = width;
+        var adjustedHeight = height;
+        var rotatedX = x;
+        var rotatedY = y;
+
+        if (xoffset <= left)
         {
-            xUVOffset = left - fVar7;
+            adjustedLeft = left - xoffset;
         }
         else
         {
-            fVar7 -= left;
-            xUVOffset = 0.0f;
-            width -= fVar7;
-            x += fVar7 * cosAngle * xscale;
-            y -= fVar7 * sinAngle * yscale;
+            var off = xoffset - left;
+            adjustedLeft = 0.0;
+            adjustedWidth -= off;
+            rotatedX = x + (off * cos) * xscale;
+            rotatedY = y - (off * sin) * yscale;
         }
 
-        double yUVOffset;
-        fVar7 = partJob.texture.TargetY;
-        if (fVar7 <= top)
+        if (yoffset <= top)
         {
-            yUVOffset = top - fVar7;
+            adjustedTop = top - yoffset;
         }
         else
         {
-            fVar7 -= top;
-            yUVOffset = 0.0f;
-            height -= fVar7;
-            x += fVar7 * sinAngle * xscale;
-            y += fVar7 * cosAngle * yscale;
+            var off = yoffset - top;
+            adjustedTop = 0.0;
+            adjustedHeight -= off;
+            rotatedX += (off * sin) * xscale;
+            rotatedY += (off * cos) * yscale;
         }
 
-        if (partJob.texture.TargetWidth < xUVOffset + width)
+        var scaledw = Math.Min(_pTPE.TargetWidth, adjustedWidth) * xscale;
+        var scaledh = Math.Min(_pTPE.TargetHeight, adjustedHeight) * yscale;
+
+        var x1 = rotatedX;
+        var y1 = rotatedY;
+        double x2, y2, x3, y3, x4, y4;
+
+        if (angle >= 0.0001)
         {
-            width = partJob.texture.TargetWidth - xUVOffset;
-        }
+            x2 = (scaledw * cos) + rotatedX;
+            y2 = rotatedY - (scaledw * sin);
 
-        if (partJob.texture.TargetHeight < yUVOffset + height)
+            x3 = (scaledw * cos) + rotatedX + (scaledh * sin);
+            y3 = (rotatedY - (scaledw * sin)) + (scaledh * cos);
+
+            x4 = rotatedX + (scaledh * sin);
+            y4 = rotatedY + (scaledh * cos);
+        }
+        else
         {
-            height = partJob.texture.TargetHeight - yUVOffset;
+            x2 = scaledw + rotatedX;
+            y2 = rotatedY;
+
+            x3 = scaledw + rotatedX;
+            y3 = scaledh + rotatedY;
+
+            x4 = rotatedX;
+            y4 = scaledh + rotatedY;
         }
 
-        if ((0.0 < width) && (0.0 < height))
-        {
-            var widthScale = partJob.texture.SourceWidth / partJob.texture.TargetWidth;
-            var heightScale = partJob.texture.SourceHeight / partJob.texture.TargetHeight;
+        var uvW = 1.0 / pageTexture.Width;
+        var uvH = 1.0 / pageTexture.Height;
 
-            var uvLeft = (partJob.texture.SourceX + xUVOffset) / pageTexture.Width;
-            var uvTop = (partJob.texture.SourceY + yUVOffset) / pageTexture.Height;
-            var uvRight = (partJob.texture.SourceX + xUVOffset + widthScale * width) / pageTexture.Width;
-            var uvBottom = (partJob.texture.SourceY + yUVOffset + heightScale * height) / pageTexture.Height;
-            var uv0 = new Vector2d(uvLeft, uvTop);
-            var uv1 = new Vector2d(uvRight, uvTop);
-            var uv2 = new Vector2d(uvRight, uvBottom);
-            var uv3 = new Vector2d(uvLeft, uvBottom);
+        var u1 = uvW * (_pTPE.SourceX + adjustedLeft);
+        var v1 = uvH * (_pTPE.SourceY + adjustedTop);
 
-            var widthCos = width * xscale * cosAngle;
-            var widthSin = -width * xscale * sinAngle;
-            var heightCos = height * yscale * cosAngle;
-            var heightSin = height * yscale * sinAngle;
+        var u2 = uvW * ((_pTPE.SourceX + adjustedLeft) + Math.Min(_pTPE.TargetWidth, adjustedWidth));
+        var v2 = uvH * ((_pTPE.SourceY + adjustedTop) + Math.Min(_pTPE.TargetHeight, adjustedHeight));
 
-            var bottomVector = new Vector3d(heightSin, heightCos, 0);
+        DrawTexture(
+            x1, y1, x2, y2, x3, y3, x4, y4,
+            u1, v1, u2, v2,
+            partJob.Colors[0], partJob.Colors[1], partJob.Colors[2], partJob.Colors[3]);
+    }
 
-            var topLeft = new Vector3d(x, y, GraphicsManager.GR_Depth);
-            var bottomLeft = topLeft + bottomVector;
-
-            var topRight = topLeft + new Vector3d(widthCos, widthSin, 0);
-            var bottomRight = topRight + bottomVector;
-
-            GraphicsManager.Draw(PrimitiveType.TriangleFan, [
-                new(topLeft, partJob.Colors[0], uv0),
-                new(topRight, partJob.Colors[1], uv1),
-                new(bottomRight, partJob.Colors[2], uv2),
-                new(bottomLeft, partJob.Colors[3], uv3),
-            ]);
-        }
-
-        // GL.End();
+    public static void DrawTexture(
+        double x1, double y1, double x2, double y2, double x3, double y3, double x4,
+        double y4, double u1, double v1, double u2, double v2, 
+        Color4 c1, Color4 c2, Color4 c3, Color4 c4)
+    {
+        GraphicsManager.Draw(PrimitiveType.Triangles, [
+            new(new(x1, y1, GraphicsManager.GR_Depth), c1, new(u1, v1)),
+            new(new(x2, y2, GraphicsManager.GR_Depth), c2, new(u2, v1)),
+            new(new(x3, y3, GraphicsManager.GR_Depth), c3, new(u2, v2)),
+            new(new(x3, y3, GraphicsManager.GR_Depth), c3, new(u2, v2)),
+            new(new(x4, y4, GraphicsManager.GR_Depth), c4, new(u1, v2)),
+            new(new(x1, y1, GraphicsManager.GR_Depth), c1, new(u1, v1))
+        ]);
     }
 
     public static void Draw(GMLineJob lineJob)
@@ -529,10 +538,10 @@ public class GMSpriteJob : GMBaseJob
 
 public class GMSpritePartJob : GMSpriteJob
 {
-    public required float left;
-    public required float top;
-    public required float width;
-    public required float height;
+    public required double left;
+    public required double top;
+    public required double width;
+    public required double height;
 }
 
 public class GMTextJob : GMBaseJob

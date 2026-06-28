@@ -1954,10 +1954,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var sprite = args[0].Conv<int>();
             var subimg = args[1].Conv<int>();
-            var left = args[2].Conv<int>();
-            var top = args[3].Conv<int>();
-            var width = args[4].Conv<int>();
-            var height = args[5].Conv<int>();
+            var left = args[2].Conv<double>();
+            var top = args[3].Conv<double>();
+            var width = args[4].Conv<double>();
+            var height = args[5].Conv<double>();
             var x = args[6].Conv<double>();
             var y = args[7].Conv<double>();
 
@@ -1976,10 +1976,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var sprite = args[0].Conv<int>();
             var subimg = args[1].Conv<int>();
-            var left = args[2].Conv<int>();
-            var top = args[3].Conv<int>();
-            var width = args[4].Conv<int>();
-            var height = args[5].Conv<int>();
+            var left = args[2].Conv<double>();
+            var top = args[3].Conv<double>();
+            var width = args[4].Conv<double>();
+            var height = args[5].Conv<double>();
             var x = args[6].Conv<double>();
             var y = args[7].Conv<double>();
             var xscale = args[8].Conv<double>();
@@ -2002,10 +2002,10 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         {
             var sprite = args[0].Conv<int>();
             var subimg = args[1].Conv<int>();
-            var left = args[2].Conv<int>();
-            var top = args[3].Conv<int>();
-            var width = args[4].Conv<int>();
-            var height = args[5].Conv<int>();
+            var left = args[2].Conv<double>();
+            var top = args[3].Conv<double>();
+            var width = args[4].Conv<double>();
+            var height = args[5].Conv<double>();
             var x = args[6].Conv<double>();
             var y = args[7].Conv<double>();
             var xscale = args[8].Conv<double>();

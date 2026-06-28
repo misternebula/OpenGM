@@ -101,12 +101,12 @@ public static class SpriteManager
         });
     }
 
-    public static void DrawSpritePart(int name, int index, int left, int top, int width, int height, double x, double y)
+    public static void DrawSpritePart(int name, int index, double left, double top, double width, double height, double x, double y)
     {
         DrawSpritePartExt(name, index, left, top, width, height, x, y, 1, 1, 16777215, 1);
     }
 
-    public static void DrawSpritePartExt(int name, double index, int left, int top, int width, int height, double x, double y, double xscale, double yscale, int blend, double alpha)
+    public static void DrawSpritePartExt(int name, double index, double left, double top, double width, double height, double x, double y, double xscale, double yscale, int blend, double alpha)
     {
         //var sprite = SpritePart(name, index, left, top, width, height);
         var sprite = GetSpritePageItem(name, index);
