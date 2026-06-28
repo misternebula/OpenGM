@@ -35,7 +35,7 @@ public static class ScriptResolver
                     {
                         LoggedStubs.Add(functionName);
                     }
-                    DebugLog.Log($"{functionName} not implemented.", stubLogType);
+                    DebugLog.Log($"STUB: {functionName} not implemented.", stubLogType);
                 }
                 return function.Invoke(args);
             };
