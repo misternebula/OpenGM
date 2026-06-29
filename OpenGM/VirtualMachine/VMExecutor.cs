@@ -143,6 +143,7 @@ public static partial class VMExecutor
     public static bool DebugMode;
     public static Regex? ScriptFilter;
     public static VMCodeInstruction? CurrentInstruction;
+    public static bool BreakOnInstruction;
 
     /// <summary>
     /// True if we are currently executing Global Init code.
@@ -360,6 +361,11 @@ public static partial class VMExecutor
     // BUG: throws sometimes instead of returning ExecutionResult.Failure
     public static (ExecutionResult result, object? data) ExecuteInstruction(VMCodeInstruction instruction)
     {
+        if (BreakOnInstruction)
+        {
+            System.Diagnostics.Debugger.Break();
+        }
+
         if (VerboseStackLogs) 
             DebugLog.LogInfo($" - {instruction.Raw}");
         CurrentInstruction = instruction;

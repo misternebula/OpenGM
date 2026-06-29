@@ -84,6 +84,28 @@ public static class ScriptResolver
         DebugLog.LogInfo($"Registered {addedCount}/{totalCount} GML functions ({realCount} implemented, {stubCount} stubbed.)");
     }
 
+
+    [GMLFunction("opengm_callstack", GMLFunctionFlags.OpenGM)]
+    public static object? opengm_callstack(object?[] args)
+    {
+        DebugLog.PrintCallStack();
+        return null;
+    }
+
+    [GMLFunction("opengm_enable_instruction_break", GMLFunctionFlags.OpenGM)]
+    public static object? opengm_enable_instruction_break(object?[] args)
+    {
+        VMExecutor.BreakOnInstruction = true;
+        return null;
+    }
+
+    [GMLFunction("opengm_disable_instruction_break", GMLFunctionFlags.OpenGM)]
+    public static object? opengm_disable_instruction_break(object?[] args)
+    {
+        VMExecutor.BreakOnInstruction = false;
+        return null;
+    }
+
     // any functions in here aren't in 2022.500 so idk where they go rn
 
     [GMLFunction("draw_background", before: "2.0.0.0")]

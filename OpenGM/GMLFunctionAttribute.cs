@@ -22,6 +22,7 @@ namespace OpenGM
     public enum GMLFunctionFlags
     {
         // write new entries like 1 << 1, 1 << 2...
-        Stub = 1 << 0
+        Stub = 1 << 0,
+        OpenGM = 1 << 1
     }
 }

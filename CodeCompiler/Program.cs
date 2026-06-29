@@ -67,7 +67,12 @@ internal class Program
 		Console.WriteLine($"Reading data.win...");
 		var data = UndertaleIO.Read(stream);
 
-		var compileGroup = new CompileGroup(data);
+        data.BuiltinList.Functions.Add("opengm_break", new FunctionInfo("opengm_break", 0));
+        data.BuiltinList.Functions.Add("opengm_callstack", new FunctionInfo("opengm_callstack", 0));
+        data.BuiltinList.Functions.Add("opengm_enable_instruction_break", new FunctionInfo("opengm_enable_instruction_break", 0));
+        data.BuiltinList.Functions.Add("opengm_disable_instruction_break", new FunctionInfo("opengm_disable_instruction_break", 0));
+
+        var compileGroup = new CompileGroup(data);
 		var codeNames = new List<string>();
 
 		foreach (var file in scriptPaths)
