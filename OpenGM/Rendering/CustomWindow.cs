@@ -322,7 +322,94 @@ public class CustomWindow : GameWindow
         var (pageTexture, id) = PageManager.TexturePages[partJob.texture.Page];
         GL.BindTextureUnit(0, id);
 
-        var left = partJob.left;
+        var left = (double)partJob.left;
+        var top = (double)partJob.top;
+        var width = (double)partJob.width;
+        var height = (double)partJob.height;
+        var x = partJob.screenPos.X;
+        var y = partJob.screenPos.Y;
+        var xscale = partJob.scale.X;
+        var yscale = partJob.scale.Y;
+
+        var sinAngle = Math.Sin(CustomMath.Deg2Rad * partJob.angle);
+        var cosAngle = Math.Cos(CustomMath.Deg2Rad * partJob.angle);
+
+        double xUVOffset;
+        var fVar7 = (double)partJob.texture.TargetX;
+        if (fVar7 <= left)
+        {
+            xUVOffset = left - fVar7;
+        }
+        else
+        {
+            fVar7 -= left;
+            xUVOffset = 0.0f;
+            width -= fVar7;
+            x += fVar7 * cosAngle * xscale;
+            y -= fVar7 * sinAngle * yscale;
+        }
+
+        double yUVOffset;
+        fVar7 = partJob.texture.TargetY;
+        if (fVar7 <= top)
+        {
+            yUVOffset = top - fVar7;
+        }
+        else
+        {
+            fVar7 -= top;
+            yUVOffset = 0.0f;
+            height -= fVar7;
+            x += fVar7 * sinAngle * xscale;
+            y += fVar7 * cosAngle * yscale;
+        }
+
+        if (partJob.texture.TargetWidth < xUVOffset + width)
+        {
+            width = partJob.texture.TargetWidth - xUVOffset;
+        }
+
+        if (partJob.texture.TargetHeight < yUVOffset + height)
+        {
+            height = partJob.texture.TargetHeight - yUVOffset;
+        }
+
+        if ((0.0 < width) && (0.0 < height))
+        {
+            var widthScale = partJob.texture.SourceWidth / partJob.texture.TargetWidth;
+            var heightScale = partJob.texture.SourceHeight / partJob.texture.TargetHeight;
+
+            var uvLeft = (partJob.texture.SourceX + xUVOffset) / pageTexture.Width;
+            var uvTop = (partJob.texture.SourceY + yUVOffset) / pageTexture.Height;
+            var uvRight = (partJob.texture.SourceX + xUVOffset + widthScale * width) / pageTexture.Width;
+            var uvBottom = (partJob.texture.SourceY + yUVOffset + heightScale * height) / pageTexture.Height;
+            var uv0 = new Vector2d(uvLeft, uvTop);
+            var uv1 = new Vector2d(uvRight, uvTop);
+            var uv2 = new Vector2d(uvRight, uvBottom);
+            var uv3 = new Vector2d(uvLeft, uvBottom);
+
+            var widthCos = width * xscale * cosAngle;
+            var widthSin = -width * xscale * sinAngle;
+            var heightCos = height * yscale * cosAngle;
+            var heightSin = height * yscale * sinAngle;
+
+            var bottomVector = new Vector3d(heightSin, heightCos, 0);
+
+            var topLeft = new Vector3d(x, y, GraphicsManager.GR_Depth);
+            var bottomLeft = topLeft + bottomVector;
+
+            var topRight = topLeft + new Vector3d(widthCos, widthSin, 0);
+            var bottomRight = topRight + bottomVector;
+
+            GraphicsManager.Draw(PrimitiveType.TriangleFan, [
+                new(topLeft, partJob.Colors[0], uv0),
+                new(topRight, partJob.Colors[1], uv1),
+                new(bottomRight, partJob.Colors[2], uv2),
+                new(bottomLeft, partJob.Colors[3], uv3),
+            ]);
+        }
+
+        /*var left = partJob.left;
         var top = partJob.top;
         var width = partJob.width;
         var height = partJob.height;
@@ -415,7 +502,7 @@ public class CustomWindow : GameWindow
         DrawTexture(
             x1, y1, x2, y2, x3, y3, x4, y4,
             u1, v1, u2, v2,
-            partJob.Colors[0], partJob.Colors[1], partJob.Colors[2], partJob.Colors[3]);
+            partJob.Colors[0], partJob.Colors[1], partJob.Colors[2], partJob.Colors[3]);*/
     }
 
     public static void DrawTexture(
