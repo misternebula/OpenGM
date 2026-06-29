@@ -486,25 +486,8 @@ public static partial class VMExecutor
                         return (ExecutionResult.Success, null);
                     }
 
-                    // todo : wtf is this?? what was i on when i wrote this
-                    if (!Self.Self.SelfVariables.TryAdd(variableName, value))
-                    {
-                        Self.Self.SelfVariables[variableName] = value;
-                    }
-
-                    DebugLog.LogWarning($"idk what's meant to happen here aaaa!!!! varname:{variableName} value:{value}");
-                    DebugLog.PrintCallStack(DebugLog.LogType.Warning);
-
-                    /*if (VariableResolver.BuiltInSelfVariables.ContainsKey(variableName))
-                    {
-                        VariableResolver.BuiltInSelfVariables[variableName].setter!(Self.GMSelf, value);
-                    }
-                    else
-                    {
-                        VariableResolver.BuiltInSelfVariables.Add(variableName, (
-                            (obj) => obj.SelfVariables[variableName]!,
-                            (obj, val) => obj.SelfVariables[variableName] = val));
-                    }*/
+                    DebugLog.Log($"Set {variableName} on {Self.GMSelf.Definition.Name} to {value}");
+                    PopToSelf(Self.Self, variableName, value);
 
                     return (ExecutionResult.Success, null);
                 }
