@@ -108,8 +108,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return VariableResolver.GlobalVariables.ContainsKey(name);
         }
 
-        // variable_global_get
-        // variable_global_set
+        [GMLFunction("variable_global_get")]
+        public static object? variable_global_get(object?[] args)
+        {
+            var name = args[0].Conv<string>();
+            return VariableResolver.GlobalVariables.GetValueOrDefault(name);
+        }
+
+        [GMLFunction("variable_global_set")]
+        public static object? variable_global_set(object?[] args)
+        {
+            var name = args[0].Conv<string>();
+            var value = args[1];
+
+            VariableResolver.GlobalVariables[name] = value;
+            return null;
+        }
 
         [GMLFunction("struct_exists")]
         [GMLFunction("variable_instance_exists")]

@@ -180,9 +180,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("texture_get_texel_width")]
         public static object? texture_get_texel_width(object?[] args)
         {
+            // HACK: surface_get_texture returns -1
+            // intercept it and return a dummy value
             if (args[0] is int i && i == -1)
             {
-                return 1.0;
+                DebugLog.LogVerbose("Returning dummy value for texture_get_texel_width");
+                return 1.0 / CustomWindow.Instance.ClientSize.X;
             }
 
             var tex = args[0] as SpritePageItem;
@@ -200,6 +203,14 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("texture_get_texel_height")]
         public static object? texture_get_texel_height(object?[] args)
         {
+            // HACK: surface_get_texture returns -1
+            // intercept it and return a dummy value
+            if (args[0] is int i && i == -1)
+            {
+                DebugLog.LogVerbose("Returning dummy value for texture_get_texel_height");
+                return 1.0 / CustomWindow.Instance.ClientSize.Y;
+            }
+
             var tex = args[0] as SpritePageItem;
 
             if (tex == null)

@@ -36,9 +36,10 @@ The following games have been tested with OpenGM, and are used to improve functi
 | - Chapter 4                                  | "					  |																													|
 | DELTARUNE Chapter 1 & 2 DEMO (LTS Branch)    | 2022.0.3.99 (LTS)	  | Works well.																										|
 | FAITH: The Unholy Trinity v1.5               | 2022.0.2.49 (LTS)    |	Loads, camera stuck in one place?																				|
+| Pizza Tower                                  | 2022.0.1.30 (LTS)	  |	Works surprisingly well. Requires manually creating a `saves` folder in the game directory.						|
 | Pizza Tower Eggplant Build                   | 2022.3.0.497		  |																													|
 | DELTARUNE Chapter 1 & 2 DEMO                 | 2022.1.0.482		  |	Works well.																										|
-| Pizza Tower SAGE 2019 Demo                   | 2.2.3.344			  |																													|
+| Pizza Tower SAGE 2019 Demo                   | 2.2.3.344			  |	Works well.    																									|
 | DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | 2.2.0.258			  |	Works well.																										|
 | FAITH Demon Seige							   | 1.4.9999			  | Screen shader effect not working, some text invisible, camera stuck in top left, enemies don't spawn properly.	|
 | Undertale                                    | 1.0.0.1539			  | Kind of works, but breaks in a lot of places.																	|

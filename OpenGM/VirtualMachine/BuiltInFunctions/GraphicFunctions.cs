@@ -2368,8 +2368,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return SurfaceManager.surface_reset_target();
         }
 
-        // surface_depth_disable
-
         [GMLFunction("surface_depth_disable", GMLFunctionFlags.Stub)]
         public static object? surface_depth_disable(object?[] args)
         {
