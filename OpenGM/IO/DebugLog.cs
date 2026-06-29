@@ -75,7 +75,7 @@ public static class DebugLog
         Console.ResetColor();
     }
 
-    public static void PrintCallStack(LogType? type = LogType.Verbose)
+    public static void PrintCallStack(LogType? type = null)
     {
         Log($"--Stacktrace--", type);
         foreach (var item in VMExecutor.CallStack)

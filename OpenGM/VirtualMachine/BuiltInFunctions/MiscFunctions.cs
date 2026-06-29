@@ -140,7 +140,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     if (all == null || all.Count == 0)
                     {
                         DebugLog.LogError($"Couldn't find any instances with asset index {instanceId}");
-                        DebugLog.PrintCallStack();
+                        DebugLog.PrintCallStack(DebugLog.LogType.Error);
                         return false;
                     }
 
@@ -154,6 +154,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (instance == null)
             {
+                DebugLog.LogWarning("Couldn't find struct " + args[0]);
                 return false;
             }
 
@@ -194,7 +195,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                     if (all == null || all.Count == 0)
                     {
                         DebugLog.LogError($"Couldn't find any instances with asset index {instanceId}");
-                        DebugLog.PrintCallStack();
+                        DebugLog.PrintCallStack(DebugLog.LogType.Error);
                         return null;
                     }
 

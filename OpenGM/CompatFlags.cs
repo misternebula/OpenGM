@@ -87,7 +87,7 @@ public static class CompatFlags
                 fieldInfo.SetValue(null, value);
             }
 
-            DebugLog.LogVerbose($"Compat flag \"{fieldInfo.Name}\": {fieldInfo.GetValue(null)}");
+            DebugLog.LogInfo($"Compat flag \"{fieldInfo.Name}\": {fieldInfo.GetValue(null)}");
         }
 
         if (ForceDepthZero)

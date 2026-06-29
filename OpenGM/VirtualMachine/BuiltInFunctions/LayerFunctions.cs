@@ -382,7 +382,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             if (baseElement == null)
             {
                 DebugLog.LogError($"layer_get_element_type : Couldn't find element for element_id {element_id}");
-                DebugLog.PrintCallStack();
+                DebugLog.PrintCallStack(DebugLog.LogType.Error);
                 return (int)ElementType.Undefined;
             }
 

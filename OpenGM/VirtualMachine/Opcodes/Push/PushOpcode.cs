@@ -196,6 +196,18 @@ public static partial class VMExecutor
         }
         else
         {
+            if (!self.SelfVariables.ContainsKey(varName))
+            {
+                if (self is GamemakerObject gmobj)
+                {
+                    DebugLog.LogError($"{gmobj.instanceId} does not contain the variable {varName}");
+                }
+                else
+                {
+                    DebugLog.LogError($"{self} does not contain the variable {varName}");
+                }
+            }
+
             array = self.SelfVariables[varName].Conv<IList>();
         }
 
@@ -453,6 +465,11 @@ public static partial class VMExecutor
                     else if (instanceId == GMConstants.builtin)
                     {
                         PushBuiltinArrayIndex(variableName, index);
+                        return (ExecutionResult.Success, null);
+                    }
+                    else if (instanceId == GMConstants.other)
+                    {
+                        PushSelfArrayIndex(Other.Self, variableName, index);
                         return (ExecutionResult.Success, null);
                     }
                     else

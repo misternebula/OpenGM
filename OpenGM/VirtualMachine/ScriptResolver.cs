@@ -84,6 +84,14 @@ public static class ScriptResolver
         DebugLog.LogInfo($"Registered {addedCount}/{totalCount} GML functions ({realCount} implemented, {stubCount} stubbed.)");
     }
 
+    // custom opengm functions
+
+    [GMLFunction("opengm_break", GMLFunctionFlags.OpenGM)]
+    public static object? opengm_break(object?[] args)
+    {
+        System.Diagnostics.Debugger.Break();
+        return null;
+    }
 
     [GMLFunction("opengm_callstack", GMLFunctionFlags.OpenGM)]
     public static object? opengm_callstack(object?[] args)
