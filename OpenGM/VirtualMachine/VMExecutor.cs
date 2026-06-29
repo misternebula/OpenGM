@@ -672,14 +672,7 @@ public static partial class VMExecutor
                 break;
             }
             case VMOpcode.EXIT:
-                return (ExecutionResult.ReturnedValue, instruction.TypeOne switch
-                {
-                    VMType.i or VMType.e or VMType.d or VMType.l => 0,
-                    VMType.b => false,
-                    VMType.s => "",
-                    VMType.v => null,
-                    _ => throw new ArgumentOutOfRangeException()
-                });
+                return (ExecutionResult.ReturnedValue, CompatFlags.ZeroReturnValue ? 0 : null);
             case VMOpcode.SETOWNER:
                 // seems to always push.i before
                 // apparently used for COW array stuff. does that mean this subtley breaks everything because arrays expect to copy?

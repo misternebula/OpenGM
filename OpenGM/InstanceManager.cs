@@ -278,8 +278,9 @@ public static class InstanceManager
                 result.Add(VMExecutor.Self.GMSelf);
                 return result;
             case GMConstants.other:
-                var myId = VMExecutor.Self.GMSelf.instanceId;
-                result.AddRange(instList.Where(inst => inst.instanceId != myId));
+                /*var myId = VMExecutor.Self.GMSelf.instanceId;
+                result.AddRange(instList.Where(inst => inst.instanceId != myId));*/
+                result.Add(VMExecutor.Other.GMSelf);
                 return result;
             case GMConstants.all:
                 result.AddRange(instList);
