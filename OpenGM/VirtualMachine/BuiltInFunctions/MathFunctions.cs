@@ -13,7 +13,8 @@ public static class MathFunctions
     [GMLFunction("is_real")]
     public static object is_real(object?[] args) => args[0] is int or long or short or double or float;
 
-    // is_numeric
+    [GMLFunction("is_numeric")]
+    public static object is_numeric(object?[] args) => is_real([args[0]]).Conv<bool>() || is_bool([args[0]]).Conv<bool>();
 
     [GMLFunction("is_string")]
     public static object is_string(object?[] args) => args[0] is string;
@@ -717,7 +718,22 @@ public static class MathFunctions
         return arguments.Max();
     }
 
-    // mean
+    [GMLFunction("mean")]
+    public static object mean(object?[] args)
+    {
+        if (args.Length == 0)
+        {
+            return 0;
+        }
+
+        var realValues = new double[args.Length];
+        for (var i = 0; i < args.Length; i++)
+        {
+            realValues[i] = args[i].Conv<double>();
+        }
+
+        return realValues.Average();
+    }
 
     [GMLFunction("median")]
     public static object median(object?[] args)
