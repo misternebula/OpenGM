@@ -383,7 +383,8 @@ public static class RoomManager
 
                     var tilesLayer = new GMTilesLayer(item)
                     {
-                        depth = layer.LayerDepth
+                        depth = layer.LayerDepth,
+                        instanceId = item.Id
                     };
 
                     layerContainer.ElementsToDraw.Add(tilesLayer);
