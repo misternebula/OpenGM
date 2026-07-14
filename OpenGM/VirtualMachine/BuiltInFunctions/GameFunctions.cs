@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using NAudio.Midi;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Mathematics;
 
@@ -431,7 +432,58 @@ public static class GameFunctions
         return CollisionManager.Command_CollisionLine(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
     }
 
-    // collision_line_list
+    [GMLFunction("collision_line_list")]
+    public static object? collision_line_list(object?[] args)
+    {
+        var x1 = args[0].Conv<double>();
+        var y1 = args[1].Conv<double>();
+        var x2 = args[2].Conv<double>();
+        var y2 = args[3].Conv<double>();
+        var obj = args[4].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+        var prec = args[5].Conv<bool>();
+        var notme = args[6].Conv<bool>();
+        var list = args[7].Conv<int>();
+        var ordered = args[8].Conv<bool>();
+
+        var instList = new List<GamemakerObject>();
+
+        CollisionManager.Command_CollisionLineList(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme, instList);
+
+        var count = instList.Count;
+
+        AppendCollisionResults(instList, list, x1, y1, ordered);
+
+        return count;
+    }
+
+    static void AppendCollisionResults(List<GamemakerObject> instList, int destList, double x, double y, bool ordered)
+    {
+        var sortedList = new List<(GamemakerObject obj, double distance)>();
+
+        foreach (var inst in instList)
+        {
+            if (inst == null)
+            {
+                continue;
+            }
+
+            var dx = inst.x - x;
+            var dy = inst.y - y;
+            var distSq = (dx * dx + dy * dy);
+            sortedList.Add((inst, distSq));
+        }
+
+        if (ordered)
+        {
+            // TODO: html doesn't actually check this variable? double check what c++ does
+            sortedList.Sort((a, b) => a.distance.CompareTo(b.distance));
+        }
+
+        foreach (var item in sortedList)
+        {
+            DataStructuresFunctions.ds_list_add([destList, item.obj]);
+        }
+    }
 
     [GMLFunction("instance_find")]
     public static object instance_find(object?[] args)

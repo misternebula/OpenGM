@@ -371,6 +371,75 @@ public static class CollisionManager
         return GMConstants.noone;
     }
 
+    public static int Command_CollisionLineList(
+        GamemakerObject self,
+        double x1, double y1,
+        double x2, double y2,
+        int obj,
+        bool precise,
+        bool notme,
+        List<GamemakerObject> list)
+    {
+        bool IsValid(GamemakerObject? instance)
+        {
+            if (instance == null)
+            {
+                return false;
+            }
+
+            if (notme && instance == self)
+            {
+                return false;
+            }
+
+            if (instance.Marked)
+            {
+                return false;
+            }
+
+            if (!instance.Active)
+            {
+                return false;
+            }
+
+            return Collision_Line(instance, x1, y1, x2, y2, precise);
+        }
+
+        if (obj == GMConstants.all)
+        {
+            foreach (var instance in InstanceManager.instances.Values)
+            {
+                if (IsValid(instance))
+                {
+                    list.Add(instance);
+                }
+            }
+        }
+        else if (obj < GMConstants.FIRST_INSTANCE_ID)
+        {
+            var instances = InstanceManager.FindByAssetId(obj);
+            foreach (var instance in instances)
+            {
+                if (IsValid(instance))
+                {
+                    list.Add(instance);
+                }
+            }
+        }
+        else
+        {
+            // instance id
+            var instance = InstanceManager.FindByInstanceId(obj);
+
+            if (IsValid(instance))
+            {
+                list.Add(instance!);
+            }
+        }
+
+        return GMConstants.noone;
+    }
+
     public static bool Collision_Rectangle(GamemakerObject self, double x1, double y1, double x2, double y2, bool precise)
     {
         if (self.bbox_dirty)
