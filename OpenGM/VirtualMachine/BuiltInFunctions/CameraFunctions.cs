@@ -131,7 +131,27 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // camera_set_view_speed
-        // camera_set_view_border
+
+        [GMLFunction("camera_set_view_border")]
+        public static object? camera_set_view_border(object?[] args)
+        {
+            var camera_id = args[0].Conv<int>();
+
+            var camera = CameraManager.GetCamera(camera_id);
+            if (camera == null)
+            {
+                return null;
+            }
+
+            var xborder = args[1].Conv<float>();
+            var yborder = args[2].Conv<float>();
+
+            camera.BorderX = xborder;
+            camera.BorderY = yborder;
+
+            return null;
+        }
+
         // camera_set_view_angle
 
         [GMLFunction("camera_set_view_target")]
