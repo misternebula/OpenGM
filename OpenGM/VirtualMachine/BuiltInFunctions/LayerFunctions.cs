@@ -1587,6 +1587,78 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // draw_tile
+
+        [GMLFunction("draw_tile")]
+        public static object? draw_tile(object?[] args)
+        {
+            var tilesetid = args[0].Conv<int>();
+            var tile = new TileBlob(args[1].Conv<uint>());
+            var frame = args[2].Conv<int>();
+            var x = args[3].Conv<double>();
+            var y = args[4].Conv<double>();
+
+            if (tile.TileIndex == 0)
+            {
+                // There's a checkerboard graphic here in the tileset, so 0 represents no tile.
+                // Guessing GM also does this check? Why didn't they just make the first tile always blank?!
+                return null;
+            }
+
+            var _tileSet = GameLoader.TileSets[tilesetid];
+
+            var indexIntoTileset = (tile.TileIndex * _tileSet.FramesPerTile) + frame;
+            var tileId = _tileSet.TileIds[indexIntoTileset];
+
+            // We now have how many tiles into the tileset the current tile to draw is.
+            // 0 is at the top left, and it loops back around to the left of the next line.
+
+            var tileSetRow = CustomMath.FloorToInt(tileId / (double)_tileSet.TileColumns);
+            var tileSetColumn = tileId % _tileSet.TileColumns;
+
+            var tileWidth = _tileSet.TileWidth + (_tileSet.OutputBorderX * 2); // Width of tile in tileset, not actual tile graphic
+            var tileHeight = _tileSet.TileHeight + (_tileSet.OutputBorderY * 2); // ditto
+
+            var offset = new Vector2d();
+
+            var angle = 0;
+            if (tile.Rotate)
+            {
+                angle = 90;
+                offset += new Vector2(_tileSet.TileHeight, 0);
+            }
+
+            var scale = Vector2.One;
+
+            if (tile.Mirror)
+            {
+                scale.X = -1;
+                offset += new Vector2(_tileSet.TileWidth, 0);
+            }
+
+            if (tile.Flip)
+            {
+                scale.Y = -1;
+                offset += new Vector2(0, _tileSet.TileHeight);
+            }
+
+            CustomWindow.Draw(new GMSpritePartJob()
+            {
+                texture = _tileSet.Texture,
+                width = _tileSet.TileWidth,
+                height = _tileSet.TileHeight,
+                screenPos = new Vector2d(x, y) + offset,
+                Colors = [Color4.White, Color4.White, Color4.White, Color4.White],
+                left = (tileSetColumn * tileWidth) + _tileSet.OutputBorderX,
+                top = (tileSetRow * tileHeight) + _tileSet.OutputBorderX,
+                scale = scale,
+                angle = angle,
+                origin = Vector2.Zero
+            });
+
+            // docs say this function returns real, but i don't think it returns anything
+            return null;
+        }
+
         // tilemap_set_global_mask
         // tilemap_get_global_mask
         // tilemap_set_mask
