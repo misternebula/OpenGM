@@ -1547,6 +1547,103 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         // tilemap_get_cell_x_at_pixel
         // tilemap_get_cell_y_at_pixel
+
+        [GMLFunction("tilemap_get_cell_x_at_pixel")]
+        public static object? tilemap_get_cell_x_at_pixel(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+            var x = args[1].Conv<double>();
+            var y = args[2].Conv<double>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        var tileset = GameLoader.TileSets[tilemap.Element.BackgroundIndex];
+
+                        var tileWidth = tileset.TileWidth;
+                        var tileHeight = tileset.TileHeight;
+
+                        var oneOverWidth = 1.0 / tileWidth;
+                        var oneOverHeight = 1.0 / tileHeight;
+
+                        var xoffset = tilemap.Element.x + layer.Value.X;
+                        var yoffset = tilemap.Element.y + layer.Value.Y;
+
+                        var w = tilemap.Element.Width * tileWidth;
+                        var h = tilemap.Element.Height * tileHeight;
+
+                        x -= xoffset;
+                        y -= yoffset;
+
+                        if (x < 0 || y < 0)
+                        {
+                            return -1;
+                        }
+
+                        if (x >= w || y > h)
+                        {
+                            return -1;
+                        }
+
+                        return Math.Floor(x * oneOverWidth);
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        [GMLFunction("tilemap_get_cell_y_at_pixel")]
+        public static object? tilemap_get_cell_y_at_pixel(object?[] args)
+        {
+            var tilemap_element_id = args[0].Conv<int>();
+            var x = args[1].Conv<double>();
+            var y = args[2].Conv<double>();
+
+            foreach (var layer in RoomManager.CurrentRoom.Layers)
+            {
+                foreach (var element in layer.Value.ElementsToDraw)
+                {
+                    if (element is GMTilesLayer tilemap && tilemap.Element.Id == tilemap_element_id)
+                    {
+                        var tileset = GameLoader.TileSets[tilemap.Element.BackgroundIndex];
+
+                        var tileWidth = tileset.TileWidth;
+                        var tileHeight = tileset.TileHeight;
+
+                        var oneOverWidth = 1.0 / tileWidth;
+                        var oneOverHeight = 1.0 / tileHeight;
+
+                        var xoffset = tilemap.Element.x + layer.Value.X;
+                        var yoffset = tilemap.Element.y + layer.Value.Y;
+
+                        var w = tilemap.Element.Width * tileWidth;
+                        var h = tilemap.Element.Height * tileHeight;
+
+                        x -= xoffset;
+                        y -= yoffset;
+
+                        if (x < 0 || y < 0)
+                        {
+                            return -1;
+                        }
+
+                        if (x >= w || y > h)
+                        {
+                            return -1;
+                        }
+
+                        return Math.Floor(y * oneOverHeight);
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         // tilemap_clear
 
         [GMLFunction("draw_tilemap")]
