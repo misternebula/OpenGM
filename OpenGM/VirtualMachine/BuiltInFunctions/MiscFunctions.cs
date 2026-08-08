@@ -306,7 +306,6 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // variable_instance_get_names
         // variable_instance_names_count
         // variable_struct_exists
         // variable_struct_get
@@ -315,15 +314,47 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // variable_struct_set_post
 
         [GMLFunction("struct_get_names")]
+        [GMLFunction("variable_instance_get_names")]
         [GMLFunction("variable_struct_get_names")]
         public static object? variable_struct_get_names(object?[] args)
         {
-            var @struct = args[0].Conv<GMLObject>();
+            var obj = args[0];
 
             var varNames = new List<string>();
-            foreach (var (name, val) in @struct.SelfVariables)
+
+            if (obj is GMLObject gmlobj)
             {
-                varNames.Add(name);
+                foreach (var (name, val) in gmlobj.SelfVariables)
+                {
+                    varNames.Add(name);
+                }
+            }
+            else
+            {
+                var id = obj.Conv<int>();
+
+                if (id == GMConstants.global)
+                {
+                    foreach (var (name, val) in VariableResolver.GlobalVariables)
+                    {
+                        varNames.Add(name);
+                    }
+                }
+                else
+                {
+                    // TODO: should this include deactivated instances?
+                    var instance = InstanceManager.FindByInstanceId(id);
+
+                    if (instance == null)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    foreach (var (name, val) in instance.SelfVariables)
+                    {
+                        varNames.Add(name);
+                    }
+                }
             }
 
             return varNames;
@@ -524,7 +555,26 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // date_is_today
         // date_set_timezone
         // date_get_timezone
-        // game_set_speed
+
+        [GMLFunction("game_set_speed")]
+        public static object? game_set_speed(object?[] args)
+        {
+            var speed = args[0].Conv<int>();
+            var type = args[1].Conv<int>();
+
+            if (type == 0)
+            {
+                // FPS
+                Entry.SetGameSpeed(speed);
+            }
+            else
+            {
+                // microseconds per frame
+                Entry.SetGameSpeed(1000000 / speed);
+            }
+
+            return null;
+        }
 
         [GMLFunction("game_get_speed")]
         public static object game_get_speed(object?[] args)

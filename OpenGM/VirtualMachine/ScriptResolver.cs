@@ -417,5 +417,46 @@ public static class ScriptResolver
         return str.StartsWith(substr);
     }
 
+    [GMLFunction("call_later", GMLFunctionFlags.Stub)]
+    public static object? call_later(object?[] args)
+    {
+        var period = args[0].Conv<double>();
+        var units = args[1].Conv<int>();
+        var callback = args[2];
+
+        var loop = false;
+
+        if (args.Length == 4)
+        {
+            loop = args[3].Conv<bool>();
+        }
+
+        return null;
+    }
+
+    [GMLFunction("tile_layer_shift", before: "2.0.0.0")]
+    public static object? tile_layer_shift(object?[] args)
+    {
+        var depth = args[0].Conv<int>();
+        var x = args[1].Conv<double>();
+        var y = args[2].Conv<double>();
+
+        foreach (var tile in RoomManager.CurrentRoom.Tiles)
+        {
+            if (tile is not GMTile gmtile)
+            {
+                continue;
+            }
+
+            if (gmtile.depth == depth)
+            {
+                gmtile.X += x;
+                gmtile.Y += y;
+            }
+        }
+
+        return null;
+    }
+
     public delegate object? GMLFunctionType(object?[] args);
 }
