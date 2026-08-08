@@ -657,12 +657,23 @@ public static class GameConverter
         writer.Write(data.EmbeddedTextures.Count);
         foreach (var page in data.EmbeddedTextures)
         {
-            // dont even need a class for this
             var pageName = page.Name.Content;
-            var blob = page.TextureData.Image.ConvertToPng().ToSpan();
+            var image = page.TextureData.Image;
+
+            var raw = image.ConvertToRawBgra();
+            var rawData = raw.GetRawImageData();
+
+            // Convert to RGBA
+            for (var p = 0; p < rawData.Length; p += 4)
+            {
+                (rawData[p], rawData[p + 2]) = (rawData[p + 2], rawData[p]);
+            }
+
             writer.Write(pageName);
-            writer.Write(blob.Length);
-            writer.Write(blob);
+            writer.Write(image.Width);
+            writer.Write(image.Height);
+            writer.Write(rawData.Length);
+            writer.Write(rawData);
         }
 
         Console.WriteLine($" Done!");

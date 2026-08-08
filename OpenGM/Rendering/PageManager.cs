@@ -4,8 +4,14 @@ using StbImageSharp;
 namespace OpenGM.Rendering;
 public static class PageManager
 {
-    // we probably shouldnt be storing image result here, we literally only use it for width/height and you can get that from opengl
-    public static Dictionary<string, (ImageResult image, int id)> TexturePages = new();
+    public class Image
+    {
+        public required int Width;
+        public required int Height;
+        public required byte[]? Data;
+    }
+
+    public static Dictionary<string, (Image image, int id)> TexturePages = new();
 
     public static void UnbindTextures()
     {
@@ -41,7 +47,7 @@ public static class PageManager
         Console.WriteLine(" Done!");
     }
 
-    public static void UploadTexture(string name, ImageResult image)
+    public static void UploadTexture(string name, Image image)
     {
         GraphicsManager.PushMessage($"UploadTexture Name:{name}");
 

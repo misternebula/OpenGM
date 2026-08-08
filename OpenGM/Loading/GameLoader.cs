@@ -396,11 +396,19 @@ public static class GameLoader
         for (var i = 0; i < length; i++)
         {
             var pageName = reader.ReadString();
-            var blobLength = reader.ReadInt32();
-            var blob = reader.ReadBytes(blobLength);
-            
-            var imageResult = ImageResult.FromMemory(blob, ColorComponents.RedGreenBlueAlpha);
-            PageManager.TexturePages.Add(pageName, (imageResult, -1));
+            var width = reader.ReadInt32();
+            var height = reader.ReadInt32();
+            var size = reader.ReadInt32();
+            var bytes = reader.ReadBytes(size);
+
+            PageManager.TexturePages.Add(pageName, (
+                new PageManager.Image()
+                {
+                    Width = width,
+                    Height = height,
+                    Data = bytes
+                },
+                -1));
         }
 
         Console.WriteLine($" Done!");

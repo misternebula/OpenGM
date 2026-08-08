@@ -220,7 +220,7 @@ public static class SpriteManager
         }
         
         // store it as a "page". its really just one texture that the sprite will use to draw
-        var imageResult = new ImageResult()
+        var imageResult = new PageManager.Image()
         {
             Width = w,
             Height = h,
