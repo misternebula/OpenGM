@@ -429,8 +429,8 @@ public static class DrawManager
          */
 
         var drawList = CompatFlags.DepthSortingReverseInstanceIds
-            ? drawObjectsToUse.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId)
-            : drawObjectsToUse.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
+            ? _drawObjects.OrderByDescending(x => x.depth).ThenByDescending(x => x.instanceId)
+            : _drawObjects.OrderByDescending(x => x.depth).ThenBy(x => x.instanceId);
 
         /*
          * PreDraw
