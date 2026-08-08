@@ -5,7 +5,6 @@ using OpenGM.Sequences;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
-using StbImageSharp;
 
 namespace OpenGM.Loading;
 public static class GameLoader

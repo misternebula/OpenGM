@@ -3,7 +3,6 @@ using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using StbImageSharp;
 using UndertaleModLib.Models;
 
 namespace OpenGM.Rendering;

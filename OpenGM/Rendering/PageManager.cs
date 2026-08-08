@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using StbImageSharp;
 
 namespace OpenGM.Rendering;
 public static class PageManager

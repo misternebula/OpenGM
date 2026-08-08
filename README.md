@@ -48,7 +48,6 @@ The following games have been tested with OpenGM, and are used to improve functi
 - [MemoryPack](https://github.com/Cysharp/MemoryPack)
 - [NAudio](https://github.com/naudio/NAudio)
 - [OpenTK](https://github.com/opentk/opentk)
-- [StbImageSharp](https://github.com/StbSharp/StbImageSharp)
 - [StbVorbisSharp](https://github.com/StbSharp/StbVorbisSharp)
 - [MotionTK](https://github.com/AtomCrafty/MotionTK)
 - [UndertaleModLib](https://github.com/UnderminersTeam/UndertaleModTool)

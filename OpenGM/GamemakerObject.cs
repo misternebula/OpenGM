@@ -614,6 +614,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
     public void UpdateAlarms()
     {
+        if (Marked || Destroyed)
+        {
+            return;
+        }
+
         for (var i = 0; i < alarm.Length; i++)
         {
             if (alarm[i] != -1)
