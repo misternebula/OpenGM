@@ -179,5 +179,21 @@
             VMExecutor.Self.GMSelf.y = y;
             return null;
         }
+
+        [GMLFunction("action_create_object", before: "2.0.0.0")]
+        public static object? action_create_object(object?[] args)
+        {
+            var obj = args[0].Conv<int>();
+            var x = args[1].Conv<double>();
+            var y = args[2].Conv<double>();
+
+            if (Action_Relative)
+            {
+                x += VMExecutor.Self.GMSelf.x;
+                y += VMExecutor.Self.GMSelf.y;
+            }
+
+            return ScriptResolver.instance_create([x, y, obj]);
+        }
     }
 }
