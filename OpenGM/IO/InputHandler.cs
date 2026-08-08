@@ -289,6 +289,7 @@ public class InputHandler
             DebugLog.PrintInstances(DebugLog.LogType.Info);
             DebugLog.PrintInactiveInstances(DebugLog.LogType.Info);
             DebugLog.PrintDrawObjects(DebugLog.LogType.Info);
+            DebugLog.PrintOldBackgrounds(DebugLog.LogType.Info);
         }
 
         if (state.IsKeyPressed(Keys.KeyPad1))

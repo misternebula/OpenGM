@@ -127,6 +127,15 @@ public static class DebugLog
         }
     }
 
+    public static void PrintOldBackgrounds(LogType? type = LogType.Verbose)
+    {
+        Log("--Old Backgrounds--", type);
+        foreach (var item in RoomManager.CurrentRoom.OldBackgrounds)
+        {
+            Log($" - {item.Definition}", type);
+        }
+    }
+
     public enum LogType
     {
         Error = 0,
