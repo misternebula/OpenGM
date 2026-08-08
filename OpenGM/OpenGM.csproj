@@ -29,7 +29,6 @@
     <PackageReference Include="NAudio" Version="2.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
-    <PackageReference Include="StbImageSharp" Version="2.30.15" />
     <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
   </ItemGroup>
 
