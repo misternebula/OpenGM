@@ -226,6 +226,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
+            if (instance is GMLObject)
+            {
+                return instance.SelfVariables[name];
+            }
+
             if (VariableResolver.BuiltInSelfVariables.ContainsKey(name))
             {
                 var (getter, setter) = VariableResolver.BuiltInSelfVariables[name];

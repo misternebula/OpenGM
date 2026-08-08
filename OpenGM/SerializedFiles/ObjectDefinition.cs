@@ -13,7 +13,7 @@ namespace OpenGM.SerializedFiles;
 [MemoryPackable]
 public partial class ObjectDefinition
 {
-    public int AssetId;
+    public int AssetId = -1;
 
     public string Name = null!;
     public int sprite = -1;

@@ -3,6 +3,7 @@ using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
 using OpenGM.VirtualMachine.BuiltInFunctions;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -185,6 +186,24 @@ internal class Entry
 
     public static void LoadGame(string dataWinPath, string[] parameters)
     {
+        if (window == null)
+        {
+            var gameSettings = GameWindowSettings.Default;
+            gameSettings.UpdateFrequency = GameSpeed;
+            var nativeSettings = NativeWindowSettings.Default;
+            nativeSettings.WindowBorder = WindowBorder.Fixed;
+            nativeSettings.ClientSize = new Vector2i(640, 480);
+            nativeSettings.APIVersion = new(4, 6); // just require latest version. we use dsa
+            nativeSettings.Flags = ContextFlags.Default;
+#if DEBUG_EXTRA
+            nativeSettings.Flags = ContextFlags.Debug;
+#endif
+            GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
+            GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
+
+            window = new CustomWindow(gameSettings, nativeSettings);
+        }
+
         GameLoadTime = DateTime.Now;
 
         LaunchParameters = parameters;
@@ -228,7 +247,7 @@ internal class Entry
         // TODO : is RNG re-initialized after game_change?
         GMRandom.InitRandom(0);
 
-        if (window == null)
+        /*if (window == null)
         {
             var gameSettings = GameWindowSettings.Default;
             gameSettings.UpdateFrequency = GameSpeed;
@@ -248,7 +267,8 @@ internal class Entry
         else
         {
             window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-        }
+        }*/
+        window.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
 
         DebugLog.LogInfo($"Binding page textures...");
         PageManager.BindTextures();

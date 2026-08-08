@@ -242,7 +242,7 @@ public static partial class VMExecutor
         {
             DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
             DebugLog.PrintCallStack(DebugLog.LogType.Error);
-            DebugLog.PrintInstances(DebugLog.LogType.Error);
+            //DebugLog.PrintInstances(DebugLog.LogType.Error);
 
             Call.Stack.Push(null, VMType.v);
             return;
@@ -599,9 +599,19 @@ public static partial class VMExecutor
                         Call.Stack.Push(array[index], VMType.v);
                         return (ExecutionResult.Success, null);
                     }
+                    else if (instanceId == GMConstants.argument)
+                    {
+                        if (variableName != "argument")
+                        {
+                            throw new NotImplementedException("variable name is not argument!");
+                        }
+
+                        PushArgument(index);
+                        return (ExecutionResult.Success, null);
+                    }
                     else if (instanceId < 0)
                     {
-                        throw new NotImplementedException();
+                        throw new NotImplementedException($"Instance ID is {instanceId}");
                     }
                     else
                     {

@@ -1,4 +1,5 @@
-﻿using OpenGM.IO;
+﻿using Newtonsoft.Json.Linq;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.VirtualMachine.BuiltInFunctions;
 using System.Collections;
@@ -145,15 +146,15 @@ public static class VariableResolver
         { "room_caption", (null, null)},
         { "room_speed", (get_room_speed, set_room_speed) },
         { "room_persistent", (get_room_persistent, set_room_persistent)},
-        { "background_color", (null, null)},
+        { "background_color", (get_background_color, set_background_color)},
         { "background_showcolor", (null, null)},
         { "background_colour", (null, null)},
         { "background_showcolour", (null, null)},
-        { "background_visible", (null, null)},
+        { "background_visible", (get_background_visible, set_background_visible)},
         { "background_foreground", (null, null)},
         { "background_index", (null, null)},
-        { "background_x", (null, null)},
-        { "background_y", (null, null)},
+        { "background_x", (get_background_x, set_background_x)},
+        { "background_y", (get_background_y, set_background_y)},
         { "background_width", (null, null)},
         { "background_height", (null, null)},
         { "background_htiled", (null, null)},
@@ -164,7 +165,7 @@ public static class VariableResolver
         { "background_vspeed", (null, null)},
         { "background_blend", (null, null)},
         { "background_alpha", (null, null)},
-        { "view_enabled", (null, null)},
+        { "view_enabled", (get_view_enabled, set_view_enabled)},
         { "view_current", (get_view_current, null)},
         { "view_visible", (get_view_visible, set_view_visible)},
         { "view_xview", (get_view_xview, set_view_xview)},
@@ -180,7 +181,7 @@ public static class VariableResolver
         { "view_vborder", (null, null)},
         { "view_hspeed", (null, null)},
         { "view_vspeed", (null, null)},
-        { "view_object", (null, null)},
+        { "view_object", (get_view_object, set_view_object)},
         { "view_surface_id", (null, null)},
         { "view_camera", (get_view_camera, set_view_camera)},
         { "mouse_x", (get_mouse_x, null)},
@@ -484,6 +485,9 @@ public static class VariableResolver
     public static object get_view_visible(int index) => RoomManager.CurrentRoom.Views[index].Visible;
     public static void set_view_visible(object? value, int index) => RoomManager.CurrentRoom.Views[index].Visible = value.Conv<bool>();
 
+    public static object get_view_object(int index) => RoomManager.CurrentRoom.Views[index].Camera.ID;
+    public static void set_view_object(object? value, int index) => RoomManager.CurrentRoom.Views[index].Camera.TargetInstance = value.Conv<int>();
+
     public static object get_mouse_x(int index) => GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
     public static object get_mouse_y(int index) => GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
 
@@ -532,27 +536,53 @@ public static class VariableResolver
     public static object? get_event_type(int index) => (int)DrawManager.EventType - 1;
     public static object? get_event_number(int index) => DrawManager.EventNumber;
 
+    private static GMOldBackground GetOldBackground(int index) => RoomManager.CurrentRoom.OldBackgrounds[index];
+
     public static object? get_background_xscale(int index)
     {
-        DebugLog.LogWarning("get_background_xscale not implemented.");
+        DebugLog.LogWarning($"background_xscale not implemented. index:{index}");
         return 0;
     }
 
     public static void set_background_xscale(object? value, int index)
     {
-        DebugLog.LogWarning("set_background_xscale not implemented.");
+        DebugLog.LogWarning($"background_xscale not implemented. index:{index}");
     }
 
     public static object? get_background_yscale(int index)
     {
-        DebugLog.LogWarning("get_background_yscale not implemented.");
+        DebugLog.LogWarning($"background_yscale not implemented. index:{index}");
         return 0;
     }
 
     public static void set_background_yscale(object? value, int index)
     {
-        DebugLog.LogWarning("set_background_yscale not implemented.");
+        DebugLog.LogWarning($"background_yscale not implemented. index:{index}");
+    }
+
+    public static object get_view_enabled(int index) => RoomManager.CurrentRoom.RoomAsset.EnableViews;
+    public static void set_view_enabled(object? value, int index) => RoomManager.CurrentRoom.RoomAsset.EnableViews = value.Conv<bool>();
+
     public static object get_solid(GamemakerObject instance) => instance.solid;
     public static void set_solid(GamemakerObject instance, object? value) => instance.solid = value.Conv<bool>();
+
+    public static object? get_background_color(int index)
+    {
+        DebugLog.LogWarning($"background_color not implemented. index:{index}");
+        return 0;
     }
+
+    public static void set_background_color(object? value, int index)
+    {
+        DebugLog.LogWarning($"background_color not implemented. index:{index}");
+    }
+
+    public static object? get_background_visible(int index) => GetOldBackground(index).Enabled;    
+    public static void set_background_visible(object? value, int index) => GetOldBackground(index).Enabled = value.Conv<bool>();
+
+    public static object? get_background_x(int index) => GetOldBackground(index).Position.X;
+    public static void set_background_x(object? value, int index) => GetOldBackground(index).Position.X = value.Conv<double>();
+
+    public static object? get_background_y(int index) => GetOldBackground(index).Position.Y;
+    public static void set_background_y(object? value, int index) => GetOldBackground(index).Position.Y = value.Conv<double>();
 }

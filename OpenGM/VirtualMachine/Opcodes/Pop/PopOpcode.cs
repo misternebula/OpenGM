@@ -46,6 +46,11 @@ public static partial class VMExecutor
 
         if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var gettersetter) && self is GamemakerObject gm)
         {
+            if (gettersetter.setter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
             gettersetter.setter!(gm, value);
         }
         else
@@ -148,7 +153,12 @@ public static partial class VMExecutor
         }
         else
         {
-            builtinGetSet.setter!(value, 0);
+            if (builtinGetSet.setter == null)
+            {
+                throw new NotImplementedException($"Built in variable {varName} not implemented.");
+            }
+
+            builtinGetSet.setter(value, 0);
         }
     }
 
@@ -486,7 +496,6 @@ public static partial class VMExecutor
                         return (ExecutionResult.Success, null);
                     }
 
-                    DebugLog.Log($"Set {variableName} on {Self.GMSelf.Definition.Name} to {value}");
                     PopToSelf(Self.Self, variableName, value);
 
                     return (ExecutionResult.Success, null);

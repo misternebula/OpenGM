@@ -2,6 +2,8 @@
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
+using OpenTK.Mathematics;
+using static UndertaleModLib.Models.UndertaleRoom;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
@@ -270,7 +272,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? layer_script_begin(object?[] args)
         {
             var layer_id = args[0];
-            var script = args[1].Conv<Method>();
+
+            var script = args[1];
+            VMScript vmscript;
+            if (script is int i)
+            {
+                vmscript = ScriptResolver.ScriptsByIndex[script.Conv<int>() - GMConstants.FIRST_INSTANCE_ID];
+            }
+            else
+            {
+                vmscript = script.Conv<Method>().func;
+            }
 
             var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 
@@ -279,7 +291,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            layer.BeginScript = script.func;
+            layer.BeginScript = vmscript;
             return null;
         }
 
@@ -287,7 +299,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? layer_script_end(object?[] args)
         {
             var layer_id = args[0];
-            var script = args[1].Conv<Method>();
+
+            var script = args[1];
+            VMScript vmscript;
+            if (script is int i)
+            {
+                vmscript = ScriptResolver.ScriptsByIndex[script.Conv<int>() - GMConstants.FIRST_INSTANCE_ID];
+            }
+            else
+            {
+                vmscript = script.Conv<Method>().func;
+            }
 
             var layer = RoomManager.CurrentRoom.GetLayer(layer_id);
 
@@ -296,7 +318,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            layer.EndScript = script.func;
+            layer.EndScript = vmscript;
             return null;
         }
 
@@ -325,9 +347,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return Array.Empty<object>();
             }
 
+            /*DebugLog.Log($"layer_get_all_elements on layer {layer.Name}");
+            foreach (var item in layer.ElementsToDraw)
+            {
+                DebugLog.Log($" - {item.instanceId} - {item.GetType().Name}");
+            }*/
+
             // make it an untyped array because non-ints may be set here
             // builtins are not real arrays so they can remain typed
-            return layer.ElementsToDraw.Select(x => x.instanceId).Cast<object>().ToList();
+            return layer.LayerAsset.Elements.Select(x => x.Id).Cast<object>().ToList();
         }
 
         [GMLFunction("layer_get_name")]

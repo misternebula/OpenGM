@@ -470,8 +470,8 @@ public static class DrawManager
          * UpdateViews
          */
         UpdateViews();
-        
 
+        ViewCurrent = 0;
         if (RoomManager.CurrentRoom.RoomAsset.EnableViews)
         {
             for (var i = 0; i < 8; i++)
@@ -594,6 +594,7 @@ public static class DrawManager
                 
                 GraphicsManager.PopMessage(); // draw view
             }
+            ViewCurrent = 0;
         }
         else // views not enabled
         {

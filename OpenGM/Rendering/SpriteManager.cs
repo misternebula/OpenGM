@@ -30,8 +30,7 @@ public static class SpriteManager
             return _spriteDict[name];
         }
 
-        DebugLog.LogError($"Sprite Dictionary does not contain {name}");
-        DebugLog.PrintCallStack(DebugLog.LogType.Error);
+        // most likely trying to reference null sprite that was ignored
         return null;
     }
 
@@ -127,7 +126,7 @@ public static class SpriteManager
 
     public static void DrawSelf(GamemakerObject obj)
     {
-        if (!obj.visible || obj.sprite_index == -1)
+        if (!obj.visible || obj.sprite_index == -1 || obj.Marked || obj.Destroyed)
         {
             return;
         }
@@ -190,6 +189,7 @@ public static class SpriteManager
         {
             DebugLog.LogWarning($"Tried to get number of frames for sprite {name} (count = {_spriteDict.Count})");
             DebugLog.PrintCallStack(DebugLog.LogType.Warning);
+            DebugLog.LogWarning(Environment.StackTrace);
             return 0;
         }
 

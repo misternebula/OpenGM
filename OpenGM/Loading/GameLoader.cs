@@ -185,6 +185,12 @@ public static class GameLoader
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<ObjectDefinition>();
+
+            if (asset.AssetId == -1)
+            {
+                continue;
+            }
+
             var storage = asset.FileStorage;
 
             asset.CreateCode = GetCodeFromCodeIndex(storage.CreateCodeID);
@@ -295,7 +301,10 @@ public static class GameLoader
         {
             if (item.FileStorage.ParentID != -1)
             {
-                item.parent = InstanceManager.ObjectDefinitions[item.FileStorage.ParentID];
+                if (InstanceManager.ObjectDefinitions.TryGetValue(item.FileStorage.ParentID, out var definition))
+                {
+                    item.parent = definition;
+                }
             }
             
             item.FileStorage = null!; // not used after here, so let it gc
@@ -388,8 +397,6 @@ public static class GameLoader
         Console.Write($"Loading Texture Pages...");
 
         PageManager.UnbindTextures();
-
-        //StbImage.stbi_set_flip_vertically_on_load(1);
 
         var length = reader.ReadInt32();
         for (var i = 0; i < length; i++)
