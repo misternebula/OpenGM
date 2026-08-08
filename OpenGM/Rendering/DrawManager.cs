@@ -303,8 +303,18 @@ public static class DrawManager
                     {
                         // makes it so `other` is the collided thing
                         VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
+
                         GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
+
                         VMExecutor.EnvStack.Pop();
+
+                        if (gmo.solid)
+                        {
+                            gmo.x = gmo.xprevious;
+                            gmo.y = gmo.yprevious;
+                            gmo.bbox_dirty = true;
+                            gmo.path_position = gmo.path_previousposition;
+                        }
                     }
                 }
             }

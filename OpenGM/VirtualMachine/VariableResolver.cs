@@ -253,7 +253,7 @@ public static class VariableResolver
         { "object_index", (get_object_index, null) },
         { "id", (get_id, null) },
         { "alarm", (get_alarm, set_alarm) },
-        { "solid", (null, null)},
+        { "solid", (get_solid, set_solid)},
         { "visible", (get_visible, set_visible) },
         { "persistent", (get_persistent, set_persistent) },
         { "depth", (get_depth, set_depth) },
@@ -552,5 +552,7 @@ public static class VariableResolver
     public static void set_background_yscale(object? value, int index)
     {
         DebugLog.LogWarning("set_background_yscale not implemented.");
+    public static object get_solid(GamemakerObject instance) => instance.solid;
+    public static void set_solid(GamemakerObject instance, object? value) => instance.solid = value.Conv<bool>();
     }
 }

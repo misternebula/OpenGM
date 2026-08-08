@@ -414,6 +414,8 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
     public bool mouse_over;
 
+    public bool solid;
+
     public bool Active = true;
     public bool NextActive = true; // Whether the object should be active or not next frame
     public bool Marked = false; // Marked for deletion at the end of the frame
@@ -421,7 +423,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
     public int Layer = -1;
 
-    public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex)
+    public GamemakerObject(ObjectDefinition obj, double x, double y, int depth, int instanceId, int spriteIndex, bool visible, bool persistent, int maskIndex, bool solid)
     {
         Definition = obj;
         this.x = x;
@@ -432,6 +434,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         this.visible = visible;
         this.persistent = persistent;
         this.mask_index = maskIndex;
+        this.solid = solid;
 
         xstart = x;
         ystart = y;

@@ -120,7 +120,7 @@ public static class InstanceManager
     {
         var definition = ObjectDefinitions[obj];
 
-        var newGM = new GamemakerObject(definition, x, y, definition.depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+        var newGM = new GamemakerObject(definition, x, y, definition.depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId, definition.solid);
 
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
@@ -132,7 +132,7 @@ public static class InstanceManager
     {
         var definition = ObjectDefinitions[obj];
 
-        var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+        var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId, definition.solid);
 
         GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
 
@@ -153,7 +153,7 @@ public static class InstanceManager
     {
         var definition = ObjectDefinitions[obj];
 
-        var newGM = new GamemakerObject(definition, x, y, layer.Depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId);
+        var newGM = new GamemakerObject(definition, x, y, layer.Depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId, definition.solid);
         layer.ElementsToDraw.Add(newGM);
         newGM.Layer = layer.ID;
 
