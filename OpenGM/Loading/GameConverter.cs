@@ -1232,11 +1232,12 @@ public static class GameConverter
                     Enabled = background.Enabled,
                     Foreground = background.Foreground,
                     Definition = data.Backgrounds.IndexOf(background.BackgroundDefinition),
-                    Position = new Vector2i(background.X, background.Y),
+                    Position = new Vector2d(background.X, background.Y),
                     TilingX = background.TiledHorizontally,
                     TilingY = background.TiledVertically,
-                    Speed = new Vector2i(background.SpeedX, background.SpeedY),
-                    Stretch = background.Stretch
+                    Speed = new Vector2d(background.SpeedX, background.SpeedY),
+                    Stretch = background.Stretch,
+                    Index = room.Backgrounds.IndexOf(background)
                 };
 
                 asset.OldBackgrounds.Add(backgroundAsset);

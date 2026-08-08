@@ -499,7 +499,8 @@ public static class RoomManager
                 TilingX = item.TilingX,
                 TilingY = item.TilingY,
                 Speed = item.Speed,
-                Stretch = item.Stretch
+                Stretch = item.Stretch,
+                Index = item.Index
             };
 
             CurrentRoom.OldBackgrounds.Add(oldBackground);

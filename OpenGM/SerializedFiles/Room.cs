@@ -87,11 +87,12 @@ public partial class OldBackground
     public bool Enabled;
     public bool Foreground;
     public int Definition;
-    public Vector2i Position;
+    public Vector2d Position;
     public bool TilingX;
     public bool TilingY;
-    public Vector2i Speed;
+    public Vector2d Speed;
     public bool Stretch;
+    public int Index;
 }
 
 public enum ElementType
