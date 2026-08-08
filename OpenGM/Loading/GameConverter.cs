@@ -826,6 +826,12 @@ public static class GameConverter
         {
             var obj = data.GameObjects[i];
 
+            if (obj == null)
+            {
+                writer.WriteMemoryPack(new ObjectDefinition());
+                continue;
+            }
+
             var asset = new ObjectDefinition();
             asset.Name = obj.Name.Content;
             asset.AssetId = i;
