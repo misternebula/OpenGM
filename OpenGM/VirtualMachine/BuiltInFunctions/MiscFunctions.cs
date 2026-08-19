@@ -177,6 +177,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return true;
             }
 
+            if (VariableResolver.BuiltInSelfVariables.ContainsKey(name))
+            {
+	            return true;
+            }
+
+            // TODO: should we actually check non-self variables?
+            if (VariableResolver.BuiltInVariables.ContainsKey(name))
+            {
+	            return true;
+            }
+
             return false;
         }
 
