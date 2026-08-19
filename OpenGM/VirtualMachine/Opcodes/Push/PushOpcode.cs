@@ -609,6 +609,30 @@ public static partial class VMExecutor
                         PushArgument(index);
                         return (ExecutionResult.Success, null);
                     }
+                    else if (instanceId == GMConstants.builtin)
+                    {
+	                    IList? array;
+
+	                    if (VariableResolver.BuiltInVariables.TryGetValue(variableName, out var builtInVal))
+	                    {
+		                    array = builtInVal.Conv<IList>();
+	                    }
+                        else if (VariableResolver.BuiltInSelfVariables.TryGetValue(variableName, out var getset))
+                        {
+                            array = getset.getter!(Self.GMSelf).Conv<IList>();
+                        }
+                        else if (Self.Self.SelfVariables.TryGetValue(variableName, out var selfVal))
+                        {
+	                        array = selfVal.Conv<IList>();
+                        }
+                        else
+                        {
+	                        throw new NotImplementedException();
+                        }
+
+	                    Call.Stack.Push(array[index], VMType.v);
+	                    return (ExecutionResult.Success, null);
+                    }
                     else if (instanceId < 0)
                     {
                         throw new NotImplementedException($"Instance ID is {instanceId}");
