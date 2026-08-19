@@ -239,7 +239,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (instance is GMLObject)
             {
-                return instance.SelfVariables[name];
+                return instance.SelfVariables.GetValueOrDefault(name);
             }
 
             if (VariableResolver.BuiltInSelfVariables.ContainsKey(name))
