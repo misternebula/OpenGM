@@ -213,7 +213,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // part_system_position
-        // part_system_automatic_update
+
+        [GMLFunction("part_system_automatic_update")]
+        public static object? part_system_automatic_update(object?[] args)
+        {
+	        var ind = args[0].Conv<int>();
+	        var automatic = args[1].Conv<bool>();
+
+	        var sys = ParticleManager.PartSystems[ind];
+	        sys.AutomaticUpdate = automatic;
+
+	        return null;
+        }
 
         [GMLFunction("part_system_automatic_draw")]
         public static object? part_system_automatic_draw(object?[] args)
