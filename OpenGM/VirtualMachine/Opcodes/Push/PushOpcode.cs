@@ -675,6 +675,11 @@ public static partial class VMExecutor
                         PushSelf(gmlo, variableName);
                         return (ExecutionResult.Success, null);
                     }
+                    else if (popped is GamemakerObject obj)
+                    {
+	                    PushSelf(obj, variableName);
+	                    return (ExecutionResult.Success, null);
+                    }
                     else
                     {
                         id = popped.Conv<int>();
