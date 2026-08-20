@@ -541,6 +541,11 @@ public static class GameFunctions
     [GMLFunction("instance_exists")]
     public static object instance_exists(object?[] args)
     {
+	    if (args[0] is GamemakerObject gmObj)
+	    {
+		    return gmObj.Active & !gmObj.Destroyed;
+	    }
+
         var obj = args[0].Conv<int>();
 
         if (obj > GMConstants.FIRST_INSTANCE_ID)
