@@ -150,7 +150,17 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // sprite_set_bbox_mode
+        [GMLFunction("sprite_set_bbox_mode")]
+        public static object? sprite_set_bbox_mode(object?[] args)
+        {
+	        var ind = args[0].Conv<int>();
+	        var mode = args[1].Conv<int>();
+
+	        var data = SpriteManager._spriteDict[ind];
+	        data.BBoxMode = mode;
+	        return null;
+        }
+
         // sprite_set_bbox
         // sprite_set_alpha_from_sprite
         // sprite_add
