@@ -1,9 +1,12 @@
 ﻿using System.Drawing;
+using System.Reflection;
 using Newtonsoft.Json;
+using OpenGM;
 using OpenGM.Loading;
 using UndertaleModLib;
 using UndertaleModLib.Compiler;
 using UndertaleModLib.Decompiler;
+using static OpenGM.VirtualMachine.ScriptResolver;
 
 namespace CodeCompiler;
 
@@ -67,10 +70,7 @@ internal class Program
 		Console.WriteLine($"Reading data.win...");
 		var data = UndertaleIO.Read(stream);
 
-        data.BuiltinList.Functions.Add("opengm_break", new FunctionInfo("opengm_break", 0));
-        data.BuiltinList.Functions.Add("opengm_callstack", new FunctionInfo("opengm_callstack", 0));
-        data.BuiltinList.Functions.Add("opengm_enable_instruction_break", new FunctionInfo("opengm_enable_instruction_break", 0));
-        data.BuiltinList.Functions.Add("opengm_disable_instruction_break", new FunctionInfo("opengm_disable_instruction_break", 0));
+		AddOpenGMFunctions(data);
 
         var compileGroup = new CompileGroup(data);
 		var codeNames = new List<string>();
@@ -112,4 +112,26 @@ internal class Program
 			File.WriteAllText(Path.Combine(asmFolder, $"{code.Name.Content}.asm"), asmFile);
 		}
 	}
+
+	public static void AddOpenGMFunctions(UndertaleData data)
+	{
+		var assembly = Assembly.GetAssembly(typeof(GMLFunctionAttribute))!;
+		var methods = assembly.GetTypes()
+			.SelectMany(t => t.GetMethods())
+			.Where(m => m.GetCustomAttributes(typeof(GMLFunctionAttribute), false).Length > 0)
+			.ToArray();
+
+		foreach (var methodInfo in methods)
+		{
+			var attributes = (GMLFunctionAttribute[])methodInfo.GetCustomAttributes(typeof(GMLFunctionAttribute), false);
+
+			foreach (var attribute in attributes)
+			{
+				if (attribute.FunctionFlags.HasFlag(GMLFunctionFlags.OpenGM))
+				{
+                    data.BuiltinList.Functions.Add(attribute.FunctionName, new FunctionInfo(attribute.FunctionName, 0));
+                }
+			}
+		}
+    }
 }
