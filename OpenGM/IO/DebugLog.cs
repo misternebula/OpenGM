@@ -75,6 +75,18 @@ public static class DebugLog
         Console.ResetColor();
     }
 
+    public static void PrintEnvStack(LogType? type = null)
+    {
+        Log($"ENV STACK:", type);
+
+        var i = 0;
+        foreach (var env in VMExecutor.EnvStack)
+        {
+            Log($"{i}. {env?.ToString() ?? "null"}", type);
+            i++;
+        }
+    }
+
     public static void PrintCallStack(LogType? type = null)
     {
         Log($"--Stacktrace--", type);

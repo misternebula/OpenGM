@@ -7,4 +7,9 @@ internal class Method
     public VMScript func = null!;
 
     public Method(VMScript func) => this.func = func;
+
+    public override string ToString()
+    {
+        return $"{{ Method - func: {func} }}";
+    }
 }

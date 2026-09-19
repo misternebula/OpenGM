@@ -203,14 +203,10 @@ public static partial class VMExecutor
             var leftPadding = string.Concat(Enumerable.Repeat(space, count));
 
             DebugLog.LogInfo($"{leftPadding}------------------------------ {codeName} ------------------------------ ");
-            DebugLog.LogInfo($"ENV STACK:");
+            DebugLog.PrintEnvStack(DebugLog.LogType.Info);
 
-            var i = 1;
-            foreach (var env in EnvStack)
-            {
-                DebugLog.LogInfo($"{i}. {env?.ToString() ?? "null"}");
-                i++;
-            }
+            DebugLog.LogInfo($"Self: {Self}");
+            DebugLog.LogInfo($"Other: {Other}");
 
             DebugLog.LogInfo($"");
         }

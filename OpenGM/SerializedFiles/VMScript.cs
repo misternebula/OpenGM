@@ -17,4 +17,6 @@ public partial class VMScript
     public VMCode? CustomCode = null;
 
     public VMCode? GetCode() => CodeIndex == -1 ? CustomCode : GameLoader.Codes[CodeIndex];
+
+    public override string ToString() => $"{{ VMScript - Name: {Name} }}";
 }
