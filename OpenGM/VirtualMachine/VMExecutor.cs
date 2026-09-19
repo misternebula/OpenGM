@@ -13,12 +13,31 @@ namespace OpenGM.VirtualMachine;
 /// </summary>
 public class VMEnvFrame
 {
+    /// <summary>
+    /// If true, this env frame is actually a collection used for iterating in a "with" block, and should NOT be treated as a single env frame.
+    /// </summary>
+    public bool IsIterator;
+    public Stack<VMEnvFrame> IteratorStack = null!; // Will always be initialized when IsIterator is set.
+
     public IStackContextSelf Self = null!; // can be null for global scripts but those shouldnt run functions that need it
     public GamemakerObject GMSelf => (GamemakerObject)Self; // shortcut for cast since we do this often
     public ObjectDefinition? ObjectDefinition;
 
     public override string ToString()
     {
+        if (IsIterator)
+        {
+            var str = "ITERATOR";
+            foreach (var item in IteratorStack)
+            {
+                str += Environment.NewLine;
+                str += "    - ";
+                str += item.ToString();
+            }
+
+            return str;
+        }
+
         if (Self == null)
         {
             return "NULL SELF";
@@ -60,7 +79,7 @@ public class VMCallFrame
 
 public static partial class VMExecutor
 {
-    public static Stack<VMEnvFrame?> EnvStack = new();
+    public static Stack<VMEnvFrame> EnvStack = new();
 
     public static Stack<VMCallFrame> CallStack = new();
 
@@ -84,7 +103,6 @@ public static partial class VMExecutor
 
     /// <summary>
     /// the top level environment frame, for the current object.
-    /// has logic for handling goofy null frame for `with`.
     /// </summary>
     public static VMEnvFrame Self
     {
@@ -92,11 +110,9 @@ public static partial class VMExecutor
         {
             var top = EnvStack.Peek();
 
-            if (top == null)
+            if (top.IsIterator)
             {
-                // Null at top of stack, in WITH statement. Next value is self.
-
-                return EnvStack.ToArray()[1]!;
+                return top.IteratorStack!.Peek();
             }
 
             return top;
@@ -112,29 +128,16 @@ public static partial class VMExecutor
                 return Self;
             }
 
-            var top = EnvStack.Peek();
-
-            if (top == null)
-            {
-                // Null at top of stack, in WITH statement. Next value is self, then next value is other.
-                return EnvStack.ToArray()[2]!;
-            }
-
             var stack = EnvStack.ToArray();
-            if (stack.Contains(null))
+
+            var otherFrame = stack[1];
+
+            if (otherFrame.IsIterator)
             {
-                var i = 0;
-
-                while (stack[i] != null)
-                {
-                    i++;
-                }
-
-                i++; // we found the null, so previous one is the ctx that called PUSHENV
-                return stack[i]!;
+                return otherFrame.IteratorStack!.Peek();
             }
 
-            return stack[1]!;
+            return otherFrame;
         }
     }
 

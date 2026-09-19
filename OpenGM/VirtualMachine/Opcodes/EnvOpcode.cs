@@ -19,9 +19,9 @@ public static partial class VMExecutor
             }
         }
 
-        // marks the beginning of the instances pushed. popenv will stop jumping when it reaches this
-        // SUPER HACKY. there HAS to be a better way of doing this
-        EnvStack.Push(null);
+        var newEnvFrame = new VMEnvFrame { IsIterator = true, IteratorStack = new() };
+
+        EnvStack.Push(newEnvFrame);
 
         if (VerboseStackLogs) DebugLog.Log($"Pushenv {id}");
 
@@ -43,7 +43,7 @@ public static partial class VMExecutor
                 ObjectDefinition = Other.ObjectDefinition,
             };
 
-            EnvStack.Push(newCtx);
+            newEnvFrame.IteratorStack.Push(newCtx);
         }
         else if (id == GMConstants.self)
         {
@@ -53,7 +53,7 @@ public static partial class VMExecutor
                 ObjectDefinition = Self.ObjectDefinition,
             };
 
-            EnvStack.Push(newCtx);
+            newEnvFrame.IteratorStack.Push(newCtx);
         }
         else if (id == GMConstants.stacktop)
         {
@@ -67,7 +67,7 @@ public static partial class VMExecutor
                     ObjectDefinition = null,
                 };
 
-                EnvStack.Push(newCtx);
+                newEnvFrame.IteratorStack.Push(newCtx);
             }
             else
             {
@@ -84,7 +84,7 @@ public static partial class VMExecutor
 			        ObjectDefinition = inst.Definition
 		        };
 
-		        EnvStack.Push(newCtx);
+                newEnvFrame.IteratorStack.Push(newCtx);
             }
         }
         else if (id is GMConstants.global)
@@ -130,7 +130,7 @@ public static partial class VMExecutor
                 };
 
                 if (VerboseStackLogs) DebugLog.Log($"Pushing {instance.instanceId}");
-                EnvStack.Push(newCtx);
+                newEnvFrame.IteratorStack.Push(newCtx);
             }
         }
         else
@@ -153,7 +153,7 @@ public static partial class VMExecutor
                 ObjectDefinition = instance.Definition,
             };
 
-            EnvStack.Push(newCtx);
+            newEnvFrame.IteratorStack.Push(newCtx);
         }
 
         return (ExecutionResult.Success, null);
@@ -161,27 +161,30 @@ public static partial class VMExecutor
 
     public static (ExecutionResult, object?) POPENV(VMCodeInstruction instruction)
     {
-        var currentInstance = EnvStack.Pop();
-        var nextInstance = EnvStack.Peek();
+        var frame = EnvStack.Peek();
+
+        if (!frame.IsIterator)
+        {
+            throw new NotImplementedException("Trying to run PopEnv when the top of the stack isn't an iterator frame!");
+        }
 
         if (instruction.Drop)
         {
-            while (currentInstance != null)
-            {
-                currentInstance = EnvStack.Pop();
-            }
-
+            EnvStack.Pop();
             return (ExecutionResult.Success, null);
         }
 
-        // no instances pushed
-        if (currentInstance == null)
+        if (frame.IteratorStack.Count == 0)
         {
+            // Nothing left in iterator stack.
+            EnvStack.Pop();
             return (ExecutionResult.Success, null);
         }
 
-        // no instances left
-        if (nextInstance == null)
+        frame.IteratorStack.Pop();
+        var nextInstanceExists = frame.IteratorStack.TryPeek(out var nextInstance);
+
+        if (!nextInstanceExists)
         {
             EnvStack.Pop();
             return (ExecutionResult.Success, null);
