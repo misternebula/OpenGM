@@ -144,7 +144,18 @@ public static partial class VMExecutor
         {
             if (self.SelfVariables.ContainsKey(varName))
             {
-                Call.Stack.Push(self.SelfVariables[varName], VMType.v);
+                var val = self.SelfVariables[varName];
+
+                if (val is Method method && method.inst.Conv<int>() == GMConstants.self)
+                {
+                    // TODO: this feels like a bad hack fix. is it?
+                    var bound = new Method(method.func) { inst = self };
+                    Call.Stack.Push(bound, VMType.v);
+                }
+                else
+                {
+                    Call.Stack.Push(val, VMType.v);
+                }
             }
             else
             {

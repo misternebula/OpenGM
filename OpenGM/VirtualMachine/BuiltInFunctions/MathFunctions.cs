@@ -62,7 +62,7 @@ public static class MathFunctions
             var num = struct_ref_or_instance_id.Conv<int>();
             if (num == GMConstants.self)
             {
-                method.inst = VMExecutor.Self.Self;
+                method.inst = GMConstants.self;
             }
             else if (num == GMConstants.@static)
             {
@@ -75,12 +75,12 @@ public static class MathFunctions
             }
             else
             {
-                method.inst = InstanceManager.Find(num);
+                method.inst = num;
             }
         }
         else if (struct_ref_or_instance_id is GMLObject gmlo)
         {
-            method.inst = gmlo;
+            method.inst = struct_ref_or_instance_id;
         }
         else
         {

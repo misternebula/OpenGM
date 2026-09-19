@@ -724,6 +724,9 @@ public static partial class VMExecutor
                 var method = FetchMethod(Call.Stack.Pop(VMType.v), instruction.IntData);
                 var self = Call.Stack.Pop(VMType.v);
 
+                var newEnv = new VMEnvFrame() { Self = FetchSelf(self)! };
+                EnvStack.Push(newEnv);
+
                 var args = new object?[instruction.IntData];
 
                 for (var i = 0; i < instruction.IntData; i++)
@@ -737,15 +740,41 @@ public static partial class VMExecutor
                     throw new NotImplementedException("method is null");
                 }
 
-                var context = method.inst;
-                if (method.inst is null && self is not null)
+                IStackContextSelf? context = null;
+
+                if (method.inst is null)
                 {
-                    context = FetchSelf(self);
+                    if (self is not null)
+                    {
+                        context = FetchSelf(self);
+                    }
+                }
+                else
+                {
+                    if (method.inst is int)
+                    {
+                        if (method.inst.Conv<int>() == GMConstants.self)
+                        {
+                            context = VMExecutor.Self.Self;
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+                    }
+                    else if (method.inst is IStackContextSelf stackSelf)
+                    {
+                        context = stackSelf;
+                    }
+                    else
+                    {
+                        throw new NotImplementedException($"method.inst is {method.inst}, type {method.inst.GetType().Name}");
+                    }
                 }
 
-                //DebugLog.LogInfo($"CALLV {method.code.Name} self:{gmSelf.Definition.Name} argCount:{args.Length}");
-
                 Call.Stack.Push(ExecuteCode(method.func.GetCode(), context, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
+
+                EnvStack.Pop();
 
                 break;
             }
