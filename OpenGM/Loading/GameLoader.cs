@@ -78,6 +78,12 @@ public static class GameLoader
         for (var i = 0; i < length; i++)
         {
             var asset = reader.ReadMemoryPack<VMScript>();
+
+            if (asset.Name == null || asset.AssetIndex == -1)
+            {
+                continue;
+            }
+
             ScriptResolver.ScriptsByName.Add(asset.Name, asset);
             ScriptResolver.ScriptsByIndex.Add(asset.AssetIndex, asset);
         }

@@ -89,6 +89,13 @@ public static class GameConverter
         {
             var asset = new VMScript();
             asset.AssetIndex = scripts.IndexOf(script);
+
+            if (script == null)
+            {
+                writer.WriteMemoryPack(asset);
+                continue;
+            }
+
             asset.Name = script.Name.Content;
 
             if (script.Code != null)
