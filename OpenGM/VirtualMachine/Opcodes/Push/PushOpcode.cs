@@ -66,7 +66,9 @@ public static partial class VMExecutor
         }
         else
         {
-            throw new NotImplementedException();
+            DebugLog.LogError($"PushBuiltin: Tried to push {varName} which doesn't exist anywhere! Self: {Self} Other: {Other}");
+            DebugLog.PrintEnvStack(DebugLog.LogType.Error);
+            DebugLog.PrintCallStack(DebugLog.LogType.Error);
         }
     }
 
