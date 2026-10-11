@@ -239,6 +239,68 @@ public static class CollisionManager
         return GMConstants.noone;
     }
 
+    public static int Command_InstancePosition(double x, double y, int obj, List<GamemakerObject>? list = null)
+    {
+        bool IsValid(GamemakerObject? instance)
+        {
+            if (instance == null)
+            {
+                return false;
+            }
+
+            if (instance.Marked)
+            {
+                return false;
+            }
+
+            if (!instance.Active)
+            {
+                return false;
+            }
+
+            return Collision_Point(instance, x, y, true);
+        }
+
+        var returnValue = GMConstants.noone;
+
+        if (obj == GMConstants.all)
+        {
+            foreach (var instance in InstanceManager.instances.Values)
+            {
+                if (IsValid(instance))
+                {
+                    list?.Add(instance);
+                    returnValue = instance.instanceId;
+                }
+            }
+        }
+        else if (obj < GMConstants.FIRST_INSTANCE_ID)
+        {
+            var instances = InstanceManager.FindByAssetId(obj);
+            foreach (var instance in instances)
+            {
+                if (IsValid(instance))
+                {
+                    list?.Add(instance);
+                    returnValue = instance.instanceId;
+                }
+            }
+        }
+        else
+        {
+            // instance id
+            var instance = InstanceManager.FindByInstanceId(obj);
+
+            if (IsValid(instance))
+            {
+                list?.Add(instance!);
+                returnValue = instance!.instanceId;
+            }
+        }
+
+        return returnValue;
+    }
+
     public static int Command_InstancePlace(GamemakerObject self, double x, double y, int obj, List<GamemakerObject>? list = null)
     {
         var prevX = self.x;

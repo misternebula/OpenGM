@@ -1,5 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Newtonsoft.Json.Linq;
 using OpenGM.IO;
+using System.Globalization;
+using System.Xml.Linq;
 
 namespace OpenGM.VirtualMachine.BuiltInFunctions;
 
@@ -664,7 +668,47 @@ public static class FileFunctions
     }
 
     // zip_unzip
-    // load_csv
+
+    [GMLFunction("load_csv")]
+    public static object? load_csv(object?[] args)
+    {
+        var filename = args[0].Conv<string>();
+        var filepath = Path.Combine(Entry.DataWinFolder, filename);
+
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = false,
+        };
+
+        var reader = new StreamReader(filepath);
+        var csv = new CsvReader(reader, config);
+
+        var maxColumns = -1;
+        var records = new List<string[]>();
+
+        while (csv.Read())
+        {
+            records.Add(csv.Parser.Record!);
+
+            if (csv.Parser.Count > maxColumns)
+            {
+                maxColumns = csv.Parser.Count;
+            }
+        }
+
+        var grid = DataStructuresFunctions.ds_grid_create(maxColumns, records.Count);
+
+        for (var y = 0; y < records.Count; y++)
+        {
+            var record = records[y];
+            for (var x = 0; x < maxColumns; x++)
+            {
+                DataStructuresFunctions.ds_grid_set(grid, x, y, record.Length <= x ? string.Empty : record[x]);
+            }
+        }
+
+        return grid;
+    }
 }
 
 public class FileHandle

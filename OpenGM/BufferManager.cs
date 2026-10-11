@@ -3,6 +3,7 @@ using OpenGM.Rendering;
 using OpenGM.VirtualMachine;
 using OpenTK.Graphics.OpenGL4;
 using System.Text;
+using System.Xml.Linq;
 
 namespace OpenGM;
 public static class BufferManager
@@ -42,15 +43,31 @@ public static class BufferManager
 
     public static int LoadBuffer(string filename)
     {
-        var filepath = Path.Combine(Entry.DataWinFolder, filename);
+        /*var filepath = Path.Combine(Entry.DataWinFolder, filename);
 
         if (!File.Exists(filepath))
         {
             DebugLog.LogError($"LoadBuffer: {filepath} doesnt exist.");
             return -1;
+        }*/
+
+        var _name = "";
+        if (LoadSave.SaveFileExists(filename))
+        {
+            LoadSave.GetSaveFileName(ref _name, 1024, filename);
+        }
+        else
+        {
+            if (!LoadSave.BundleFileExist(filename))
+            {
+                DebugLog.LogError($"Failed to open file: {filename}");
+                return -1;
+            }
+
+            LoadSave.GetBundleFileName(ref _name, 1024, filename);
         }
 
-        var bytes = File.ReadAllBytes(filepath);
+        var bytes = File.ReadAllBytes(_name);
 
         var newId = CreateBuffer(bytes.Length, BufferType.Grow, 1, bytes);
         return newId;

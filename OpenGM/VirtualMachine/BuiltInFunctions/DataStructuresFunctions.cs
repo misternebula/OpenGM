@@ -10,6 +10,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         private static Dictionary<int, Queue<object?>> _dsQueueDict = new();
         private static Dictionary<int, Stack<object?>> _dsStackDict = new();
         private static Dictionary<int, PriorityQueue<object?, double>> _priorityDict = new();
+        private static Dictionary<int, object?[,]> _dsGridDict = new();
 
         public static void Clear()
         {
@@ -18,6 +19,20 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             _dsQueueDict.Clear();
             _dsStackDict.Clear();
             _priorityDict.Clear();
+            _dsGridDict.Clear();
+        }
+
+        // TODO: put these grid functions in the right place
+
+        [GMLFunction("ds_grid_get")]
+        public static object? ds_grid_get(object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var x = args[1].Conv<int>();
+            var y = args[2].Conv<int>();
+
+            var grid = _dsGridDict[index];
+            return grid[x, y];
         }
 
         // ...
@@ -32,9 +47,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 DSType.Map => _dsMapDict.ContainsKey(id),
                 DSType.List => _dsListDict.ContainsKey(id),
-                DSType.Stack => throw new NotImplementedException(),
+                DSType.Stack => _dsStackDict.ContainsKey(id),
                 DSType.Queue => _dsQueueDict.ContainsKey(id),
-                DSType.Grid => throw new NotImplementedException(),
+                DSType.Grid => _dsGridDict.ContainsKey(id),
                 DSType.Priority => _priorityDict.ContainsKey(id),
                 _ => throw new NotImplementedException(),
             };
@@ -732,14 +747,57 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ds_priority_write
         // ds_priority_read
 
-        // ds_grid_create
+        [GMLFunction("ds_grid_create")]
+        public static object ds_grid_create(params object?[] args)
+        {
+            var w = args[0].Conv<int>();
+            var h = args[1].Conv<int>();
+
+            var highestIndex = -1;
+            if (_dsGridDict.Count > 0)
+            {
+                highestIndex = _dsGridDict.Keys.Max();
+            }
+
+            _dsGridDict.Add(highestIndex + 1, new object[w, h]);
+            return highestIndex + 1;
+        }
+
         // ds_grid_destroy
         // ds_grid_copy
         // ds_grid_resize
-        // ds_grid_width
-        // ds_grid_height
+
+        [GMLFunction("ds_grid_width")]
+        public static object? ds_grid_width(params object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var grid = _dsGridDict[index];
+            return grid.GetLength(0);
+        }
+
+        [GMLFunction("ds_grid_height")]
+        public static object? ds_grid_height(params object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var grid = _dsGridDict[index];
+            return grid.GetLength(1);
+        }
+
         // ds_grid_clear
-        // ds_grid_set
+
+        [GMLFunction("ds_grid_set")]
+        public static object? ds_grid_set(params object?[] args)
+        {
+            var index = args[0].Conv<int>();
+            var x = args[1].Conv<int>();
+            var y = args[2].Conv<int>();
+            var value = args[3];
+
+            var grid = _dsGridDict[index];
+            grid[x, y] = value;
+            return null;
+        }
+
         // ds_grid_set_pre
         // ds_grid_set_post
 

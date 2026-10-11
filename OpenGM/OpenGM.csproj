@@ -25,6 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="MemoryPack" Version="1.21.4" />
     <PackageReference Include="NAudio" Version="2.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

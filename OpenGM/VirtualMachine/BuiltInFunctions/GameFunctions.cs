@@ -9,7 +9,8 @@ public static class GameFunctions
 {
     // move_random
     // place_free
-    // place_empty
+    
+
 
     [GMLFunction("place_meeting")]
     public static object place_meeting(object?[] args)
@@ -66,8 +67,109 @@ public static class GameFunctions
     // move_contact_all
     // move_outside_solid
     // move_outside_all
-    // move_bounce_solid
-    // move_bounce_all
+
+    [GMLFunction("move_bounce_solid", GMLFunctionFlags.Stub)]
+    public static object? move_bounce_solid(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("move_bounce_all", GMLFunctionFlags.Stub)]
+    public static object? move_bounce_all(object?[] args)
+    {
+        return null;
+    }
+
+    // https://github.com/YoYoGames/GameMaker-HTML5/blob/60e51be51ce7f3d52025ef18106cf172b8e22a00/scripts/functions/Function_Movement.js#L301
+    /*static bool BounceTest(GamemakerObject inst, double x, double y, bool useAll)
+    {
+        if (useAll)
+        {
+            return place_empty(inst, x, y);
+        }
+        else
+        {
+            return place_free(inst, x, y);
+        }
+    }
+
+    static void CommandBounce(GamemakerObject inst, bool advanced, bool useAll)
+    {
+        var didBounce = false;
+        if (!BounceTest(inst, inst.x, inst.y, useAll))
+        {
+            inst.x = inst.xprevious;
+            inst.y = inst.yprevious;
+            didBounce = true;
+        }
+
+        var xx = inst.x;
+        var yy = inst.y;
+
+        if (advanced)
+        {
+            var n = 18.0;
+            var dir = 10.0 * Math.Round(inst.direction / 10.0);
+            var ldir = dir;
+            var rdir = dir;
+
+            for (var i = 1; i < 2 * n; i++)
+            {
+                ldir -= 180 / n;
+                var xn = xx + inst.speed * Math.Cos(ldir * Math.PI / 180);
+                var yn = yy - inst.speed * Math.Sin(ldir * Math.PI / 180);
+                if (BounceTest(inst, xn, yn, useAll))
+                {
+                    break;
+                }
+                else
+                {
+                    didBounce = true;
+                }
+            }
+
+            for (var i = 1; i < 2 * n; i++)
+            {
+                rdir += 180 / n;
+                var xn = xx + inst.speed * Math.Cos(rdir * Math.PI / 180);
+                var yn = yy - inst.speed * Math.Sin(rdir * Math.PI / 180);
+                if (BounceTest(inst, xn, yn, useAll))
+                {
+                    break;
+                }
+                else
+                {
+                    didBounce = true;
+                }
+            }
+
+            if (didBounce)
+            {
+                inst.direction = 180 + (ldir + rdir) - dir;
+            }
+        }
+        else
+        {
+            var bh = BounceTest(inst, inst.x + inst.hspeed, inst.y, useAll);
+            var bv = BounceTest(inst, inst.x, inst.y + inst.vspeed, useAll);
+            var ba = BounceTest(inst, inst.x + inst.hspeed, inst.y + inst.vspeed, useAll);
+
+            if ((!bh && !bv) || (bh && bv && !ba))
+            {
+                inst.hspeed = -inst.hspeed;
+                inst.vspeed = -inst.vspeed;
+            }
+            else if (!bh)
+            {
+                inst.hspeed = -inst.hspeed;
+            }
+            else if (!bv)
+            {
+                inst.vspeed = -inst.vspeed;
+            }
+        }
+    }*/
+
     // move_wrap
 
     [GMLFunction("motion_set")]
@@ -567,7 +669,16 @@ public static class GameFunctions
         return InstanceManager.instance_number(obj);
     }
 
-    // instance_position
+    [GMLFunction("instance_position")]
+    public static object instance_position(object?[] args)
+    {
+        var x = args[0].Conv<double>();
+        var y = args[1].Conv<double>();
+        var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
+
+        return CollisionManager.Command_InstancePosition(x, y, obj);
+    }
+
     // instance_position_list
 
     [GMLFunction("instance_nearest")]

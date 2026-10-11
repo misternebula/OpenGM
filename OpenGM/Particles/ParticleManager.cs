@@ -75,7 +75,7 @@ namespace OpenGM.Particles
 
         public static void HandleLife(ParticleSystem sys)
         {
-            DebugLog.LogWarning("Method HandleLife not implemented.");
+            //DebugLog.LogWarning("Method HandleLife not implemented.");
 
             foreach (var item in sys.Particles)
             {
@@ -92,12 +92,12 @@ namespace OpenGM.Particles
 
         public static void HandleMotion(ParticleSystem sys)
         {
-            DebugLog.LogWarning("Method HandleMotion not implemented.");
+            //DebugLog.LogWarning("Method HandleMotion not implemented.");
         }
 
         public static void HandleShape(ParticleSystem sys)
         {
-            DebugLog.LogWarning("Method HandleShape not implemented.");
+            //DebugLog.LogWarning("Method HandleShape not implemented.");
         }
 
         public static void Draw(int ind)

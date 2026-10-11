@@ -4,6 +4,16 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 {
     public static class ParticlesFunctions
     {
+        // TODO: work out where these go
+
+        [GMLFunction("part_type_subimage", GMLFunctionFlags.Stub)]
+        public static object? part_type_subimage(object?[] args)
+        {
+            return null;
+        }
+
+        // ---
+
         [GMLFunction("part_type_create")]
         public static object? part_type_create(object?[] args)
         {
@@ -13,7 +23,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // part_type_destroy
         // part_type_exists
         // part_type_clear
-        // part_type_shape
+
+        [GMLFunction("part_type_shape", GMLFunctionFlags.Stub)]
+        public static object? part_type_shape(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("part_type_sprite")]
         public static object? part_type_sprite(object?[] args)
@@ -130,7 +145,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return null;
         }
 
-        // part_type_orientation
+        [GMLFunction("part_type_orientation", GMLFunctionFlags.Stub)]
+        public static object? part_type_orientation(object?[] args)
+        {
+             return null;
+        }
 
         [GMLFunction("part_type_gravity")]
         public static object? part_type_gravity(object?[] args)
@@ -146,10 +165,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         // part_type_color_mix
-        // part_type_color_rgb
+
+        [GMLFunction("part_type_color_rgb", GMLFunctionFlags.Stub)]
+        public static object? part_type_color_rgb(object?[] args)
+        {
+            return null;
+        }
+
         // part_type_color_hsv
         // part_type_color1
-        // part_type_color2
+
+        [GMLFunction("part_type_color2", GMLFunctionFlags.Stub)]
+        public static object? part_type_color2(object?[] args)
+        {
+            return null;
+        }
+
         // part_type_color3
         // part_type_colour_mix
         // part_type_colour_rgb
@@ -158,7 +189,21 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // part_type_colour2
         // part_type_colour3
         // part_type_alpha1
-        // part_type_alpha2
+
+        [GMLFunction("part_type_alpha2")]
+        public static object? part_type_alpha2(object?[] args)
+        {
+            var ind = args[0].Conv<int>();
+            var alpha1 = args[1].Conv<double>();
+            var alpha2 = args[2].Conv<double>();
+
+            var type = ParticleManager.PartTypes[ind];
+            type.AlphaStart = alpha1;
+            type.AlphaMiddle = (alpha1 + alpha2) / 2;
+            type.AlphaEnd = alpha2;
+
+            return null;
+        }
 
         [GMLFunction("part_type_alpha3")]
         public static object? part_type_alpha3(object?[] args)
@@ -259,10 +304,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // part_system_create_layer
         // part_system_get_layer
         // part_system_layer
-        // part_particles_create
+
+        [GMLFunction("part_particles_create", GMLFunctionFlags.Stub)]
+        public static object? part_particles_create(object?[] args)
+        {
+            return null;
+        }
+
         // part_particles_create_color
         // part_particles_create_colour
-        // part_particles_clear
+
+        [GMLFunction("part_particles_clear", GMLFunctionFlags.Stub)]
+        public static object? part_particles_clear(object?[] args)
+        {
+            return null;
+        }
+
         // part_particles_count
 
         [GMLFunction("part_emitter_create")]

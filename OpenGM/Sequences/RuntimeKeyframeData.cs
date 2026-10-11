@@ -22,7 +22,10 @@ public class RuntimeKeyframeData : GMLObject
 
         if (keyframeData.SequenceIndex != -1)
         {
-	        sequence = GameLoader.Sequences[keyframeData.SequenceIndex];
+            if (GameLoader.Sequences.TryGetValue(keyframeData.SequenceIndex, out var val))
+            {
+                sequence = val;
+            }
         }
 
         objectIndex = keyframeData.ObjectIndex;

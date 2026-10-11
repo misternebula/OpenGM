@@ -29,7 +29,8 @@ The following games have been tested with OpenGM, and are used to improve functi
 | Game | Engine Version | Notes |
 | -------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------- |
 | MINDWAVE Demo								   | 2024.11.0.226		  | Loads, but missing core engine features.																		|
-| DELTARUNE                                    | 2022.0.3.104 (LTS-I) |																													|
+| Nubby's Number Factory Demo                  | 2023.11.1.160        |																													|
+| DELTARUNE                                    | 2022.0.3.115 (LTS-I) |																													|
 | - Chapter 1                                  | "					  | Only very minor visual glitches/flashes.																		|
 | - Chapter 2                                  | "					  | 																												|
 | - Chapter 3                                  | "					  |																													|
@@ -42,6 +43,7 @@ The following games have been tested with OpenGM, and are used to improve functi
 | Pizza Tower SAGE 2019 Demo                   | 2.2.3.344			  |	Works well.    																									|
 | DELTARUNE Chapter 1 (SURVEY_PROGRAM)         | 2.2.0.258			  |	Works well.																										|
 | FAITH Demon Seige							   | 1.4.9999			  | Screen shader effect not working, some text invisible, camera stuck in top left, enemies don't spawn properly.	|
+| LOVE 2: kuso (Demo)						   | 1.4.1763			  | 																												|
 | Undertale                                    | 1.0.0.1539			  | Kind of works, but breaks in a lot of places.																	|
 
 ## Dependencies

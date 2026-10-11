@@ -2,6 +2,7 @@
 using OpenGM.Loading;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
+using OpenGM.VirtualMachine.BuiltInFunctions;
 using OpenTK.Mathematics;
 using System.Collections;
 using System.Reflection;
@@ -455,6 +456,18 @@ public static class ScriptResolver
             }
         }
 
+        return null;
+    }
+
+    [GMLFunction("virtual_key_add", GMLFunctionFlags.Stub)]
+    public static object? virtual_key_add(object?[] args)
+    {
+        return null;
+    }
+
+    [GMLFunction("keyboard_set_map", GMLFunctionFlags.Stub)]
+    public static object? keyboard_set_map(object?[] args)
+    {
         return null;
     }
 
