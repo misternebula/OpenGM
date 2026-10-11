@@ -14,7 +14,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return null;
             }
 
-            GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition.parent, VMExecutor.Call.EventType, VMExecutor.Call.EventIndex);
+            // seems to preserve what other is?
+            // todo: check this
+
+            var other = VMExecutor.Other;
+
+            var obj = VMExecutor.Self.GMSelf;
+            var def = VMExecutor.Self.ObjectDefinition.parent;
+
+            VMExecutor.EnvStack.Push(other);
+
+            GamemakerObject.ExecuteEvent(obj, def, VMExecutor.Call.EventType, VMExecutor.Call.EventIndex);
+
+            VMExecutor.EnvStack.Pop();
             return null;
         }
 
