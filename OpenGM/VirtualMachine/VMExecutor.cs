@@ -753,13 +753,19 @@ public static partial class VMExecutor
                 {
                     if (method.inst is int)
                     {
-                        if (method.inst.Conv<int>() == GMConstants.self)
+                        var i = method.inst.Conv<int>();
+
+                        if (i == GMConstants.self)
                         {
                             context = VMExecutor.Self.Self;
                         }
+                        else if (i >= GMConstants.FIRST_INSTANCE_ID)
+                        {
+                            context = InstanceManager.FindByInstanceId(i);
+                        }
                         else
                         {
-                            throw new NotImplementedException();
+                            throw new NotImplementedException($"CallV - inst: {method.inst.Conv<int>()}, type: {method.inst.GetType().Name}");
                         }
                     }
                     else if (method.inst is IStackContextSelf stackSelf)
@@ -768,7 +774,7 @@ public static partial class VMExecutor
                     }
                     else
                     {
-                        throw new NotImplementedException($"method.inst is {method.inst}, type {method.inst.GetType().Name}");
+                        throw new NotImplementedException($"CallV - inst: {method.inst.Conv<int>()}, type: {method.inst.GetType().Name}");
                     }
                 }
 
