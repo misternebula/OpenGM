@@ -4,6 +4,7 @@ using OpenGM.Rendering;
 using OpenGM.VirtualMachine.BuiltInFunctions;
 using System.Collections;
 using System.Diagnostics;
+using UndertaleModLib.Models;
 
 namespace OpenGM.VirtualMachine;
 
@@ -186,8 +187,8 @@ public static class VariableResolver
         { "view_camera", (get_view_camera, set_view_camera)},
         { "mouse_x", (get_mouse_x, null)},
         { "mouse_y", (get_mouse_y, null)},
-        // mouse_button
-        // mouse_lastbutton
+        { "mouse_button", (get_mouse_button, set_mouse_button) },
+        { "mouse_lastbutton", (get_mouse_lastbutton, set_mouse_lastbutton) },
         // keyboard_key
         // keyboard_lastkey
         // keyboard_lastchar
@@ -490,6 +491,74 @@ public static class VariableResolver
 
     public static object get_mouse_x(int index) => GraphicFunctions.window_views_mouse_get_x([]).Conv<double>();
     public static object get_mouse_y(int index) => GraphicFunctions.window_views_mouse_get_y([]).Conv<double>();
+
+    private static int mouse_button_value = 0;
+    private static int mouse_lastbutton_value = 0;
+    private static EventType lastMouseEventType = EventType.None;
+    private static int lastMouseEventNumber = -1;
+
+    public static object get_mouse_button(int index)
+    {
+        var eventType = DrawManager.EventType;
+        var eventNum = DrawManager.EventNumber;
+
+        if (eventType != lastMouseEventType || eventNum != lastMouseEventNumber)
+        {
+            mouse_lastbutton_value = mouse_button_value;
+            lastMouseEventType = eventType;
+            lastMouseEventNumber = eventNum;
+        }
+
+        if (eventType == EventType.Mouse)
+        {
+            int value = 0; // mb_none
+            switch (eventNum)
+            {
+                case (int)EventSubtypeMouse.LeftButton:
+                case (int)EventSubtypeMouse.LeftPressed:
+                case (int)EventSubtypeMouse.LeftReleased:
+                case (int)EventSubtypeMouse.GlobLeftButton:
+                case (int)EventSubtypeMouse.GlobLeftPressed:
+                case (int)EventSubtypeMouse.GlobLeftReleased:
+                    value = 1; // mb_left
+                    break;
+                case (int)EventSubtypeMouse.RightButton:
+                case (int)EventSubtypeMouse.RightPressed:
+                case (int)EventSubtypeMouse.RightReleased:
+                case (int)EventSubtypeMouse.GlobRightButton:
+                case (int)EventSubtypeMouse.GlobRightPressed:
+                case (int)EventSubtypeMouse.GlobRightReleased:
+                    value = 2; // mb_right
+                    break;
+                case (int)EventSubtypeMouse.MiddleButton:
+                case (int)EventSubtypeMouse.MiddlePressed:
+                case (int)EventSubtypeMouse.MiddleReleased:
+                case (int)EventSubtypeMouse.GlobMiddleButton:
+                case (int)EventSubtypeMouse.GlobMiddlePressed:
+                case (int)EventSubtypeMouse.GlobMiddleReleased:
+                    value = 3; // mb_middle
+                    break;
+                default:
+                    value = 0; // mb_none
+                    break;
+            }
+            mouse_button_value = value;
+            return mouse_button_value;
+        }
+
+        return mouse_button_value;
+    }
+
+    public static void set_mouse_button(object? value, int index)
+    {
+        mouse_button_value = value.Conv<int>();
+    }
+
+    public static object get_mouse_lastbutton(int index) => mouse_lastbutton_value;
+    public static void set_mouse_lastbutton(object? value, int index)
+    {
+        mouse_lastbutton_value = value.Conv<int>();
+    }
 
     public static object get_keyboard_string(int index) => InputHandler.KeyboardString;
     public static void set_keyboard_string(object? value, int index) => InputHandler.KeyboardString = value.Conv<string>();
