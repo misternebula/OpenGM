@@ -20,12 +20,19 @@ public static class TimingManager
     private static int _frameCounter;
     private static Stopwatch _oneSecondStopwatch = new();
     private static Stopwatch _frameStopwatch = new();
+    private static Stopwatch _runtimeStopwatch = new();
     private static int _query;
 
     public static void Initialize()
     {
         FPS = Entry.GameSpeed;
         _oneSecondStopwatch.Restart();
+        _runtimeStopwatch.Start();
+    }
+
+    public static double GetRuntimeMs()
+    {
+        return _runtimeStopwatch.Elapsed.TotalMilliseconds;
     }
 
     public static void BeginFrame(double dt)

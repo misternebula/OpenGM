@@ -227,6 +227,29 @@ public static class AudioManager
                 CheckALError();
                 _audioSources.RemoveAt(i);
             }
+
+            if (!_gainChangeDict.ContainsKey(source.Source))
+            {
+                continue;
+            }
+
+            var now = TimingManager.GetRuntimeMs();
+            var change = _gainChangeDict[source.Source];
+
+            if (now >= change.endTime)
+            {
+                AL.Source(source.Source, ALSourcef.Gain, (float)change.endVolume);
+                CheckALError();
+                _gainChangeDict.Remove(source.Source);
+                continue;
+            }
+
+            var progress = (now - change.startTime) / (change.endTime - change.startTime);
+            progress = Math.Clamp(progress, 0.0, 1.0);
+            var newGain = change.startVolume + ((change.endVolume - change.startVolume) * progress);
+
+            AL.Source(source.Source, ALSourcef.Gain, (float)newGain);
+            CheckALError();
         }
     }
 
@@ -279,6 +302,8 @@ public static class AudioManager
             {
                 AL.SourceStop(source.Source);
                 CheckALError();
+
+                _gainChangeDict.Remove(source.Source);
             }
         }
         Update(); // hack: deletes the sources. maybe make official stop and delete function
@@ -442,17 +467,37 @@ public static class AudioManager
         return instance.SoundInstanceId;
     }
 
+    private struct GainChange
+    {
+        public double startVolume;
+        public double endVolume;
+        public double startTime;
+        public double endTime;
+    }
+
+    private static Dictionary<int, GainChange> _gainChangeDict = new();
+
     public static void ChangeGain(int source, double volume, double milliseconds)
     {
-        volume = Math.Max(0, volume); // TODO : check if this is what GM does?
+        volume = Math.Max(0, volume);
+        milliseconds = Math.Max(0, milliseconds);
 
-        // todo implement lerping with timer
-        if (milliseconds > 0)
+        if (milliseconds == 0)
         {
-            DebugLog.LogWarning($"Audio gain lerping not implemented!");
+            AL.Source(source, ALSourcef.Gain, (float)volume);
+            CheckALError();
+            return;
         }
-        AL.Source(source, ALSourcef.Gain, (float)volume);
-        CheckALError();
+
+        if (_gainChangeDict.ContainsKey(source))
+        {
+            return;
+        }
+
+        var now = TimingManager.GetRuntimeMs();
+        AL.GetSource(source, ALSourcef.Gain, out var currentGain);
+        AudioManager.CheckALError();
+        _gainChangeDict[source] = new() { startVolume =  currentGain, endVolume = volume, startTime = now, endTime = now + milliseconds};
     }
 
     public static double GetClipLength(AudioAsset asset)
