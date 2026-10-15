@@ -152,7 +152,7 @@ public static class DrawManager
         return false;
     }
 
-    public static bool DoAStep(List<DrawWithDepth> objs)
+    public static bool DoAStep(List<GamemakerObject> objs)
     {
         // g_pBuiltIn.delta_time = (g_CurrentTime - g_pBuiltIn.last_time)*1000;
         // g_pBuiltIn.last_time = g_CurrentTime;
@@ -171,7 +171,8 @@ public static class DrawManager
         // g_pLayerManager.UpdateLayers();
         // g_pSequenceManager.PerformInstanceEvents(g_RunRoom, EVENT_STEP_BEGIN);
 
-        var stepList = objs.Where(x => x is not GamemakerObject obj || obj.Active).OrderBy(x => x.instanceId);
+        var stepList = objs.Where(x => x.Active).OrderBy(x => x.Definition.AssetId).ThenBy(x => x.instanceId);
+
         if (RunStepScript(stepList, EventSubtypeStep.BeginStep))
         {
             return true;
@@ -417,7 +418,7 @@ public static class DrawManager
         var drawObjectsToUse = new List<DrawWithDepth>(_drawObjects);
 
         GraphicsManager.PushMessage("DoAStep");
-        if (DoAStep(drawObjectsToUse))
+        if (DoAStep(drawObjectsToUse.OfType<GamemakerObject>().ToList()))
         {
             return;
         }
