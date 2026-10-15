@@ -148,7 +148,7 @@ public static partial class VMExecutor
             {
                 var val = self.SelfVariables[varName];
 
-                if (val is Method method && method.inst.Conv<int>() == GMConstants.self)
+                if (val is Method method && method.inst != null && method.inst.Conv<int>() == GMConstants.self)
                 {
                     // TODO: this feels like a bad hack fix. is it?
                     var bound = new Method(method.func) { inst = self };
