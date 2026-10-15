@@ -240,7 +240,7 @@ public static class InstanceManager
         {
             AddChild(assetId);
             // TODO: find out if we can have this list sorted through other means
-            result.Sort((a, b) => a.instanceId.CompareTo(b.instanceId));
+            result.Sort((a, b) => b.instanceId.CompareTo(a.instanceId));
             return result;
         }
 

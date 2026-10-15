@@ -487,28 +487,15 @@ public static partial class VMExecutor
                     }
                     else
                     {
-                        if (instanceId < GMConstants.FIRST_INSTANCE_ID)
-                        {
-                            // asset id
-                            var self = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
+                        var self = FetchSelf(instanceId);
 
-                            if (self == null)
-                            {
-                                DebugLog.LogError($"Couldn't find any instances of {AssetIndexManager.GetName(AssetType.objects, instanceId)}");
-                                Call.Stack.Push(null, VMType.v);
-                                return (ExecutionResult.Success, null);
-                            }
-
-                            PushSelfArrayIndex(self, variableName, index);
-                            return (ExecutionResult.Success, null);
-                        }
-                        else
+                        if (self == null)
                         {
-                            // instance id
-                            var self = InstanceManager.FindByInstanceId(instanceId)!;
-                            PushSelfArrayIndex(self, variableName, index);
-                            return (ExecutionResult.Success, null);
+                            throw new NotImplementedException();
                         }
+                        
+                        PushSelfArrayIndex(self, variableName, index);
+                        return (ExecutionResult.Success, null);
                     }
 
                     //return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw} index:{index} instanceid:{instanceId}");

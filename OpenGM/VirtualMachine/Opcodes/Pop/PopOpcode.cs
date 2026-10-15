@@ -95,34 +95,14 @@ public static partial class VMExecutor
 
     public static void PopToIndex(int assetId, string varName, object? value)
     {
-        if (assetId < GMConstants.FIRST_INSTANCE_ID)
+        var self = FetchSelf(assetId);
+
+        if (self == null)
         {
-            // Asset Index
-            var instances = InstanceManager.FindByAssetId(assetId);
-
-            foreach (var instance in instances)
-            {
-                if (instance == null)
-                {
-                    throw new NotImplementedException();
-                }
-
-                PopToSelf(instance, varName, value);
-            }
+            throw new NotImplementedException();
         }
-        else
-        {
-            // Instance Id
-            var instance = InstanceManager.FindByInstanceId(assetId);
 
-            if (instance == null)
-            {
-                throw new NotImplementedException($"Instance {assetId} couldn't be found!");
-            }
-
-            // TODO : double check this is always self. might be local as well????
-            PopToSelf(instance, varName, value);
-        }
+        PopToSelf(self, varName, value);
     }
 
     public static void PopToArgument(int index, object? value)
@@ -359,20 +339,15 @@ public static partial class VMExecutor
                         }
                         else
                         {
-                            if (instanceId < GMConstants.FIRST_INSTANCE_ID)
+                            var self = FetchSelf(instanceId);
+
+                            if (self == null)
                             {
-                                // asset id
-                                var gm = InstanceManager.FindByAssetId(instanceId).MinBy(x => x.instanceId)!;
-                                PopToSelfArray(gm, variableName, index, value);
-                                return (ExecutionResult.Success, null);
+                                throw new NotImplementedException();
                             }
-                            else
-                            {
-                                // instance id
-                                var gm = InstanceManager.FindByInstanceId(instanceId)!;
-                                PopToSelfArray(gm, variableName, index, value);
-                                return (ExecutionResult.Success, null);
-                            }
+
+                            PopToSelfArray(self, variableName, index, value);
+                            return (ExecutionResult.Success, null);
                         }
                     }
                 }
