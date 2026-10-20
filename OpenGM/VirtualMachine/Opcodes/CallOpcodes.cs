@@ -70,7 +70,6 @@ public static partial class VMExecutor
                 else if (i >= GMConstants.FIRST_INSTANCE_ID)
                 {
                     context = InstanceManager.FindByInstanceId(i);
-                    DebugLog.Log($"CALLV bound instance lookup: id={i}, found={context != null}");
                 }
                 else
                 {
