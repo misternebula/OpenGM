@@ -54,7 +54,7 @@ public static class DrawManager
         {
             if (item is GamemakerObject gm && gm._createRan && RoomManager.RoomLoaded)
             {
-                GamemakerObject.ExecuteEvent(gm, gm.Definition, EventType.Step, (int)stepType);
+                GamemakerObject.ExecuteEvent(gm, gm, gm.Definition, EventType.Step, (int)stepType);
             }
         }
 
@@ -76,7 +76,7 @@ public static class DrawManager
         {
             if (layer.BeginScript != null)
             {
-                VMExecutor.ExecuteCode(layer.BeginScript.GetCode(), null);
+                VMExecutor.ExecuteCode(layer.BeginScript.GetCode()!, null, null, []);
             }
         }
 
@@ -124,7 +124,7 @@ public static class DrawManager
                 }
 
                 GraphicsManager.PushMessage($"{drawType} {gm.instanceId} ({AssetIndexManager.GetName(AssetType.objects, gm.object_index)})");
-                GamemakerObject.ExecuteEvent(gm, gm.Definition, EventType.Draw, (int)drawType);
+                GamemakerObject.ExecuteEvent(gm, gm, gm.Definition, EventType.Draw, (int)drawType);
                 GraphicsManager.PopMessage();
             }
             else if (drawType == EventSubtypeDraw.Draw)
@@ -139,7 +139,7 @@ public static class DrawManager
         {
             if (layer.EndScript != null)
             {
-                VMExecutor.ExecuteCode(layer.EndScript.GetCode(), null);
+                VMExecutor.ExecuteCode(layer.EndScript.GetCode()!, null, null, []);
             }
         }
 
@@ -302,12 +302,7 @@ public static class DrawManager
 
                     if (collide != null)
                     {
-                        // makes it so `other` is the collided thing
-                        VMExecutor.EnvStack.Push(new VMEnvFrame { Self = collide, ObjectDefinition = collide.Definition });
-
-                        GamemakerObject.ExecuteEvent(gmo, gmo.Definition, EventType.Collision, id);
-
-                        VMExecutor.EnvStack.Pop();
+                        GamemakerObject.ExecuteEvent(gmo, collide, gmo.Definition, EventType.Collision, id);
 
                         if (gmo.solid)
                         {
@@ -376,7 +371,7 @@ public static class DrawManager
                     {
                         if (!instance.IsOutsideRoom)
                         {
-                            GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.OutsideRoom);
+                            GamemakerObject.ExecuteEvent(instance, instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.OutsideRoom);
                         }
                     }
                     instance.IsOutsideRoom = outside;
@@ -850,7 +845,7 @@ public static class DrawManager
                 if (!inst.mouse_over)
                 {
                     inst.mouse_over = true;
-                    GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.MouseEnter);
+                    GamemakerObject.ExecuteEvent(inst, inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.MouseEnter);
                 }
             }
             else
@@ -858,7 +853,7 @@ public static class DrawManager
                 if (inst.mouse_over)
                 {
                     inst.mouse_over = false;
-                    GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.MouseLeave);
+                    GamemakerObject.ExecuteEvent(inst, inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.MouseLeave);
                 }
             }
         }
@@ -881,7 +876,7 @@ public static class DrawManager
 
             if (inst is not null)
             {
-                GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftButton + i);
+                GamemakerObject.ExecuteEvent(inst, inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftButton + i);
             }
             else
             {
@@ -901,7 +896,7 @@ public static class DrawManager
 
             if (inst is not null)
             {
-                GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftPressed + i);
+                GamemakerObject.ExecuteEvent(inst, inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftPressed + i);
             }
             else
             {
@@ -921,7 +916,7 @@ public static class DrawManager
 
             if (inst is not null)
             {
-                GamemakerObject.ExecuteEvent(inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftReleased + i);
+                GamemakerObject.ExecuteEvent(inst, inst, inst.Definition, EventType.Mouse, (int)EventSubtypeMouse.LeftReleased + i);
             }
             else
             {
@@ -935,7 +930,7 @@ public static class DrawManager
         var objects = InstanceManager.instances.Values.ToList();
         foreach (var obj in objects)
         {
-            GamemakerObject.ExecuteEvent(obj, obj.Definition, type, key);
+            GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, type, key);
         }
     }
 }

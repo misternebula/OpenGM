@@ -1818,7 +1818,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("draw_self")]
         public static object? draw_self(object?[] args)
         {
-            SpriteManager.DrawSelf(VMExecutor.Self.GMSelf);
+            SpriteManager.DrawSelf(VMExecutor.GMSelf);
             return null;
         }
 
@@ -1832,7 +1832,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             SpriteManager.DrawSprite(sprite, subimg, x, y);
@@ -1852,9 +1852,9 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var colour = args[7].Conv<int>();
             var alpha = args[8].Conv<double>();
 
-            if (subimg == -1 && VMExecutor.Self.Self is GamemakerObject)
+            if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             SpriteManager.DrawSpriteExt(sprite, subimg, x, y, xscale, yscale, rot, colour, alpha);
@@ -1878,7 +1878,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             var col = 16777215.ABGRToCol4(alpha); // c_white
@@ -1921,7 +1921,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, 0x00FFFFFF, 1);
@@ -1942,7 +1942,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             SpriteManager.draw_sprite_stretched(sprite, subimg, x, y, w, h, colour, alpha);
@@ -1963,7 +1963,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             SpriteManager.DrawSpritePart(sprite, subimg, left, top, width, height, x, y);
@@ -1989,7 +1989,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             SpriteManager.DrawSpritePartExt(sprite, subimg, left, top, width, height, x, y, xscale, yscale, colour, alpha);
@@ -2046,7 +2046,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         }
 
         [GMLFunction("draw_sprite_tiled_ext")]
-        public static object? draw_sprite_tiled_ext(params object?[] args)
+        public static object? draw_sprite_tiled_ext( params object?[] args)
         {
             var sprite = args[0].Conv<int>();
             var subimg = args[1].Conv<int>();
@@ -2059,7 +2059,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (subimg == -1)
             {
-                subimg = (int)VMExecutor.Self.GMSelf.image_index;
+                subimg = (int)VMExecutor.GMSelf.image_index;
             }
 
             var spriteTex = SpriteManager.GetSpritePageItem(sprite, subimg);

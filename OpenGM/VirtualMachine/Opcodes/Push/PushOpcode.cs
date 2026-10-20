@@ -28,7 +28,7 @@ public static partial class VMExecutor
         Call.Stack.Push(Call.Locals[varName], VMType.v);
     }
 
-    public static void PushBuiltin(string varName)
+    public static void PushBuiltin(IStackContextSelf self, string varName)
     {
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
@@ -51,12 +51,12 @@ public static partial class VMExecutor
                 throw new NotImplementedException($"Built in variable {varName} not implemented.");
             }
 
-            var value = getter(Self.GMSelf);
+            var value = getter((GamemakerObject)self);
             Call.Stack.Push(value, VMType.v);
         }
-        else if (Self.Self.SelfVariables.ContainsKey(varName))
+        else if (self.SelfVariables.ContainsKey(varName))
         {
-            var value = Self.Self.SelfVariables[varName];
+            var value = self.SelfVariables[varName];
             Call.Stack.Push(value, VMType.v);
         }
         else if (Call.Function!.StaticVariables.ContainsKey(varName))
@@ -66,13 +66,12 @@ public static partial class VMExecutor
         }
         else
         {
-            DebugLog.LogError($"PushBuiltin: Tried to push {varName} which doesn't exist anywhere! Self: {Self} Other: {Other}");
-            DebugLog.PrintEnvStack(DebugLog.LogType.Error);
+            DebugLog.LogError($"PushBuiltin: Tried to push {varName} which doesn't exist anywhere! Self: {self}");
             DebugLog.PrintCallStack(DebugLog.LogType.Error);
         }
     }
 
-    public static void PushBuiltinArrayIndex(string varName, int index)
+    public static void PushBuiltinArrayIndex(IStackContextSelf self, string varName, int index)
     {
         if (VariableResolver.BuiltInVariables.ContainsKey(varName))
         {
@@ -94,12 +93,12 @@ public static partial class VMExecutor
                 throw new NotImplementedException($"Built in variable {varName} not implemented.");
             }
 
-            var array = getter(Self.GMSelf).Conv<IList>();
+            var array = getter((GamemakerObject)self).Conv<IList>();
             Call.Stack.Push(array[index], VMType.v);
         }
-        else if (Self.Self.SelfVariables.ContainsKey(varName))
+        else if (self.SelfVariables.ContainsKey(varName))
         {
-            var array = Self.Self.SelfVariables[varName].Conv<IList>();
+            var array = self.SelfVariables[varName].Conv<IList>();
             Call.Stack.Push(array[index], VMType.v);
         }
         else if (Call.Function!.StaticVariables.ContainsKey(varName))
@@ -148,7 +147,7 @@ public static partial class VMExecutor
             {
                 var val = self.SelfVariables[varName];
 
-                if (val is Method method && method.inst != null && method.inst.Conv<int>() == GMConstants.self)
+                if (val is Method method && method.inst is GMConstants.self)
                 {
                     // TODO: this feels like a bad hack fix. is it?
                     var bound = new Method(method.func) { inst = self };
@@ -264,11 +263,6 @@ public static partial class VMExecutor
         PushSelf(inst, varName);
     }
 
-    public static void PushOther(string varName)
-    {
-        PushSelf(Other.Self, varName);
-    }
-
     public static void PushStacktop(string varName)
     {
         var top = Call.Stack.Pop(VMType.v);
@@ -315,7 +309,7 @@ public static partial class VMExecutor
         Call.Stack.Push(value, VMType.v);
     }
 
-    public static (ExecutionResult, object?) DoPush(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoPush(IStackContextSelf self, IStackContextSelf other, VMCodeInstruction instruction)
     {
         switch (instruction.TypeOne)
         {
@@ -360,13 +354,13 @@ public static partial class VMExecutor
                 Call.Stack.Push(instruction.StringData, VMType.s);
                 return (ExecutionResult.Success, null);
             case VMType.v:
-                return DoPushV(instruction);
+                return DoPushV(self, other, instruction);
         }
 
         return (ExecutionResult.Failed, $"Don't know how to push {instruction.Raw}");
     }
 
-    public static (ExecutionResult, object?) DoPushV(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoPushV(IStackContextSelf self, IStackContextSelf other, VMCodeInstruction instruction)
     {
         var variableName = instruction.variableName;
         var variableType = instruction.variableType;
@@ -387,12 +381,12 @@ public static partial class VMExecutor
             }
             else if (variableType == VariableType.BuiltIn)
             {
-                PushBuiltin(variableName);
+                PushBuiltin(self, variableName);
                 return (ExecutionResult.Success, null);
             }
             else if (variableType == VariableType.Self)
             {
-                PushSelf(Self.Self, variableName);
+                PushSelf(self, variableName);
                 return (ExecutionResult.Success, null);
             }
             else if (variableType == VariableType.Argument)
@@ -409,7 +403,7 @@ public static partial class VMExecutor
             }
             else if (variableType == VariableType.Other)
             {
-                PushOther(variableName);
+                PushSelf(other, variableName);
                 return (ExecutionResult.Success, null);
             }
             else if (variableType == VariableType.Stacktop)
@@ -472,29 +466,29 @@ public static partial class VMExecutor
                     }
                     else if (instanceId == GMConstants.self)
                     {
-                        PushSelfArrayIndex(Self.Self, variableName, index);
+                        PushSelfArrayIndex(self, variableName, index);
                         return (ExecutionResult.Success, null);
                     }
                     else if (instanceId == GMConstants.builtin)
                     {
-                        PushBuiltinArrayIndex(variableName, index);
+                        PushBuiltinArrayIndex(self, variableName, index);
                         return (ExecutionResult.Success, null);
                     }
                     else if (instanceId == GMConstants.other)
                     {
-                        PushSelfArrayIndex(Other.Self, variableName, index);
+                        PushSelfArrayIndex(other, variableName, index);
                         return (ExecutionResult.Success, null);
                     }
                     else
                     {
-                        var self = FetchSelf(instanceId);
+                        var _self = FetchSelf(instanceId);
 
-                        if (self == null)
+                        if (_self == null)
                         {
                             throw new NotImplementedException();
                         }
                         
-                        PushSelfArrayIndex(self, variableName, index);
+                        PushSelfArrayIndex(_self, variableName, index);
                         return (ExecutionResult.Success, null);
                     }
 
@@ -557,11 +551,11 @@ public static partial class VMExecutor
                     {
                         // TODO: check builtin self var
                         VariableResolver.ArraySet(index, new List<object?>(),
-                            () => Self.Self.SelfVariables.GetValueOrDefault(variableName),
-                            array => Self.Self.SelfVariables[variableName] = array,
+                            () => self.SelfVariables.GetValueOrDefault(variableName),
+                            array => self.SelfVariables[variableName] = array,
                             onlyGrow: true);
 
-                        var array = Self.Self.SelfVariables[variableName].Conv<IList>();
+                        var array = self.SelfVariables[variableName].Conv<IList>();
                         Call.Stack.Push(array[index], VMType.v);
                         return (ExecutionResult.Success, null);
                     }
@@ -589,7 +583,7 @@ public static partial class VMExecutor
                     else if (instanceId == GMConstants.self)
                     {
                         // TODO: check builtin self var
-                        var array = Self.Self.SelfVariables[variableName].Conv<IList>();
+                        var array = self.SelfVariables[variableName].Conv<IList>();
                         Call.Stack.Push(array[index], VMType.v);
                         return (ExecutionResult.Success, null);
                     }
@@ -619,9 +613,9 @@ public static partial class VMExecutor
 	                    }
                         else if (VariableResolver.BuiltInSelfVariables.TryGetValue(variableName, out var getset))
                         {
-                            array = getset.getter!(Self.GMSelf).Conv<IList>();
+                            array = getset.getter!((GamemakerObject)self).Conv<IList>();
                         }
-                        else if (Self.Self.SelfVariables.TryGetValue(variableName, out var selfVal))
+                        else if (self.SelfVariables.TryGetValue(variableName, out var selfVal))
                         {
 	                        array = selfVal.Conv<IList>();
                         }
@@ -687,7 +681,7 @@ public static partial class VMExecutor
                 }
                 else if (id == GMConstants.other)
                 {
-                    PushOther(variableName);
+                    PushSelf(other, variableName);
                     return (ExecutionResult.Success, null);
                 }
 

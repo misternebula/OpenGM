@@ -48,7 +48,7 @@ public static class MathFunctions
             // pass by id - i really hope built in functions cant be used with method
             int value => new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>() - GMConstants.FIRST_INSTANCE_ID]),
             // pass method directly
-            Method value => value,
+            Method value => new Method(value.func),
             // idk
             _ => throw new NotImplementedException($"Don't know what to do with type {args[1]?.GetType().ToString() ?? "null"}")
         };
@@ -62,7 +62,7 @@ public static class MathFunctions
             var num = struct_ref_or_instance_id.Conv<int>();
             if (num == GMConstants.self)
             {
-                method.inst = GMConstants.self;
+                method.inst = VMExecutor.Self;
             }
             else if (num == GMConstants.@static)
             {
@@ -370,22 +370,22 @@ public static class MathFunctions
         }
         else
         {
-            VMCode? comparingCode;
+            VMCode comparingCode;
 
             if (sorttype_or_function is int)
             {
                 var vmscript = ScriptResolver.ScriptsByIndex[sorttype_or_function.Conv<int>()];
-                comparingCode = vmscript.GetCode();
+                comparingCode = vmscript.GetCode()!;
             }
             else
             {
                 var method = sorttype_or_function as Method;
-                comparingCode = method!.func.GetCode();
+                comparingCode = method!.func.GetCode()!;
             }
 
             cmp = (a, b) =>
             {
-                var result = VMExecutor.ExecuteCode(comparingCode, null, args: [a, b]);
+                var result = VMExecutor.ExecuteCode(comparingCode, null, null, args: [a, b]);
                 return result.Conv<int>();
             };
         }

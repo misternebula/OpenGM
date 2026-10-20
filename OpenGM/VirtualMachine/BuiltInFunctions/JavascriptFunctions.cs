@@ -14,13 +14,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return new GMLObject();
             }
 
-            var ctor = VMExecutor.FetchMethod(args[0], args.Length - 1);
+            var ctor = Method.FetchMethod(args[0], args.Length - 1);
             var values = args[1..];
             var obj = new GMLObject();
 
             var script = ctor!.func;
             var code = script.GetCode()!;
-            VMExecutor.ExecuteCode(code, obj, args: values);
+            VMExecutor.ExecuteCode(code, obj, obj, values);
 
             // TODO: this is definitely NOT how static variables are supposed to work
             if (code.ParentAssetId != -1)
@@ -49,12 +49,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("@@This@@")]
         public static object This(object?[] args)
         {
-            if (VMExecutor.Self.Self is GamemakerObject)
-            {
-                return VMExecutor.Self.GMSelf.instanceId;
-            }
-
-            return VMExecutor.Self.Self;
+            return VMExecutor.GMSelf.instanceId;
         }
 
         [GMLFunction("@@Global@@")]
@@ -100,12 +95,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("@@Other@@")]
         public static object Other(object?[] args)
         {
-            if (VMExecutor.Other.Self is GamemakerObject)
-            {
-                return VMExecutor.Other.GMSelf.instanceId;
-            }
-
-            return VMExecutor.Other.Self;
+            return VMExecutor.GMOther.instanceId;
         }
 
         [GMLFunction("@@GetInstance@@")]

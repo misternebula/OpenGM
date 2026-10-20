@@ -93,7 +93,7 @@
 
             var request = new BufferAsyncWriteRequest(buffer, filename, offset, size);
             request.Group = BufferManager.AsyncGroup;
-            request.Instance = VMExecutor.Self.GMSelf;
+            request.Instance = (GamemakerObject)VMExecutor.Self!;
 
             if (BufferManager.AsyncGroup is not null)
             {
@@ -119,7 +119,7 @@
 
             var request = new BufferAsyncReadRequest(buffer, filename, offset, size);
             request.Group = BufferManager.AsyncGroup;
-            request.Instance = VMExecutor.Self.GMSelf;
+            request.Instance = (GamemakerObject)VMExecutor.Self!;
 
             if (BufferManager.AsyncGroup is not null)
             {
@@ -138,7 +138,7 @@
         {
             var name = args[0].Conv<string>();
 
-            BufferManager.AsyncGroup = new(name, VMExecutor.Self.GMSelf);
+            BufferManager.AsyncGroup = new(name, (GamemakerObject)VMExecutor.Self!);
 
             return null;
         }

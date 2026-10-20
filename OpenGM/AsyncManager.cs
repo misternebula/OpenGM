@@ -23,7 +23,7 @@ public static class AsyncManager
         DataStructuresFunctions.ds_map_add([AsyncLoadDsIndex, "id", result.Id]);
         DataStructuresFunctions.ds_map_add([AsyncLoadDsIndex, "status", result.Status]);
 
-        GamemakerObject.ExecuteEvent(result.Instance, result.Instance.Definition, EventType.Other, (int)EventSubtypeOther.AsyncSaveAndLoad);
+        GamemakerObject.ExecuteEvent(result.Instance, result.Instance, result.Instance.Definition, EventType.Other, (int)EventSubtypeOther.AsyncSaveAndLoad);
     }
 
     public static void HandleAsyncQueue()

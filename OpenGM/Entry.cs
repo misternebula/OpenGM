@@ -233,7 +233,6 @@ internal class Entry
         ScriptResolver.InitGMLFunctions(); // needs version stuff
         ExtensionManager.Init();
 
-        VMExecutor.EnvStack.Clear();
         VMExecutor.CallStack.Clear();
         InstanceManager.instances.Clear();
         DrawManager._drawObjects.Clear();
@@ -281,7 +280,7 @@ internal class Entry
         VMExecutor.GlobalInit = true;
         foreach (var item in ScriptResolver.GlobalInit)
         {
-            VMExecutor.ExecuteCode(item, null);
+            VMExecutor.ExecuteCode(item, null, null, []);
         }
         VMExecutor.GlobalInit = false;
 

@@ -118,18 +118,13 @@ public static partial class VMExecutor
         Call.Locals["arguments"] = args;
     }
 
-    public static void PopToOther(string varName, object? value)
-    {
-        PopToSelf(Other.Self, varName, value);
-    }
-
-    public static void PopToBuiltIn(string varName, object? value)
+    public static void PopToBuiltIn(IStackContextSelf self, string varName, object? value)
     {
         if (!VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtinGetSet))
         {
             // "Welcome to hell" - colin
             // At some point, self started only being used when explicitly doing "self.", and builtin is used instead.
-            PopToSelf(Self.Self, varName, value);
+            PopToSelf(self, varName, value);
         }
         else
         {
@@ -142,7 +137,7 @@ public static partial class VMExecutor
         }
     }
 
-    public static void PopToBuiltInArray(string varName, int index, object? value)
+    public static void PopToBuiltInArray(IStackContextSelf self, string varName, int index, object? value)
     {
         if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var gettersetter))
         {
@@ -163,13 +158,13 @@ public static partial class VMExecutor
             VariableResolver.ArraySet(
                 index,
                 value,
-                () => selfgettersetter.getter(Self.GMSelf),
-                array => selfgettersetter.setter(Self.GMSelf, array));
+                () => selfgettersetter.getter((GamemakerObject)self),
+                array => selfgettersetter.setter((GamemakerObject)self, array));
         }
         else
         {
             // try this? idk
-            PopToSelfArray(Self.Self, varName, index, value);
+            PopToSelfArray(self, varName, index, value);
             //throw new ArgumentException($"No such builtin array \"{varName}\"");
         }
     }
@@ -199,7 +194,7 @@ public static partial class VMExecutor
         currentFunc.StaticVariables[varName] = value;
     }
 
-    public static (ExecutionResult, object?) DoPop(VMCodeInstruction instruction)
+    public static (ExecutionResult, object?) DoPop(IStackContextSelf self, IStackContextSelf other, VMCodeInstruction instruction)
     {
         if (instruction.TypeOne == VMType.e)
         {
@@ -235,7 +230,7 @@ public static partial class VMExecutor
                     return (ExecutionResult.Success, null);
                 }
 
-                PopToSelf(Self.Self, variableName, dataPopped);
+                PopToSelf(self, variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
             else if (variableType == VariableType.Index)
@@ -252,12 +247,12 @@ public static partial class VMExecutor
             }
             else if (variableType == VariableType.BuiltIn)
             {
-                PopToBuiltIn(variableName, dataPopped);
+                PopToBuiltIn(self, variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
             else if (variableType == VariableType.Other)
             {
-                PopToOther(variableName, dataPopped);
+                PopToSelf(other, variableName, dataPopped);
                 return (ExecutionResult.Success, null);
             }
             else if (variableType == VariableType.Static)
@@ -329,24 +324,24 @@ public static partial class VMExecutor
                         }
                         else if (instanceId == GMConstants.self)
                         {
-                            PopToSelfArray(Self.Self, variableName, index, value);
+                            PopToSelfArray(self, variableName, index, value);
                             return (ExecutionResult.Success, null);
                         }
                         else if (instanceId == GMConstants.builtin)
                         {
-                            PopToBuiltInArray(variableName, index, value);
+                            PopToBuiltInArray(self, variableName, index, value);
                             return (ExecutionResult.Success, null);
                         }
                         else
                         {
-                            var self = FetchSelf(instanceId);
+                            var _self = FetchSelf(instanceId);
 
-                            if (self == null)
+                            if (_self == null)
                             {
                                 throw new NotImplementedException();
                             }
 
-                            PopToSelfArray(self, variableName, index, value);
+                            PopToSelfArray(_self, variableName, index, value);
                             return (ExecutionResult.Success, null);
                         }
                     }
@@ -444,14 +439,14 @@ public static partial class VMExecutor
                 }
                 else if (id == GMConstants.self)
                 {
-                    if (Self.Self == null)
+                    if (self == null)
                     {
                         // for global scripts
                         PopToGlobal(variableName, value);
                     }
                     else
                     {
-                        PopToSelf(Self.Self, variableName, value);
+                        PopToSelf(self, variableName, value);
                     }
 
                     return (ExecutionResult.Success, null);
@@ -464,14 +459,14 @@ public static partial class VMExecutor
                 }
                 else if (id == GMConstants.builtin)
                 {
-                    if (Self.Self == null)
+                    if (self == null)
                     {
                         // for global scripts
                         PopToGlobal(variableName, value);
                         return (ExecutionResult.Success, null);
                     }
 
-                    PopToSelf(Self.Self, variableName, value);
+                    PopToSelf(self, variableName, value);
 
                     return (ExecutionResult.Success, null);
                 }

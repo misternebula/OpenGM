@@ -29,6 +29,19 @@ public class DataStack : Stack<(object? value, VMType type)>
         return poppedValue;
     }
 
+    public object? Peek(VMType typeToPeek)
+    {
+        var (peekedValue, typeOfPeeked) = base.Peek();
+
+        // do strict size checking
+        if (VMExecutor.VMTypeToSize(typeOfPeeked) != VMExecutor.VMTypeToSize(typeToPeek))
+        {
+            throw new NotImplementedException($"Peeked value {peekedValue} is type {typeOfPeeked}, which can't be converted to {typeToPeek}!");
+        }
+
+        return peekedValue;
+    }
+
     [Obsolete("dont use this version")]
     public new void Push((object? value, VMType type) x) => base.Push(x);
 

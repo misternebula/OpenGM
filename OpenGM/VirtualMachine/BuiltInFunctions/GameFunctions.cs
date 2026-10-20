@@ -8,9 +8,18 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions;
 public static class GameFunctions
 {
     // move_random
-    // place_free
-    
 
+    [GMLFunction("place_free", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Error)]
+    public static object place_free( params object?[] args)
+    {
+        return false;
+    }
+
+    [GMLFunction("place_empty", GMLFunctionFlags.Stub, stubLogType: DebugLog.LogType.Error)]
+    public static object place_empty( params object?[] args)
+    {
+        return false;
+    }
 
     [GMLFunction("place_meeting")]
     public static object place_meeting(object?[] args)
@@ -19,7 +28,7 @@ public static class GameFunctions
         var y = args[1].Conv<double>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
-        var result = CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
+        var result = CollisionManager.Command_InstancePlace(VMExecutor.GMSelf, x, y, obj);
 
         return result >= 0;
     }
@@ -32,8 +41,8 @@ public static class GameFunctions
         var hsnap = args[0].Conv<float>();
         var vsnap = args[1].Conv<float>();
 
-        var newX = VMExecutor.Self.GMSelf.x;
-        var newY = VMExecutor.Self.GMSelf.y;
+        var newX = VMExecutor.GMSelf.x;
+        var newY = VMExecutor.GMSelf.y;
 
         if (0 < hsnap)
         {
@@ -45,8 +54,8 @@ public static class GameFunctions
             newY = (float)(Math.Round(newY / vsnap, MidpointRounding.ToEven) * vsnap);
         }
 
-        VMExecutor.Self.GMSelf.x = newX;
-        VMExecutor.Self.GMSelf.y = newY;
+        VMExecutor.GMSelf.x = newX;
+        VMExecutor.GMSelf.y = newY;
         return null;
     }
 
@@ -57,8 +66,8 @@ public static class GameFunctions
         var targety = args[1].Conv<double>();
         var sp = args[2].Conv<double>();
 
-        VMExecutor.Self.GMSelf.direction = MathFunctions.point_direction(VMExecutor.Self.GMSelf.x, VMExecutor.Self.GMSelf.y, targetx, targety).Conv<double>();
-        VMExecutor.Self.GMSelf.speed = sp;
+        VMExecutor.GMSelf.direction = MathFunctions.point_direction(VMExecutor.GMSelf.x, VMExecutor.GMSelf.y, targetx, targety).Conv<double>();
+        VMExecutor.GMSelf.speed = sp;
 
         return null;
     }
@@ -68,28 +77,30 @@ public static class GameFunctions
     // move_outside_solid
     // move_outside_all
 
-    [GMLFunction("move_bounce_solid", GMLFunctionFlags.Stub)]
+    [GMLFunction("move_bounce_solid")]
     public static object? move_bounce_solid(object?[] args)
     {
+        CommandBounce(VMExecutor.GMSelf, args[0].Conv<bool>(), false);
         return null;
     }
 
-    [GMLFunction("move_bounce_all", GMLFunctionFlags.Stub)]
+    [GMLFunction("move_bounce_all")]
     public static object? move_bounce_all(object?[] args)
     {
+        CommandBounce(VMExecutor.GMSelf, args[0].Conv<bool>(), true);
         return null;
     }
 
     // https://github.com/YoYoGames/GameMaker-HTML5/blob/60e51be51ce7f3d52025ef18106cf172b8e22a00/scripts/functions/Function_Movement.js#L301
-    /*static bool BounceTest(GamemakerObject inst, double x, double y, bool useAll)
+    static bool BounceTest(GamemakerObject inst, double x, double y, bool useAll)
     {
         if (useAll)
         {
-            return place_empty(inst, x, y);
+            return place_empty(inst, inst, inst, x, y).Conv<bool>();
         }
         else
         {
-            return place_free(inst, x, y);
+            return place_free(inst, inst, inst, x, y).Conv<bool>();
         }
     }
 
@@ -168,7 +179,7 @@ public static class GameFunctions
                 inst.vspeed = -inst.vspeed;
             }
         }
-    }*/
+    }
 
     // move_wrap
 
@@ -178,8 +189,8 @@ public static class GameFunctions
         var dir = args[0].Conv<double>();
         var speed = args[1].Conv<double>();
 
-        VMExecutor.Self.GMSelf.direction = dir;
-        VMExecutor.Self.GMSelf.speed = speed;
+        VMExecutor.GMSelf.direction = dir;
+        VMExecutor.GMSelf.speed = speed;
         return null;
     }
 
@@ -194,10 +205,8 @@ public static class GameFunctions
         var dir = args[0].Conv<double>();
         var speed = args[1].Conv<double>();
 
-        var self = VMExecutor.Self.GMSelf;
-
-        self.hspeed += speed * ClampFloat(Math.Cos(dir * CustomMath.Deg2Rad));
-        self.vspeed -= speed * ClampFloat(Math.Sin(dir * CustomMath.Deg2Rad));
+        VMExecutor.GMSelf.hspeed += speed * ClampFloat(Math.Cos(dir * CustomMath.Deg2Rad));
+        VMExecutor.GMSelf.vspeed -= speed * ClampFloat(Math.Sin(dir * CustomMath.Deg2Rad));
 
         return null;
     }
@@ -208,7 +217,7 @@ public static class GameFunctions
         var x = args[0].Conv<double>();
         var y = args[1].Conv<double>();
 
-        var self = VMExecutor.Self.GMSelf;
+        var self = VMExecutor.GMSelf;
 
         if (self.mask_index == -1 && self.sprite_index == -1)
         {
@@ -260,10 +269,10 @@ public static class GameFunctions
 
         // compute bounding boxes if needed
 
-        var self = VMExecutor.Self.GMSelf;
-
         var xd = 0d;
         var yd = 0d;
+
+        var self = VMExecutor.GMSelf;
 
         if (self.bbox_left > objToCheck.bbox_right)
         {
@@ -297,7 +306,7 @@ public static class GameFunctions
         var endaction = (PathEndAction)args[2].Conv<int>();
         var absolute = args[3].Conv<bool>();
 
-        VMExecutor.Self.GMSelf.AssignPath(path, speed, 1, 0, absolute, endaction);
+        VMExecutor.GMSelf.AssignPath(path, speed, 1, 0, absolute, endaction);
 
         return null;
     }
@@ -305,7 +314,7 @@ public static class GameFunctions
     [GMLFunction("path_end")]
     public static object? path_end(object?[] args)
     {
-        VMExecutor.Self.GMSelf.path_index = -1;
+        VMExecutor.GMSelf.path_index = -1;
         return null;
     }
 
@@ -445,7 +454,7 @@ public static class GameFunctions
         var prec = args[3].Conv<bool>();
         var notme = args[4].Conv<bool>();
 
-        return CollisionManager.Command_CollisionPoint(VMExecutor.Self.GMSelf, x, y, obj, prec, notme);
+        return CollisionManager.Command_CollisionPoint(VMExecutor.GMSelf, x, y, obj, prec, notme);
     }
 
     // collision_point_list
@@ -461,7 +470,7 @@ public static class GameFunctions
         var prec = args[5].Conv<bool>();
         var notme = args[6].Conv<bool>();
 
-        return CollisionManager.Command_CollisionRectangle(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
+        return CollisionManager.Command_CollisionRectangle(VMExecutor.GMSelf, x1, y1, x2, y2, obj, prec, notme);
     }
 
     [GMLFunction("collision_rectangle_list")]
@@ -478,7 +487,7 @@ public static class GameFunctions
         var ordered = args[8].Conv<bool>(); // TODO : implement
 
         List<GamemakerObject> collisionList = [];
-        CollisionManager.Command_CollisionRectangle(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme, collisionList);
+        CollisionManager.Command_CollisionRectangle(VMExecutor.GMSelf, x1, y1, x2, y2, obj, prec, notme, collisionList);
 
         foreach (var instance in collisionList)
         {
@@ -499,7 +508,7 @@ public static class GameFunctions
         var prec = args[4].Conv<bool>();
         var notme = args[5].Conv<bool>();
 
-        return CollisionManager.Command_CollisionCircle(VMExecutor.Self.GMSelf, x, y, rad, obj, prec, notme);
+        return CollisionManager.Command_CollisionCircle(VMExecutor.GMSelf, x, y, rad, obj, prec, notme);
     }
 
     // collision_circle_list
@@ -515,7 +524,7 @@ public static class GameFunctions
         var prec = args[5].Conv<bool>();
         var notme = args[6].Conv<bool>();
 
-        return CollisionManager.Command_CollisionEllipse(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
+        return CollisionManager.Command_CollisionEllipse(VMExecutor.GMSelf, x1, y1, x2, y2, obj, prec, notme);
     }
 
     // collision_ellipse_list
@@ -531,7 +540,7 @@ public static class GameFunctions
         var prec = args[5].Conv<bool>();
         var notme = args[6].Conv<bool>();
 
-        return CollisionManager.Command_CollisionLine(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme);
+        return CollisionManager.Command_CollisionLine(VMExecutor.GMSelf, x1, y1, x2, y2, obj, prec, notme);
     }
 
     [GMLFunction("collision_line_list")]
@@ -549,7 +558,7 @@ public static class GameFunctions
 
         var instList = new List<GamemakerObject>();
 
-        CollisionManager.Command_CollisionLineList(VMExecutor.Self.GMSelf, x1, y1, x2, y2, obj, prec, notme, instList);
+        CollisionManager.Command_CollisionLineList(VMExecutor.GMSelf, x1, y1, x2, y2, obj, prec, notme, instList);
 
         var count = instList.Count;
 
@@ -607,11 +616,11 @@ public static class GameFunctions
 
         if (obj == GMConstants.self)
         {
-            return VMExecutor.Self.GMSelf.instanceId;
+            return VMExecutor.GMSelf.instanceId;
         }
         else if (obj == GMConstants.other)
         {
-            return VMExecutor.Other.GMSelf.instanceId;
+            return VMExecutor.GMOther.instanceId;
         }
         else if (obj == GMConstants.all)
         {
@@ -719,7 +728,7 @@ public static class GameFunctions
         var y = args[1].Conv<double>();
         var obj = args[2].Conv<int>(); // TODO : this can be an array, or "all" or "other", or tile map stuff
 
-        return CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj);
+        return CollisionManager.Command_InstancePlace(VMExecutor.GMSelf, x, y, obj);
     }
 
     [GMLFunction("instance_place_list")]
@@ -732,7 +741,7 @@ public static class GameFunctions
         var ordered = args[4].Conv<bool>(); // TODO : implement
 
         List<GamemakerObject> collisionList = [];
-        CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, obj, collisionList);
+        CollisionManager.Command_InstancePlace(VMExecutor.GMSelf, x, y, obj, collisionList);
 
         foreach (var instance in collisionList)
         {
@@ -792,12 +801,12 @@ public static class GameFunctions
         var obj = args[0].Conv<int>();
         var perf = args[1].Conv<bool>();
 
-        var self = VMExecutor.Self.GMSelf;
+        var self = VMExecutor.GMSelf;
 
         if (perf)
         {
-            GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Destroy);
-            GamemakerObject.ExecuteEvent(self, self.Definition, EventType.CleanUp);
+            GamemakerObject.ExecuteEvent(self, self, self.Definition, EventType.Destroy);
+            GamemakerObject.ExecuteEvent(self, self, self.Definition, EventType.CleanUp);
         }
 
         var definition = InstanceManager.ObjectDefinitions[obj];
@@ -808,8 +817,8 @@ public static class GameFunctions
 
         if (perf)
         {
-            GamemakerObject.ExecuteEvent(self, self.Definition, EventType.PreCreate);
-            GamemakerObject.ExecuteEvent(self, self.Definition, EventType.Create);
+            GamemakerObject.ExecuteEvent(self, self, self.Definition, EventType.PreCreate);
+            GamemakerObject.ExecuteEvent(self, self, self.Definition, EventType.Create);
         }
 
         return null;
@@ -823,7 +832,7 @@ public static class GameFunctions
             //GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, EventType.Destroy);
             //GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, EventType.CleanUp);
             //InstanceManager.instance_destroy(VMExecutor.Self.GMSelf);
-            InstanceManager.MarkForDestruction(VMExecutor.Self.GMSelf, true);
+            InstanceManager.MarkForDestruction(VMExecutor.GMSelf, true);
             return null;
         }
 
@@ -894,7 +903,7 @@ public static class GameFunctions
         var y = args[1].Conv<float>();
         var obj = args[2].Conv<int>();
 
-        var id = CollisionManager.Command_CollisionPoint(VMExecutor.Self.GMSelf, x, y, obj, true, false);
+        var id = CollisionManager.Command_CollisionPoint(VMExecutor.GMSelf, x, y, obj, true, false);
         return id != GMConstants.noone;
     }
 
@@ -918,7 +927,7 @@ public static class GameFunctions
 
         if (notme)
         {
-            VMExecutor.Self.GMSelf.NextActive = true;
+            VMExecutor.GMSelf.NextActive = true;
         }
 
         return null;

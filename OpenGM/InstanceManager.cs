@@ -122,8 +122,8 @@ public static class InstanceManager
 
         var newGM = new GamemakerObject(definition, x, y, definition.depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId, definition.solid);
 
-        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
-        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        GamemakerObject.ExecuteEvent(newGM, newGM, definition, EventType.PreCreate);
+        GamemakerObject.ExecuteEvent(newGM, newGM, definition, EventType.Create);
         newGM._createRan = true;
         return newGM.instanceId;
     }
@@ -134,7 +134,7 @@ public static class InstanceManager
 
         var newGM = new GamemakerObject(definition, x, y, depth, NextInstanceID++, definition.sprite, definition.visible, definition.persistent, definition.textureMaskId, definition.solid);
 
-        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+        GamemakerObject.ExecuteEvent(newGM, newGM, definition, EventType.PreCreate);
 
         if (var_struct != null)
         {
@@ -144,7 +144,7 @@ public static class InstanceManager
             }
         }
 
-        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        GamemakerObject.ExecuteEvent(newGM, newGM, definition, EventType.Create);
         newGM._createRan = true;
         return newGM.instanceId;
     }
@@ -157,7 +157,7 @@ public static class InstanceManager
         layer.ElementsToDraw.Add(newGM);
         newGM.Layer = layer.ID;
 
-        GamemakerObject.ExecuteEvent(newGM, definition, EventType.PreCreate);
+        GamemakerObject.ExecuteEvent(newGM, newGM, definition, EventType.PreCreate);
 
         if (var_struct != null)
         {
@@ -167,7 +167,7 @@ public static class InstanceManager
             }
         }
 
-        GamemakerObject.ExecuteEvent(newGM, definition, EventType.Create);
+        GamemakerObject.ExecuteEvent(newGM, newGM, definition, EventType.Create);
         newGM._createRan = true;
         return newGM.instanceId;
     }
@@ -204,11 +204,11 @@ public static class InstanceManager
         }
         else if (id == GMConstants.self)
         {
-            return VMExecutor.Self.GMSelf;
+            return (GamemakerObject?)VMExecutor.Self;
         }
         else if (id == GMConstants.other)
         {
-            return VMExecutor.Other.GMSelf;
+            return (GamemakerObject?)VMExecutor.Other;
         }
         else if (id < 0)
         {
@@ -275,12 +275,12 @@ public static class InstanceManager
         switch (value)
         {
             case GMConstants.self:
-                result.Add(VMExecutor.Self.GMSelf);
+                result.Add((GamemakerObject)VMExecutor.Self!);
                 return result;
             case GMConstants.other:
                 /*var myId = VMExecutor.Self.GMSelf.instanceId;
                 result.AddRange(instList.Where(inst => inst.instanceId != myId));*/
-                result.Add(VMExecutor.Other.GMSelf);
+                result.Add((GamemakerObject)VMExecutor.Other!);
                 return result;
             case GMConstants.all:
                 result.AddRange(instList);
@@ -296,7 +296,7 @@ public static class InstanceManager
     {
         if (instanceId == GMConstants.self)
         {
-            return VMExecutor.Self.GMSelf;
+            return (GamemakerObject?)VMExecutor.Self;
         }
 
         if (instanceId < GMConstants.FIRST_INSTANCE_ID)
@@ -309,6 +309,11 @@ public static class InstanceManager
         if (all)
         {
             result ??= inactiveInstances.GetValueOrDefault(instanceId);
+        }
+
+        if (result == null)
+        {
+            DebugLog.LogWarning($"Failed to find instance with id of {instanceId}");
         }
 
         return result;
@@ -366,10 +371,10 @@ public static class InstanceManager
             obj.Marked = true;
             if (executeEvent)
             {
-                GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Destroy);
+                GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, EventType.Destroy);
             }
 
-            GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.CleanUp);
+            GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, EventType.CleanUp);
         }
     }
 
@@ -449,7 +454,7 @@ public static class InstanceManager
 
             if (item.AdaptPath())
             {
-                GamemakerObject.ExecuteEvent(item, item.Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
+                GamemakerObject.ExecuteEvent(item, item, item.Definition, EventType.Other, (int)EventSubtypeOther.EndOfPath);
             }
 
             if (item.hspeed != 0 || item.vspeed != 0)

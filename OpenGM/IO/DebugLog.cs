@@ -101,7 +101,7 @@ public static class DebugLog
                 }
             }
 
-            Log($" - {item.CodeName} | {item.EnvFrame} | @ Ins:{item.InstructionIndex} Label:{lastLabel}", type);
+            Log($" - {item.CodeName} | @ Ins:{item.InstructionIndex} Label:{lastLabel}", type);
         }
     }
 

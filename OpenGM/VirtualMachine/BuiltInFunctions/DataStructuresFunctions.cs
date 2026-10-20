@@ -22,6 +22,22 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             _dsGridDict.Clear();
         }
 
+        public static object? DictHash(object? key)
+        {
+            // GenHash in cpp
+
+            var result = key;
+
+            switch (key)
+            {
+                case int or long or short or double or bool:
+                    result = key.Conv<double>();
+                    break;
+            }
+
+            return result;
+        }
+
         // TODO: put these grid functions in the right place
 
         [GMLFunction("ds_grid_get")]
@@ -38,7 +54,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ...
 
         [GMLFunction("ds_exists")]
-        public static object ds_exists(params object?[] args)
+        public static object ds_exists( params object?[] args)
         {
             var id = args[0].Conv<int>();
             var type = (DSType)args[1].Conv<int>();
@@ -463,7 +479,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object ds_map_add(params object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1])!;
+            var key = DictHash(args[1])!;
             var value = args[2]!;
 
             if (!_dsMapDict.ContainsKey(id))
@@ -485,7 +501,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_set(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1])!;
+            var key = DictHash(args[1])!;
             var value = args[2]!;
 
             if (!_dsMapDict.ContainsKey(id))
@@ -511,7 +527,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_delete(params object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1])!;
+            var key = DictHash(args[1])!;
 
             if (!_dsMapDict.ContainsKey(id))
             {
@@ -526,7 +542,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_exists(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1])!;
+            var key = DictHash(args[1])!;
 
             if (!_dsMapDict.ContainsKey(id))
             {
@@ -544,7 +560,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_find_value(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1]);
+            var key = DictHash(args[1]);
 
             if (key is null || !_dsMapDict.ContainsKey(id))
             {
@@ -567,7 +583,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_find_previous(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1]);
+            var key = DictHash(args[1]);
 
             if (key is null || !_dsMapDict.ContainsKey(id))
             {
@@ -588,7 +604,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? ds_map_find_next(object?[] args)
         {
             var id = args[0].Conv<int>();
-            var key = VMExecutor.DictHash(args[1]);
+            var key = DictHash(args[1]);
 
             if (key is null || !_dsMapDict.ContainsKey(id))
             {

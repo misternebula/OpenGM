@@ -9,24 +9,15 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("event_inherited")]
         public static object? event_inherited(object?[] args)
         {
-            if (VMExecutor.Self.ObjectDefinition?.parent == null)
+            var parent = GamemakerObject.CurrentEventObject?.parent;
+
+            if (parent == null)
             {
                 return null;
             }
 
-            // seems to preserve what other is?
-            // todo: check this
+            GamemakerObject.ExecuteEvent(VMExecutor.GMSelf, VMExecutor.GMOther, parent, GamemakerObject.CurrentEventType, GamemakerObject.CurrentEventNumber);
 
-            var other = VMExecutor.Other;
-
-            var obj = VMExecutor.Self.GMSelf;
-            var def = VMExecutor.Self.ObjectDefinition.parent;
-
-            VMExecutor.EnvStack.Push(other);
-
-            GamemakerObject.ExecuteEvent(obj, def, VMExecutor.Call.EventType, VMExecutor.Call.EventIndex);
-
-            VMExecutor.EnvStack.Pop();
             return null;
         }
 
@@ -36,7 +27,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var type = args[0].Conv<int>();
             var numb = args[1].Conv<int>();
 
-            GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, (EventType)type + 1, numb);
+            GamemakerObject.ExecuteEvent(VMExecutor.GMSelf, VMExecutor.GMOther, VMExecutor.GMSelf.Definition, (EventType)type + 1, numb);
+
             return null;
         }
 
@@ -46,7 +38,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? event_user(object?[] args)
         {
             var numb = args[0].Conv<int>();
-            GamemakerObject.ExecuteEvent(VMExecutor.Self.GMSelf, VMExecutor.Self.ObjectDefinition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
+            GamemakerObject.ExecuteEvent(VMExecutor.GMSelf, VMExecutor.GMOther, VMExecutor.GMSelf.Definition, EventType.Other, (int)EventSubtypeOther.User0 + numb);
             return null;
         }
 
@@ -102,7 +94,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             var index = args[0].Conv<int>();
             var value = args[1].Conv<int>();
 
-            VMExecutor.Self.GMSelf.alarm[index] = value;
+            VMExecutor.GMSelf.alarm[index] = value;
             return null;
         }
 
@@ -110,7 +102,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? alarm_get(object?[] args)
         {
             var index = args[0].Conv<int>();
-            return VMExecutor.Self.GMSelf.alarm[index];
+            return VMExecutor.GMSelf.alarm[index];
         }
 
         [GMLFunction("variable_global_exists")]

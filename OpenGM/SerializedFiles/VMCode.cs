@@ -21,6 +21,8 @@ public partial class VMCode
     public event Action OnCodeExecuted = () => { };
 
     public void CodeExecuted() => OnCodeExecuted?.Invoke();
+
+    public override string ToString() => $"VMCode {AssetId} - {Name}";
 }
 
 [MemoryPackable]

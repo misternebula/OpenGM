@@ -70,7 +70,7 @@ public static class RoomManager
             }
 
             // TODO : if RoomEnd event creates objects, should they be saved??
-            GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+            GamemakerObject.ExecuteEvent(instance, instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
 
             instancesToSave.Add(instance);
             DrawManager.Unregister(instance);
@@ -125,7 +125,7 @@ public static class RoomManager
             DebugLog.Log($"{instance.instanceId} - {instance.Definition.Name} Active:{instance.Active} Marked:{instance.Marked} Destroyed:{instance.Destroyed}");
             InstanceManager.instances.Add(instance.instanceId, instance);
             InstanceManager.ObjectMap[instance.Definition.AssetId].Instances.Add(instance);
-            GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
+            GamemakerObject.ExecuteEvent(instance, instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
             DrawManager.Register(instance);
         }
 
@@ -214,7 +214,7 @@ public static class RoomManager
                     continue;
                 }
 
-                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
+                GamemakerObject.ExecuteEvent(instance, instance, instance.Definition, EventType.Other, (int)EventSubtypeOther.RoomEnd);
             }
 
             // TODO : if RoomEnd event creates objects, should they be destroyed??
@@ -233,7 +233,7 @@ public static class RoomManager
                 }
 
                 // no destroy event https://forum.gamemaker.io/index.php?threads/hold-up-room-change-doesnt-trigger-destroy-event-of-objects.43007/
-                GamemakerObject.ExecuteEvent(instance, instance.Definition, EventType.CleanUp);
+                GamemakerObject.ExecuteEvent(instance, instance, instance.Definition, EventType.CleanUp);
 
                 instance.Destroy();
             }
@@ -320,21 +320,21 @@ public static class RoomManager
 
         void RunObjEvents(GamemakerObject obj, GameObject go)
         {
-            GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.PreCreate);
+            GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, EventType.PreCreate);
             
             var preCreateCode = GetCodeFromCodeIndex(go.PreCreateCodeID);
             if (preCreateCode != null)
             {
-                VMExecutor.ExecuteCode(preCreateCode, obj, obj.Definition);
+                VMExecutor.ExecuteCode(preCreateCode, obj, obj, []);
             }
 
-            GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Create);
+            GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, EventType.Create);
             obj._createRan = true;
 
             var createCode = GetCodeFromCodeIndex(go.CreationCodeID);
             if (createCode != null)
             {
-                VMExecutor.ExecuteCode(createCode, obj, obj.Definition);
+                VMExecutor.ExecuteCode(createCode, obj, obj, []);
             }
         }
 
@@ -514,7 +514,7 @@ public static class RoomManager
             DebugLog.LogInfo($"Calling GameStart...");
             foreach (var obj in currentInstances)
             {
-                GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
+                GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.GameStart);
             }
         }
 
@@ -524,40 +524,13 @@ public static class RoomManager
         if (createCode != null)
         {
             var dummy = new GMLObject();
-            VMExecutor.ExecuteCode(createCode, dummy);
-            dummy = null;
-
-            if (VMExecutor.EnvStack.Count != 0)
-            {
-                DebugLog.LogWarning("EnvStack not empty after room creation code!");
-                foreach (var item in VMExecutor.EnvStack)
-                {
-                    if (item == null)
-                    {
-                        DebugLog.LogWarning(" - NULL");
-                    }
-                    else
-                    {
-                        if (item.Self is GamemakerObject)
-                        {
-                            DebugLog.LogWarning($" - {item.ObjectDefinition?.Name} ({item.GMSelf.instanceId})");
-                        }
-                        else
-                        {
-                            DebugLog.LogWarning($" - {item.GetType()}");
-                        }
-                    }
-                }
-
-                // HACK: why does the dummy object stay on envstack? no idea!!!
-                VMExecutor.EnvStack.Clear();
-            }
+            VMExecutor.ExecuteCode(createCode, dummy, dummy, []);
         }
 
         DebugLog.LogInfo($"Calling RoomStart...");
         foreach (var obj in currentInstances)
         {
-            GamemakerObject.ExecuteEvent(obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
+            GamemakerObject.ExecuteEvent(obj, obj, obj.Definition, EventType.Other, (int)EventSubtypeOther.RoomStart);
         }
 
         VMCode? GetCodeFromCodeIndex(int codeIndex)

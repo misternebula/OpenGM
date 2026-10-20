@@ -8,58 +8,6 @@ using System.Text.RegularExpressions;
 namespace OpenGM.VirtualMachine;
 
 /// <summary>
-/// environment frame.
-/// contains data about the current object. is pushed alongside the call frame. can have multiple of these per call frame.
-/// </summary>
-public class VMEnvFrame
-{
-    /// <summary>
-    /// If true, this env frame is actually a collection used for iterating in a "with" block, and should NOT be treated as a single env frame.
-    /// </summary>
-    public bool IsIterator;
-    public Stack<VMEnvFrame> IteratorStack = null!; // Will always be initialized when IsIterator is set.
-
-    public IStackContextSelf Self = null!; // can be null for global scripts but those shouldnt run functions that need it
-    public GamemakerObject GMSelf => (GamemakerObject)Self; // shortcut for cast since we do this often
-    public ObjectDefinition? ObjectDefinition;
-
-    public override string ToString()
-    {
-        if (IsIterator)
-        {
-            var str = "ITERATOR";
-            foreach (var item in IteratorStack)
-            {
-                str += Environment.NewLine;
-                str += "    - ";
-                str += item.ToString();
-            }
-
-            return str;
-        }
-
-        if (Self == null)
-        {
-            return "NULL SELF";
-        }
-
-        if (Self is GamemakerObject gm)
-        {
-            var ret = $"{gm.Definition.Name} (Obj:{gm.object_index}, Inst:{gm.instanceId})";
-            return ret;
-        }
-        else if (Self is GMLObject obj)
-        {
-            return "[" + obj.ToString() + "]";
-        }
-        else
-        {
-            return $"Self: {Self.GetType()}";
-        }
-    }
-}
-
-/// <summary>
 /// call frame.
 /// contains data about the currently executing function. is pushed alongside the environment frame.
 /// </summary>
@@ -70,17 +18,12 @@ public class VMCallFrame
     public DataStack Stack = null!;
     public Dictionary<string, object?> Locals = null!;
     public object? ReturnValue;
-    public EventType EventType;
-    public int EventIndex;
     public FunctionDefinition? Function; // undertale doesnt have script functions, only script assets, so this will be null
-    public VMEnvFrame EnvFrame = null!;
     public int InstructionIndex;
 }
 
 public static partial class VMExecutor
 {
-    public static Stack<VMEnvFrame> EnvStack = new();
-
     public static Stack<VMCallFrame> CallStack = new();
 
     /// <summary>
@@ -101,46 +44,6 @@ public static partial class VMExecutor
         }
     }
 
-    /// <summary>
-    /// the top level environment frame, for the current object.
-    /// </summary>
-    public static VMEnvFrame Self
-    {
-        get
-        {
-            var top = EnvStack.Peek();
-
-            if (top.IsIterator)
-            {
-                return top.IteratorStack!.Peek();
-            }
-
-            return top;
-        }
-    }
-
-    public static VMEnvFrame Other
-    {
-        get
-        {
-            if (EnvStack.Count == 1)
-            {
-                return Self;
-            }
-
-            var stack = EnvStack.ToArray();
-
-            var otherFrame = stack[1];
-
-            if (otherFrame.IsIterator)
-            {
-                return otherFrame.IteratorStack!.Peek();
-            }
-
-            return otherFrame;
-        }
-    }
-
     public static bool VerboseStackLogs;
     public static bool ForceVerboseStackLogs = false;
     public static bool DebugMode;
@@ -152,18 +55,18 @@ public static partial class VMExecutor
     /// True if we are currently executing Global Init code.
     /// </summary>
     public static bool GlobalInit;
-    
+
     // private static IList? _temporaryArrayStorage = null;
 
-    public static object? ExecuteCode(VMCode? code, IStackContextSelf? obj, ObjectDefinition? objectDefinition = null, EventType eventType = EventType.None, int eventIndex = 0, object?[]? args = null)
+    public static IStackContextSelf? Self;
+    public static IStackContextSelf? Other;
+
+    public static GamemakerObject GMSelf => (GamemakerObject)Self!;
+    public static GamemakerObject GMOther => (GamemakerObject)Other!;
+
+    public static object? ExecuteCode(VMCode code, IStackContextSelf? self, IStackContextSelf? other, object?[] args)
     {
         object? defaultReturnValue = CompatFlags.ZeroReturnValue ? 0 : null;
-
-        if (code == null)
-        {
-            DebugLog.LogError($"Tried to run null code!");
-            return defaultReturnValue;
-        }
 
         if (ScriptFilter?.IsMatch(code.Name) ?? false)
         {
@@ -171,7 +74,7 @@ public static partial class VMExecutor
             return defaultReturnValue;
         }
 
-        var codeName = code.Name; // grab script function name and use that instead of script asset name
+        var codeName = code.Name;
         var instructionIndex = 0;
         FunctionDefinition? func = null;
         if (code.ParentAssetId != -1) // deltarune calls script functions (empty code) that point to the script asset
@@ -187,15 +90,6 @@ public static partial class VMExecutor
         {
             return defaultReturnValue;
         }
-
-        var newCtx = new VMEnvFrame
-        {
-            Self = obj!,
-            ObjectDefinition = objectDefinition,
-        };
-
-        // Make the current object the current instance
-        EnvStack.Push(newCtx);
 
         if (VerboseStackLogs)
         {
@@ -217,14 +111,11 @@ public static partial class VMExecutor
         var call = new VMCallFrame
         {
             CodeName = codeName,
-            
+
             Stack = new(),
             Locals = new(),
             ReturnValue = defaultReturnValue,
-            EventType = eventType,
-            EventIndex = eventIndex,
             Function = func,
-            EnvFrame = newCtx,
             InstructionIndex = instructionIndex
         };
         CallStack.Push(call);
@@ -240,18 +131,18 @@ public static partial class VMExecutor
             call.Locals["arguments"] = args;
         }
 
+        var previousSelf = Self;
+        var previousOther = Other;
+
+        Self = self;
+        Other = other;
+
         code.CodeExecuted();
 
         while (true)
         {
             ExecutionResult executionResult;
             object? data;
-
-            if (CallStack == null || CallStack.Count == 0)
-            {
-                DebugLog.LogWarning("CallStack is null or empty! Returning...");
-                return null;
-            }
 
             try
             {
@@ -336,10 +227,10 @@ public static partial class VMExecutor
             }
         }
 
-        // Current object has finished executing, remove from stack
-        var returnValue = Call.ReturnValue;
-        EnvStack.Pop();
+        Self = previousSelf;
+        Other = previousOther;
 
+        var returnValue = Call.ReturnValue;
         CallStack.Pop();
 
         if (VerboseStackLogs)
@@ -372,216 +263,21 @@ public static partial class VMExecutor
         switch (instruction.Opcode)
         {
             case VMOpcode.B:
-                {
-                    if (instruction.JumpToEnd)
-                    {
-                        return (ExecutionResult.JumpedToEnd, null);
-                    }
-
-                    return (ExecutionResult.JumpedToLabel, instruction.IntData);
-                }
+                return B(instruction);
             case VMOpcode.BT:
-                {
-                    var boolValue = Call.Stack.Pop(VMType.b).Conv<bool>();
-                    if (!boolValue)
-                    {
-                        break;
-                    }
-
-                    if (instruction.JumpToEnd)
-                    {
-                        return (ExecutionResult.JumpedToEnd, null);
-                    }
-
-                    return (ExecutionResult.JumpedToLabel, instruction.IntData);
-                }
+                return BT(instruction);
             case VMOpcode.BF:
-                {
-                    var boolValue = Call.Stack.Pop(VMType.b).Conv<bool>();
-                    if (boolValue)
-                    {
-                        break;
-                    }
-
-                    if (instruction.JumpToEnd)
-                    {
-                        return (ExecutionResult.JumpedToEnd, null);
-                    }
-
-                    return (ExecutionResult.JumpedToLabel, instruction.IntData);
-                }
+                return BF(instruction);
             case VMOpcode.CMP:
-
-                var second = Call.Stack.Pop(instruction.TypeOne);
-                var first = Call.Stack.Pop(instruction.TypeTwo);
-
-                // first ??= 0;
-                // second ??= 0;
-                
-                // TODO: array cmp
-
-                if (first == null || second == null)
-                {
-                    switch (instruction.Comparison)
-                    {
-                        case VMComparison.LT:
-                        case VMComparison.GT:
-                            Call.Stack.Push(false, VMType.b);
-                            break;
-                        case VMComparison.LTE:
-                        case VMComparison.GTE:
-                        case VMComparison.EQ:
-                            Call.Stack.Push((first == null) && (second == null), VMType.b);
-                            break;
-                        case VMComparison.NEQ:
-                            Call.Stack.Push((first == null) != (second == null), VMType.b);
-                            break;
-                        case VMComparison.None:
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-                else if (second is bool or int or short or long or double or float && first is bool or int or short or long or double or float)
-                {
-                    var firstNumber = first.Conv<double>();
-                    var secondNumber = second.Conv<double>();
-
-                    var equal = CustomMath.ApproxEqual(firstNumber, secondNumber);
-
-                    switch (instruction.Comparison)
-                    {
-                        case VMComparison.LT:
-                            Call.Stack.Push(CustomMath.ApproxLessThan(firstNumber, secondNumber), VMType.b);
-                            break;
-                        case VMComparison.LTE:
-                            Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstNumber, secondNumber), VMType.b);
-                            break;
-                        case VMComparison.EQ:
-                            Call.Stack.Push(equal, VMType.b);
-                            break;
-                        case VMComparison.NEQ:
-                            Call.Stack.Push(!equal, VMType.b);
-                            break;
-                        case VMComparison.GTE:
-                            Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstNumber, secondNumber), VMType.b);
-                            break;
-                        case VMComparison.GT:
-                            Call.Stack.Push(CustomMath.ApproxGreaterThan(firstNumber, secondNumber), VMType.b);
-                            break;
-                        case VMComparison.None:
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
-                else
-                {
-                    // this should handle strings and whatever else
-
-                    double firstDouble;
-                    double secondDouble;
-                    bool firstIsNumerical;
-                    bool secondIsNumerical;
-
-                    if (first is bool or int or short or long or double or float)
-                    {
-                        firstDouble = first.Conv<double>();
-                        firstIsNumerical = true;
-                    }
-                    else
-                    {
-                        firstIsNumerical = double.TryParse(first as string, out firstDouble);
-                    }
-
-                    if (second is bool or int or short or long or double or float)
-                    {
-                        secondDouble = second.Conv<double>();
-                        secondIsNumerical = true;
-                    }
-                    else
-                    {
-                        secondIsNumerical = double.TryParse(second as string, out secondDouble);
-                    }
-
-                    if (firstIsNumerical && secondIsNumerical)
-                    {
-                        // both represent numbers - easy comparison
-
-                        var equal = CustomMath.ApproxEqual(firstDouble, secondDouble);
-
-                        switch (instruction.Comparison)
-                        {
-                            case VMComparison.LT:
-                                Call.Stack.Push(CustomMath.ApproxLessThan(firstDouble, secondDouble), VMType.b);
-                                break;
-                            case VMComparison.LTE:
-                                Call.Stack.Push(CustomMath.ApproxLessThanEqual(firstDouble, secondDouble), VMType.b);
-                                break;
-                            case VMComparison.EQ:
-                                Call.Stack.Push(equal, VMType.b);
-                                break;
-                            case VMComparison.NEQ:
-                                Call.Stack.Push(!equal, VMType.b);
-                                break;
-                            case VMComparison.GTE:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThanEqual(firstDouble, secondDouble), VMType.b);
-                                break;
-                            case VMComparison.GT:
-                                Call.Stack.Push(CustomMath.ApproxGreaterThan(firstDouble, secondDouble), VMType.b);
-                                break;
-                            case VMComparison.None:
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                    }
-                    else if (firstIsNumerical != secondIsNumerical)
-                    {
-                        // only one represents a number - only EQ and NEQ is valid here
-
-                        // TODO: can these ever be anything other than these hardcoded values?
-                        if (instruction.Comparison == VMComparison.EQ)
-                        {
-                            Call.Stack.Push(false, VMType.b);
-                        }
-                        else if (instruction.Comparison == VMComparison.NEQ)
-                        {
-                            Call.Stack.Push(true, VMType.b);
-                        }
-                        else
-                        {
-                            throw new NotImplementedException("Only EQ and NEQ is valid between a numerical value and a non-numerical value.");
-                        }
-                    }
-                    else
-                    {
-                        // neither represent a number - pure string comparison
-
-                        var s1 = first as string;
-                        var s2 = second as string;
-
-                        if (instruction.Comparison == VMComparison.EQ)
-                        {
-                            Call.Stack.Push(s1 == s2, VMType.b);
-                        }
-                        else if (instruction.Comparison == VMComparison.NEQ)
-                        {
-                            Call.Stack.Push(s1 != s2, VMType.b);
-                        }
-                        else
-                        {
-                            // TODO: implement
-                            throw new NotImplementedException();
-                        }
-                    }
-                }
-                break;
+                return CMP(instruction);
             case VMOpcode.PUSHGLB:
             case VMOpcode.PUSHLOC:
             case VMOpcode.PUSHBLTN:
             case VMOpcode.PUSHI:
             case VMOpcode.PUSH:
-                return DoPush(instruction);
+                return DoPush(Self!, Other!, instruction);
             case VMOpcode.POP:
-                return DoPop(instruction);
+                return DoPop(Self!, Other!, instruction);
             case VMOpcode.RET:
                 // ret value is always stored as rvalue
                 return (ExecutionResult.ReturnedValue, Call.Stack.Pop(VMType.v));
@@ -594,29 +290,7 @@ public static partial class VMExecutor
                 Call.Stack.Pop(instruction.TypeOne);
                 break;
             case VMOpcode.CALL:
-            {
-                var args = new object?[instruction.FunctionArgumentCount];
-
-                for (var i = 0; i < instruction.FunctionArgumentCount; i++)
-                {
-                    // args are always pushed as rvalues
-                    args[i] = Call.Stack.Pop(VMType.v);
-                }
-
-                if (ScriptResolver.ScriptsByName.TryGetValue(instruction.FunctionName, out var scriptName))
-                {
-                    Call.Stack.Push(ExecuteCode(scriptName.GetCode(), Self.Self, Self.ObjectDefinition, args: args), VMType.v);
-                    break;
-                }
-
-                if (ScriptResolver.BuiltInFunctions.TryGetValue(instruction.FunctionName, out var builtInFunction))
-                {
-                    Call.Stack!.Push(builtInFunction!(args), VMType.v);
-                    break;
-                }
-
-                return (ExecutionResult.Failed, $"Can't resolve script {instruction.FunctionName} !");
-            }
+                return CALL(instruction);
             case VMOpcode.PUSHENV:
                 return PUSHENV(instruction);
             case VMOpcode.POPENV:
@@ -666,7 +340,7 @@ public static partial class VMExecutor
             case VMOpcode.CHKNULLISH:
             {
                 // TODO: is this right? remains to be seen
-                var value = Call.Stack.Pop(VMType.v);
+                var value = Call.Stack.Peek(VMType.v);
                 Call.Stack.Push(value == null, VMType.b);
                 break;
             }
@@ -720,70 +394,7 @@ public static partial class VMExecutor
                 break;
             }
             case VMOpcode.CALLV:
-            {
-                var method = FetchMethod(Call.Stack.Pop(VMType.v), instruction.IntData);
-                var self = Call.Stack.Pop(VMType.v);
-
-                var newEnv = new VMEnvFrame() { Self = FetchSelf(self)! };
-                EnvStack.Push(newEnv);
-
-                var args = new object?[instruction.IntData];
-
-                for (var i = 0; i < instruction.IntData; i++)
-                {
-                    // args are always pushed as rvalues
-                    args[i] = Call.Stack.Pop(VMType.v);
-                }
-
-                if (method == null)
-                {
-                    throw new NotImplementedException("method is null");
-                }
-
-                IStackContextSelf? context = null;
-
-                if (method.inst is null)
-                {
-                    if (self is not null)
-                    {
-                        context = FetchSelf(self);
-                    }
-                }
-                else
-                {
-                    if (method.inst is int)
-                    {
-                        var i = method.inst.Conv<int>();
-
-                        if (i == GMConstants.self)
-                        {
-                            context = VMExecutor.Self.Self;
-                        }
-                        else if (i >= GMConstants.FIRST_INSTANCE_ID)
-                        {
-                            context = InstanceManager.FindByInstanceId(i);
-                        }
-                        else
-                        {
-                            throw new NotImplementedException($"CallV - inst: {method.inst.Conv<int>()}, type: {method.inst.GetType().Name}");
-                        }
-                    }
-                    else if (method.inst is IStackContextSelf stackSelf)
-                    {
-                        context = stackSelf;
-                    }
-                    else
-                    {
-                        throw new NotImplementedException($"CallV - inst: {method.inst.Conv<int>()}, type: {method.inst.GetType().Name}");
-                    }
-                }
-
-                Call.Stack.Push(ExecuteCode(method.func.GetCode(), context, method.inst is GamemakerObject gml ? gml.Definition : null, args: args), VMType.v);
-
-                EnvStack.Pop();
-
-                break;
-            }
+                return CALLV(instruction);
             case VMOpcode.ISSTATICOK:
             {
                 var currentFunc = Call.Function;
@@ -859,71 +470,6 @@ public static partial class VMExecutor
         throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
     }
 
-    internal static VMCode GenerateCodeForBuiltIn(string builtin, int nArgs)
-    {
-        var code = new VMCode { LocalVariables = [], Name = $"GENERATED CALLV FOR {builtin}"};
-
-        for (var i = nArgs - 1; i >= 0; i--)
-        {
-            var pushInstruction = new VMCodeInstruction
-            {
-                Opcode = VMOpcode.PUSH,
-                TypeOne = VMType.v,
-                variablePrefix = VariablePrefix.None,
-                variableType = VariableType.Argument,
-                variableName = $"argument{i}"
-            };
-            code.Instructions.Add(pushInstruction);
-        }
-
-        code.Instructions.Add(new VMCodeInstruction
-        {
-            Opcode = VMOpcode.CALL,
-            TypeOne = VMType.i,
-            FunctionName = builtin,
-            FunctionArgumentCount = nArgs
-        });
-
-        code.Instructions.Add(new VMCodeInstruction
-        {
-            Opcode = VMOpcode.RET,
-            TypeOne = VMType.v,
-        });
-
-        return code;
-    }
-
-    internal static Method? FetchMethod(object? value, int nArgs)
-    {
-        if (value is null)
-        {
-            throw new ArgumentException($"Trying to fetch method for undefined! Current script:{CallStack.First().CodeName}");
-        }
-        else if (value is Method method)
-        {
-            return method;
-        }
-        else if (value is int or long or short)
-        {
-            var index = value.Conv<int>();
-
-            if (index < GMConstants.FIRST_INSTANCE_ID)
-            {
-                var builtin = ScriptResolver.BuiltInFunctions.ElementAt(index);
-
-                var script = new VMScript { CustomCode = GenerateCodeForBuiltIn(builtin.Key, nArgs) };
-
-                return new Method(script);
-            }
-            else
-            {
-                return new Method(ScriptResolver.ScriptsByIndex[value.Conv<int>() - GMConstants.FIRST_INSTANCE_ID]);
-            }
-        }
-
-        throw new ArgumentException($"Don't know how to fetch method for {value} ({value.GetType().FullName})");
-    }
-
     public static int VMTypeToSize(VMType type) => type switch
     {
         VMType.v => 16,
@@ -935,22 +481,6 @@ public static partial class VMExecutor
         VMType.e => 4,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
-
-    public static object? DictHash(object? key)
-    {
-        // GenHash in cpp
-        
-        var result = key;
-
-        switch (key)
-        {
-            case int or long or short or double or bool:
-                result = key.Conv<double>();
-                break;
-        }
-
-        return result;
-    }
 
     /// <summary>
     /// custom cast function.

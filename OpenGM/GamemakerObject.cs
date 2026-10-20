@@ -22,6 +22,11 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         
     }
 
+    public override string ToString()
+    {
+        return $"({instanceId}) {Definition.Name}";
+    }
+
     /// <summary>
     /// CHECK BUILTIN SELF VARS BEFORE THIS!!
     /// </summary>
@@ -482,7 +487,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         var sprite = SpriteManager.GetSpriteAsset(sprite_index);
         if (sprite != null && image_index + GetIndexIncrement() >= sprite.Textures.Count)
         {
-            ExecuteEvent(this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
+            ExecuteEvent(this, this, Definition, EventType.Other, (int)EventSubtypeOther.AnimationEnd);
         }
     }
 
@@ -510,15 +515,12 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         return increment;
     }
 
-    public static bool ExecuteEvent(GamemakerObject obj, ObjectDefinition? definition, EventType eventType, int eventNumber = 0)
-    {
-        if (definition == null)
-        {
-            DebugLog.LogError($"Tried to execute event {eventType} {eventNumber} on null definition! obj:{obj}");
-            //Debug.Break();
-            return false;
-        }
+    public static EventType CurrentEventType;
+    public static int CurrentEventNumber;
+    public static ObjectDefinition? CurrentEventObject;
 
+    public static bool ExecuteEvent(GamemakerObject self, GamemakerObject other, ObjectDefinition definition, EventType eventType, int eventNumber = 0)
+    {
         // HACK: 
         //   as a temporary fix for objects which destroy themselves within
         //   their own destroy events, we mark the object first then allow 
@@ -527,7 +529,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         //   `InstanceManager.MarkForDestruction()` prevents these events from
         //   being called again for destruction if the object is already marked.
 
-        if (obj.Marked && eventType != EventType.Destroy && eventType != EventType.CleanUp)
+        if (self.Marked && eventType != EventType.Destroy && eventType != EventType.CleanUp)
         {
             return false;
         }
@@ -535,7 +537,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         // TODO:
         //   objects that change active status shouldn't acknowledge that change
         //   until next frame
-        if (!obj.Active)
+        if (!self.Active)
         {
             return false;
         }
@@ -546,12 +548,21 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         {
             if (code != null)
             {
-                VMExecutor.ExecuteCode(code, obj, definition, eventType, eventNumber);
+                var curType = CurrentEventType;
+                var curNumb = CurrentEventNumber;
+                var curObj = CurrentEventObject;
+                CurrentEventType = eventType;
+                CurrentEventNumber = eventNumber;
+                CurrentEventObject = definition;
+                VMExecutor.ExecuteCode(code, self, other, []);
+                CurrentEventType = curType;
+                CurrentEventNumber = curNumb;
+                CurrentEventObject = curObj;
                 return true;
             }
             else if (definition.parent != null)
             {
-                return ExecuteEvent(obj, definition.parent, eventType, eventNumber);
+                return ExecuteEvent(self, other, definition.parent, eventType, eventNumber);
             }
 
             // event not found, and no parent to check
@@ -562,12 +573,21 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
         {
             if (dict.TryGetValue(index, out var script))
             {
-                VMExecutor.ExecuteCode(script, obj, definition, eventType, eventNumber);
+                var curType = CurrentEventType;
+                var curNumb = CurrentEventNumber;
+                var curObj = CurrentEventObject;
+                CurrentEventType = eventType;
+                CurrentEventNumber = eventNumber;
+                CurrentEventObject = definition;
+                VMExecutor.ExecuteCode(script, self, other, []);
+                CurrentEventType = curType;
+                CurrentEventNumber = curNumb;
+                CurrentEventObject = curObj;
                 return true;
             }
             else if (definition.parent != null)
             {
-                return ExecuteEvent(obj, definition.parent, eventType, eventNumber);
+                return ExecuteEvent(self, other, definition.parent, eventType, eventNumber);
             }
 
             // event not found, and no parent to check
@@ -630,7 +650,7 @@ public class GamemakerObject : DrawWithDepth, IStackContextSelf
 
                 if (alarm[i] == 0)
                 {
-                    ExecuteEvent(this, Definition, EventType.Alarm, i);
+                    ExecuteEvent(this, this, Definition, EventType.Alarm, i);
 
                     if (alarm[i] == 0)
                     {

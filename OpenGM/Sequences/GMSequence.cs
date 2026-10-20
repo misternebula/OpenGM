@@ -299,7 +299,7 @@ public class GMSequence : DrawWithDepth
                 }
 
                 var script = ScriptResolver.ScriptsByIndex[moment.channels[0].@event];
-                VMExecutor.ExecuteCode(script.GetCode(), null);
+                VMExecutor.ExecuteCode(script.GetCode()!, null, null, []);
             }
         }
     }

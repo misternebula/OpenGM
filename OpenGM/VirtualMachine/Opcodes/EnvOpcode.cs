@@ -1,11 +1,30 @@
-﻿using OpenGM.IO;
-using OpenGM.SerializedFiles;
-using System.Diagnostics;
+﻿using OpenGM.SerializedFiles;
 
 namespace OpenGM.VirtualMachine;
 
+public class EnvFrame
+{
+    public IStackContextSelf? beforeSelf;
+    public IStackContextSelf? beforeOther;
+
+    public Stack<(IStackContextSelf? self, IStackContextSelf? other)> Stack = new();
+
+    public override string ToString()
+    {
+        var str = "";
+        foreach (var item in Stack)
+        {
+            str += $"Self: {item.self}, Other: {item.other}{Environment.NewLine}";
+        }
+
+        return str;
+    }
+}
+
 public static partial class VMExecutor
 {
+    public static Stack<EnvFrame> EnvStack = new();
+
     public static (ExecutionResult, object?) PUSHENV(VMCodeInstruction instruction)
     {
         var id = Call.Stack.Pop(VMType.i).Conv<int>();
@@ -19,14 +38,14 @@ public static partial class VMExecutor
             }
         }
 
-        var newEnvFrame = new VMEnvFrame { IsIterator = true, IteratorStack = new() };
-
-        EnvStack.Push(newEnvFrame);
-
-        if (VerboseStackLogs) DebugLog.Log($"Pushenv {id}");
+        var frame = new EnvFrame();
+        frame.beforeSelf = Self;
+        frame.beforeOther = Other;
 
         if (id == GMConstants.noone)
         {
+            EnvStack.Push(frame);
+
             // run the code for no one
             if (instruction.JumpToEnd)
             {
@@ -37,70 +56,23 @@ public static partial class VMExecutor
         }
         else if (id == GMConstants.other)
         {
-            var newCtx = new VMEnvFrame
-            {
-                Self = Other.Self,
-                ObjectDefinition = Other.ObjectDefinition,
-            };
-
-            newEnvFrame.IteratorStack.Push(newCtx);
+            throw new NotImplementedException("other");
         }
         else if (id == GMConstants.self)
         {
-            var newCtx = new VMEnvFrame
-            {
-                Self = Self.Self,
-                ObjectDefinition = Self.ObjectDefinition,
-            };
-
-            newEnvFrame.IteratorStack.Push(newCtx);
+            throw new NotImplementedException("self");
         }
         else if (id == GMConstants.stacktop)
         {
-            // TODO: this doesn't account for legacy values (all, etc)
-            var value = Call.Stack.Pop(VMType.v);
-            if (value is GMLObject obj)
-            {
-                var newCtx = new VMEnvFrame
-                {
-                    Self = obj,
-                    ObjectDefinition = null,
-                };
-
-                newEnvFrame.IteratorStack.Push(newCtx);
-            }
-            else
-            {
-                throw new UnreachableException($"we check stacktop id above");
-            }
+            throw new NotImplementedException("stacktop");
         }
         else if (id is GMConstants.all)
         {
-	        foreach (var inst in InstanceManager.FindByLegacyValue(GMConstants.all))
-	        {
-		        var newCtx = new VMEnvFrame()
-		        {
-			        Self = inst,
-			        ObjectDefinition = inst.Definition
-		        };
-
-                newEnvFrame.IteratorStack.Push(newCtx);
-            }
+            throw new NotImplementedException("all");
         }
         else if (id is GMConstants.global)
         {
-            throw new NotImplementedException($"Don't know how to pushenv global");
-        }
-        else if (id < 0)
-        {
-            // some other negative number??
-            DebugLog.LogError($"wtf! other negative number {id} in pushenv!!!");
-            if (instruction.JumpToEnd)
-            {
-                return (ExecutionResult.JumpedToEnd, null);
-            }
-
-            return (ExecutionResult.JumpedToLabel, instruction.IntData);
+            throw new NotImplementedException("global");
         }
         else if (id < GMConstants.FIRST_INSTANCE_ID)
         {
@@ -111,8 +83,8 @@ public static partial class VMExecutor
             // dont run anything if no instances
             if (instances.Count == 0)
             {
-                if (VerboseStackLogs) DebugLog.Log($"no instances!");
-                
+                EnvStack.Push(frame);
+
                 if (instruction.JumpToEnd)
                 {
                     return (ExecutionResult.JumpedToEnd, null);
@@ -123,15 +95,12 @@ public static partial class VMExecutor
 
             foreach (var instance in instances)
             {
-                var newCtx = new VMEnvFrame
-                {
-                    Self = instance,
-                    ObjectDefinition = instance.Definition,
-                };
-
-                if (VerboseStackLogs) DebugLog.Log($"Pushing {instance.instanceId}");
-                newEnvFrame.IteratorStack.Push(newCtx);
+                frame.Stack.Push((instance, Self));
             }
+
+            var top = frame.Stack.Peek();
+            Self = top.self;
+            Other = top.other;
         }
         else
         {
@@ -139,6 +108,8 @@ public static partial class VMExecutor
 
             if (instance == null)
             {
+                EnvStack.Push(frame);
+
                 if (instruction.JumpToEnd)
                 {
                     return (ExecutionResult.JumpedToEnd, null);
@@ -147,15 +118,13 @@ public static partial class VMExecutor
                 return (ExecutionResult.JumpedToLabel, instruction.IntData);
             }
 
-            var newCtx = new VMEnvFrame
-            {
-                Self = instance,
-                ObjectDefinition = instance.Definition,
-            };
+            frame.Stack.Push((instance, Self));
 
-            newEnvFrame.IteratorStack.Push(newCtx);
+            Self = instance;
+            Other = frame.beforeSelf;
         }
 
+        EnvStack.Push(frame);
         return (ExecutionResult.Success, null);
     }
 
@@ -163,34 +132,28 @@ public static partial class VMExecutor
     {
         var frame = EnvStack.Peek();
 
-        if (!frame.IsIterator)
-        {
-            throw new NotImplementedException("Trying to run PopEnv when the top of the stack isn't an iterator frame!");
-        }
-
-        if (instruction.Drop)
+        if (instruction.Drop || frame.Stack.Count == 0)
         {
             EnvStack.Pop();
+            Self = frame.beforeSelf;
+            Other = frame.beforeOther;
             return (ExecutionResult.Success, null);
         }
 
-        if (frame.IteratorStack.Count == 0)
-        {
-            // Nothing left in iterator stack.
-            EnvStack.Pop();
-            return (ExecutionResult.Success, null);
-        }
-
-        frame.IteratorStack.Pop();
-        var nextInstanceExists = frame.IteratorStack.TryPeek(out var nextInstance);
+        frame.Stack.Pop();
+        var nextInstanceExists = frame.Stack.TryPeek(out var nextInstance);
 
         if (!nextInstanceExists)
         {
             EnvStack.Pop();
+            Self = frame.beforeSelf;
+            Other = frame.beforeOther;
             return (ExecutionResult.Success, null);
         }
 
-        // run block with next instance
+        Self = nextInstance.self;
+        Other = nextInstance.other;
+
         if (instruction.JumpToEnd)
         {
             return (ExecutionResult.JumpedToEnd, null);

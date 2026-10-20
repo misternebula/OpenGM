@@ -39,12 +39,14 @@
                 throw new InvalidOperationException("dirString must be 9 characters long");
             }
 
+            var self = VMExecutor.GMSelf;
+
             if (Action_Relative)
             {
-                speed = VMExecutor.Self.GMSelf.speed + speed;
+                speed = self.speed + speed;
             }
 
-            VMExecutor.Self.GMSelf.speed = speed;
+            self.speed = speed;
 
             int dir;
             do
@@ -55,32 +57,32 @@
             switch (dir)
             {
                 case 0:
-                    VMExecutor.Self.GMSelf.direction = 255;
+                    self.direction = 255;
                     break;
                 case 1:
-                    VMExecutor.Self.GMSelf.direction = 270;
+                    self.direction = 270;
                     break;
                 case 2:
-                    VMExecutor.Self.GMSelf.direction = 315;
+                    self.direction = 315;
                     break;
                 case 3:
-                    VMExecutor.Self.GMSelf.direction = 180;
+                    self.direction = 180;
                     break;
                 case 4:
-                    VMExecutor.Self.GMSelf.direction = 0;
-                    VMExecutor.Self.GMSelf.speed = 0;
+                    self.direction = 0;
+                    self.speed = 0;
                     break;
                 case 5:
-                    VMExecutor.Self.GMSelf.direction = 0;
+                    self.direction = 0;
                     break;
                 case 6:
-                    VMExecutor.Self.GMSelf.direction = 135;
+                    self.direction = 135;
                     break;
                 case 7:
-                    VMExecutor.Self.GMSelf.direction = 90;
+                    self.direction = 90;
                     break;
                 case 8:
-                    VMExecutor.Self.GMSelf.direction = 56;
+                    self.direction = 56;
                     break;
             }
 
@@ -95,15 +97,15 @@
 
             if (Action_Relative)
             {
-                var curValue = VMExecutor.Self.GMSelf.alarm[index];
+                var curValue = VMExecutor.GMSelf.alarm[index];
                 if (curValue > -1)
                 {
-                    VMExecutor.Self.GMSelf.alarm[index] = curValue + value;
+                    VMExecutor.GMSelf.alarm[index] = curValue + value;
                     return null;
                 }
             }
 
-            VMExecutor.Self.GMSelf.alarm[index] = value;
+            VMExecutor.GMSelf.alarm[index] = value;
             return null;
         }
 
@@ -114,10 +116,10 @@
 
             if (Action_Relative)
             {
-                friction += VMExecutor.Self.GMSelf.friction;
+                friction += VMExecutor.GMSelf.friction;
             }
 
-            VMExecutor.Self.GMSelf.friction = friction;
+            VMExecutor.GMSelf.friction = friction;
             return null;
         }
 
@@ -128,10 +130,10 @@
 
             if (Action_Relative)
             {
-                gravity += VMExecutor.Self.GMSelf.gravity;
+                gravity += VMExecutor.GMSelf.gravity;
             }
 
-            VMExecutor.Self.GMSelf.gravity = gravity;
+            VMExecutor.GMSelf.gravity = gravity;
             return null;
         }
 
@@ -142,10 +144,10 @@
 
             if (Action_Relative)
             {
-                hspeed += VMExecutor.Self.GMSelf.hspeed;
+                hspeed += VMExecutor.GMSelf.hspeed;
             }
 
-            VMExecutor.Self.GMSelf.hspeed = hspeed;
+            VMExecutor.GMSelf.hspeed = hspeed;
             return null;
         }
 
@@ -156,10 +158,10 @@
 
             if (Action_Relative)
             {
-                vspeed += VMExecutor.Self.GMSelf.vspeed;
+                vspeed += VMExecutor.GMSelf.vspeed;
             }
 
-            VMExecutor.Self.GMSelf.vspeed = vspeed;
+            VMExecutor.GMSelf.vspeed = vspeed;
             return null;
         }
 
@@ -169,14 +171,16 @@
             var x = args[0].Conv<double>();
             var y = args[1].Conv<double>();
 
+            var self = VMExecutor.GMSelf;
+
             if (Action_Relative)
             {
-                x += VMExecutor.Self.GMSelf.x;
-                y += VMExecutor.Self.GMSelf.y;
+                x += self.x;
+                y += self.y;
             }
 
-            VMExecutor.Self.GMSelf.x = x;
-            VMExecutor.Self.GMSelf.y = y;
+            self.x = x;
+            self.y = y;
             return null;
         }
 
@@ -187,10 +191,12 @@
             var x = args[1].Conv<double>();
             var y = args[2].Conv<double>();
 
+            var self = VMExecutor.GMSelf;
+
             if (Action_Relative)
             {
-                x += VMExecutor.Self.GMSelf.x;
-                y += VMExecutor.Self.GMSelf.y;
+                x += self.x;
+                y += self.y;
             }
 
             return ScriptResolver.instance_create([x, y, obj]);

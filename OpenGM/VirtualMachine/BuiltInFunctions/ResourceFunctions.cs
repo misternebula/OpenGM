@@ -427,7 +427,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
             if (CompatFlags.ScriptAssetIds)
             {
-                return VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[scriptAssetId].GetCode(), VMExecutor.Self.Self, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
+                return VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[scriptAssetId].GetCode()!, VMExecutor.GMSelf, VMExecutor.GMOther, scriptArgs);
             }
 
             if (scriptAssetId < GMConstants.FIRST_INSTANCE_ID)
@@ -436,7 +436,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return builtInMethod(scriptArgs);
             }
 
-            return VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[scriptAssetId - GMConstants.FIRST_INSTANCE_ID].GetCode(), VMExecutor.Self.Self, VMExecutor.Self.ObjectDefinition, args: scriptArgs);
+            return VMExecutor.ExecuteCode(ScriptResolver.ScriptsByIndex[scriptAssetId - GMConstants.FIRST_INSTANCE_ID].GetCode()!, VMExecutor.GMSelf, VMExecutor.GMOther, scriptArgs);
         }
 
         // script_execute_ext

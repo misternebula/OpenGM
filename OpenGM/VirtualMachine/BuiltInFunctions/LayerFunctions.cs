@@ -1693,7 +1693,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                         var wasVisible = tilemap.Element.Layer.Visible;
 
                         // TODO - whats the point of setting depth? isn't that just for drawing ordering?
-                        tilemap.depth = VMExecutor.Self.GMSelf.depth;
+                        tilemap.depth = VMExecutor.GMSelf.depth;
                         tilemap.Element.x = x;
                         tilemap.Element.y = y;
                         tilemap.Element.Layer.Visible = true;
