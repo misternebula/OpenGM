@@ -5,8 +5,6 @@ VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGM", "OpenGM\OpenGM.csproj", "{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenGM.Tests", "OpenGM.Tests\OpenGM.Tests.csproj", "{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6E39087B-C41D-4702-BBC6-F5D6F50C9FB7}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -39,14 +37,6 @@ Global
 		{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}.Release|x64.Build.0 = Release|Any CPU
 		{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}.Release|x86.ActiveCfg = Release|x86
 		{58EBFAF3-20E4-4DB1-B5E3-3DF024C101C0}.Release|x86.Build.0 = Release|x86
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Debug|x64.ActiveCfg = Debug|x64
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Debug|x64.Build.0 = Debug|x64
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Debug|x86.ActiveCfg = Debug|x86
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Debug|x86.Build.0 = Debug|x86
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Release|x64.ActiveCfg = Release|Any CPU
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Release|x64.Build.0 = Release|Any CPU
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Release|x86.ActiveCfg = Release|x86
-		{D99DCB50-7AB1-445B-9817-7CF8AA6F2AE3}.Release|x86.Build.0 = Release|x86
 		{018B0EC8-7225-40DE-BD5F-3392D6EF1EA1}.Debug|x64.ActiveCfg = Debug|x64
 		{018B0EC8-7225-40DE-BD5F-3392D6EF1EA1}.Debug|x64.Build.0 = Debug|x64
 		{018B0EC8-7225-40DE-BD5F-3392D6EF1EA1}.Debug|x86.ActiveCfg = Debug|x86
@@ -84,7 +74,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		        SolutionGuid = {65A17395-4877-4F62-8486-D79907921F40}
 		SolutionGuid = {16B56A52-4694-492D-8E1F-1023CE388F66}
+		        SolutionGuid = {65A17395-4877-4F62-8486-D79907921F40}
 	EndGlobalSection
 EndGlobal
