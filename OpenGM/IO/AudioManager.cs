@@ -93,7 +93,18 @@ public static class AudioManager
 
             var bytesLength = reader.ReadInt32();
             var bytes = reader.ReadBytes(bytesLength);
-            
+
+            LoadSoundAsync(asset, bytes);
+        }
+        File.Delete("temp.wav");
+
+        Console.WriteLine($" Done!");
+    }
+
+    public static Task LoadSoundAsync(SoundAsset asset, byte[] bytes)
+    {
+        return Task.Run(() =>
+        {
             float[] data;
             bool stereo;
             int freq;
@@ -161,10 +172,7 @@ public static class AudioManager
                 Pitch = asset.Pitch,
                 Offset = 0,
             };
-        }
-        File.Delete("temp.wav");
-
-        Console.WriteLine($" Done!");
+        });
     }
 
     public static void Dispose()
