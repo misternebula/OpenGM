@@ -49,7 +49,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("@@This@@")]
         public static object This(object?[] args)
         {
-            return VMExecutor.GMSelf.instanceId;
+            if (VMExecutor.Self is GamemakerObject)
+            {
+                return VMExecutor.GMSelf.instanceId;
+            }
+
+            return VMExecutor.Self!;
         }
 
         [GMLFunction("@@Global@@")]
@@ -95,7 +100,12 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         [GMLFunction("@@Other@@")]
         public static object Other(object?[] args)
         {
-            return VMExecutor.GMOther.instanceId;
+            if (VMExecutor.Other is GamemakerObject)
+            {
+                return VMExecutor.GMOther.instanceId;
+            }
+
+            return VMExecutor.Other!;
         }
 
         [GMLFunction("@@GetInstance@@")]
