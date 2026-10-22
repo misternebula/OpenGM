@@ -302,15 +302,22 @@ public static class DrawManager
 
                     if (collide != null)
                     {
-                        GamemakerObject.ExecuteEvent(gmo, collide, gmo.Definition, EventType.Collision, id);
-
-                        if (gmo.solid)
+                        if (gmo.solid || collide.solid)
                         {
                             gmo.x = gmo.xprevious;
                             gmo.y = gmo.yprevious;
                             gmo.bbox_dirty = true;
                             gmo.path_position = gmo.path_previousposition;
+
+                            collide.x = collide.xprevious;
+                            collide.y = collide.yprevious;
+                            collide.bbox_dirty = true;
+                            collide.path_position = collide.path_previousposition;
                         }
+
+                        GamemakerObject.ExecuteEvent(gmo, collide, gmo.Definition, EventType.Collision, id);
+
+                        // TODO : collision compatibility stuff? adapt path, set pos based on speed, another collision check?
                     }
                 }
             }
