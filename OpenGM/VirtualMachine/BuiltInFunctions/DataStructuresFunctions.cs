@@ -762,7 +762,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             }
 
             var highest = queue.UnorderedItems.MaxBy(x => x.Priority);
-            queue.Remove(highest, out var element, out _);
+            queue.Remove(highest.Element, out var element, out _);
             return element;
         }
 
