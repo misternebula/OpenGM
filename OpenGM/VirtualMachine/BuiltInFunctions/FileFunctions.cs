@@ -387,9 +387,7 @@ public static class FileFunctions
     [GMLFunction("ini_open")]
     public static object? ini_open(object?[] args)
     {
-        // TODO: use LoadSave here
-
-        var name = args[0].Conv<string>();
+        var fname = args[0].Conv<string>();
 
         if (_iniFile != null)
         {
@@ -400,15 +398,16 @@ public static class FileFunctions
             ini_close(new object[0]);
         }
 
-        var filepath = Path.Combine(Entry.DataWinFolder, name);
+        var _name = "";
+        LoadSave.GetSaveFileName(ref _name, 2048, fname);
 
-        if (!File.Exists(filepath))
+        if (!File.Exists(_name))
         {
-            _iniFile = new IniFile { Name = name };
+            _iniFile = new IniFile { Name = _name };
             return null;
         }
 
-        var text = File.ReadAllText(filepath);
+        var text = File.ReadAllText(_name);
 
         // remove null bytes
         var i = 0;
@@ -420,7 +419,7 @@ public static class FileFunctions
         text = text[..i];
 
         _iniFile = IniFile.FromContent(text);
-        _iniFile.Name = name;
+        _iniFile.Name = _name;
 
         return null;
     }
