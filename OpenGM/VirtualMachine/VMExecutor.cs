@@ -604,6 +604,7 @@ public static partial class VMExecutor
             if (type == typeof(float)) return (float)d;
 
             if (type == typeof(int)) return (int)d;
+            if (type == typeof(uint)) return (uint)d;
             if (type == typeof(long)) return (long)d;
             if (type == typeof(short)) return (short)d;
             
