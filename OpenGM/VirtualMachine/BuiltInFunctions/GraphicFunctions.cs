@@ -1507,7 +1507,48 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // texture_preload
         // texture_set_priority
         // texture_global_scale
-        // texture_get_uvs
+
+        [GMLFunction("texture_get_uvs")]
+        public static object texture_get_uvs(object?[] args)
+        {
+            var retArr = new double[8];
+
+            var left = 0.0;
+            var top = 0.0;
+            var right = 1.0;
+            var bottom = 1.0;
+            var trimLeft = 0.0;
+            var trimTop = 0.0;
+            var percentWidth = 1.0;
+            var percentHeight = 1.0;
+
+            if (args[0] is SpritePageItem item)
+            {
+                var (pageTexture, id) = PageManager.TexturePages[item.Page];
+
+                left = (double)item.SourceX / pageTexture.Width;
+                top = (double)item.SourceY / pageTexture.Height;
+                var UVWidth = (double)item.SourceWidth / pageTexture.Width;
+                var UVHeight = (double)item.SourceHeight / pageTexture.Height;
+                right = left + UVWidth;
+                bottom = top + UVHeight;
+
+                trimLeft = item.TargetX;
+                trimTop = item.TargetY;
+                percentWidth = (double)item.SourceWidth / item.BoundingWidth;
+                percentHeight = (double)item.SourceHeight / item.BoundingHeight;
+            }
+
+            retArr[0] = left;
+            retArr[1] = top;
+            retArr[2] = right;
+            retArr[3] = bottom;
+            retArr[4] = trimLeft;
+            retArr[5] = trimTop;
+            retArr[6] = percentWidth;
+            retArr[7] = percentHeight;
+            return retArr.ToList();
+        }
 
         [GMLFunction("draw_get_font")]
         public static object draw_get_font(object?[] args)
