@@ -671,7 +671,13 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return highestIndex + 1;
         }
 
-        // ds_priority_destroy
+        [GMLFunction("ds_priority_destroy")]
+        public static object? ds_priority_destroy(object?[] args)
+        {
+            var id = args[0].Conv<int>();
+            _priorityDict.Remove(id);
+            return null;
+        }
 
         [GMLFunction("ds_priority_clear")]
         public static object? ds_priority_clear(object?[] args)
