@@ -96,8 +96,6 @@ public static class AudioManager
 
             LoadSoundAsync(asset, bytes);
         }
-        File.Delete("temp.wav");
-
         Console.WriteLine($" Done!");
     }
 
@@ -110,21 +108,28 @@ public static class AudioManager
             int freq;
             if (Path.GetExtension(asset.File) == ".wav")
             {
-                // write to the same file to get slightly more perf. need the extension so the reader knows what it is
-                // file sucks but is needed to have read that lets us use floats
-                File.WriteAllBytes("temp.wav", bytes);
-                
                 try
                 {
-                    using var audioFileReader = new AudioFileReader("temp.wav");
-                    data = new float[audioFileReader.Length * 8 / audioFileReader.WaveFormat.BitsPerSample]; // taken from owml
-                    var realLength = audioFileReader.Read(data, 0, data.Length);
-                    if (realLength != data.Length)
+                    var wavReader = new WaveFileReader(new MemoryStream(bytes));
+                    var sampleProvider = wavReader.ToSampleProvider();
+
+                    var samples = new List<float>();
+                    var buff = new float[4096];
+
+                    while (true)
                     {
-                        DebugLog.LogWarning($"{asset.File} length {realLength} != {data.Length}");
+                        var samplesRead = sampleProvider.Read(buff, 0, buff.Length);
+                        if (samplesRead == 0)
+                        {
+                            break;
+                        }
+
+                        samples.AddRange(buff.AsSpan(0, samplesRead));
                     }
-                    stereo = audioFileReader.WaveFormat.Channels == 2;
-                    freq = audioFileReader.WaveFormat.SampleRate;
+
+                    data = samples.ToArray();
+                    stereo = sampleProvider.WaveFormat.Channels == 2;
+                    freq = sampleProvider.WaveFormat.SampleRate;
                 }
                 catch (Exception e) // i think this is caused by ch1. not sure why
                 {
